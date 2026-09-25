@@ -5,13 +5,16 @@ export const rendererNames = ['three-ss', 'three-gpu-pathtracer'] as const;
 export type RendererName = (typeof rendererNames)[number];
 
 /** What is rendered: render settings applied to every scene (not scene settings). */
-export const passNames = ['beauty'] as const;
+export const passNames = ['beauty', 'direct'] as const;
 export type PassName = (typeof passNames)[number];
 
 export interface RendererOptions {
   width: number;
   height: number;
-  /** beauty: the full image, each renderer with its complete pipeline. */
+  /**
+   * beauty: the full image, each renderer with its complete pipeline.
+   * direct: first-hit lighting only (three-ss without SSGI/SSR, the pathtracer with a single scatter).
+   */
   pass: PassName;
 }
 

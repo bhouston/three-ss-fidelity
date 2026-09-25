@@ -6,7 +6,7 @@ export function isRendererName(value: string): value is RendererName {
 }
 
 /** Mirrors `passNames` of @ss-fidelity/renderers; results live in results/<scene>/<pass>/. */
-export const PASSES = ['beauty'] as const;
+export const PASSES = ['beauty', 'direct'] as const;
 export type PassName = (typeof PASSES)[number];
 
 export function isPassName(value: unknown): value is PassName {

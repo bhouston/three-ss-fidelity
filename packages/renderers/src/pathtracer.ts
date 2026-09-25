@@ -1,6 +1,5 @@
 // three-gpu-pathtracer: WebGLRenderer + WebGLPathTracer ground truth of the same scene objects.
 import {
-  BufferAttribute,
   Color,
   CubeCamera,
   HalfFloatType,
@@ -9,7 +8,6 @@ import {
   WebGLCubeRenderTarget,
   WebGLRenderer,
 } from 'three';
-import type { Mesh, Object3D } from 'three';
 import { FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
 import { WebGLPathTracer } from 'three-gpu-pathtracer';
 import type { SceneSetup } from '@ss-fidelity/scenes';
@@ -57,18 +55,6 @@ function createBlitMaterial(setup: SceneSetup): ShaderMaterial {
 // CubeToEquirectGenerator still includes it without using it.
 (ShaderChunk as Record<string, string>).cube_uv_reflection_fragment ??= '';
 
-// three-gpu-pathtracer's mergeGeometries drops RGB vertex colors when merging them with RGBA ones (the default it
-// gives meshes without colors; its itemSize 3→4 branch copies the wrong way), leaving them black: widen them to RGBA.
-export function widenVertexColors(scene: Object3D): void {
-  scene.traverse((object) => {
-    const color = (object as Mesh).geometry?.getAttribute('color');
-    if (!color || color.itemSize !== 3) return;
-    const rgba = new Float32Array(color.count * 4).fill(1);
-    for (let i = 0; i < color.count; i++) rgba.set([color.getX(i), color.getY(i), color.getZ(i)], i * 4);
-    (object as Mesh).geometry.setAttribute('color', new BufferAttribute(rgba, 4));
-  });
-}
-
 export async function createPathTracerRenderer(
   canvas: HTMLCanvasElement,
   setup: SceneSetup,
@@ -87,8 +73,6 @@ export async function createPathTracerRenderer(
     cubeCamera.update(renderer, setup.environment.scene);
     scene.environment = cubeTarget.texture;
   }
-
-  widenVertexColors(scene);
 
   // primary rays that miss must show the gradient composited in the blit: render them as black and transparent
   if (setup.gradientBackground) scene.background = new Color(0x000000);

@@ -117,3 +117,11 @@ pnpm cli list                                        # scene names
 - Matching lighting conventions (point light decay/intensity, emissive, environment from
   `RoomEnvironment` PMREM vs equirect, TSL background nodes) between renderers so deltas measure the
   screen-space approximation and not setup mismatches.
+
+## Validation of the three-ss pipeline
+
+The headless three-ss adapter was checked against `webgpu_postprocessing_ssgi.html` running in Chrome
+(WebGPU, 640×480, same camera, 200+ frames): Combined matches at 51 dB outside the lamp fixture (the
+lamp differs only because the scene sets `castShadow` on it, see above); GI-only 34 dB, AO-only 36 dB.
+So the ~15 dB PSNR of the `ssgi-*` scenes against the pathtracer is the SSGI approximation itself
+(weak bounce light and colour bleed in shadowed regions), not a harness artefact.

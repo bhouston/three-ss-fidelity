@@ -1,0 +1,44 @@
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { rendererNames } from '@ss-fidelity/renderers';
+import { listSceneNames } from '@ss-fidelity/scenes';
+import { defineCommand } from 'yargs-file-commands';
+import { resultsDir } from '../paths.js';
+import type { RenderJob } from '../render-process.js';
+import { selectNames } from '../select.js';
+
+const renderProcess = fileURLToPath(new URL('../render-process.js', import.meta.url));
+
+function run(job: RenderJob): Promise<number | null> {
+  return new Promise((resolve, reject) => {
+    spawn(process.execPath, [renderProcess, JSON.stringify(job)], { stdio: 'inherit' })
+      .on('error', reject)
+      .on('exit', resolve);
+  });
+}
+
+export const command = defineCommand({
+  command: 'render',
+  describe: 'Render scenes with renderers into results/<scene>/<renderer>.png',
+  builder: (yargs) =>
+    yargs
+      .option('scenes', { type: 'string', default: '*', describe: 'Scene name glob(s), comma separated' })
+      .option('renderers', { type: 'string', default: '*', describe: 'Renderer name glob(s), comma separated' })
+      .option('samples', { type: 'number', default: 1024, describe: 'three-gpu-pathtracer samples per pixel' })
+      .option('frames', { type: 'number', describe: 'three-ss frames (default: each scene’s effects.frames)' })
+      .option('output', { type: 'string', default: resultsDir, describe: 'Results directory' }),
+  handler: async (argv) => {
+    const scenes = selectNames(listSceneNames(), argv.scenes, 'scene');
+    const renderers = selectNames(rendererNames, argv.renderers, 'renderer') as RenderJob['renderer'][];
+    let failed = false;
+    // one child process per renderer: dawn and ANGLE don't share a process reliably
+    for (const renderer of renderers) {
+      const code = await run({ renderer, scenes, outDir: argv.output, frames: argv.frames, samples: argv.samples });
+      if (code !== 0) {
+        console.error(`${renderer} failed (exit code ${code})`);
+        failed = true;
+      }
+    }
+    if (failed) process.exitCode = 1;
+  },
+});

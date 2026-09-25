@@ -26,6 +26,7 @@ async function main(job: RenderJob): Promise<void> {
   const { getScene } = await import('@ss-fidelity/scenes');
   const { createNodeSceneContext } = await import('@ss-fidelity/scenes/node');
   const { renderPath } = await import('./paths.js');
+  const { RESULT_AVIF } = await import('./compare.js');
   const ctx = createNodeSceneContext();
 
   for (const name of job.scenes) {
@@ -53,7 +54,7 @@ async function main(job: RenderJob): Promise<void> {
     await mkdir(path.dirname(file), { recursive: true });
     await sharp(pixels, { raw: { width, height, channels: 4 } })
       .removeAlpha()
-      .png()
+      .avif(RESULT_AVIF)
       .toFile(file);
     renderer.dispose();
     console.log(

@@ -10,7 +10,7 @@ import { selectNames } from '../select.js';
 
 export const command = defineCommand({
   command: 'compare',
-  describe: 'Compare three-ss against three-gpu-pathtracer: writes results/<scene>/<pass>/delta.png and metrics.json',
+  describe: 'Compare three-ss against three-gpu-pathtracer: writes results/<scene>/<pass>/delta.avif and metrics.json',
   builder: (yargs) =>
     yargs
       .option('scenes', {
@@ -30,7 +30,7 @@ export const command = defineCommand({
           console.warn(`${scene} | ${pass}: skipped, missing ${missing.map((file) => path.basename(file)).join(', ')}`);
           continue;
         }
-        const { metrics, width, height, deltaPng } = await compareImages(reference, test);
+        const { metrics, width, height, deltaImage } = await compareImages(reference, test);
         const file: MetricsFile = {
           scene,
           pass,
@@ -42,7 +42,7 @@ export const command = defineCommand({
           generatedAt: new Date().toISOString(),
         };
         const dir = passDir(scene, pass);
-        await writeFile(path.join(dir, 'delta.png'), deltaPng);
+        await writeFile(path.join(dir, 'delta.avif'), deltaImage);
         await writeFile(path.join(dir, 'metrics.json'), `${JSON.stringify(file, null, 2)}\n`);
         console.log(`${scene} | ${pass}: PSNR ${metrics.psnr?.toFixed(2) ?? '∞'} dB, RMSE ${metrics.rmse.toFixed(4)}`);
       }

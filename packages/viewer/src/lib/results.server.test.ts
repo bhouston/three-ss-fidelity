@@ -10,11 +10,11 @@ describe('listScenes', () => {
 
   beforeAll(async () => {
     dir = await mkdtemp(path.join(tmpdir(), 'ss-fidelity-results-'));
-    await mkdir(path.join(dir, 'full'));
-    await writeFile(path.join(dir, 'full', 'three-ss.png'), 'png');
-    await writeFile(path.join(dir, 'full', 'metrics.json'), JSON.stringify({ scene: 'full', psnr: 31.5 }));
-    await mkdir(path.join(dir, 'broken'));
-    await writeFile(path.join(dir, 'broken', 'metrics.json'), '{not json');
+    await mkdir(path.join(dir, 'full', 'beauty'), { recursive: true });
+    await writeFile(path.join(dir, 'full', 'beauty', 'three-ss.png'), 'png');
+    await writeFile(path.join(dir, 'full', 'beauty', 'metrics.json'), JSON.stringify({ scene: 'full', psnr: 31.5 }));
+    await mkdir(path.join(dir, 'broken', 'beauty'), { recursive: true });
+    await writeFile(path.join(dir, 'broken', 'beauty', 'metrics.json'), '{not json');
     await mkdir(path.join(dir, '.hidden'));
     await writeFile(path.join(dir, 'stray.txt'), '');
   });
@@ -22,19 +22,19 @@ describe('listScenes', () => {
   afterAll(() => rm(dir, { recursive: true, force: true }));
 
   it('unions result dirs with the registry and tolerates missing / invalid files', async () => {
-    const scenes = await listScenes([{ name: 'full', description: 'd' }, { name: 'unrendered' }], dir);
+    const scenes = await listScenes([{ name: 'full', description: 'd' }, { name: 'unrendered' }], 'beauty', dir);
     const byName = Object.fromEntries(scenes.map((scene) => [scene.name, scene]));
     expect(Object.keys(byName).toSorted()).toEqual(['broken', 'full', 'unrendered']);
     expect(byName.full?.description).toBe('d');
     expect(byName.full?.metrics?.psnr).toBe(31.5);
-    expect(byName.full?.images.test).toMatch(/^\/api\/results\/full\/three-ss\.png\?v=\d+$/);
+    expect(byName.full?.images.test).toMatch(/^\/api\/results\/full\/beauty\/three-ss\.png\?v=\d+$/);
     expect(byName.full?.images.reference).toBeUndefined();
     expect(byName.broken?.metrics).toBeUndefined();
     expect(byName.unrendered?.images).toEqual({});
   });
 
   it('returns nothing for a missing results dir', async () => {
-    expect(await listScenes([], path.join(dir, 'nope'))).toEqual([]);
+    expect(await listScenes([], 'beauty', path.join(dir, 'nope'))).toEqual([]);
   });
 });
 

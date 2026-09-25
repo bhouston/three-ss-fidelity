@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { getScene, listSceneNames } from '@ss-fidelity/scenes';
-import type { SceneMetrics, SceneSummary } from '#/lib/scenes';
+import type { PassName, SceneMetrics, SceneSummary } from '#/lib/scenes';
 
 export const REFERENCE_FILE = 'three-gpu-pathtracer.png';
 export const TEST_FILE = 'three-ss.png';
@@ -49,17 +49,17 @@ async function readMetrics(file: string): Promise<SceneMetrics | undefined> {
 }
 
 /** `?v=<mtime>` busts caches when the CLI rewrites a result, so the image route can serve it immutable. */
-async function imageUrl(dir: string, name: string, file: string): Promise<string | undefined> {
-  const time = await mtime(path.join(dir, name, file));
-  return time === undefined ? undefined : `/api/results/${name}/${file}?v=${Math.round(time)}`;
+async function imageUrl(dir: string, name: string, pass: PassName, file: string): Promise<string | undefined> {
+  const time = await mtime(path.join(dir, name, pass, file));
+  return time === undefined ? undefined : `/api/results/${name}/${pass}/${file}?v=${Math.round(time)}`;
 }
 
-export async function readSceneResult(name: string, dir = resultsDir()): Promise<SceneSummary> {
+export async function readSceneResult(name: string, pass: PassName, dir = resultsDir()): Promise<SceneSummary> {
   const [reference, test, delta, metrics] = await Promise.all([
-    imageUrl(dir, name, REFERENCE_FILE),
-    imageUrl(dir, name, TEST_FILE),
-    imageUrl(dir, name, DELTA_FILE),
-    readMetrics(path.join(dir, name, METRICS_FILE)),
+    imageUrl(dir, name, pass, REFERENCE_FILE),
+    imageUrl(dir, name, pass, TEST_FILE),
+    imageUrl(dir, name, pass, DELTA_FILE),
+    readMetrics(path.join(dir, name, pass, METRICS_FILE)),
   ]);
   return { name, images: { reference, test, delta }, metrics };
 }
@@ -76,12 +76,16 @@ export async function listResultSceneNames(dir = resultsDir()): Promise<string[]
 /** Union of scenes with results and scenes known to the registry (which may not have been rendered yet). */
 export async function listScenes(
   registry: { name: string; description?: string }[] = [],
+  pass: PassName = 'beauty',
   dir = resultsDir(),
 ): Promise<SceneSummary[]> {
   const descriptions = new Map(registry.map((scene) => [scene.name, scene.description]));
   const names = new Set([...(await listResultSceneNames(dir)), ...descriptions.keys()]);
   return Promise.all(
-    [...names].map(async (name) => ({ ...(await readSceneResult(name, dir)), description: descriptions.get(name) })),
+    [...names].map(async (name) => ({
+      ...(await readSceneResult(name, pass, dir)),
+      description: descriptions.get(name),
+    })),
   );
 }
 

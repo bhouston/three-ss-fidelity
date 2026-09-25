@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { rendererNames } from '@ss-fidelity/renderers';
+import { passNames, rendererNames } from '@ss-fidelity/renderers';
 import { listSceneNames } from '@ss-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
 import { resultsDir } from '../paths.js';
@@ -19,21 +19,30 @@ function run(job: RenderJob): Promise<number | null> {
 
 export const command = defineCommand({
   command: 'render',
-  describe: 'Render scenes with renderers into results/<scene>/<renderer>.png',
+  describe: 'Render scenes with renderers into results/<scene>/<pass>/<renderer>.png',
   builder: (yargs) =>
     yargs
       .option('scenes', { type: 'string', default: '*', describe: 'Scene name glob(s), comma separated' })
+      .option('passes', { type: 'string', default: '*', describe: 'Pass name glob(s), comma separated' })
       .option('renderers', { type: 'string', default: '*', describe: 'Renderer name glob(s), comma separated' })
       .option('samples', { type: 'number', default: 1024, describe: 'three-gpu-pathtracer samples per pixel' })
       .option('frames', { type: 'number', describe: 'three-ss frames (default: each scene’s effects.frames)' })
       .option('output', { type: 'string', default: resultsDir, describe: 'Results directory' }),
   handler: async (argv) => {
     const scenes = selectNames(listSceneNames(), argv.scenes, 'scene');
+    const passes = selectNames(passNames, argv.passes, 'pass') as RenderJob['passes'];
     const renderers = selectNames(rendererNames, argv.renderers, 'renderer') as RenderJob['renderer'][];
     let failed = false;
     // one child process per renderer: dawn and ANGLE don't share a process reliably
     for (const renderer of renderers) {
-      const code = await run({ renderer, scenes, outDir: argv.output, frames: argv.frames, samples: argv.samples });
+      const code = await run({
+        renderer,
+        scenes,
+        passes,
+        outDir: argv.output,
+        frames: argv.frames,
+        samples: argv.samples,
+      });
       if (code !== 0) {
         console.error(`${renderer} failed (exit code ${code})`);
         failed = true;

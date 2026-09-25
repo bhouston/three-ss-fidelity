@@ -1,7 +1,7 @@
 import { Link, createFileRoute, notFound } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import Header, { buttonClassName } from '#/components/Header';
-import { RENDERERS, isRendererName } from '#/lib/scenes';
+import { RENDERERS, isRendererName, parsePass, passSearch, type PassName } from '#/lib/scenes';
 import { MAX_PATHTRACER_SAMPLES, startLiveRender } from '#/live/live-render';
 
 export const Route = createFileRoute('/live/$name/$renderer')({
@@ -12,12 +12,16 @@ export const Route = createFileRoute('/live/$name/$renderer')({
       return { name, renderer };
     },
   },
+  validateSearch: (search: Record<string, unknown>): { pass?: PassName } => ({
+    pass: passSearch(parsePass(search.pass)),
+  }),
   head: ({ params }) => ({ meta: [{ title: `${params.name} (${params.renderer}) – Screen-Space Fidelity` }] }),
   component: Live,
 });
 
 function Live() {
   const { name, renderer } = Route.useParams();
+  const pass = parsePass(Route.useSearch().pass);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [samples, setSamples] = useState(0);
   const [error, setError] = useState<string>();
@@ -29,7 +33,7 @@ function Live() {
     let live: { dispose(): void } | undefined;
     setSamples(0);
     setError(undefined);
-    startLiveRender({ canvas, sceneName: name, renderer, onFrame: setSamples }).then(
+    startLiveRender({ canvas, sceneName: name, renderer, pass, onFrame: setSamples }).then(
       (handle) => (disposed ? handle.dispose() : (live = handle)),
       (reason: unknown) => !disposed && setError(reason instanceof Error ? reason.message : String(reason)),
     );
@@ -37,7 +41,7 @@ function Live() {
       disposed = true;
       live?.dispose();
     };
-  }, [name, renderer]);
+  }, [name, renderer, pass]);
 
   return (
     <>
@@ -45,7 +49,7 @@ function Live() {
       <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-4 px-4 py-6 sm:px-6">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold">
-            {name} <span className="text-muted-foreground">· live</span>
+            {name} <span className="text-muted-foreground">· {pass} · live</span>
           </h1>
           <div className="ml-auto flex flex-wrap gap-2">
             {RENDERERS.map((other) => (
@@ -54,19 +58,20 @@ function Live() {
                 className={`${buttonClassName} ${other === renderer ? 'border-primary font-semibold' : ''}`}
                 key={other}
                 params={{ name, renderer: other }}
+                search={{ pass: passSearch(pass) }}
                 to="/live/$name/$renderer"
               >
                 {other}
               </Link>
             ))}
-            <Link className={buttonClassName} params={{ name }} to="/scenes/$name">
+            <Link className={buttonClassName} params={{ name }} search={{ pass: passSearch(pass) }} to="/scenes/$name">
               Back to results
             </Link>
           </div>
         </div>
         <div className="relative border border-border bg-black">
           {/* key: a fresh canvas per renderer, since a canvas can't switch between WebGPU and WebGL2 contexts. */}
-          <canvas className="block h-auto w-full touch-none" key={renderer} ref={canvasRef} />
+          <canvas className="block h-auto w-full touch-none" key={`${renderer}-${pass}`} ref={canvasRef} />
           <div className="absolute top-2 left-2 bg-black/60 px-2 py-1 font-mono text-xs text-white">
             {renderer} ·{' '}
             {renderer === 'three-gpu-pathtracer'

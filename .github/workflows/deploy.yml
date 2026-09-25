@@ -1,0 +1,17 @@
+name: Deploy ss-fidelity to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy ss-fidelity to Cloud Run
+    uses: ./.github/workflows/deploy-service.yml
+    with:
+      service_name: ss-fidelity
+      dockerfile: packages/viewer/Dockerfile
+      context: .
+    secrets:
+      GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}

@@ -5,16 +5,21 @@ import {
   builtinGIContext,
   builtinRadianceContext,
   color,
+  float,
   materialMetalness,
   materialRoughness,
   metalness,
+  mix,
   mrt,
   normalView,
   packNormalToRGB,
   pass,
+  perspectiveDepthToViewZ,
+  reference,
   roughness,
   sample,
   screenUV,
+  smoothstep,
   texture,
   unpackRGBToNormal,
   vec2,
@@ -43,6 +48,7 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup): RenderPipe
     builtinRadianceContext: builtinRadianceContext as AnyNode,
   };
   const ssgiExample = effects.antialias === 'traa';
+  const resolutionScale = effects.resolutionScale ?? 1;
 
   const renderPipeline = new RenderPipeline(renderer);
 
@@ -88,6 +94,7 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup): RenderPipe
     denoised.alphaSource = 'none';
     denoised.useTemporalFiltering = true;
     reprojected.setHistoryTexture(denoised);
+    reprojected.resolutionScale = denoised.resolutionScale = resolutionScale;
     return denoised.getTextureNode();
   };
 
@@ -98,6 +105,12 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup): RenderPipe
     giPass.stepCount.value = effects.ssgi.stepCount;
     giPass.giIntensity.value = effects.ssgi.giIntensity;
     giPass.useTemporalFiltering = temporal;
+    giPass.resolutionScale = resolutionScale;
+    const { radius, thickness, aoIntensity, useScreenSpaceSampling } = effects.ssgi;
+    if (radius !== undefined) giPass.radius.value = radius;
+    if (thickness !== undefined) giPass.thickness.value = thickness;
+    if (aoIntensity !== undefined) giPass.aoIntensity.value = aoIntensity;
+    if (useScreenSpaceSampling !== undefined) giPass.useScreenSpaceSampling.value = useScreenSpaceSampling;
   }
 
   let reflections: AnyNode = null;
@@ -118,6 +131,7 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup): RenderPipe
     if (params.thickness !== undefined) ssrPass.thickness.value = params.thickness;
     if (params.binaryRefine !== undefined) ssrPass.binaryRefine = params.binaryRefine;
     ssrPass.useTemporalFiltering = temporal; // without temporal accumulation the march jitter is kept fixed
+    ssrPass.resolutionScale = resolutionScale;
 
     if (temporal) {
       // reflections are reprojected with their hit points (specular mode)
@@ -144,6 +158,7 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup): RenderPipe
       ssrDenoised.adaptiveTrust.value = 1;
       ssrDenoised.useTemporalFiltering = true;
       ssrReprojected.setHistoryTexture(ssrDenoised);
+      ssrReprojected.resolutionScale = ssrDenoised.resolutionScale = resolutionScale;
       reflections = ssrDenoised.getTextureNode().sample(screenUV).rgb;
     } else {
       reflections = ssrPass.getTextureNode().sample(screenUV).rgb;
@@ -152,8 +167,18 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup): RenderPipe
 
   const radiance = reflections ? tsl.builtinRadianceContext(reflections) : null;
   if (giPass) {
-    const ao = (temporal ? temporalDenoise(giPass.getAONode()) : giPass.getAONode()).sample(screenUV).r;
-    const gi = (temporal ? temporalDenoise(giPass.getGINode()) : giPass.getGINode()).sample(screenUV).rgb;
+    let ao: AnyNode = (temporal ? temporalDenoise(giPass.getAONode()) : giPass.getAONode()).sample(screenUV).r;
+    let gi: AnyNode = (temporal ? temporalDenoise(giPass.getGINode()) : giPass.getGINode()).sample(screenUV).rgb;
+    const fadeRange = effects.ssgi?.fade;
+    if (fadeRange) {
+      // fade AO/GI out in the distance (webgpu_higharc_ao)
+      const near = reference('near', 'float', camera) as AnyNode;
+      const far = reference('far', 'float', camera) as AnyNode;
+      const viewDistance = perspectiveDepthToViewZ(prePassDepth.sample(screenUV).r, near, far).negate();
+      const fade = smoothstep(fadeRange.start, fadeRange.end, viewDistance);
+      ao = mix(ao, float(1), fade);
+      gi = gi.mul(fade.oneMinus());
+    }
     scenePass.contextNode = tsl.builtinGIContext(ao, gi, radiance);
   } else if (radiance) {
     scenePass.contextNode = radiance;

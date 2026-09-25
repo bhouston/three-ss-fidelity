@@ -22,8 +22,9 @@ results/<scene>/     three-ss.png, three-gpu-pathtracer.png, delta.png, metrics.
 
 - Scenes are built only from `three` core classes (shared `three.core.js`, so the same objects work in
   `WebGPURenderer` and in the pathtracer's `WebGLRenderer`).
-- Each scene has a unique kebab-case `name`, a `description`, output `width`/`height`, and an async
-  `create(ctx)` returning `{ scene, camera, effects }`. `ctx.loadGLTF(path)` resolves assets from
+- Each scene has a unique lower-case `name` (kebab-case, `_` allowed), a `description`, output `width`/`height`, and
+  an async `create(ctx)` returning `{ scene, camera, effects }`. `ctx.loadGLTF(path)` / `ctx.loadHDR(path)` resolve
+  assets from
   `submodules/three.js/examples/` (fetch in browser, fs in node).
 - `effects` declares what the three-ss pipeline enables and its parameters (ssgi, ssr, ao, traa/smaa,
   tone mapping, frame count to converge). The pathtracer ignores `effects` except tone mapping/exposure.
@@ -32,14 +33,15 @@ results/<scene>/     three-ss.png, three-gpu-pathtracer.png, delta.png, metrics.
 
 Initial scenes are every variation of the two examples:
 
-| name                               | source                                                             |
-| ---------------------------------- | ------------------------------------------------------------------ |
-| `ssgi-basic`                       | webgpu_postprocessing_ssgi, scene "basic" (Cornell box, two boxes) |
-| `ssgi-rounded`                     | scene "rounded" (cone + sphere)                                    |
-| `ssgi-metallic`                    | scene "metallic" (cone + mirror sphere)                            |
-| `ssgi-animated`                    | scene "animated" (Michelle.glb, frozen pose)                       |
-| `ssr-steampunk-camera`             | webgpu_postprocessing_ssr default (model roughness as authored)    |
-| `ssr-steampunk-camera-roughness-*` | the example's roughness slider at a few fixed values               |
+| name                               | source                                                                |
+| ---------------------------------- | --------------------------------------------------------------------- |
+| `ssgi-basic`                       | webgpu_postprocessing_ssgi, scene "basic" (Cornell box, two boxes)    |
+| `ssgi-rounded`                     | scene "rounded" (cone + sphere)                                       |
+| `ssgi-metallic`                    | scene "metallic" (cone + mirror sphere)                               |
+| `ssgi-animated`                    | scene "animated" (Michelle.glb, frozen pose)                          |
+| `ssr-steampunk-camera`             | webgpu_postprocessing_ssr default (model roughness as authored)       |
+| `ssr-steampunk-camera-roughness-*` | the example's roughness slider at a few fixed values                  |
+| `higharc_dogwood`                  | webgpu_higharc_ao defaults (Dogwood.glb, sun, HDR sky, SSGI at ½ res) |
 
 Debug outputs of the SSGI example (AO / GI / Direct / Reflections) are not scenes; they may later become
 per-pass comparisons (e.g. pathtracer with 1 bounce vs three-ss "Direct").
@@ -81,6 +83,20 @@ renderer cannot express. Everything else is the example verbatim.
   0.157 vs 0.184 linear; analytic Lambert 0.188). three-gpu-pathtracer uses a Disney-style diffuse weighted by
   (1 − dielectric Fresnel). This baseline bias is in every delta; a future per-pass "direct" comparison can calibrate
   it out.
+- **higharc_dogwood** (webgpu_higharc_ao at its defaults: SSGI on, SSR off, quality medium, radius 120", intensity
+  1 → `giIntensity` π²/2, resolution scale ½ for SSGI and its temporal chains, AO/GI distance fade, ACES): the
+  `blouberg_sunrise_2_1k.hdr` equirect is `scene.environment` and `scene.background` (both intensity 0.6) in both
+  renderers; the pathtracer samples it natively. Camera near/far are the values the example's `animate()` sets for the
+  initial orbit distance (not updated while orbiting in live views). The three-ss render matches the example in Chrome
+  at 49.6 dB. Known differences:
+  - The raster far plane (`distance + 4·span`) clips the 20·span ground plane, so the top ~30 rows show the HDR
+    horizon in three-ss (and the example) but ground in the pathtracer, which has no far clip. Kept as in the example;
+    it costs ~4.4 dB of the scene's PSNR (21.7 dB overall, 26.1 dB below row 32).
+  - Dogwood.glb uses RGB (`VEC3`) vertex colours; three-gpu-pathtracer's `mergeGeometries` copies them the wrong way
+    when merging with the RGBA default of uncoloured meshes, leaving them black. The pathtracer adapter widens RGB
+    colours to RGBA (alpha 1) first (`widenVertexColors`).
+  - Its meshes are `EXT_mesh_gpu_instancing` InstancedMeshes (count 1, identity matrix); the pathtracer ignores
+    `instanceMatrix`, which is harmless here.
 
 ## Headless rendering (CLI)
 

@@ -1,9 +1,11 @@
-import type { Color, PerspectiveCamera, Scene, ToneMapping, Vector3 } from 'three';
+import type { Color, DataTexture, PerspectiveCamera, Scene, ToneMapping, Vector3 } from 'three';
 import type { GLTF } from 'three/addons/loaders/GLTFLoader.js';
 
 /** Asset access for scene creation: paths are relative to `submodules/three.js/examples/`. */
 export interface SceneContext {
   loadGLTF(path: string): Promise<GLTF>;
+  /** Radiance .hdr as an equirect-mapped DataTexture (HDRLoader defaults). */
+  loadHDR(path: string): Promise<DataTexture>;
 }
 
 /** SSGI (screen-space GI + AO) parameters, as in webgpu_postprocessing_ssgi. */
@@ -11,6 +13,13 @@ export interface SSGIEffect {
   sliceCount: number;
   stepCount: number;
   giIntensity: number;
+  /** Unset values keep SSGINode defaults. */
+  radius?: number;
+  thickness?: number;
+  aoIntensity?: number;
+  useScreenSpaceSampling?: boolean;
+  /** AO/GI fade to none between these view distances (webgpu_higharc_ao's terrain/horizon fade). */
+  fade?: { start: number; end: number };
 }
 
 /** SSR parameters, as in webgpu_postprocessing_ssr / webgpu_postprocessing_ssgi. Unset values keep SSRNode defaults. */
@@ -31,6 +40,8 @@ export interface SceneEffects {
   antialias: 'traa' | 'smaa';
   /** Temporal reprojection + recurrent denoising of AO/GI/SSR, with animated noise (ssgi example "temporal"). */
   temporalDenoise: boolean;
+  /** SSGINode/SSRNode and temporal denoise chain resolutionScale (default 1). */
+  resolutionScale?: number;
   toneMapping: ToneMapping;
   toneMappingExposure: number;
   /** Frames the three-ss pipeline renders before the image is taken (TRAA/denoiser/multi-bounce convergence). */

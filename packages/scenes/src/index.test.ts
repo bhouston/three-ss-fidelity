@@ -3,10 +3,10 @@ import { getScene, listSceneNames } from './index.js';
 import { createNodeSceneContext } from './node.js';
 
 describe('scene registry', () => {
-  it('has unique kebab-case names', () => {
+  it('has unique kebab/snake-case names', () => {
     const names = listSceneNames();
     expect(new Set(names).size).toBe(names.length);
-    for (const name of names) expect(name).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+    for (const name of names) expect(name).toMatch(/^[a-z0-9]+([-_][a-z0-9]+)*$/);
   });
 
   it('throws on unknown scenes', () => {

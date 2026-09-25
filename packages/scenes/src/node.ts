@@ -10,6 +10,7 @@ import type { Texture } from 'three';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { GLTFParser } from 'three/addons/loaders/GLTFLoader.js';
+import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
 import type { SceneContext } from './types.js';
 
 /** `submodules/three.js/examples/`, found through the (single, workspace) `three` package. */
@@ -89,6 +90,11 @@ export function createNodeSceneContext(examplesDir = threeExamplesDir): SceneCon
     async loadGLTF(assetPath) {
       const file = path.join(examplesDir, assetPath);
       return loader.parseAsync(new Uint8Array(await readFile(file)).buffer, `${path.dirname(file)}/`);
+    },
+    async loadHDR(assetPath) {
+      return new HDRLoader().createDataTexture(
+        new Uint8Array(await readFile(path.join(examplesDir, assetPath))).buffer,
+      );
     },
   };
 }

@@ -61,6 +61,7 @@ async function createSteampunkCamera(ctx: SceneContext, roughness?: number): Pro
     camera,
     target,
     effects,
+    aoRadius: 0.25,
     gradientBackground: { center: new Color(0x888877), edge: new Color(0x776666) },
     environment: { scene: new RoomEnvironment(), sigma: 0.04 },
   };

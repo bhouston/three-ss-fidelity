@@ -1,5 +1,6 @@
 // three-ss: WebGPURenderer + RenderPipeline replicating examples/webgpu_postprocessing_ssgi.html (antialias 'traa')
 // and examples/webgpu_postprocessing_ssr.html (antialias 'smaa') of the three.js fork.
+import { LinearSRGBColorSpace, NoToneMapping } from 'three';
 import { PMREMGenerator, RenderPipeline, UnsignedByteType, WebGPURenderer } from 'three/webgpu';
 import {
   builtinGIContext,
@@ -23,6 +24,8 @@ import {
   texture,
   unpackRGBToNormal,
   vec2,
+  vec3,
+  vec4,
   velocity,
 } from 'three/tsl';
 import { recurrentDenoise } from 'three/addons/tsl/display/RecurrentDenoiseNode.js';
@@ -31,14 +34,49 @@ import { ssgi } from 'three/addons/tsl/display/SSGINode.js';
 import { ssr } from 'three/addons/tsl/display/SSRNode.js';
 import { previousFrameGeometry, temporalReproject } from 'three/addons/tsl/display/TemporalReprojectNode.js';
 import { traa } from 'three/addons/tsl/display/TRAANode.js';
-import type { SceneSetup } from '@ss-fidelity/scenes';
-import type { LiveRenderer, RendererOptions } from './types.js';
+import type { SceneEffects, SceneSetup } from '@ss-fidelity/scenes';
+import type { LiveRenderer, PassName, RendererOptions } from './types.js';
+
+/** SSGINode's AO frames: the temporal denoiser converges at ~64 (see PLAN.md). */
+const AO_FRAMES = 128;
+
+/** The three-ss pipeline settings of a pass. */
+export function passEffects(setup: SceneSetup, renderPass: PassName): SceneEffects {
+  const { effects } = setup;
+  switch (renderPass) {
+    case 'beauty':
+      return effects;
+    case 'direct':
+      // the ssgi example's "Direct" output: the scene pass without the GI/radiance contexts
+      return { ...effects, ssgi: undefined, ssr: undefined, temporalDenoise: false };
+    case 'ao':
+      // SSGINode's AO comparable to ray-traced AO: world-space radius, linear visibility (aoIntensity 1), no fade;
+      // slice/step counts and thickness stay the scene's (the ssgi example's defaults for scenes without SSGI)
+      return {
+        ...effects,
+        ssgi: {
+          sliceCount: effects.ssgi?.sliceCount ?? 2,
+          stepCount: effects.ssgi?.stepCount ?? 8,
+          giIntensity: 0,
+          radius: setup.aoRadius,
+          thickness: effects.ssgi?.thickness,
+          aoIntensity: 1,
+          useScreenSpaceSampling: false,
+        },
+        ssr: undefined,
+        temporalDenoise: true,
+        toneMapping: NoToneMapping,
+        toneMappingExposure: 1,
+        frames: Math.max(effects.frames, AO_FRAMES),
+      };
+  }
+}
 
 // The fork's TSL nodes are ahead of @types/three; the graph is built exactly as in the examples, so it is typed loosely.
 // oxlint-disable-next-line typescript/no-explicit-any
 type AnyNode = any;
 
-function createPipeline(renderer: WebGPURenderer, setup: SceneSetup): RenderPipeline {
+function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: boolean): RenderPipeline {
   const { scene, camera, effects } = setup;
   const tsl = {
     ssr: ssr as AnyNode,
@@ -179,6 +217,12 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup): RenderPipe
       ao = mix(ao, float(1), fade);
       gi = gi.mul(fade.oneMinus());
     }
+    if (aoOutput) {
+      // the ssgi example's "AO" output; background pixels (no SSGI sample) are unoccluded
+      const background = prePassDepth.sample(screenUV).r.greaterThanEqual(1);
+      renderPipeline.outputNode = vec4(vec3(background.select(float(1), ao)), 1);
+      return renderPipeline;
+    }
     scenePass.contextNode = tsl.builtinGIContext(ao, gi, radiance);
   } else if (radiance) {
     scenePass.contextNode = radiance;
@@ -193,14 +237,11 @@ export async function createThreeSSRenderer(
   sceneSetup: SceneSetup,
   { width, height, pass: renderPass }: RendererOptions,
 ): Promise<LiveRenderer> {
-  // direct: the ssgi example's "Direct" output, the scene pass without the GI/radiance contexts
-  const setup =
-    renderPass === 'direct'
-      ? { ...sceneSetup, effects: { ...sceneSetup.effects, ssgi: undefined, ssr: undefined, temporalDenoise: false } }
-      : sceneSetup;
+  const setup = { ...sceneSetup, effects: passEffects(sceneSetup, renderPass) };
   const { scene, camera, effects } = setup;
   const renderer = new WebGPURenderer({ canvas, antialias: false });
   renderer.shadowMap.enabled = true;
+  if (renderPass === 'ao') renderer.outputColorSpace = LinearSRGBColorSpace;
   renderer.toneMapping = effects.toneMapping;
   renderer.toneMappingExposure = effects.toneMappingExposure;
   await renderer.init();
@@ -215,7 +256,7 @@ export async function createThreeSSRenderer(
     pmremGenerator.dispose();
   }
 
-  const renderPipeline = createPipeline(renderer, setup);
+  const renderPipeline = createPipeline(renderer, setup, renderPass === 'ao');
   let frames = 0;
 
   const handle: LiveRenderer = {

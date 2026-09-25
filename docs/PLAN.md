@@ -50,10 +50,11 @@ Debug outputs of the SSGI example (AO / GI / Direct / Reflections) are not scene
 A pass is a render setting applied to every scene (`passNames` in `@ss-fidelity/renderers`, `RendererOptions.pass`),
 not a scene setting. Each scene × pass is compared separately in `results/<scene>/<pass>/`.
 
-| pass     | three-ss                            | three-gpu-pathtracer |
-| -------- | ----------------------------------- | -------------------- |
-| `beauty` | the full pipeline of `SceneEffects` | full path tracing    |
-| `direct` | no SSGI / SSR / temporal denoise    | single scatter       |
+| pass     | three-ss                            | three-gpu-pathtracer       |
+| -------- | ----------------------------------- | -------------------------- |
+| `beauty` | the full pipeline of `SceneEffects` | full path tracing          |
+| `direct` | no SSGI / SSR / temporal denoise    | single scatter             |
+| `ao`     | SSGINode AO output                  | `AmbientOcclusionMaterial` |
 
 **direct** is the SSGI example's "Direct" output against one-scatter path tracing: a calibration baseline that
 separates shading-model, shadow and environment-lighting differences from the SSGI/SSR approximation.
@@ -68,6 +69,25 @@ Point-light scenes match plain `bounces = 1` (50 dB, noise). Measured difference
 - The `ssgi-*` scenes (≈30 dB): raster shadow maps vs exact shadows, Lambert vs the pathtracer's diffuse, and the
   three-ss-only `AmbientLight`.
 - Emissive meshes light nothing in either renderer (the pathtracer does not sample them as lights).
+
+**ao** compares SSGINode's AO (the SSGI example's "AO" output) with three-gpu-pathtracer's `AmbientOcclusionMaterial`
+(cosine-weighted hemisphere rays against the scene BVH; a hit within the radius occludes, occluders are infinitely
+thick), rasterized over the baked scene geometry, 1024 rays per pixel. Settings (`passEffects`):
+
+- Radius: `SceneSetup.aoRadius` in world units (scene scale is scene data): 4 for the Cornell box, 0.25 for the
+  steampunk camera, 120" for higharc. SSGI samples in world space (`useScreenSpaceSampling: false`), `aoIntensity` 1
+  (linear visibility), no distance fade; slice/step counts, thickness and resolution scale stay the scene's (the ssgi
+  example's 2 slices / 8 steps for the SSR scenes), with temporal denoising and 128 frames.
+- Written linear, no tone mapping; background = 1 (unoccluded) on both sides. Pixel centres, no AA jitter.
+- Transparent objects are skipped by the three-ss pre-pass, so the pathtracer hides them from the occluders too.
+- AO ignores materials: `ssgi-rounded`/`ssgi-metallic` and the SSR roughness variants have identical results.
+
+Results: 18.0–18.6 dB (Cornell box), 19.4 dB (steampunk camera), 19.0 dB (higharc). Measured differences:
+
+- SSGI darkens open flat surfaces the pathtracer sees as unoccluded, depending on view angle: 0.85–0.93 on parts of the
+  Cornell walls and the steampunk floor (exactly 1.0 in the pathtracer), and across higharc's ground plane.
+- higharc runs SSGI and its denoiser at half resolution: its AO is much softer than the ray-traced reference.
+- Normal maps: the pathtracer AO uses geometric/vertex normals only.
 
 ## Fidelity decisions
 

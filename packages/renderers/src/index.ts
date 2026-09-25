@@ -5,7 +5,7 @@ import type { LiveRenderer, RendererName, RendererOptions } from './types.js';
 
 export * from './types.js';
 export { createPathTracerRenderer, PATHTRACER_BOUNCES } from './pathtracer.js';
-export { createThreeSSRenderer } from './three-ss.js';
+export { createThreeSSRenderer, passEffects } from './three-ss.js';
 
 export function createRenderer(
   name: RendererName,

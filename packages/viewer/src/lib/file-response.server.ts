@@ -2,6 +2,7 @@ import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 
 const CONTENT_TYPES: Record<string, string> = {
+  '.avif': 'image/avif',
   '.bin': 'application/octet-stream',
   '.exr': 'image/x-exr',
   '.glb': 'model/gltf-binary',

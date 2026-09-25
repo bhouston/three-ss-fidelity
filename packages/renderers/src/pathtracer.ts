@@ -2,14 +2,21 @@
 import {
   Color,
   CubeCamera,
+  FloatType,
   HalfFloatType,
+  LinearSRGBColorSpace,
+  Mesh,
+  MeshBasicMaterial,
+  Scene,
   ShaderChunk,
   ShaderMaterial,
   WebGLCubeRenderTarget,
+  WebGLRenderTarget,
   WebGLRenderer,
 } from 'three';
+import type { Material } from 'three';
 import { FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
-import { WebGLPathTracer } from 'three-gpu-pathtracer';
+import { AmbientOcclusionMaterial, PathTracingSceneGenerator, WebGLPathTracer } from 'three-gpu-pathtracer';
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import type { LiveRenderer, RendererOptions } from './types.js';
 
@@ -69,11 +76,90 @@ export function traceDirectOnly(material: { fragmentShader: string; needsUpdate:
   material.needsUpdate = true;
 }
 
+// ao: three-gpu-pathtracer's AmbientOcclusionMaterial (cosine-weighted hemisphere rays against the scene BVH; a ray
+// hitting within `radius` occludes) rasterized over the baked scene geometry, one ray per pixel per frame, averaged.
+// Pixel centres, no jitter, like three-ss's AO output.
+function createAORenderer(canvas: HTMLCanvasElement, setup: SceneSetup, width: number, height: number): LiveRenderer {
+  const { scene, camera } = setup;
+  const renderer = new WebGLRenderer({ canvas, antialias: false, preserveDrawingBuffer: true });
+  renderer.outputColorSpace = LinearSRGBColorSpace;
+  renderer.setClearColor(0xffffff, 1); // background: unoccluded
+
+  // three-ss's pre-pass (the AO depth/normals) skips transparent objects, so they don't occlude here either
+  scene.traverse((object) => {
+    const material = (object as Mesh).material as Material | Material[] | undefined;
+    if ([material ?? []].flat().some((m) => m.transparent)) object.visible = false;
+  });
+  scene.updateMatrixWorld(true);
+  const { bvh, geometry } = new PathTracingSceneGenerator(scene).generate();
+
+  const aoMaterial = new AmbientOcclusionMaterial({ radius: setup.aoRadius });
+  // oxlint-disable-next-line typescript/no-explicit-any -- MaterialBase uniform accessors are untyped
+  const ao = aoMaterial as any;
+  ao.bvh.updateFrom(bvh);
+  ao.setDefine('SAMPLES', 1);
+  const aoScene = new Scene().add(new Mesh(geometry, aoMaterial));
+
+  const sampleTarget = new WebGLRenderTarget(width, height, { type: FloatType });
+  const accumTarget = new WebGLRenderTarget(width, height, { type: FloatType, depthBuffer: false });
+  const blend = new FullScreenQuad(new MeshBasicMaterial({ transparent: true }));
+  const blendMaterial = blend.material as MeshBasicMaterial;
+  let frames = 0;
+
+  const handle: LiveRenderer = {
+    name: 'three-gpu-pathtracer',
+    renderer,
+    get frames() {
+      return frames;
+    },
+    render() {
+      ao.seed++;
+      renderer.setRenderTarget(sampleTarget);
+      renderer.render(aoScene, camera);
+      // running mean: blend each sample in with weight 1 / n
+      frames++;
+      renderer.setRenderTarget(accumTarget);
+      renderer.autoClear = false;
+      blendMaterial.map = sampleTarget.texture;
+      blendMaterial.opacity = 1 / frames;
+      blend.render(renderer);
+      renderer.autoClear = true;
+      renderer.setRenderTarget(null);
+      blendMaterial.map = accumTarget.texture;
+      blendMaterial.opacity = 1;
+      blend.render(renderer);
+    },
+    setSize(w, h) {
+      renderer.setSize(w, h, false);
+      sampleTarget.setSize(w, h);
+      accumTarget.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      frames = 0;
+    },
+    setCamera(newCamera) {
+      if (newCamera !== camera) camera.copy(newCamera);
+      frames = 0;
+    },
+    dispose() {
+      blend.dispose();
+      blendMaterial.dispose();
+      aoMaterial.dispose();
+      sampleTarget.dispose();
+      accumTarget.dispose();
+      renderer.dispose();
+    },
+  };
+  handle.setSize(width, height);
+  return handle;
+}
+
 export async function createPathTracerRenderer(
   canvas: HTMLCanvasElement,
   setup: SceneSetup,
   { width, height, pass }: RendererOptions,
 ): Promise<LiveRenderer> {
+  if (pass === 'ao') return createAORenderer(canvas, setup, width, height);
   const { scene, camera, effects } = setup;
   const renderer = new WebGLRenderer({ canvas, antialias: false, preserveDrawingBuffer: true });
   renderer.toneMapping = effects.toneMapping;

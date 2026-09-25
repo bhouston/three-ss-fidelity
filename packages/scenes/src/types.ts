@@ -67,6 +67,8 @@ export interface SceneSetup {
   /** Point the camera looks at (the example's OrbitControls target), for orbiting in live views. */
   target: Vector3;
   effects: SceneEffects;
+  /** World-space ambient occlusion radius of the `ao` pass (scene scale is scene data). */
+  aoRadius: number;
   /** Replaces scene.background when set (scene.background must then be null). */
   gradientBackground?: GradientBackground;
   /** Lighting environment; intensity is scene.environmentIntensity. */

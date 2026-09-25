@@ -92,11 +92,10 @@ renderer cannot express. Everything else is the example verbatim.
   - The raster far plane (`distance + 4·span`) clips the 20·span ground plane, so the top ~30 rows show the HDR
     horizon in three-ss (and the example) but ground in the pathtracer, which has no far clip. Kept as in the example;
     it costs ~4.4 dB of the scene's PSNR (21.7 dB overall, 26.1 dB below row 32).
-  - Dogwood.glb uses RGB (`VEC3`) vertex colours; three-gpu-pathtracer's `mergeGeometries` copies them the wrong way
-    when merging with the RGBA default of uncoloured meshes, leaving them black. The pathtracer adapter widens RGB
-    colours to RGBA (alpha 1) first (`widenVertexColors`).
-  - Its meshes are `EXT_mesh_gpu_instancing` InstancedMeshes (count 1, identity matrix); the pathtracer ignores
-    `instanceMatrix`, which is harmless here.
+  - Dogwood.glb uses RGB (`VEC3`) vertex colours and `EXT_mesh_gpu_instancing` InstancedMeshes. Upstream
+    three-gpu-pathtracer renders the former black and ignores `instanceMatrix`; the submodule therefore tracks
+    `bhouston/three-gpu-pathtracer@ss-fidelity`, which merges the fixes proposed upstream in
+    gkjohnson/three-gpu-pathtracer#858 (vertex colour merge) and #859 (InstancedMesh).
 
 ## Headless rendering (CLI)
 

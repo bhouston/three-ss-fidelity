@@ -3,11 +3,12 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
-import type { RendererName } from '@ss-fidelity/renderers';
+import type { PassName, RendererName } from '@ss-fidelity/renderers';
 
 export interface RenderJob {
   renderer: RendererName;
   scenes: string[];
+  passes: PassName[];
   outDir: string;
   /** three-ss frames; defaults to each scene's effects.frames. */
   frames?: number;
@@ -28,11 +29,17 @@ async function main(job: RenderJob): Promise<void> {
   const ctx = createNodeSceneContext();
 
   for (const name of job.scenes) {
+    for (const pass of job.passes) {
+      await render(name, pass);
+    }
+  }
+
+  async function render(name: string, pass: PassName): Promise<void> {
     const { width, height, create } = getScene(name);
     const start = performance.now();
     const setup = await create(ctx);
     const canvas = headless.createCanvas(width, height);
-    const renderer = await createRenderer(job.renderer, canvas, setup, { width, height });
+    const renderer = await createRenderer(job.renderer, canvas, setup, { width, height, pass });
     await headless.ready();
     const target = job.renderer === 'three-ss' ? (job.frames ?? setup.effects.frames) : job.samples;
     const renderStart = performance.now();
@@ -42,7 +49,7 @@ async function main(job: RenderJob): Promise<void> {
     }
     const pixels = await headless.readPixels(canvas);
     const renderMs = performance.now() - renderStart;
-    const file = renderPath(name, job.renderer, job.outDir);
+    const file = renderPath(name, pass, job.renderer, job.outDir);
     await mkdir(path.dirname(file), { recursive: true });
     await sharp(pixels, { raw: { width, height, channels: 4 } })
       .removeAlpha()
@@ -50,7 +57,7 @@ async function main(job: RenderJob): Promise<void> {
       .toFile(file);
     renderer.dispose();
     console.log(
-      `${name} | ${job.renderer}: ${target} ${job.renderer === 'three-ss' ? 'frames' : 'samples'} in ${seconds(renderMs)} (setup ${seconds(renderStart - start)}) -> ${path.relative(process.cwd(), file)}`,
+      `${name} | ${pass} | ${job.renderer}: ${target} ${job.renderer === 'three-ss' ? 'frames' : 'samples'} in ${seconds(renderMs)} (setup ${seconds(renderStart - start)}) -> ${path.relative(process.cwd(), file)}`,
     );
   }
 }

@@ -6,25 +6,33 @@ import Header, { buttonClassName } from '#/components/Header';
 import { ResultImage } from '#/components/ResultImage';
 import { listScenes, sceneRegistry } from '#/lib/results.server';
 import {
+  PASSES,
   RENDERERS,
   SORT_OPTIONS,
   filterScenes,
   formatMetric,
+  parsePass,
   parseSort,
+  passSearch,
   psnrClassName,
   sortScenes,
+  type PassName,
   type SceneSummary,
   type SortValue,
 } from '#/lib/scenes';
 
-const getScenes = createServerFn({ method: 'GET' }).handler(() => listScenes(sceneRegistry()));
+const getScenes = createServerFn({ method: 'GET' })
+  .validator((pass: unknown) => parsePass(pass))
+  .handler(({ data: pass }) => listScenes(sceneRegistry(), pass));
 
 export const Route = createFileRoute('/')({
-  validateSearch: (search: Record<string, unknown>): { filter?: string; sort?: SortValue } => ({
+  validateSearch: (search: Record<string, unknown>): { filter?: string; sort?: SortValue; pass?: PassName } => ({
     filter: typeof search.filter === 'string' && search.filter.trim() ? search.filter : undefined,
     sort: parseSort(search.sort) === 'name' ? undefined : parseSort(search.sort),
+    pass: passSearch(parsePass(search.pass)),
   }),
-  loader: () => getScenes(),
+  loaderDeps: ({ search }) => ({ pass: parsePass(search.pass) }),
+  loader: ({ deps }) => getScenes({ data: deps.pass }),
   component: Index,
 });
 
@@ -34,6 +42,7 @@ function Index() {
   const navigate = useNavigate({ from: Route.fullPath });
   const [filterInput, setFilterInput] = useState(search.filter ?? '');
   const sort = parseSort(search.sort);
+  const pass = parsePass(search.pass);
   const shown = sortScenes(filterScenes(scenes, search.filter ?? ''), sort);
 
   useEffect(() => {
@@ -79,6 +88,24 @@ function Index() {
             ))}
           </select>
         </div>
+        <select
+          aria-label="Pass"
+          className="h-9 shrink-0 rounded-none border border-border bg-muted/40 px-2 text-sm text-foreground shadow-xs outline-none transition-colors hover:border-primary/40 hover:bg-muted/60 focus:border-primary"
+          onChange={(event) =>
+            void navigate({
+              replace: true,
+              search: (prev) => ({ ...prev, pass: passSearch(parsePass(event.target.value)) }),
+            })
+          }
+          title="Pass"
+          value={pass}
+        >
+          {PASSES.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
         <span className="shrink-0 text-sm text-muted-foreground">
           {shown.length}/{scenes.length}
         </span>
@@ -91,7 +118,7 @@ function Index() {
         </p>
         <section>
           {shown.length > 0 ? (
-            shown.map((scene) => <SceneRow key={scene.name} scene={scene} />)
+            shown.map((scene) => <SceneRow key={scene.name} pass={pass} scene={scene} />)
           ) : (
             <div className="rounded-lg border border-border bg-muted/20 px-4 py-8 text-center text-sm text-muted-foreground">
               {scenes.length === 0
@@ -105,7 +132,8 @@ function Index() {
   );
 }
 
-function SceneRow({ scene }: { scene: SceneSummary }) {
+function SceneRow({ scene, pass }: { scene: SceneSummary; pass: PassName }) {
+  const search = { pass: passSearch(pass) };
   const { metrics, images } = scene;
   const cells = [
     { label: 'three-gpu-pathtracer (reference)', src: images.reference },
@@ -116,13 +144,13 @@ function SceneRow({ scene }: { scene: SceneSummary }) {
     <article className="border-b border-border py-4 last:border-b-0">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <h3 className="text-base font-semibold text-foreground">
-          <Link params={{ name: scene.name }} to="/scenes/$name">
+          <Link params={{ name: scene.name }} search={search} to="/scenes/$name">
             {scene.name}
           </Link>
         </h3>
         {scene.description ? <p className="text-sm text-muted-foreground">{scene.description}</p> : null}
         <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-          <Link className={buttonClassName} params={{ name: scene.name }} to="/scenes/$name">
+          <Link className={buttonClassName} params={{ name: scene.name }} search={search} to="/scenes/$name">
             Details
           </Link>
           {RENDERERS.map((renderer) => (
@@ -130,6 +158,7 @@ function SceneRow({ scene }: { scene: SceneSummary }) {
               className={buttonClassName}
               key={renderer}
               params={{ name: scene.name, renderer }}
+              search={search}
               to="/live/$name/$renderer"
             >
               <ExternalLink aria-hidden="true" className="size-3.5" /> Live {renderer}
@@ -138,7 +167,12 @@ function SceneRow({ scene }: { scene: SceneSummary }) {
         </div>
       </div>
       <div className="mt-3 flex flex-wrap items-start gap-3">
-        <Link className="grid flex-1 grid-cols-3 gap-px" params={{ name: scene.name }} to="/scenes/$name">
+        <Link
+          className="grid flex-1 grid-cols-3 gap-px"
+          params={{ name: scene.name }}
+          search={search}
+          to="/scenes/$name"
+        >
           {cells.map((cell) => (
             <figure className="flex min-w-0 flex-col gap-1" key={cell.label}>
               <ResultImage alt={`${scene.name}: ${cell.label}`} src={cell.src} />

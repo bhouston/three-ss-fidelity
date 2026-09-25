@@ -5,13 +5,13 @@ import { useState } from 'react';
 import Header, { buttonClassName } from '#/components/Header';
 import { ResultImage } from '#/components/ResultImage';
 import { isSceneName, readSceneResult, sceneRegistry } from '#/lib/results.server';
-import { RENDERERS, formatMetric, psnrClassName } from '#/lib/scenes';
+import { PASSES, RENDERERS, formatMetric, parsePass, passSearch, psnrClassName, type PassName } from '#/lib/scenes';
 
 const getScene = createServerFn({ method: 'GET' })
-  .validator((name: string) => name)
-  .handler(async ({ data: name }) => {
+  .validator((data: { name: string; pass: unknown }) => ({ name: data.name, pass: parsePass(data.pass) }))
+  .handler(async ({ data: { name, pass } }) => {
     const registered = sceneRegistry().find((scene) => scene.name === name);
-    const result = isSceneName(name) ? await readSceneResult(name) : undefined;
+    const result = isSceneName(name) ? await readSceneResult(name, pass) : undefined;
     if (!result || (!registered && !result.metrics && !Object.values(result.images).some(Boolean))) {
       throw notFound();
     }
@@ -19,7 +19,11 @@ const getScene = createServerFn({ method: 'GET' })
   });
 
 export const Route = createFileRoute('/scenes/$name')({
-  loader: ({ params }) => getScene({ data: params.name }),
+  validateSearch: (search: Record<string, unknown>): { pass?: PassName } => ({
+    pass: passSearch(parsePass(search.pass)),
+  }),
+  loaderDeps: ({ search }) => ({ pass: parsePass(search.pass) }),
+  loader: ({ params, deps }) => getScene({ data: { name: params.name, pass: deps.pass } }),
   head: ({ params }) => ({ meta: [{ title: `${params.name} – Screen-Space Fidelity` }] }),
   component: SceneDetail,
 });
@@ -27,6 +31,7 @@ export const Route = createFileRoute('/scenes/$name')({
 function SceneDetail() {
   const scene = Route.useLoaderData();
   const { metrics, images } = scene;
+  const pass = parsePass(Route.useSearch().pass);
   const [split, setSplit] = useState(50);
 
   return (
@@ -39,7 +44,19 @@ function SceneDetail() {
             {scene.description ? <p className="text-sm text-muted-foreground">{scene.description}</p> : null}
           </div>
           <div className="ml-auto flex flex-wrap gap-2">
-            <Link className={buttonClassName} to="/">
+            {PASSES.map((other) => (
+              <Link
+                aria-current={other === pass ? 'page' : undefined}
+                className={`${buttonClassName} ${other === pass ? 'border-primary font-semibold' : ''}`}
+                key={other}
+                params={{ name: scene.name }}
+                search={{ pass: passSearch(other) }}
+                to="/scenes/$name"
+              >
+                {other}
+              </Link>
+            ))}
+            <Link className={buttonClassName} search={{ pass: passSearch(pass) }} to="/">
               All scenes
             </Link>
             {RENDERERS.map((renderer) => (
@@ -47,6 +64,7 @@ function SceneDetail() {
                 className={buttonClassName}
                 key={renderer}
                 params={{ name: scene.name, renderer }}
+                search={{ pass: passSearch(pass) }}
                 to="/live/$name/$renderer"
               >
                 <ExternalLink aria-hidden="true" className="size-3.5" /> Live {renderer}

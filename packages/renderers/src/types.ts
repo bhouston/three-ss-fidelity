@@ -4,9 +4,15 @@ import type { WebGPURenderer } from 'three/webgpu';
 export const rendererNames = ['three-ss', 'three-gpu-pathtracer'] as const;
 export type RendererName = (typeof rendererNames)[number];
 
+/** What is rendered: render settings applied to every scene (not scene settings). */
+export const passNames = ['beauty'] as const;
+export type PassName = (typeof passNames)[number];
+
 export interface RendererOptions {
   width: number;
   height: number;
+  /** beauty: the full image, each renderer with its complete pipeline. */
+  pass: PassName;
 }
 
 /** Incremental renderer over one scene: call render() once per animation frame (browser) or in a loop (node). */

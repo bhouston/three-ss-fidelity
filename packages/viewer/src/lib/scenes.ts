@@ -5,8 +5,26 @@ export function isRendererName(value: string): value is RendererName {
   return (RENDERERS as readonly string[]).includes(value);
 }
 
+/** Mirrors `passNames` of @ss-fidelity/renderers; results live in results/<scene>/<pass>/. */
+export const PASSES = ['beauty'] as const;
+export type PassName = (typeof PASSES)[number];
+
+export function isPassName(value: unknown): value is PassName {
+  return (PASSES as readonly unknown[]).includes(value);
+}
+
+export function parsePass(value: unknown): PassName {
+  return isPassName(value) ? value : 'beauty';
+}
+
+/** The `pass` search param: omitted from URLs for the default (beauty). */
+export function passSearch(pass: PassName): PassName | undefined {
+  return pass === 'beauty' ? undefined : pass;
+}
+
 export interface SceneMetrics {
   scene: string;
+  pass?: string;
   reference: string;
   test: string;
   width: number;

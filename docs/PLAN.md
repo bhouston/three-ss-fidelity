@@ -15,7 +15,7 @@ packages/renderers   @ss-fidelity/renderers  three-ss (WebGPURenderer + SSGI/SSR
 packages/cli         @ss-fidelity/cli        yargs + yargs-file-commands + clidoc; headless GPU (dawn `webgpu`,
                                              `@onirenaud/node-webgl` ANGLE), render + compare (sharp)
 packages/viewer      @ss-fidelity/viewer     TanStack Start + Router: results listing, scene detail, live views
-results/<scene>/     three-ss.png, three-gpu-pathtracer.png, delta.png, metrics.json (committed)
+results/<scene>/<pass>/  three-ss.png, three-gpu-pathtracer.png, delta.png, metrics.json (committed)
 ```
 
 ## Scene contract (`@ss-fidelity/scenes`)
@@ -43,8 +43,16 @@ Initial scenes are every variation of the two examples:
 | `ssr-steampunk-camera-roughness-*` | the example's roughness slider at a few fixed values                  |
 | `higharc_dogwood`                  | webgpu_higharc_ao defaults (Dogwood.glb, sun, HDR sky, SSGI at ½ res) |
 
-Debug outputs of the SSGI example (AO / GI / Direct / Reflections) are not scenes; they may later become
-per-pass comparisons (e.g. pathtracer with 1 bounce vs three-ss "Direct").
+Debug outputs of the SSGI example (AO / GI / Direct / Reflections) are not scenes but render passes.
+
+## Render passes
+
+A pass is a render setting applied to every scene (`passNames` in `@ss-fidelity/renderers`, `RendererOptions.pass`),
+not a scene setting. Each scene × pass is compared separately in `results/<scene>/<pass>/`.
+
+| pass     | three-ss                            | three-gpu-pathtracer |
+| -------- | ----------------------------------- | -------------------- |
+| `beauty` | the full pipeline of `SceneEffects` | full path tracing    |
 
 ## Fidelity decisions
 
@@ -113,15 +121,16 @@ renderer cannot express. Everything else is the example verbatim.
 ## CLI
 
 ```
-pnpm cli render  --scenes 'ssgi-*' --renderers '*' [--samples 1024] [--frames N]   # results/<scene>/<renderer>.png
-pnpm cli compare --scenes '*'                        # writes delta.png + metrics.json (PSNR, RMSE, MAE)
+pnpm cli render  --scenes 'ssgi-*' --passes '*' --renderers '*' [--samples 1024] [--frames N]
+                                                     # results/<scene>/<pass>/<renderer>.png
+pnpm cli compare --scenes '*' --passes '*'           # writes delta.png + metrics.json (PSNR, RMSE, MAE)
 pnpm cli list                                        # scene names
 ```
 
 ## Viewer
 
-- `/` grid of scenes: thumbnails of both renders + delta, PSNR, sortable.
-- `/scenes/$name` side-by-side / delta, metrics.
+- `/` grid of scenes for one pass (`?pass=`): thumbnails of both renders + delta, PSNR, sortable.
+- `/scenes/$name` side-by-side / delta, metrics, one tab per pass.
 - `/live/$name/$renderer` renders the scene interactively in the browser (orbit controls) with
   `three-ss` or `three-gpu-pathtracer` (progressive).
 

@@ -16,6 +16,7 @@ export interface ImageMetrics {
 
 export interface MetricsFile extends ImageMetrics {
   scene: string;
+  pass: string;
   reference: 'three-gpu-pathtracer';
   test: 'three-ss';
   width: number;

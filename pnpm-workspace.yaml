@@ -1,10 +1,16 @@
 packages:
   - packages/*
+  - submodules/three.js
 
 allowBuilds:
   esbuild: true
   sharp: true
   webgpu: true
   '@onirenaud/node-webgl': true
+  puppeteer: false
 
 link-workspace-packages: false
+
+# one copy of three everywhere (three-mesh-bvh, three-gpu-pathtracer, scenes, renderers): the fork in the submodule
+overrides:
+  three: 'workspace:*'

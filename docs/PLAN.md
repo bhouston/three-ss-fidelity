@@ -68,7 +68,7 @@ Point-light scenes match plain `bounces = 1` (50 dB, noise). Measured difference
   (15–17 dB) and higharc (19.6 dB); it is what AO addresses in `beauty`.
 - The `ssgi-*` scenes (≈30 dB): raster shadow maps vs exact shadows, Lambert vs the pathtracer's diffuse, and the
   three-ss-only `AmbientLight`.
-- Emissive meshes light nothing in either renderer (the pathtracer does not sample them as lights).
+- In `direct`, emissive meshes are visible but do not illuminate other surfaces: rasterization does not gather them, and the direct-only path-tracer patch stops before secondary-surface emission. In `beauty`, SSGI gathers their visible radiance and the path tracer collects emission on BSDF-sampled surface hits (without sampling mesh emitters as explicit lights). See [the GI investigation](GI-INVESTIGATION.md).
 
 **ao** compares SSGINode's AO (the SSGI example's "AO" output) with three-gpu-pathtracer's `AmbientOcclusionMaterial`
 (cosine-weighted hemisphere rays against the scene BVH; a hit within the radius occludes, occluders are infinitely

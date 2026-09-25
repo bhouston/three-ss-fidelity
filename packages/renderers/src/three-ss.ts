@@ -190,9 +190,14 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup): RenderPipe
 
 export async function createThreeSSRenderer(
   canvas: HTMLCanvasElement,
-  setup: SceneSetup,
-  { width, height }: RendererOptions,
+  sceneSetup: SceneSetup,
+  { width, height, pass: renderPass }: RendererOptions,
 ): Promise<LiveRenderer> {
+  // direct: the ssgi example's "Direct" output, the scene pass without the GI/radiance contexts
+  const setup =
+    renderPass === 'direct'
+      ? { ...sceneSetup, effects: { ...sceneSetup.effects, ssgi: undefined, ssr: undefined, temporalDenoise: false } }
+      : sceneSetup;
   const { scene, camera, effects } = setup;
   const renderer = new WebGPURenderer({ canvas, antialias: false });
   renderer.shadowMap.enabled = true;

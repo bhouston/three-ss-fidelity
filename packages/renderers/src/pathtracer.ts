@@ -55,10 +55,24 @@ function createBlitMaterial(setup: SceneSetup): ShaderMaterial {
 // CubeToEquirectGenerator still includes it without using it.
 (ShaderChunk as Record<string, string>).cube_uv_reflection_fragment ??= '';
 
+// With one bounce, MIS-weighted environment / area light misses its BSDF-sampled half (the next ray is never traced).
+// Direct lighting is therefore two bounces where the second ray only collects environment misses and light hits:
+// it stops at any surface, before that surface's emission and light sampling.
+const SECOND_HIT_ANCHOR = 'if ( hitType == NO_HIT ) {';
+const STOP_AT_SECOND_HIT = 'if ( hitType == SURFACE_HIT && ! state.firstRay && ! state.transmissiveRay ) break;';
+
+/** Patches a PhysicalPathTracingMaterial to trace direct lighting only (use with 2 bounces). */
+export function traceDirectOnly(material: { fragmentShader: string; needsUpdate: boolean }): void {
+  const parts = material.fragmentShader.split(SECOND_HIT_ANCHOR);
+  if (parts.length !== 2) throw new Error('three-gpu-pathtracer shader changed: cannot patch direct-only tracing');
+  material.fragmentShader = parts.join(`${STOP_AT_SECOND_HIT}\n${SECOND_HIT_ANCHOR}`);
+  material.needsUpdate = true;
+}
+
 export async function createPathTracerRenderer(
   canvas: HTMLCanvasElement,
   setup: SceneSetup,
-  { width, height }: RendererOptions,
+  { width, height, pass }: RendererOptions,
 ): Promise<LiveRenderer> {
   const { scene, camera, effects } = setup;
   const renderer = new WebGLRenderer({ canvas, antialias: false, preserveDrawingBuffer: true });
@@ -84,7 +98,9 @@ export async function createPathTracerRenderer(
   pathTracer.rasterizeScene = false;
   pathTracer.dynamicLowRes = false;
   pathTracer.tiles.set(1, 1); // one renderSample() is one full-frame sample
-  pathTracer.bounces = PATHTRACER_BOUNCES;
+  pathTracer.bounces = pass === 'direct' ? 2 : PATHTRACER_BOUNCES;
+  // oxlint-disable-next-line typescript/no-explicit-any -- internal PathTracingRenderer material
+  if (pass === 'direct') traceDirectOnly((pathTracer as any)._pathTracer.material);
   pathTracer.filterGlossyFactor = 0; // unbiased
 
   const blit = new FullScreenQuad(createBlitMaterial(setup));

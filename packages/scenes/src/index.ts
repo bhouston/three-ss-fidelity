@@ -1,5 +1,7 @@
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
+import { higharcScenes } from './higharc.js';
 import { ssgiScenes } from './ssgi.js';
 import { ssrScenes } from './ssr.js';
 import type { SceneContext, SceneDefinition } from './types.js';
@@ -7,7 +9,9 @@ import type { SceneContext, SceneDefinition } from './types.js';
 export type * from './types.js';
 export { ANIMATED_POSE_TIME } from './ssgi.js';
 
-const scenes = new Map<string, SceneDefinition>([...ssgiScenes, ...ssrScenes].map((scene) => [scene.name, scene]));
+const scenes = new Map<string, SceneDefinition>(
+  [...ssgiScenes, ...ssrScenes, ...higharcScenes].map((scene) => [scene.name, scene]),
+);
 
 export function listSceneNames(): string[] {
   return [...scenes.keys()];
@@ -24,5 +28,8 @@ export function createBrowserSceneContext(baseUrl: string): SceneContext {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   const dracoLoader = new DRACOLoader().setDecoderPath(`${base}jsm/libs/draco/`);
   const loader = new GLTFLoader().setDRACOLoader(dracoLoader);
-  return { loadGLTF: (path) => loader.loadAsync(base + path) };
+  return {
+    loadGLTF: (path) => loader.loadAsync(base + path),
+    loadHDR: (path) => new HDRLoader().loadAsync(base + path),
+  };
 }

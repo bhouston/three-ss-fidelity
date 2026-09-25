@@ -33,6 +33,7 @@ async function main(job: RenderJob): Promise<void> {
     const setup = await create(ctx);
     const canvas = headless.createCanvas(width, height);
     const renderer = await createRenderer(job.renderer, canvas, setup, { width, height });
+    await headless.ready();
     const target = job.renderer === 'three-ss' ? (job.frames ?? setup.effects.frames) : job.samples;
     const renderStart = performance.now();
     while (renderer.frames < target) {

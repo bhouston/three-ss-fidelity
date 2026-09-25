@@ -15,3 +15,5 @@ export async function readPixels(canvas: HTMLCanvasElement): Promise<Uint8Array>
   const { data } = (canvas as unknown as ReturnType<typeof createWebGLCanvas>).getImageData();
   return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
 }
+
+export async function ready(): Promise<void> {}

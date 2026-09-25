@@ -120,15 +120,24 @@ class HeadlessImage {
 
   set src(url: string) {
     const base64 = url.slice(url.indexOf(',') + 1);
-    void sharp(Buffer.from(base64, 'base64'))
+    const decoding = sharp(Buffer.from(base64, 'base64'))
       .ensureAlpha()
       .raw()
       .toBuffer({ resolveWithObject: true })
       .then(({ data, info }) => {
         Object.assign(this, { data: new Uint8Array(data), width: info.width, height: info.height, complete: true });
         this.onload?.();
-      });
+      })
+      .finally(() => pendingImages.delete(decoding));
+    pendingImages.add(decoding);
   }
+}
+
+const pendingImages = new Set<Promise<void>>();
+
+/** Resolves once every HeadlessImage created so far has decoded (SMAANode's textures load asynchronously). */
+export async function ready(): Promise<void> {
+  await Promise.all(pendingImages);
 }
 
 /** Dawn only copies its own external images; upload HeadlessImage pixels directly. */

@@ -34,7 +34,7 @@ const effects: SceneEffects = {
   temporalDenoise: true,
   toneMapping: NoToneMapping,
   toneMappingExposure: 1,
-  frames: 64,
+  frames: 128,
 };
 
 type Setup = 'basic' | 'rounded' | 'metallic' | 'animated';
@@ -48,7 +48,8 @@ function shadowed<T extends Object3D>(object: T): T {
 async function createCornellBox(setup: Setup, ctx: SceneContext): Promise<SceneSetup> {
   const camera = new PerspectiveCamera(40, WIDTH / HEIGHT, 0.1, 100);
   camera.position.set(0, 10, 30);
-  camera.lookAt(0, 7, 0); // OrbitControls target of the example
+  const target = new Vector3(0, 7, 0); // OrbitControls target of the example
+  camera.lookAt(target);
 
   const scene = new Scene();
   scene.background = new Color(0xaaaaaa);
@@ -139,6 +140,9 @@ async function createCornellBox(setup: Setup, ctx: SceneContext): Promise<SceneS
     new MeshStandardMaterial({ color: 0x000000, emissive: 0xffffff }),
   );
   lightSource.position.y = 15;
+  // deviation: the example's fixture doesn't cast shadows, but the pathtracer can't make one geometry transparent to
+  // just the point light, so it shadows the ceiling around it in both renderers
+  lightSource.castShadow = true;
   scene.add(lightSource);
 
   const pointLight = new PointLight('#ffffff', 100);
@@ -151,7 +155,7 @@ async function createCornellBox(setup: Setup, ctx: SceneContext): Promise<SceneS
 
   scene.add(new AmbientLight('#0c0c0c'));
 
-  return { scene, camera, effects };
+  return { scene, camera, target, effects };
 }
 
 const descriptions: Record<Setup, string> = {

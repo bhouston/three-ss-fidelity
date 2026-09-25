@@ -8,6 +8,7 @@ import {
   MeshStandardMaterial,
   PerspectiveCamera,
   Scene,
+  Vector3,
 } from 'three';
 import type { Material } from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -29,7 +30,8 @@ const effects: SceneEffects = {
 async function createSteampunkCamera(ctx: SceneContext, roughness?: number): Promise<SceneSetup> {
   const camera = new PerspectiveCamera(35, WIDTH / HEIGHT, 0.1, 50);
   camera.position.set(3, 2, 3);
-  camera.lookAt(0, 0, 0); // OrbitControls default target
+  const target = new Vector3(0, 0, 0); // OrbitControls default target
+  camera.lookAt(target);
 
   const scene = new Scene();
   scene.environmentIntensity = 1.25;
@@ -57,6 +59,7 @@ async function createSteampunkCamera(ctx: SceneContext, roughness?: number): Pro
   return {
     scene,
     camera,
+    target,
     effects,
     gradientBackground: { center: new Color(0x888877), edge: new Color(0x776666) },
     environment: { scene: new RoomEnvironment(), sigma: 0.04 },

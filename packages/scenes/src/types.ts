@@ -1,4 +1,4 @@
-import type { Color, PerspectiveCamera, Scene, ToneMapping } from 'three';
+import type { Color, PerspectiveCamera, Scene, ToneMapping, Vector3 } from 'three';
 import type { GLTF } from 'three/addons/loaders/GLTFLoader.js';
 
 /** Asset access for scene creation: paths are relative to `submodules/three.js/examples/`. */
@@ -53,6 +53,8 @@ export interface SceneEnvironment {
 export interface SceneSetup {
   scene: Scene;
   camera: PerspectiveCamera;
+  /** Point the camera looks at (the example's OrbitControls target), for orbiting in live views. */
+  target: Vector3;
   effects: SceneEffects;
   /** Replaces scene.background when set (scene.background must then be null). */
   gradientBackground?: GradientBackground;

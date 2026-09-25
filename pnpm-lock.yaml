@@ -6,6 +6,7 @@ settings:
 
 overrides:
   three: workspace:*
+  '@types/three': ^0.186.0
 
 importers:
 
@@ -41,6 +42,65 @@ importers:
       vitest:
         specifier: ^4.1.10
         version: 4.1.11(@types/node@25.9.8)(@vitest/coverage-v8@4.1.11)(vite@8.3.1(@types/node@25.9.8)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))
+
+  packages/cli:
+    dependencies:
+      '@clidoc/core':
+        specifier: ^1.0.0
+        version: 1.0.0
+      '@clidoc/yargs':
+        specifier: ^0.1.1
+        version: 0.1.1
+      '@onirenaud/node-webgl':
+        specifier: ^0.2.0
+        version: 0.2.0
+      '@ss-fidelity/renderers':
+        specifier: workspace:*
+        version: link:../renderers
+      '@ss-fidelity/scenes':
+        specifier: workspace:*
+        version: link:../scenes
+      sharp:
+        specifier: ^0.35.4
+        version: 0.35.4(@types/node@25.9.8)
+      three:
+        specifier: workspace:*
+        version: link:../../submodules/three.js
+      webgpu:
+        specifier: ^0.6.1
+        version: 0.6.1
+      yargs:
+        specifier: ^18.0.0
+        version: 18.2.0
+      yargs-file-commands:
+        specifier: ^2.0.1
+        version: 2.0.1(yargs@18.2.0)
+    devDependencies:
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
+      '@types/yargs':
+        specifier: ^17.0.35
+        version: 17.0.35
+      '@webgpu/types':
+        specifier: ^0.1.69
+        version: 0.1.74
+
+  packages/renderers:
+    dependencies:
+      '@ss-fidelity/scenes':
+        specifier: workspace:*
+        version: link:../scenes
+      three:
+        specifier: workspace:*
+        version: link:../../submodules/three.js
+      three-gpu-pathtracer:
+        specifier: workspace:*
+        version: link:../../submodules/three-gpu-pathtracer
+    devDependencies:
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
 
   packages/scenes:
     dependencies:
@@ -126,8 +186,8 @@ importers:
         specifier: ^24.3.1
         version: 24.13.6
       '@types/three':
-        specifier: ^0.181.0
-        version: 0.181.0
+        specifier: ^0.186.0
+        version: 0.186.0
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.40.0
         version: 8.70.1(@typescript-eslint/parser@8.70.1(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)
@@ -306,6 +366,14 @@ packages:
 
   '@cacheable/utils@2.5.0':
     resolution: {integrity: sha512-buipgOVDkkPXNR5+xBpDw7Zk2n1EvU7qBJCNUcL7rhQ//kfpOXPAvQ511Os0vpLYJ1pZnvudNytkQt2hst3wqA==}
+
+  '@clidoc/core@1.0.0':
+    resolution: {integrity: sha512-oyUkkXQ7VNRO7fXXn388oYe77jE+rVZE8MVhXcZb3C9VlDwAlTx/EUTk1QjQMrnd7ecJxuryb/E3qsq8gLcqAQ==}
+    engines: {node: '>=22.12.0'}
+
+  '@clidoc/yargs@0.1.1':
+    resolution: {integrity: sha512-HrJkUOIQKzjcPA6WOPLs8vBy8wu8xcHV9G56PAJpRscP3vUIz9iop1QtQUmOB8XJ/6G6/g7CzQTWVcAXlFF85w==}
+    engines: {node: '>=22.12.0'}
 
   '@cloudflare/kv-asset-handler@0.4.2':
     resolution: {integrity: sha512-SIOD2DxrRRwQ+jgzlXCqoEFiKOFqaPjhnNTGKXSRLvp1HiOvapLaFG2kEr9dYQTYe8rKrd9uvDUzmAITeNyaHQ==}
@@ -1051,6 +1119,10 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@onirenaud/node-webgl@0.2.0':
+    resolution: {integrity: sha512-M0LTqbN4OL+C5m4rthm1XJWJbtgFHxMep8RtzM/zSCjhg71lT4+rg63QT7Z0O93Cx/ti9ywHhuQWEUtn450ieg==}
+    engines: {node: '>=20'}
 
   '@oozcitak/dom@2.0.2':
     resolution: {integrity: sha512-GjpKhkSYC3Mj4+lfwEyI1dqnsKTgwGy48ytZEhm4A/xnH/8z9M3ZVXKr/YGQi3uCLs1AEBS+x5T2JPiueEDW8w==}
@@ -1988,14 +2060,17 @@ packages:
   '@types/stats.js@0.17.4':
     resolution: {integrity: sha512-jIBvWWShCvlBqBNIZt0KAshWpvSjhkwkEu4ZUcASoAvhmrgAUI2t1dXrjSL4xXVLB4FznPrIsX3nKXFl/Dt4vA==}
 
-  '@types/three@0.181.0':
-    resolution: {integrity: sha512-MLF1ks8yRM2k71D7RprFpDb9DOX0p22DbdPqT/uAkc6AtQXjxWCVDjCy23G9t1o8HcQPk7woD2NIyiaWcWPYmA==}
-
   '@types/three@0.186.0':
     resolution: {integrity: sha512-mxYSBpDC+D0pLfSP6sW4WZTcT+nrtmZcimMqnVmy36Hte3XpeYSrvgg4TRdaM1GemGog1AWzI5qL2VoIfMXbJQ==}
 
   '@types/webxr@0.5.24':
     resolution: {integrity: sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==}
+
+  '@types/yargs-parser@21.0.3':
+    resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
+
+  '@types/yargs@17.0.35':
+    resolution: {integrity: sha512-qUHkeCyQFxMXg79wQfTtfndEC+N9ZZg76HJftDJp+qH2tV7Gj4OJi7l+PiWwJ+pWtW8GwSmqsDj/oymhrTWXjg==}
 
   '@types/yauzl@2.10.3':
     resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
@@ -2274,6 +2349,14 @@ packages:
   agent-base@7.1.4:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
+
+  ajv-formats@3.0.1:
+    resolution: {integrity: sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==}
+    peerDependencies:
+      ajv: ^8.0.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
 
   ajv@6.15.0:
     resolution: {integrity: sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw==}
@@ -3695,9 +3778,6 @@ packages:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
 
-  meshoptimizer@0.22.0:
-    resolution: {integrity: sha512-IebiK79sqIy+E4EgOr+CAw+Ke8hAspXKzBd0JdgEmPHiAwmvEj2S4h1rfvo+o/BnfEYd/jAOg5IeeIjzlzSnDg==}
-
   meshoptimizer@1.1.1:
     resolution: {integrity: sha512-oRFNWJRDA/WTrVj7NWvqa5HqE1t9MYDj2VaWirQCzCCrAd2GHrqR/sQezCxiWATPNlKTcRaPRHPJwIRoPBAp5g==}
 
@@ -4848,6 +4928,9 @@ packages:
   webdriver-bidi-protocol@0.4.3:
     resolution: {integrity: sha512-uuN0goWfxP22B7J/uAgBpOYNPttC+XVseYE+rSY5+rQ+YBeVz/VORw8WbmLVcqW78zNg5A4qnjNXYUWR3il2ig==}
 
+  webgpu@0.6.1:
+    resolution: {integrity: sha512-T+B65/j2jhyFjbWHsVZ4TJw0nk0RVT27lG+nL3V5IIYMsvuVYKYOUli/yJhMpwvXAwqVPZehakWvTjxk+mK8LQ==}
+
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
@@ -4954,6 +5037,12 @@ packages:
     resolution: {integrity: sha512-3NxN8+78OdzbT7C/WjGsyfPAtJaN3FNDsWxv7Y7mcDsT/oOmgW8BpyQQFFBnvZE3j9Y2Sdz1ULFLezL7Eb2yFw==}
     engines: {node: '>= 14.6'}
     hasBin: true
+
+  yargs-file-commands@2.0.1:
+    resolution: {integrity: sha512-8Rq/b6tm7k9ttUcC35EwsDQwm1TxwFVDq/n3eDK9mC4DZLvtog0im0+6LGXySrFMwqKBby5KVXGl3XpGVIA1Qw==}
+    engines: {node: '>=24.0.0'}
+    peerDependencies:
+      yargs: ^18.0.0
 
   yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
@@ -5109,6 +5198,16 @@ snapshots:
     dependencies:
       hashery: 1.5.1
       keyv: 5.6.0
+
+  '@clidoc/core@1.0.0':
+    dependencies:
+      ajv: 8.20.0
+      ajv-formats: 3.0.1(ajv@8.20.0)
+      yaml: 2.9.1
+
+  '@clidoc/yargs@0.1.1':
+    dependencies:
+      '@clidoc/core': 1.0.0
 
   '@cloudflare/kv-asset-handler@0.4.2': {}
 
@@ -5709,6 +5808,10 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.3
+
+  '@onirenaud/node-webgl@0.2.0':
+    dependencies:
+      node-gyp-build: 4.8.4
 
   '@oozcitak/dom@2.0.2':
     dependencies:
@@ -6463,16 +6566,6 @@ snapshots:
 
   '@types/stats.js@0.17.4': {}
 
-  '@types/three@0.181.0':
-    dependencies:
-      '@dimforge/rapier3d-compat': 0.12.0
-      '@tweenjs/tween.js': 23.1.3
-      '@types/stats.js': 0.17.4
-      '@types/webxr': 0.5.24
-      '@webgpu/types': 0.1.74
-      fflate: 0.8.3
-      meshoptimizer: 0.22.0
-
   '@types/three@0.186.0':
     dependencies:
       '@dimforge/rapier3d-compat': 0.12.0
@@ -6483,6 +6576,12 @@ snapshots:
       meshoptimizer: 1.1.1
 
   '@types/webxr@0.5.24': {}
+
+  '@types/yargs-parser@21.0.3': {}
+
+  '@types/yargs@17.0.35':
+    dependencies:
+      '@types/yargs-parser': 21.0.3
 
   '@types/yauzl@2.10.3':
     dependencies:
@@ -6788,6 +6887,10 @@ snapshots:
       - supports-color
 
   agent-base@7.1.4: {}
+
+  ajv-formats@3.0.1(ajv@8.20.0):
+    optionalDependencies:
+      ajv: 8.20.0
 
   ajv@6.15.0:
     dependencies:
@@ -8214,8 +8317,6 @@ snapshots:
 
   merge2@1.4.1: {}
 
-  meshoptimizer@0.22.0: {}
-
   meshoptimizer@1.1.1: {}
 
   micromatch@4.0.8:
@@ -9429,6 +9530,13 @@ snapshots:
 
   webdriver-bidi-protocol@0.4.3: {}
 
+  webgpu@0.6.1:
+    dependencies:
+      '@webgpu/types': 0.1.74
+      debug: 4.4.3
+    transitivePeerDependencies:
+      - supports-color
+
   webidl-conversions@3.0.1: {}
 
   webpack-virtual-modules@0.6.2: {}
@@ -9499,8 +9607,11 @@ snapshots:
 
   yallist@5.0.0: {}
 
-  yaml@2.9.1:
-    optional: true
+  yaml@2.9.1: {}
+
+  yargs-file-commands@2.0.1(yargs@18.2.0):
+    dependencies:
+      yargs: 18.2.0
 
   yargs-parser@21.1.1: {}
 

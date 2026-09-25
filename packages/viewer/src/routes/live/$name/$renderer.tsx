@@ -2,7 +2,7 @@ import { Link, createFileRoute, notFound } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import Header, { buttonClassName } from '#/components/Header';
 import { RENDERERS, isRendererName } from '#/lib/scenes';
-import { startLiveRender } from '#/live/live-render';
+import { MAX_PATHTRACER_SAMPLES, startLiveRender } from '#/live/live-render';
 
 export const Route = createFileRoute('/live/$name/$renderer')({
   ssr: false,
@@ -68,7 +68,10 @@ function Live() {
           {/* key: a fresh canvas per renderer, since a canvas can't switch between WebGPU and WebGL2 contexts. */}
           <canvas className="block h-auto w-full touch-none" key={renderer} ref={canvasRef} />
           <div className="absolute top-2 left-2 bg-black/60 px-2 py-1 font-mono text-xs text-white">
-            {renderer} · {samples} {renderer === 'three-gpu-pathtracer' ? 'samples' : 'frames'}
+            {renderer} ·{' '}
+            {renderer === 'three-gpu-pathtracer'
+              ? `${samples} / ${MAX_PATHTRACER_SAMPLES} samples`
+              : `${samples} frames`}
           </div>
           {error ? (
             <div className="absolute inset-0 flex items-center justify-center p-4 text-center text-sm text-white">

@@ -1,7 +1,7 @@
 import { createRenderer } from '@ss-fidelity/renderers';
 import { createBrowserSceneContext, getScene } from '@ss-fidelity/scenes';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import type { RendererName } from '#/lib/scenes';
+import type { PassName, RendererName } from '#/lib/scenes';
 
 /** Where `submodules/three.js/examples/` is served (see `routes/three-examples/$.ts`); scenes load glTF / Draco from here. */
 export const THREE_EXAMPLES_BASE_URL = '/three-examples/';
@@ -13,6 +13,7 @@ export interface LiveRenderOptions {
   canvas: HTMLCanvasElement;
   sceneName: string;
   renderer: RendererName;
+  pass: PassName;
   /** Called after every rendered frame with the pipeline frame count (three-ss) or accumulated samples (pathtracer). */
   onFrame: (frames: number) => void;
 }
@@ -26,12 +27,17 @@ export async function startLiveRender({
   canvas,
   sceneName,
   renderer,
+  pass,
   onFrame,
 }: LiveRenderOptions): Promise<LiveRender> {
   const definition = getScene(sceneName);
   // A fresh setup per renderer: the adapters mutate the scene.
   const setup = await definition.create(createBrowserSceneContext(THREE_EXAMPLES_BASE_URL));
-  const live = await createRenderer(renderer, canvas, setup, { width: definition.width, height: definition.height });
+  const live = await createRenderer(renderer, canvas, setup, {
+    width: definition.width,
+    height: definition.height,
+    pass,
+  });
 
   const controls = new OrbitControls(setup.camera, canvas);
   controls.target.copy(setup.target);

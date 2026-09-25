@@ -53,6 +53,21 @@ not a scene setting. Each scene × pass is compared separately in `results/<scen
 | pass     | three-ss                            | three-gpu-pathtracer |
 | -------- | ----------------------------------- | -------------------- |
 | `beauty` | the full pipeline of `SceneEffects` | full path tracing    |
+| `direct` | no SSGI / SSR / temporal denoise    | single scatter       |
+
+**direct** is the SSGI example's "Direct" output against one-scatter path tracing: a calibration baseline that
+separates shading-model, shadow and environment-lighting differences from the SSGI/SSR approximation.
+three-gpu-pathtracer with `bounces = 1` samples lights and the environment only through next-event estimation;
+the BSDF-sampled half of the MIS-weighted environment is added when the next ray is traced, so env-lit scenes came
+out too dark (18 dB off on `ssr-steampunk-camera`). The adapter uses 2 bounces and patches the shader
+(`traceDirectOnly`) to stop the second ray at any surface: it only collects environment misses and light hits.
+Point-light scenes match plain `bounces = 1` (50 dB, noise). Measured differences:
+
+- three-ss lights with the environment unoccluded (IBL); the pathtracer shadow-rays it. Dominant on the SSR scenes
+  (15–17 dB) and higharc (19.6 dB); it is what AO addresses in `beauty`.
+- The `ssgi-*` scenes (≈30 dB): raster shadow maps vs exact shadows, Lambert vs the pathtracer's diffuse, and the
+  three-ss-only `AmbientLight`.
+- Emissive meshes light nothing in either renderer (the pathtracer does not sample them as lights).
 
 ## Fidelity decisions
 

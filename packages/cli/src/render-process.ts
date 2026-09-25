@@ -22,7 +22,7 @@ async function main(job: RenderJob): Promise<void> {
   const headless =
     job.renderer === 'three-ss' ? await import('./headless/webgpu.js') : await import('./headless/webgl.js');
   headless.install();
-  const { createRenderer } = await import('@ss-fidelity/renderers');
+  const { createRenderer, passEffects } = await import('@ss-fidelity/renderers');
   const { getScene } = await import('@ss-fidelity/scenes');
   const { createNodeSceneContext } = await import('@ss-fidelity/scenes/node');
   const { renderPath } = await import('./paths.js');
@@ -41,7 +41,7 @@ async function main(job: RenderJob): Promise<void> {
     const canvas = headless.createCanvas(width, height);
     const renderer = await createRenderer(job.renderer, canvas, setup, { width, height, pass });
     await headless.ready();
-    const target = job.renderer === 'three-ss' ? (job.frames ?? setup.effects.frames) : job.samples;
+    const target = job.renderer === 'three-ss' ? (job.frames ?? passEffects(setup, pass).frames) : job.samples;
     const renderStart = performance.now();
     while (renderer.frames < target) {
       renderer.render();

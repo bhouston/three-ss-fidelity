@@ -1,0 +1,29 @@
+{
+  "name": "@ss-fidelity/renderers",
+  "version": "0.1.0",
+  "source": "./src/index.ts",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "tsc": "tsc",
+    "dev": "tsc -w --preserveWatchOutput"
+  },
+  "dependencies": {
+    "@ss-fidelity/scenes": "workspace:*",
+    "three": "workspace:*",
+    "three-gpu-pathtracer": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/three": "^0.186.0"
+  }
+}

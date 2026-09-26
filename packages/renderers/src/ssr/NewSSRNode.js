@@ -618,6 +618,9 @@ class NewSSRNode extends Node {
       this._temporalTarget = target('NewSSRNode.Temporal');
       this._historyTarget = target('NewSSRNode.History');
       this._geometryTarget = target('NewSSRNode.PreviousGeometry');
+      // with resolutionScale < 1: the filtered result upsampled to full resolution, depth/normal aware
+      this._upsampleTarget = target('NewSSRNode.Upsample');
+      this._upsampleMaterial = new NodeMaterial();
       this._spatialMaterial = new NodeMaterial();
       this._temporalMaterial = new NodeMaterial();
       this._historyCopyMaterial = new NodeMaterial();
@@ -742,7 +745,7 @@ class NewSSRNode extends Node {
       this.accumulate
         ? this._resolveTarget.texture
         : this.temporalFilter
-          ? this._temporalTarget.texture
+          ? this._upsampleTarget.texture
           : this._ssrRenderTarget.texture,
     );
 
@@ -911,6 +914,7 @@ class NewSSRNode extends Node {
    * @param {number} height - The height of the effect.
    */
   setSize(width, height) {
+    if (this.temporalFilter) this._upsampleTarget.setSize(width, height);
     width = Math.round(this.resolutionScale * width);
     height = Math.round(this.resolutionScale * height);
 
@@ -1066,6 +1070,7 @@ class NewSSRNode extends Node {
         [this._temporalMaterial, this._temporalTarget, 'SSR [ Temporal ]'],
         [this._historyCopyMaterial, this._historyTarget, 'SSR [ History ]'],
         [this._geometryMaterial, this._geometryTarget, 'SSR [ Previous Geometry ]'],
+        [this._upsampleMaterial, this._upsampleTarget, 'SSR [ Upsample ]'],
       ];
       for (const [material, target, name] of passes) {
         _quadMesh.material = material;
@@ -1982,6 +1987,47 @@ class NewSSRNode extends Node {
       return vec4(worldNormal, distance(this._cameraWorldPosition, worldPosition));
     })();
     this._geometryMaterial.needsUpdate = true;
+
+    // Joint bilateral upsample (identity at full resolution): the 4 nearest filtered texels, bilinear weights times
+    // plane-distance and normal similarity to this full-resolution pixel, so reflections don't bleed across edges.
+    const temporalTexture = texture(this._temporalTarget.texture);
+    this._upsampleMaterial.fragmentNode = Fn(() => {
+      const depth = sampleDepth(uvNode).toVar();
+      depth.greaterThanEqual(1.0).discard();
+      const P = viewPositionAt(uvNode, depth).toVar();
+      const N = normalAt(uvNode).toVar();
+      const coord = uvNode.mul(resolution).sub(0.5).toVar();
+      const base = coord.floor().toVar();
+      const f = coord.sub(base).toVar();
+      const sum = vec3(0).toVar();
+      const weightSum = float(0).toVar();
+      for (const [x, y] of [
+        [0, 0],
+        [1, 0],
+        [0, 1],
+        [1, 1],
+      ]) {
+        const uvTap = base
+          .add(vec2(x, y))
+          .add(0.5)
+          .mul(texel)
+          .clamp(texel.mul(0.5), vec2(1).sub(texel.mul(0.5)));
+        const tapDepth = sampleDepth(uvTap);
+        const bilinear = (x ? f.x : f.x.oneMinus()).mul(y ? f.y : f.y.oneMinus());
+        const plane = abs(dot(N, viewPositionAt(uvTap, tapDepth).sub(P))).div(abs(P.z).mul(0.01).add(1e-4));
+        const weight = bilinear
+          .add(1e-3)
+          .mul(float(1).sub(plane).max(0))
+          .mul(dot(N, normalAt(uvTap)).max(0).pow(8))
+          .mul(tapDepth.lessThan(1).select(float(1), float(0)))
+          .toVar();
+        sum.addAssign(temporalTexture.sample(uvTap).rgb.mul(weight));
+        weightSum.addAssign(weight);
+      }
+      // no compatible texel (thin feature): nearest
+      return vec4(weightSum.greaterThan(1e-4).select(sum.div(weightSum), temporalTexture.sample(uvNode).rgb), 1);
+    })();
+    this._upsampleMaterial.needsUpdate = true;
   }
 
   getRenderTarget() {
@@ -2008,8 +2054,11 @@ class NewSSRNode extends Node {
     }
     this._copyMaterial.dispose();
     if (this.temporalFilter) {
-      for (const t of [this._spatialTarget, this._temporalTarget, this._historyTarget, this._geometryTarget])
+      for (const t of [this._spatialTarget, this._temporalTarget, this._historyTarget, this._geometryTarget]) {
         t.dispose();
+      }
+      this._upsampleTarget.dispose();
+      this._upsampleMaterial.dispose();
       for (const m of [
         this._spatialMaterial,
         this._temporalMaterial,

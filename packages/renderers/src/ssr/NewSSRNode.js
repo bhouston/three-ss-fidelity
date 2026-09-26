@@ -1216,7 +1216,6 @@ class NewSSRNode extends Node {
           .sub(radianceCam.mul(fss(NdotVcam)))
           .add(L2.mul(secondary.get('sampleWeight')))
           .max(0);
-        // Back-face hits (the ray reaches the hidden side, N·(-R) <= 0) keep the visible side's radiance as a proxy.
         return corrected;
       };
 

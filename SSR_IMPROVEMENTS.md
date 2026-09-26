@@ -649,3 +649,80 @@ floor reflection of the chrome sphere shows red streaks copied from the camera's
   metal-hit 0.0257 → 0.0261: the floor sees the undersides of the gold box and the chrome sphere, whose true
   normals point down at the red tile, while `N = −R` sends the bounce back toward the grey floor. The other
   diagnostics move by ±0.0001 and the Cornell scenes by +0.0000–0.0003. Overall 0.0457 → **0.0453**.
+
+## R3.5 Experiments that did not help (reverted)
+
+All measured on top of R3.4 (steampunk mean 0.0840, diag mean 0.0292), except the first row.
+
+| experiment                                                                                   | result                                                                                                              |
+| -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Cheap correction `L_hit + Fss·(Env(reflect(R, N)) − Env(reflect(−V_cam, N)))`, hit roughness | metal-hit 0.0375 (round 2: 0.0380), steampunk 0.0920, diag +0.0010: no occlusion or inter-reflection in either term |
+| Also correct the multiple-scattering term `Fms·Ems·E_irr/π` for N·(−R)                       | every scene within ±0.0002                                                                                          |
+| Environment for rays (misses, second bounce) prefiltered at sigma 0 instead of 0.04/0.05     | steampunk 0.0840 → 0.0849 (fireflies from RoomEnvironment's light panels)                                           |
+| Same at sigma 0.02                                                                           | steampunk 0.0840 → 0.0843                                                                                           |
+| 1024 instead of 256 accumulated frames                                                       | steampunk 0.0840 → 0.0835, diagnostics ±0.0001                                                                      |
+| Sigma 0 with 1024 frames                                                                     | steampunk 0.0838, worse than 1024 frames at sigma 0.04                                                              |
+
+The environment prefilter is therefore not a measurable error source: even with four times the frames the
+unblurred environment loses to the materials' prefilter. Noise from the second bounce and the casing's SSR
+accounts for about 0.0005 of the steampunk mean at 256 frames.
+
+## Round 3 summary
+
+| scene                              | baseline (three-new-ssgi) | round 2 | round 3 (final) |
+| ---------------------------------- | ------------------------- | ------- | --------------- |
+| ssr-diag-dielectric-0              | 0.0249                    | 0.0132  | 0.0131          |
+| ssr-diag-dielectric-30             | 0.0222                    | 0.0128  | 0.0127          |
+| ssr-diag-grazing                   | 0.0249                    | 0.0213  | 0.0212          |
+| ssr-diag-metal-hit (new)           | 0.0374                    | 0.0380  | 0.0261          |
+| ssr-diag-mirror                    | 0.0280                    | 0.0167  | 0.0168          |
+| ssr-diag-occlusion                 | 0.0184                    | 0.0151  | 0.0152          |
+| ssr-diag-offscreen                 | 0.0493                    | 0.0333  | 0.0331          |
+| ssr-diag-rough-10                  | 0.0271                    | 0.0160  | 0.0160          |
+| ssr-diag-rough-30                  | 0.0290                    | 0.0158  | 0.0158          |
+| ssr-diag-rough-60                  | 0.0517                    | 0.0521  | 0.0521          |
+| ssr-diag-sphere                    | 0.0676                    | 0.0608  | 0.0608          |
+| ssr-diag-wall                      | 0.0879                    | 0.0677  | 0.0674          |
+| ssr-steampunk-camera               | 0.0970                    | 0.0805  | 0.0703          |
+| ssr-steampunk-camera-roughness-0   | 0.1172                    | 0.1090  | 0.1000          |
+| ssr-steampunk-camera-roughness-25  | 0.1152                    | 0.1086  | 0.0943          |
+| ssr-steampunk-camera-roughness-50  | 0.1103                    | 0.1041  | 0.0849          |
+| ssr-steampunk-camera-roughness-100 | 0.0969                    | 0.0807  | 0.0703          |
+| ssgi-basic                         | 0.0681                    | 0.0606  | 0.0606          |
+| ssgi-rounded                       | 0.0519                    | 0.0431  | 0.0432          |
+| ssgi-metallic                      | 0.0707                    | 0.0504  | 0.0507          |
+| ssgi-animated                      | 0.0492                    | 0.0401  | 0.0402          |
+| ssgi-animated-visible-walls        | 0.0486                    | 0.0398  | 0.0398          |
+
+**Mean RMSE (`ssr-*`):**
+
+|                 | overall (17 scenes) | overall (round-2 16) | diag (12) | diag (round-2 11) | steampunk  |
+| --------------- | ------------------- | -------------------- | --------- | ----------------- | ---------- |
+| baseline        | 0.0591              | 0.0605               | 0.0390    | 0.0392            | 0.1073     |
+| round 2         | 0.0497              | 0.0505               | 0.0302    | 0.0295            | 0.0966     |
+| round 3 (final) | **0.0453**          | **0.0465**           | 0.0292    | 0.0295            | **0.0840** |
+
+Round 3 lowers the steampunk mean by 13 % and metal-hit by 31 %. The other diagnostics hit emissive (view-
+independent) surfaces and do not change, as intended. The Cornell scenes move by at most +0.0003
+(`ssgi-metallic`); their metal hits are rare and their view-dependent highlights come from direct light,
+which this round does not re-evaluate.
+
+**Cost.** At 640×480 (`pnpm cli bench`, round 2 → round 3, per rendered frame of 16 pipeline frames):
+steampunk 182 → 268 ms (11.4 → 16.8 ms per pipeline frame), `rough-30` 171 → 193 ms (10.7 → 12.1 ms),
+metal-hit 145 → 157 ms (9.1 → 9.8 ms). The extra cost is the second march for every hit, plus one more MRT
+target in the pre-pass.
+
+**Remaining error.**
+
+- **Hidden geometry.** The floor next to the steampunk model now holds about 46 % of that scene's squared
+  error. The reference shows the model's underside there as a dark red glow. Here the dual-layer hits proxy the
+  underside with the visible surface's material, and the second bounce can only reach the floor visible in
+  front of the model, which is brighter than the occluded floor under it. The same limit leaves streaks in the
+  metal-hit floor reflections of the sphere's and box's undersides.
+- **Third bounce.** The second bounce reads the camera-view radiance at its own hit, so metal-to-metal-to-metal
+  paths keep the original error one bounce later.
+- **Direct-light specular.** Hit colors still contain their camera-view highlights from punctual lights
+  (the Cornell scenes; the SSR scenes are environment- and emitter-lit). Removing them needs the scene pass
+  to output direct specular separately.
+- **Off-screen geometry** (`wall`, `sphere`, `offscreen`, and the overhead panel in metal-hit) and
+  **multiscatter energy compensation** (`rough-60`, R2.3) are unchanged from round 2.

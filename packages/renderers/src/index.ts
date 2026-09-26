@@ -40,6 +40,9 @@ const screenSpaceOptions: Record<
       secondBounceRoughnessCutoff: 0.8,
       // Round 3: fewer accumulated pipeline frames per rendered result (time-to-image, not per-frame cost).
       accumFrames: 192,
+      // Round 4: coarser march step density (binary refinement, still 8 steps, still recovers the exact
+      // contact from within the coarser bracket).
+      quality: 0.6,
     },
   },
 };

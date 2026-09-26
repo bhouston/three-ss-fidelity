@@ -867,3 +867,38 @@ own note) is the working noise floor; a round is only kept if its speedup clears
   scenes where the `ceil()` cliff would have made it risky.
 - **Cumulative:** speedup **1.03 × 1.088 × (≈1.25 further) ≈ 1.36×** (measured directly above), quality
   **0.34%** regression vs `three-new-ssr` (worst single scene ≈1.7%, both within the 1%/3% budgets).
+
+## Round 4: coarser march step density (kept)
+
+- **Candidate.** `three-new-ssr` always marches at `quality = 1` (one step per texel of the ray's screen-
+  space length; see round 1's log entry on `NewSSRNode.js`'s `totalStep`). `SSRFastOptions.quality` lets
+  `three-new-ssr-fast` march more coarsely; binary refinement (still 8 steps, unchanged from round 2's
+  revert) runs on top of whichever coarse bracket the march finds, so the final hit position is still
+  refined to sub-texel precision — only the chance of _missing_ a thin/close crossing between two coarse
+  steps gets worse as the steps get sparser.
+- **Setting.** `quality: 0.6` (5 texels per 3 steps).
+- **Quality.** Mean RMSE 0.0457 → **0.0459 (+0.57% cumulative)**, threshold 1%. Worst single scenes:
+  `ssr-diag-metal-hit` 0.0262 → 0.0269 (**+2.7%**, the closest any round gets to the ~3% worst-scene budget:
+  it has more, smaller reflected objects at oblique angles than the other diagnostics, so a coarser march is
+  more likely to skip past one), `ssr-steampunk-camera-roughness-100`/`ssr-diag-mirror` ≈+1.8%. **QUALITY OK**,
+  with headroom against the 1% mean budget (+0.43% left) but the worst-scene margin is now tight (+0.3% left
+  before `metal-hit` would cross 3%) — noted for round 5, which should avoid stacking more error onto that
+  scene specifically.
+- **Speed.** `pnpm cli bench`, 1920×1080, warmup 10 / measure 40, cumulative through round 4:
+
+  | scene                  | three-new-ssr (ms) | three-new-ssr-fast (ms) | speedup   |
+  | ---------------------- | ------------------ | ----------------------- | --------- |
+  | `ssgi-metallic`        | 1455               | 1184                    | 1.229     |
+  | `ssr-steampunk-camera` | 2031               | 1060                    | 1.916     |
+  | `ssr-diag-rough-30`    | 1896               | 859                     | 2.208     |
+  | `ssr-diag-metal-hit`   | 1294               | 636                     | 2.035     |
+  | **mean**               |                    |                         | **1.847** |
+
+  By far the largest single-round win: the dense 1px march is the pipeline's dominant cost (per round 2's
+  analysis), and this cuts it directly for every ray, not just a subset of hits.
+
+- **Kept.** Nearly doubles the cumulative speedup for a manageable quality cost, but the `metal-hit` margin
+  means round 5 should target a scene/mechanism this round didn't touch, not push `quality` (or anything else
+  that affects the march density) any further.
+- **Cumulative:** speedup **1.847×** (measured directly), quality **0.57%** regression vs `three-new-ssr`
+  (worst single scene ≈2.7%, both within the 1%/3% budgets, worst-scene margin now tight).

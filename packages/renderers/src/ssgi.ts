@@ -221,7 +221,9 @@ function createPipeline(
     ssrPass.maxDistance.value = ssrMethod === 'new' ? camera.far * 2 : params.maxDistance;
     // three-new-ssr traces at full step density with sub-step refinement: speed does not matter for a
     // fidelity reference, and a coarse march stair-steps and skips thin geometry (the diagnostics' pole).
-    ssrPass.quality.value = ssrMethod === 'new' ? 1 : (params.quality ?? ssrPass.quality.value);
+    // three-new-ssr-fast can trade step density for speed via ssrFast.quality (binary refinement still runs,
+    // so contacts stay sharp; only the coarse march between them gets coarser).
+    ssrPass.quality.value = ssrMethod === 'new' ? (ssrFast.quality ?? 1) : (params.quality ?? ssrPass.quality.value);
     if (params.blurQuality !== undefined) ssrPass.blurQuality = params.blurQuality;
     if (params.intensity !== undefined) ssrPass.intensity.value = params.intensity;
     if (params.thickness !== undefined) ssrPass.thickness.value = params.thickness;

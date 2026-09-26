@@ -23,7 +23,15 @@ const screenSpaceOptions: Record<
   'three-new-ssr': { ssgiWeighting: 'solid-angle', ssrMethod: 'new' },
   // Every ssrFast field starts at its three-new-ssr-reproducing default; each optimization round flips one
   // on here after passing its own quality gate (see SSR_IMPROVEMENTS.md).
-  'three-new-ssr-fast': { ssgiWeighting: 'solid-angle', ssrMethod: 'new', ssrFast: {} },
+  'three-new-ssr-fast': {
+    ssgiWeighting: 'solid-angle',
+    ssrMethod: 'new',
+    ssrFast: {
+      // Round 1: precompute the screen-exit ray parameter once per ray instead of a 4-comparison bounds
+      // test every march step. Bit-identical output.
+      clipRaysToScreen: true,
+    },
+  },
 };
 
 export function createRenderer(

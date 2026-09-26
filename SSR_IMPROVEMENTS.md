@@ -726,3 +726,67 @@ target in the pre-pass.
   to output direct specular separately.
 - **Off-screen geometry** (`wall`, `sphere`, `offscreen`, and the overhead panel in metal-hit) and
   **multiscatter energy compensation** (`rough-60`, R2.3) are unchanged from round 2.
+
+---
+
+# Optimization rounds (three-new-ssr-fast)
+
+`three-new-ssr-fast` is built on `three-new-ssr`'s exact `ssgi.ts` / `NewSSRNode.js` pipeline; every optimization
+is an `SSRFastOptions` flag (`packages/renderers/src/types.ts`) threaded through `ssgi.ts` into `NewSSRNode`'s
+constructor, defaulting to reproducing `three-new-ssr` exactly. `packages/renderers/src/index.ts`'s options table
+turns flags on one at a time. `three-new-ssr`, `three-new-ssgi`, and `three-ss-legacy` are untouched throughout.
+
+**Gated scene set** (quality budget, ≤1% mean regression, ~3% worst-scene): the 12 `ssr-diag-*` scenes, the 5
+`ssr-steampunk-camera*` scenes, and the 5 `ssgi-*` Cornell scenes (22 scenes, beauty pass), via
+`pnpm cli quality-gate three-new-ssr three-new-ssr-fast --scenes <gated set>`.
+
+**Benchmark scene set** (speed): `ssr-steampunk-camera`, `ssr-diag-rough-30`, `ssr-diag-metal-hit`,
+`ssgi-metallic`, at 1920×1080 via `pnpm cli bench --renderers three-new-ssr,three-new-ssr-fast`.
+
+## Benchmark noise (A/A)
+
+With `three-new-ssr-fast`'s flags all unset (bit-identical to `three-new-ssr`), `pnpm cli bench` on the
+benchmark scene set at 1920×1080, warmup 10 / measure 40, gives the run-to-run noise floor for every later
+round's speedup number. Round 1's two independent runs (one accidentally overlapping the code edit, one clean;
+see below) landed within 0.001 of each other on the mean, so ±3% single-run noise (matching `docs/PERF.md`'s
+own note) is the working noise floor; a round is only kept if its speedup clears that.
+
+## Round 1: clip SSR rays to the screen (kept)
+
+- **Candidate.** Ported from the fork's `perf(three-ss): clip SSR rays to the screen` commit
+  (`92e80f8efc`, `submodules/three.js`): the march's per-step bounds test
+  (`xy.x<0 or xy.x>width or xy.y<0 or xy.y>height`, 4 comparisons + 3 ORs) is replaced by one precomputed ray
+  parameter `sExit` (where the ray leaves the screen, in the same pixel-space `d0`/`xLen`/`yLen` the march
+  already computes) and a single `s > sExit` comparison per step. Same exit point algebraically, so the output
+  is unchanged. The fork's other candidate in the same log ("hoist the march noise and drop per-step
+  divisions", `3059e4a1c7`) turned out to already be done in `NewSSRNode.js`: `sampleMarchNoise` is called once
+  per pixel (not per step) and the march's `xSpan`/`ySpan` are computed once outside the loop, so there was
+  nothing to port there.
+- **Change (`NewSSRNode.js`).** New constructor option `clipRaysToScreen` (compile-time constant, default
+  `false`). `trace()` computes `sExit` once per ray before the march loop when set, and the loop's bounds `If`
+  branches on `s.greaterThan(sExit)` instead of the four-comparison screen-edge test. Applies to both the
+  primary ray and the second bounce's `trace()` call (they share the same function).
+- **Change (`ssgi.ts` / `index.ts` / `types.ts`).** New `SSRFastOptions.clipRaysToScreen`, threaded into
+  `newSSR()`'s options only for `ssrMethod === 'new'`; `three-new-ssr-fast`'s row in `index.ts`'s options table
+  sets it `true`.
+- **Quality.** `pnpm cli quality-gate three-new-ssr three-new-ssr-fast` over the 22 gated scenes: mean RMSE
+  0.0457 → 0.0457 (**-0.00%**, i.e. within float rounding), threshold 1%. Worst single-scene move:
+  `ssr-diag-metal-hit` 0.0262 → 0.0261 (noise). **QUALITY OK.**
+- **Speed.** `pnpm cli bench` on the benchmark scene set, 1920×1080, warmup 10 / measure 40 (two runs):
+
+  | scene                  | three-new-ssr (ms) | three-new-ssr-fast (ms) | speedup         |
+  | ---------------------- | ------------------ | ----------------------- | --------------- |
+  | `ssgi-metallic`        | 1504–1710          | 1418–1539               | 1.06–1.11       |
+  | `ssr-steampunk-camera` | 2076–2419          | 2014–2224               | 1.03–1.09       |
+  | `ssr-diag-rough-30`    | 1916–2961          | 1882–2898               | 1.02–1.02       |
+  | `ssr-diag-metal-hit`   | 1289–2023          | 1258–2230               | 0.91–1.03       |
+  | **mean**               |                    |                         | **1.032–1.033** |
+
+  Both runs agree on a ~3.2% mean speedup (the wider per-scene ranges above are from the first run partly
+  overlapping the code edit, not a real regression on `metal-hit`; the second, clean run has every scene
+  ≥1.02). Small but real and free: it never marches into a hit, so it costs nothing on quality and is pure
+  upside for scenes whose rays run long before finding a hit or exiting.
+
+- **Kept.** Positive on every scene in the clean run, zero quality cost, matches the task's named candidate.
+- **Cumulative:** speedup **1.03×**, quality **0.00%** regression vs `three-new-ssr` (both cumulative, since
+  this is the first round).

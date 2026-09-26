@@ -39,6 +39,8 @@ export interface SSRFastOptions {
   secondBounceRoughnessCutoff?: number;
   /** Minimum accumulated pipeline frames (three-new-ssr uses 256). */
   accumFrames?: number;
+  /** March step density, 0..1 (three-new-ssr always uses 1); binary refinement still runs on top of it. */
+  quality?: number;
 }
 
 export interface RendererOptions {

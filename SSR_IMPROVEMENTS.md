@@ -902,3 +902,38 @@ own note) is the working noise floor; a round is only kept if its speedup clears
   that affects the march density) any further.
 - **Cumulative:** speedup **1.847×** (measured directly), quality **0.57%** regression vs `three-new-ssr`
   (worst single scene ≈2.7%, both within the 1%/3% budgets, worst-scene margin now tight).
+
+## Round 5: lower march density for the second bounce only (kept)
+
+- **Candidate 1 (tried, reverted): half-resolution back-face depth pre-pass.** `SSRFastOptions.
+backDepthResolutionScale` (still wired, left unset) renders the dual-layer depth pass at half
+  resolution via `PassNode.setResolutionScale()`. It's a separate scene pass, not part of the march, so
+  it looked like a safe way to avoid stacking more error onto `ssr-diag-metal-hit` (round 4's tight
+  scene). It wasn't: mean regression **+1.90%** (over the 1% budget) and `ssr-diag-mirror` **+9.5%** (over
+  the ~3% worst-scene budget) — the dual-layer hit test is edge-sensitive to thin/close objects in a way
+  this pass's resolution matters for far more than the primary march's density does. Reverted.
+- **Candidate 2: separate, lower march density for the second (hit-specular) bounce.** `trace()` now takes
+  an optional `qualityOverride`; `SSRFastOptions.secondBounceQuality` sets it for the second bounce only
+  (the primary ray keeps round 4's `quality: 0.6`). The second bounce is already a small correction term
+  (R3.2), already skipped above the round-2 roughness cutoff, and unlike the back-face pass doesn't feed
+  hit-acceptance for the primary ray — a natural place to spend less, independent of the primary ray's
+  precision.
+- **Setting.** `secondBounceQuality: 0.4`.
+- **Quality.** Mean RMSE 0.0457 → **0.0459 (+0.61% cumulative)** — only +0.04% over round 4's +0.57%, for a
+  further ~7% cumulative speedup (below). Worst single scene: `ssr-diag-metal-hit` 0.0262 → 0.0268
+  (**+2.3%**, actually a hair better than round 4's +2.7% here — noise — and still the tightest scene).
+  **QUALITY OK**, with ~0.4% of the 1% mean budget and ~0.7% of the worst-scene budget still unused.
+- **Speed.** `pnpm cli bench`, 1920×1080, warmup 10 / measure 40, cumulative through round 5 (final):
+
+  | scene                  | three-new-ssr (ms) | three-new-ssr-fast (ms) | speedup   |
+  | ---------------------- | ------------------ | ----------------------- | --------- |
+  | `ssgi-metallic`        | 1465               | 1193                    | 1.228     |
+  | `ssr-steampunk-camera` | 2014               | 947                     | 2.126     |
+  | `ssr-diag-rough-30`    | 1988               | 837                     | 2.377     |
+  | `ssr-diag-metal-hit`   | 1313               | 609                     | 2.156     |
+  | **mean**               |                    |                         | **1.972** |
+
+- **Kept.** Best win-to-risk ratio of any round after round 1: the smallest quality cost of any round that
+  wasn't already free, for a further ~7% cumulative speedup.
+- **Cumulative (final):** speedup **1.972×** (measured directly), quality **0.61%** regression vs
+  `three-new-ssr` (worst single scene ≈2.3%, both within the 1%/3% budgets).

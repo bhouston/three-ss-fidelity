@@ -43,6 +43,15 @@ const screenSpaceOptions: Record<
       // Round 4: coarser march step density (binary refinement, still 8 steps, still recovers the exact
       // contact from within the coarser bracket).
       quality: 0.6,
+      // Round 5 (tried, reverted): halving the back-face depth pre-pass's resolution
+      // (backDepthResolutionScale, still wired below) pushed mean regression to +1.90% (over budget) and
+      // ssr-diag-mirror to +9.5% -- the dual-layer hit test is edge-sensitive (thin/close objects) in a
+      // way this pass's full resolution actually matters for, unlike the coarser primary march. Left
+      // unset (full resolution, three-new-ssr's behavior).
+      // Round 5: lower march density only for the second (hit-specular) bounce, which is already a
+      // small correction term for hits below the round-2 roughness cutoff and doesn't feed hit-acceptance
+      // like the primary ray or the back-face pass do.
+      secondBounceQuality: 0.4,
     },
   },
 };

@@ -41,6 +41,10 @@ export interface SSRFastOptions {
   accumFrames?: number;
   /** March step density, 0..1 (three-new-ssr always uses 1); binary refinement still runs on top of it. */
   quality?: number;
+  /** Resolution scale of the back-face depth pre-pass, 0..1 (three-new-ssr always uses 1, full resolution). */
+  backDepthResolutionScale?: number;
+  /** March step density, 0..1, for the second (hit-specular) bounce only; defaults to `quality`. */
+  secondBounceQuality?: number;
 }
 
 export interface RendererOptions {

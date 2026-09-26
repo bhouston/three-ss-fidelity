@@ -178,12 +178,16 @@ function createPipeline(
     if (useScreenSpaceSampling !== undefined) giPass.useScreenSpaceSampling.value = useScreenSpaceSampling;
   }
 
-  // three-new-ssr: depth of the nearest back faces, so SSR knows how thick each solid actually is
-  const backDepth = (): AnyNode => {
+  // three-new-ssr: depth of the nearest back faces, so SSR knows how thick each solid actually is.
+  // three-new-ssr-fast can render it at a lower resolution (SSRFastOptions.backDepthResolutionScale):
+  // NewSSRNode only uses it as a coarse "is this ray still inside the solid" test with slack (`tk`), so a
+  // bilinearly-sampled lower-resolution depth is an adequate approximation for a cheaper extra scene pass.
+  const backDepth = (resolutionScale: number): AnyNode => {
     const backPass = pass(scene, camera);
     backPass.name = 'Back-Face Depth Pre-Pass';
     backPass.transparent = true; // like the pre-pass (three-new-ssr only)
     backPass.overrideMaterial = new MeshBasicNodeMaterial({ side: BackSide });
+    if (resolutionScale !== 1) backPass.setResolutionScale(resolutionScale);
     return backPass.getTextureNode('depth');
   };
 
@@ -203,7 +207,7 @@ function createPipeline(
             reflectNonMetals: true,
             stochastic: true,
             accumulate: true,
-            backDepthNode: backDepth(),
+            backDepthNode: backDepth(ssrFast.backDepthResolutionScale ?? 1),
             hitMaterialNode: prePass.getTextureNode('metalRoughness'),
             hitSpecularNode: prePass.getTextureNode('specular'),
             // three-new-ssr-fast: each of these defaults to three-new-ssr's exact behavior (see
@@ -211,6 +215,7 @@ function createPipeline(
             clipRaysToScreen: ssrFast.clipRaysToScreen ?? false,
             binaryRefineSteps: ssrFast.binaryRefineSteps ?? 8,
             secondBounceRoughnessCutoff: ssrFast.secondBounceRoughnessCutoff ?? null,
+            secondBounceQuality: ssrFast.secondBounceQuality ?? null,
           }
         : {}),
     });

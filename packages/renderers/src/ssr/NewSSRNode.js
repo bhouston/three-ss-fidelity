@@ -137,7 +137,16 @@ class NewSSRNode extends Node {
       clipRaysToScreen = false,
       binaryRefineSteps = 8,
       secondBounceRoughnessCutoff = null,
+      secondBounceQuality = null,
     } = options;
+
+    /**
+     * perf(three-new-ssr-fast): march step density, 0..1, for the second (hit-specular) bounce only.
+     * `null` (three-new-ssr) uses the same density as the primary ray (`quality`). Compile-time constant.
+     *
+     * @type {?number}
+     */
+    this._secondBounceQuality = secondBounceQuality;
 
     /**
      * perf(three-new-ssr-fast): precompute the ray parameter where the march leaves the screen once per
@@ -1251,7 +1260,7 @@ class NewSSRNode extends Node {
         If(skipSecondMarch, () => {
           sampleEnvForDir2();
         }).Else(() => {
-          const second = trace(vPHit, Nb, dir2, viewReflectDir, uvHit, Xi2.z);
+          const second = trace(vPHit, Nb, dir2, viewReflectDir, uvHit, Xi2.z, this._secondBounceQuality);
           If(second.foundHit, () => {
             L2.assign(this.colorNode.sample(second.hitUvS).rgb);
           }).Else(() => {
@@ -1269,7 +1278,10 @@ class NewSSRNode extends Node {
       // UV and depth (refined when `binaryRefine`). `incidentDir` is the direction the point was viewed along.
       // The parameters deliberately shadow the primary ray's names, which the march body was written against.
       // oxlint-disable-next-line no-shadow
-      const trace = (viewPosition, viewNormal, viewReflectDir, incidentDir, uvPos, jitter) => {
+      const trace = (viewPosition, viewNormal, viewReflectDir, incidentDir, uvPos, jitter, qualityOverride = null) => {
+        // perf(three-new-ssr-fast): the second bounce can march at a different (lower) step density than
+        // the primary ray via `qualityOverride` (SSRFastOptions.secondBounceQuality); `null` uses `quality`.
+        const marchQuality = qualityOverride === null ? this.quality.clamp() : float(qualityOverride).clamp();
         // Guard grazing or back-facing normals, which would make the ray infinite or reverse it.
         const maxReflectRayLen = this.maxDistance.div(dot(incidentDir.negate(), viewNormal).max(1e-3)).toVar();
 
@@ -1305,10 +1317,10 @@ class NewSSRNode extends Node {
         const denseMarch = this.stochastic === false || this.outputRadiance;
         const totalStep = int(
           denseMarch
-            ? trunc(max(abs(xLen), abs(yLen)).mul(this.quality.clamp()).min(65536))
+            ? trunc(max(abs(xLen), abs(yLen)).mul(marchQuality).min(65536))
                 .max(int(1))
                 .toConst()
-            : this.quality.clamp().mul(MAX_STEPS).max(float(1)),
+            : marchQuality.mul(MAX_STEPS).max(float(1)),
         )
           .mul(skipTrace ? int(metalness.greaterThan(0.0)) : int(1))
           .toConst();

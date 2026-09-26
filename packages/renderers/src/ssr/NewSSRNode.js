@@ -57,7 +57,7 @@ import {
   NodeUpdateType,
   PerspectiveCamera,
   QuadMesh,
-  RedFormat,
+  RGFormat,
   RenderTarget,
   RendererUtils,
   Node,
@@ -76,6 +76,13 @@ import ImportanceSampledEnvironment from 'three/addons/tsl/display/ImportanceSam
 const _quadMesh = /*@__PURE__*/ new QuadMesh();
 const _size = /*@__PURE__*/ new Vector2();
 let _rendererState;
+
+/** World position -> UV in the frame of a view-projection matrix ((-1, -1) behind the camera). */
+const projectToUV = (world, viewProjection) => {
+  const clip = viewProjection.mul(vec4(world, 1)).toVar();
+  const uv = clip.xy.div(clip.w).mul(0.5).add(0.5);
+  return clip.w.greaterThan(0).select(vec2(uv.x, uv.y.oneMinus()), vec2(-1));
+};
 
 // Maximum ray-march step count; `quality` (0..1) scales it to a fixed per-ray count.
 const MAX_STEPS = 64;
@@ -596,11 +603,12 @@ class NewSSRNode extends Node {
     });
     this._ssrRenderTarget.texture.name = 'NewSSRNode.SSR';
     if (this.temporalFilter) {
-      // hit distance of this frame's ray (ENV_RAY_LENGTH on a miss), for the virtual-point reprojection
-      this._ssrRenderTarget.textures[1].name = 'NewSSRNode.HitDistance';
-      this._ssrRenderTarget.textures[1].format = RedFormat;
+      // hit distance of this frame's ray (ENV_RAY_LENGTH on a miss), for the virtual-point reprojection, and the hit
+      // object's own screen motion in pixels (beyond what the camera motion explains), to reject its stale history
+      this._ssrRenderTarget.textures[1].name = 'NewSSRNode.Hit';
+      this._ssrRenderTarget.textures[1].format = RGFormat;
       this._ratioField = property('vec4');
-      this._hitDistanceField = property('float');
+      this._hitDistanceField = property('vec2');
       const target = (name) => {
         const t = new RenderTarget(1, 1, { depthBuffer: false, type: HalfFloatType });
         t.texture.name = name;
@@ -626,8 +634,11 @@ class NewSSRNode extends Node {
       this.historyMin = uniform(4);
       this.historyMax = uniform(32);
       this.historyRoughness = uniform(0.4);
-      /** Variance-clip box half-size in standard deviations. */
+      /** Variance-clip box half-size in standard deviations, and where reflected objects move (`dynamicClipGamma`). */
       this.clipGamma = uniform(3);
+      this.dynamicClipGamma = uniform(0.5);
+      /** History length cap where reflected objects move. */
+      this.dynamicHistory = uniform(2);
     }
 
     if (stochastic === false && roughnessNode !== null) {
@@ -1301,6 +1312,7 @@ class NewSSRNode extends Node {
       // Radiance mode: how much the hit replaces the environment, so fades blend toward it instead of black.
       const hitWeight = float(0).toVar();
       const hitDistance = float(ENV_RAY_LENGTH).toVar();
+      const hitMotion = float(0).toVar();
 
       // Multi-bounce: fold in the previous frame's reflection at the hit point, reprojected by its
       // own motion. The (1 - history.a) decay damps the feedback. No-op until both textures are set.
@@ -1664,6 +1676,15 @@ class NewSSRNode extends Node {
         If(withinRange, () => {
           const hitWorldPosition = this._cameraWorldMatrix.mul(vec4(vP, 1.0)).xyz.toVar();
           hitDistance.assign(distance(worldPosition, hitWorldPosition));
+          if (this.temporalFilter) {
+            // the velocity buffer at the hit minus the motion the camera alone gives the hit point: the hit
+            // object's own motion, which neither reprojection accounts for
+            const cameraOffset = projectToUV(hitWorldPosition, this._currentViewProjection).sub(
+              projectToUV(hitWorldPosition, this._previousViewProjection),
+            );
+            const velocityOffset = this.velocityNode.sample(uvS).xy.mul(vec2(0.5, -0.5));
+            hitMotion.assign(velocityOffset.sub(cameraOffset).mul(this._resolution).length());
+          }
           const worldDistance = distance(worldPosition, hitWorldPosition).mul(specDominantFactor).toVar();
 
           const reflectColor = this.colorNode.sample(uvS).toVar();
@@ -1726,7 +1747,7 @@ class NewSSRNode extends Node {
 
       // Radiance mode: blend toward the environment on misses and fades, after the luminance cap so the
       // environment matches the materials. Misses report the environment ray length to the denoisers.
-      if (this.temporalFilter) this._hitDistanceField.assign(hitDistance);
+      if (this.temporalFilter) this._hitDistanceField.assign(vec2(hitDistance, hitMotion));
       if (this.accumulate || this.temporalFilter) {
         // ratio-estimator terms, resolved as Σ L·w / Σ w by the accumulation
         output.assign(vec4(mix(sampleEnvRadiance(), output.rgb, hitWeight).mul(sampleRatioWeight), sampleRatioWeight));
@@ -1895,13 +1916,17 @@ class NewSSRNode extends Node {
         }
       }
       const mean = m1.div(9).toVar();
+      // dilated: the largest hit-object motion around this pixel
+      const motion = float(0).toVar();
+      for (let y = -1; y <= 1; y++) {
+        for (let x = -1; x <= 1; x++) {
+          motion.assign(max(motion, distanceTexture.sample(uvNode.add(vec2(x, y).mul(texel))).g));
+        }
+      }
+      const dynamic = motion.smoothstep(0.1, 1).toVar();
       const sigma = sqrt(m2.div(9).sub(mean.mul(mean)).max(0)).toVar();
 
-      const project = (world, viewProjection) => {
-        const clip = viewProjection.mul(vec4(world, 1)).toVar();
-        const uv = clip.xy.div(clip.w).mul(0.5).add(0.5);
-        return clip.w.greaterThan(0).select(vec2(uv.x, uv.y.oneMinus()), vec2(-1));
-      };
+      const project = projectToUV;
       const inside = (uv) => uv.x.greaterThan(0).and(uv.x.lessThan(1)).and(uv.y.greaterThan(0)).and(uv.y.lessThan(1));
       const cameraPosition = this._cameraWorldPosition;
       const previousDistance = distance(this._previousCameraPosition, worldPosition).toVar();
@@ -1932,9 +1957,13 @@ class NewSSRNode extends Node {
       const history = useVirtual.select(historyVirtual, historySurface).toVar();
       const valid = validVirtual.or(validSurface).and(this._historyValid.greaterThan(0));
 
-      const maxFrames = mix(this.historyMin, this.historyMax, roughness.div(this.historyRoughness).clamp());
+      const maxFrames = mix(
+        mix(this.historyMin, this.historyMax, roughness.div(this.historyRoughness).clamp()),
+        this.dynamicHistory,
+        dynamic,
+      );
       const frames = valid.select(history.a.add(1), float(1)).min(maxFrames).toVar();
-      const box = sigma.mul(this.clipGamma);
+      const box = sigma.mul(mix(this.clipGamma, this.dynamicClipGamma, dynamic));
       const clipped = fromYCoCg(toYCoCg(history.rgb).clamp(mean.sub(box), mean.add(box)));
       return vec4(mix(clipped, current.rgb, float(1).div(frames)), frames);
     });

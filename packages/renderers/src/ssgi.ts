@@ -355,7 +355,7 @@ function createPipeline(
     if (params.thickness !== undefined) ssrPass.thickness.value = params.thickness;
     ssrPass.binaryRefine = ssrMethod === 'new' ? true : (params.binaryRefine ?? ssrPass.binaryRefine);
     ssrPass.useTemporalFiltering = temporal; // without temporal accumulation the march jitter is kept fixed
-    ssrPass.resolutionScale = resolutionScale;
+    ssrPass.resolutionScale = resolutionScale * (ssrFast.traceResolutionScale ?? 1);
     if (ssrMethod === 'new') {
       // unbiased reference: full VNDF lobe, no luminance clamp, no screen-edge fade (a hit is a hit;
       // rays leaving the screen fall back to the environment), fresh samples every frame

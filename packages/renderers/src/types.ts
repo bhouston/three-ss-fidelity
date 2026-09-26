@@ -56,6 +56,8 @@ export interface SSRFastOptions {
   realtime?: 'reset' | 'fork' | 'sssr';
   /** Cap on the dense march's steps per ray (steps then grow away from the origin); unset marches uncapped. */
   maxMarchSteps?: number;
+  /** Resolution of the SSR trace and its filter relative to the effects' resolution (three-new-ssr uses 1). */
+  traceResolutionScale?: number;
 }
 
 /**

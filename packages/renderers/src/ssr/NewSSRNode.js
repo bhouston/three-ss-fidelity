@@ -615,6 +615,7 @@ class NewSSRNode extends Node {
       this._historyCopyMaterial = new NodeMaterial();
       this._geometryMaterial = new NodeMaterial();
       this._previousViewProjection = uniform(new Matrix4());
+      this._currentViewProjection = uniform(new Matrix4());
       this._previousCameraPosition = uniform(new Vector3());
       this._historyValid = uniform(0);
       this._unjitteredCamera = new PerspectiveCamera();
@@ -626,7 +627,7 @@ class NewSSRNode extends Node {
       this.historyMax = uniform(32);
       this.historyRoughness = uniform(0.4);
       /** Variance-clip box half-size in standard deviations. */
-      this.clipGamma = uniform(1.25);
+      this.clipGamma = uniform(3);
     }
 
     if (stochastic === false && roughnessNode !== null) {
@@ -1044,6 +1045,11 @@ class NewSSRNode extends Node {
     }
 
     if (this.temporalFilter) {
+      // this frame's camera without TRAA's sub-pixel jitter (like the velocity buffer)
+      const unjittered = this._unjitteredCamera.copy(this.camera);
+      if (unjittered.view !== null && unjittered.view.enabled) unjittered.clearViewOffset();
+      unjittered.updateMatrixWorld();
+      this._currentViewProjection.value.multiplyMatrices(unjittered.projectionMatrix, unjittered.matrixWorldInverse);
       const passes = [
         [this._spatialMaterial, this._spatialTarget, 'SSR [ Spatial Resolve ]'],
         [this._temporalMaterial, this._temporalTarget, 'SSR [ Temporal ]'],
@@ -1056,12 +1062,8 @@ class NewSSRNode extends Node {
         renderer.setRenderTarget(target);
         _quadMesh.render(renderer);
       }
-      // next frame's reprojection: this frame's camera without TRAA's sub-pixel jitter (like the velocity buffer)
-      const camera = this._unjitteredCamera.copy(this.camera);
-      if (camera.view !== null && camera.view.enabled) camera.clearViewOffset();
-      camera.updateMatrixWorld();
-      this._previousViewProjection.value.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
-      this._previousCameraPosition.value.setFromMatrixPosition(camera.matrixWorld);
+      this._previousViewProjection.value.copy(this._currentViewProjection.value);
+      this._previousCameraPosition.value.setFromMatrixPosition(unjittered.matrixWorld);
       this._historyValid.value = 1;
     }
 
@@ -1895,8 +1897,8 @@ class NewSSRNode extends Node {
       const mean = m1.div(9).toVar();
       const sigma = sqrt(m2.div(9).sub(mean.mul(mean)).max(0)).toVar();
 
-      const project = (world) => {
-        const clip = this._previousViewProjection.mul(vec4(world, 1)).toVar();
+      const project = (world, viewProjection) => {
+        const clip = viewProjection.mul(vec4(world, 1)).toVar();
         const uv = clip.xy.div(clip.w).mul(0.5).add(0.5);
         return clip.w.greaterThan(0).select(vec2(uv.x, uv.y.oneMinus()), vec2(-1));
       };
@@ -1914,7 +1916,12 @@ class NewSSRNode extends Node {
       const virtualPoint = cameraPosition.add(
         viewDirection.mul(distance(cameraPosition, worldPosition).add(current.a)),
       );
-      const uvVirtual = project(virtualPoint).toVar();
+      // like the velocity buffer: the virtual point's motion between the two unjittered cameras, applied to this pixel,
+      // so TRAA's sub-pixel jitter doesn't resample (blur) the history every frame
+      const uvVirtual = uvNode
+        .add(project(virtualPoint, this._previousViewProjection))
+        .sub(project(virtualPoint, this._currentViewProjection))
+        .toVar();
       const geometryVirtual = geometryTexture.sample(uvVirtual).toVar();
       const validVirtual = inside(uvVirtual).and(dot(geometryVirtual.xyz, worldNormal).greaterThan(0.9));
 

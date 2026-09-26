@@ -86,6 +86,9 @@ const screenSpaceOptions: Record<
       reprojectRadianceOnce: true,
       // Round 3: store that reprojection as RG11B10 (SSGINode's own GI-output format), halving its bytes.
       radianceRG11B10: true,
+      // Round 4: pack the reprojected radiance and a coarse light-source normal into one 32-bit fetch, instead
+      // of a separate normal-texture fetch per SSGI sample. Supersedes radianceRG11B10's own format.
+      packLightNormals: true,
     },
   },
 };

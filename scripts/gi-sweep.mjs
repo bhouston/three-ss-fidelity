@@ -1,4 +1,4 @@
-// Reproduce the indoor SSGI sensitivity experiment without changing scene defaults or saved results.
+// Reproduce the original legacy-weighting, low-sample indoor SSGI sensitivity experiment without changing scene defaults or saved results.
 // Run after pnpm build: node scripts/gi-sweep.mjs [output-directory]
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
@@ -30,11 +30,14 @@ const reference = path.join(root, 'results/ssgi-animated/beauty/three-gpu-pathtr
 const rows = [];
 for (const variant of variants) {
   const setup = await definition.create(ctx);
-  setup.effects = { ...setup.effects, ssgi: { ...setup.effects.ssgi, ...variant.ssgi } };
+  setup.effects = {
+    ...setup.effects,
+    ssgi: { ...setup.effects.ssgi, sliceCount: 2, stepCount: 8, radius: 12, thickness: 1, ...variant.ssgi },
+  };
   if (variant.noSSR) setup.effects.ssr = undefined;
   const { width, height } = definition;
   const canvas = headless.createCanvas(width, height);
-  const renderer = await createRenderer('three-ss', canvas, setup, { width, height, pass: 'beauty' });
+  const renderer = await createRenderer('three-ss-legacy', canvas, setup, { width, height, pass: 'beauty' });
   await headless.ready();
   const frames = variant.frames ?? 128;
   const start = performance.now();

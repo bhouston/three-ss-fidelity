@@ -81,6 +81,7 @@ function createPipeline(
   setup: SceneSetup,
   aoOutput: boolean,
   ssgiReconstruction: NonNullable<RendererOptions['ssgiReconstruction']>,
+  ssgiWeighting: NonNullable<RendererOptions['ssgiWeighting']>,
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const tsl = {
@@ -150,6 +151,7 @@ function createPipeline(
   let giPass: AnyNode = null;
   if (effects.ssgi) {
     giPass = ssgi(previousRadiance, prePassDepth, sceneNormal, camera);
+    giPass.useSolidAngleWeighting.value = ssgiWeighting === 'solid-angle';
     giPass.sliceCount.value = effects.ssgi.sliceCount;
     giPass.stepCount.value = effects.ssgi.stepCount;
     giPass.giIntensity.value = effects.ssgi.giIntensity;
@@ -251,7 +253,7 @@ function createPipeline(
 export async function createThreeSSRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
-  { width, height, pass: renderPass, ssgiReconstruction = 'denoised' }: RendererOptions,
+  { width, height, pass: renderPass, ssgiReconstruction = 'denoised', ssgiWeighting = 'solid-angle' }: RendererOptions,
 ): Promise<LiveRenderer> {
   const setup = { ...sceneSetup, effects: passEffects(sceneSetup, renderPass) };
   const { scene, camera, effects } = setup;
@@ -272,11 +274,11 @@ export async function createThreeSSRenderer(
     pmremGenerator.dispose();
   }
 
-  const renderPipeline = createPipeline(renderer, setup, renderPass === 'ao', ssgiReconstruction);
+  const renderPipeline = createPipeline(renderer, setup, renderPass === 'ao', ssgiReconstruction, ssgiWeighting);
   let frames = 0;
 
   const handle: LiveRenderer = {
-    name: 'three-ss',
+    name: ssgiWeighting === 'legacy' ? 'three-ss-legacy' : 'three-ss',
     renderer,
     get frames() {
       return frames;

@@ -1,4 +1,4 @@
-export const RENDERERS = ['three-ss', 'three-gpu-pathtracer'] as const;
+export const RENDERERS = ['three-ss', 'three-ss-legacy', 'three-gpu-pathtracer'] as const;
 export type RendererName = (typeof RENDERERS)[number];
 
 export function isRendererName(value: string): value is RendererName {
@@ -41,8 +41,9 @@ export interface SceneSummary {
   name: string;
   description?: string;
   /** Result image URLs; absent when the file does not exist. */
-  images: { reference?: string; test?: string; delta?: string };
+  images: { reference?: string; test?: string; delta?: string; legacy?: string; legacyDelta?: string };
   metrics?: SceneMetrics;
+  legacyMetrics?: SceneMetrics;
 }
 
 export const SORT_OPTIONS = [

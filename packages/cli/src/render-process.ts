@@ -10,7 +10,7 @@ export interface RenderJob {
   scenes: string[];
   passes: PassName[];
   outDir: string;
-  /** three-ss frames; defaults to each scene's effects.frames. */
+  /** Screen-space renderer frames; defaults to each scene's effects.frames. */
   frames?: number;
   /** three-gpu-pathtracer samples. */
   samples: number;
@@ -19,8 +19,8 @@ export interface RenderJob {
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
 
 async function main(job: RenderJob): Promise<void> {
-  const headless =
-    job.renderer === 'three-ss' ? await import('./headless/webgpu.js') : await import('./headless/webgl.js');
+  const screenSpace = job.renderer === 'three-ss' || job.renderer === 'three-ss-legacy';
+  const headless = screenSpace ? await import('./headless/webgpu.js') : await import('./headless/webgl.js');
   headless.install();
   const { createRenderer, passEffects } = await import('@ss-fidelity/renderers');
   const { getScene } = await import('@ss-fidelity/scenes');
@@ -41,7 +41,7 @@ async function main(job: RenderJob): Promise<void> {
     const canvas = headless.createCanvas(width, height);
     const renderer = await createRenderer(job.renderer, canvas, setup, { width, height, pass });
     await headless.ready();
-    const target = job.renderer === 'three-ss' ? (job.frames ?? passEffects(setup, pass).frames) : job.samples;
+    const target = screenSpace ? (job.frames ?? passEffects(setup, pass).frames) : job.samples;
     const renderStart = performance.now();
     while (renderer.frames < target) {
       renderer.render();
@@ -57,7 +57,7 @@ async function main(job: RenderJob): Promise<void> {
       .toFile(file);
     renderer.dispose();
     console.log(
-      `${name} | ${pass} | ${job.renderer}: ${target} ${job.renderer === 'three-ss' ? 'frames' : 'samples'} in ${seconds(renderMs)} (setup ${seconds(renderStart - start)}) -> ${path.relative(process.cwd(), file)}`,
+      `${name} | ${pass} | ${job.renderer}: ${target} ${screenSpace ? 'frames' : 'samples'} in ${seconds(renderMs)} (setup ${seconds(renderStart - start)}) -> ${path.relative(process.cwd(), file)}`,
     );
   }
 }

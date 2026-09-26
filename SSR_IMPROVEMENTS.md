@@ -363,3 +363,60 @@ matches the measured 1.27×. The rough-floor brightness offset is therefore enti
   0.000–0.0014. Visually the steampunk images are indistinguishable: the differences are on
   inter-reflections between parts of the model, where hidden-side radiance is proxied anyway. **Kept**,
   because it is the principled fix and a clear, scale-independent win on every diagnostic.
+
+## R2.5 Transparent-flagged surfaces in the pre-passes (kept)
+
+- **Finding.** The steampunk scene, like the three.js example it copies, marks the `Lense_Casing`
+  material `transparent`. That material is opaque (opacity 1), and it covers the whole front of the
+  model: lens, rings, crank and front body. The pre-pass skipped transparent objects, so those pixels
+  had no G-buffer. Debug views of the pre-pass metal/roughness and of the SSR target showed the entire
+  front assembly missing. The casing then read its reflections from the SSR result of the surface behind
+  it, or from a discarded texel (0), and no other ray could hit it.
+- **Change.** In the `three-new-ssr` setup, the pre-pass and the back-face depth pass include
+  transparent objects.
+- **Result.** Steampunk improves 0.1004 → **0.0967**:
+
+  | scene                  | before | after  |
+  | ---------------------- | ------ | ------ |
+  | `ssr-steampunk-camera` | 0.0840 | 0.0808 |
+  | `roughness-0`          | 0.1136 | 0.1090 |
+  | `roughness-25`         | 0.1128 | 0.1086 |
+  | `roughness-50`         | 0.1074 | 0.1043 |
+  | `roughness-100`        | 0.0840 | 0.0809 |
+
+  The diagnostics are unchanged, and overall goes 0.0517 → **0.0505**. Most of the gain comes from
+  the back-face pass: the pre-pass alone gave steampunk only −0.0011.
+
+- **Scene note.** A truly translucent surface would now occlude SSR rays behind it. No scene in the suite
+  has one; this is an assumption to revisit if one is added.
+
+## R2.6 Experiments that did not help (reverted)
+
+- **Unblurred environment for the rays.** Stochastic misses used a sigma-0 PMREM instead of the
+  materials' sigma-0.04/0.05 one. This mirrors the path tracer's unblurred cube, but steampunk got
+  worse on every roughness except 0 and 25 (+0.0012 on the default, −0.0018 on `roughness-0`). With
+  256 samples, RoomEnvironment's small, very bright light panels produce firefly noise, which costs
+  more than the blur mismatch. The diagnostics' smooth gradient environment is unaffected.
+- **Material roughness without the specular-AA floor.** `getRoughness` raises roughness to
+  `0.4·sqrt(geometryRoughness)`. Sampling the lobe with `materialRoughness` instead, which has no such
+  floor, left steampunk flat at 0.1004 → 0.1005. On the default model the geometric floor is not a
+  significant error source.
+- **1024 instead of 256 accumulated frames.** The diagnostics did not change (±0.0001), and steampunk
+  moved by at most −0.0006, so 256 frames is converged to well under 1 % of the remaining error.
+
+## R2.7 Hit radiance direction (C3): measured, not fixed
+
+A hit reuses the previous frame's radiance at the hit pixel, which is the radiance leaving toward the
+camera and not toward the reflecting point. That is exact for the diagnostics' emitters, which are
+view-independent. It is wrong for metal-on-metal paths, and the steampunk model is almost entirely
+metal.
+
+As a sensitivity bound, turning every hit on a metal surface (hit metalness 1) into an environment miss
+worsens steampunk by +0.008 to +0.014 (mean 0.1004 → 0.1115). The screen-space signal on metal hits,
+occlusion plus approximate radiance, is therefore essential, and discarding it is not an option.
+
+A principled fix needs the hit's outgoing radiance toward `−R`. That requires splitting the scene pass
+into view-independent (emissive + diffuse) and specular parts, then re-evaluating the hit's specular for
+`−R` from the hit G-buffer: normal, roughness, and F0/base color, which is not in the G-buffer today.
+This is left as future work. For glossy metal hits the error is roughly that of shading the hit with the
+wrong reflection vector, and it grows with the angle between the camera ray and `−R`.

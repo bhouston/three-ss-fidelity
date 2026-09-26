@@ -106,7 +106,9 @@ function createPipeline(
   // normals and velocity have to come from a separate pass
   const prePass = pass(scene, camera);
   prePass.name = 'Pre-Pass';
-  prePass.transparent = false;
+  // three-new-ssr also writes transparent surfaces (e.g. steampunk's opaque-but-transparent-flagged Lense_Casing):
+  // they read their reflections from the SSR target at their own pixels, so they need depth/normal/roughness there
+  prePass.transparent = ssrMethod === 'new';
   prePass.setMRT(
     mrt({
       output: packNormalToRGB(normalView),
@@ -174,7 +176,7 @@ function createPipeline(
   const backDepth = (): AnyNode => {
     const backPass = pass(scene, camera);
     backPass.name = 'Back-Face Depth Pre-Pass';
-    backPass.transparent = false;
+    backPass.transparent = true; // like the pre-pass (three-new-ssr only)
     backPass.overrideMaterial = new MeshBasicNodeMaterial({ side: BackSide });
     return backPass.getTextureNode('depth');
   };

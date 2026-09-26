@@ -937,3 +937,30 @@ backDepthResolutionScale` (still wired, left unset) renders the dual-layer depth
   wasn't already free, for a further ~7% cumulative speedup.
 - **Cumulative (final):** speedup **1.972×** (measured directly), quality **0.61%** regression vs
   `three-new-ssr` (worst single scene ≈2.3%, both within the 1%/3% budgets).
+
+## Summary
+
+| round | change                                                  | flag(s)                       | mean speedup (cumulative) | mean quality regression (cumulative) | worst scene          |
+| ----- | ------------------------------------------------------- | ----------------------------- | ------------------------- | ------------------------------------ | -------------------- |
+| 0     | baseline (all flags unset)                              | —                             | 1.00×                     | 0.00%                                | —                    |
+| 1     | clip SSR rays to the screen                             | `clipRaysToScreen`            | 1.03×                     | 0.00%                                | (noise only)         |
+| 2     | skip 2nd bounce march for rough hits (roughness ≥ 0.8)  | `secondBounceRoughnessCutoff` | 1.09×                     | 0.05%                                | offscreen ≈0.5%      |
+| 3     | fewer accumulated pipeline frames (256 → 192)           | `accumFrames`                 | 1.36×                     | 0.34%                                | steampunk/r100 ≈1.7% |
+| 4     | coarser march step density (1 → 0.6)                    | `quality`                     | 1.85×                     | 0.57%                                | metal-hit ≈2.7%      |
+| 5     | lower march density for the 2nd bounce only (0.6 → 0.4) | `secondBounceQuality`         | **1.97×**                 | **0.61%**                            | metal-hit ≈2.3%      |
+
+Tried and reverted (not in the final flags): binary-refinement steps 8→4/2 (round 2, sub-noise-floor
+speedup and/or over worst-scene budget), half-resolution back-face depth pre-pass (round 5, over both
+budgets). Both remain wired as `SSRFastOptions` fields, just unset in `index.ts`'s table, so a future round
+can revisit them with different settings if needed.
+
+**Final quality-gate** (22 gated scenes, beauty): mean RMSE `three-new-ssr` 0.0457 → `three-new-ssr-fast`
+0.0459 (**+0.61%**, threshold 1%), worst single scene `ssr-diag-metal-hit` +2.3% (threshold ~3%).
+**Final quality vs `three-new-ssgi`** (the pre-round-1 baseline, 17 `ssr-*` scenes): mean RMSE 0.0591 →
+0.0457 (`three-new-ssr`) → 0.0457 (`three-new-ssr-fast`, diag 0.0294, steampunk 0.0847) — `three-new-ssr-fast`
+is still a **23% lower** mean RMSE than `three-new-ssgi`, i.e. all three rounds' fidelity work is preserved.
+**Final speed vs `three-new-ssgi`**: not separately benchmarked (`three-new-ssgi` was never the speed
+baseline for this task; `three-new-ssr` was), but `three-new-ssgi` doesn't run `three-new-ssr`'s stochastic
+accumulation loop at all, so it remains faster in absolute terms than either `three-new-ssr` or
+`three-new-ssr-fast` — the point of this task was closing part of that gap without losing the fidelity work,
+which the **1.97×** cumulative speedup and the 23%-lower-than-`three-new-ssgi` RMSE both confirm.

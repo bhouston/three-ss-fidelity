@@ -41,14 +41,20 @@ for (const name of args.scenes ? args.scenes.split(',') : listSceneNames()) {
     await device.queue.onSubmittedWorkDone();
     await new Promise((resolve) => setImmediate(resolve)); // async shader compilation
   }
-  // Throughput: batches of back-to-back frames keep the GPU saturated (steady clocks); total = batch wall time per
-  // frame, cpu = process CPU time of the render() calls per frame (robust to scheduling contention).
+  // Throughput: batches of frames submitted without waiting on the GPU keep it saturated (steady clocks); total =
+  // batch wall time per frame, cpu = process CPU time of the render() calls per frame (robust to scheduling
+  // contention). The node frame (and with it every effect pass) only advances in the renderer's animation loop,
+  // which the headless requestAnimationFrame runs from a timer, so each frame must yield to it: back-to-back
+  // render() calls would re-run only the final output pass.
+  const nodeFrame = live.renderer._nodes.nodeFrame;
   const cpu = [];
   const total = [];
   for (let batch = 0; batch < measure / BATCH; batch++) {
     const start = performance.now();
+    const firstFrame = nodeFrame.frameId;
     let cpuTime = 0;
     for (let i = 0; i < BATCH; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
       const usage = process.cpuUsage();
       live.render();
       const { user, system } = process.cpuUsage(usage);
@@ -57,6 +63,7 @@ for (const name of args.scenes ? args.scenes.split(',') : listSceneNames()) {
     await device.queue.onSubmittedWorkDone();
     total.push((performance.now() - start) / BATCH);
     cpu.push(cpuTime / BATCH);
+    if (nodeFrame.frameId - firstFrame < BATCH) throw new Error(`${name}: effects did not run every frame`);
   }
   results[name] = { cpu: median(cpu), total: median(total) };
   live.dispose();

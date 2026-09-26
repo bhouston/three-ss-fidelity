@@ -1,7 +1,15 @@
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import { createPathTracerRenderer } from './pathtracer.js';
 import { createSSGIRenderer } from './ssgi.js';
-import type { LiveRenderer, RendererName, RendererOptions, SSGIWeighting, SSRFastOptions, SSRMethod } from './types.js';
+import type {
+  LiveRenderer,
+  RendererName,
+  RendererOptions,
+  SSGIFastOptions,
+  SSGIWeighting,
+  SSRFastOptions,
+  SSRMethod,
+} from './types.js';
 
 export * from './types.js';
 export { createPathTracerRenderer, PATHTRACER_BOUNCES } from './pathtracer.js';
@@ -16,7 +24,7 @@ export { createSSGIRenderer, passEffects } from './ssgi.js';
  */
 const screenSpaceOptions: Record<
   Exclude<RendererName, 'three-gpu-pathtracer'>,
-  { ssgiWeighting: SSGIWeighting; ssrMethod: SSRMethod; ssrFast?: SSRFastOptions }
+  { ssgiWeighting: SSGIWeighting; ssrMethod: SSRMethod; ssrFast?: SSRFastOptions; ssgiFast?: SSGIFastOptions }
 > = {
   'three-new-ssgi': { ssgiWeighting: 'solid-angle', ssrMethod: 'fork' },
   'three-ss-legacy': { ssgiWeighting: 'legacy', ssrMethod: 'fork' },
@@ -53,6 +61,24 @@ const screenSpaceOptions: Record<
       // like the primary ray or the back-face pass do.
       secondBounceQuality: 0.4,
     },
+  },
+  // three-new-ssgi-fast: built on three-new-ssr-fast (same ssgiWeighting/ssrMethod/ssrFast) plus SSGI-side speed
+  // flags on the vendored SSGINode (packages/renderers/src/ssgi-fast/), each an explicit, togglable optimization
+  // measured and logged in SSGI_FAST.md. Every field starts at its three-new-ssr-fast-reproducing default; each
+  // optimization round flips one on here after passing its own quality gate.
+  'three-new-ssgi-fast': {
+    ssgiWeighting: 'solid-angle',
+    ssrMethod: 'new',
+    ssrFast: {
+      clipRaysToScreen: true,
+      secondBounceRoughnessCutoff: 0.8,
+      accumFrames: 192,
+      quality: 0.6,
+      secondBounceQuality: 0.4,
+    },
+    // Every ssgiFast field starts at its three-new-ssr-fast-reproducing default (false); each optimization
+    // round flips one on here after passing its own quality gate (see SSGI_FAST.md).
+    ssgiFast: {},
   },
 };
 

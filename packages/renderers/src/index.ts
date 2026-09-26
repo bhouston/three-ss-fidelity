@@ -1,11 +1,60 @@
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import { createPathTracerRenderer } from './pathtracer.js';
-import { createThreeSSRenderer } from './three-ss.js';
-import type { LiveRenderer, RendererName, RendererOptions } from './types.js';
+import { createSSGIRenderer } from './ssgi.js';
+import type { LiveRenderer, RendererName, RendererOptions, SSGIWeighting, SSRFastOptions, SSRMethod } from './types.js';
 
 export * from './types.js';
 export { createPathTracerRenderer, PATHTRACER_BOUNCES } from './pathtracer.js';
-export { createThreeSSRenderer, passEffects } from './three-ss.js';
+export { createSSGIRenderer, passEffects } from './ssgi.js';
+
+/**
+ * Screen-space renderer name -> the ssgi.ts pipeline options that produce it. Keeping this as a table (rather than
+ * branching in createRenderer) is what lets later renderers built on top of an existing one (e.g. a future
+ * `three-new-ssgi-fast` built on `three-new-ssgi`) be added as one more row. `three-new-ssr-fast` is built on
+ * `three-new-ssr` (same ssrMethod) plus `ssrFast`, whose optimizations are each an explicit, togglable flag -
+ * see SSR_IMPROVEMENTS.md's "Optimization rounds (three-new-ssr-fast)" section for what each one does and costs.
+ */
+const screenSpaceOptions: Record<
+  Exclude<RendererName, 'three-gpu-pathtracer'>,
+  { ssgiWeighting: SSGIWeighting; ssrMethod: SSRMethod; ssrFast?: SSRFastOptions }
+> = {
+  'three-new-ssgi': { ssgiWeighting: 'solid-angle', ssrMethod: 'fork' },
+  'three-ss-legacy': { ssgiWeighting: 'legacy', ssrMethod: 'fork' },
+  'three-new-ssr': { ssgiWeighting: 'solid-angle', ssrMethod: 'new' },
+  // Every ssrFast field starts at its three-new-ssr-reproducing default; each optimization round flips one
+  // on here after passing its own quality gate (see SSR_IMPROVEMENTS.md).
+  'three-new-ssr-fast': {
+    ssgiWeighting: 'solid-angle',
+    ssrMethod: 'new',
+    ssrFast: {
+      // Round 1: precompute the screen-exit ray parameter once per ray instead of a 4-comparison bounds
+      // test every march step. Bit-identical output.
+      clipRaysToScreen: true,
+      // Round 2 (tried, reverted): fewer binary-refinement steps (4, then 2) barely cleared the ~3%
+      // bench noise floor (mean speedup ~1.01x) and 2 steps pushed ssr-diag-metal-hit's RMSE regression
+      // to +5.7% (over the ~3% worst-scene budget). The dense 1px march dominates cost far more than its
+      // 8-step bisection, so this candidate isn't worth the risk; left at three-new-ssr's default (8).
+      // Round 2: skip the second (hit-specular) bounce's march for hits at or above this roughness,
+      // reading the prefiltered environment for the sampled direction instead. A rough hit's second
+      // bounce is already a poor one-sample stand-in for a wide GGX lobe, so the march there buys little.
+      secondBounceRoughnessCutoff: 0.8,
+      // Round 3: fewer accumulated pipeline frames per rendered result (time-to-image, not per-frame cost).
+      accumFrames: 192,
+      // Round 4: coarser march step density (binary refinement, still 8 steps, still recovers the exact
+      // contact from within the coarser bracket).
+      quality: 0.6,
+      // Round 5 (tried, reverted): halving the back-face depth pre-pass's resolution
+      // (backDepthResolutionScale, still wired below) pushed mean regression to +1.90% (over budget) and
+      // ssr-diag-mirror to +9.5% -- the dual-layer hit test is edge-sensitive (thin/close objects) in a
+      // way this pass's full resolution actually matters for, unlike the coarser primary march. Left
+      // unset (full resolution, three-new-ssr's behavior).
+      // Round 5: lower march density only for the second (hit-specular) bounce, which is already a
+      // small correction term for hits below the round-2 roughness cutoff and doesn't feed hit-acceptance
+      // like the primary ray or the back-face pass do.
+      secondBounceQuality: 0.4,
+    },
+  },
+};
 
 export function createRenderer(
   name: RendererName,
@@ -14,9 +63,7 @@ export function createRenderer(
   options: RendererOptions,
 ): Promise<LiveRenderer> {
   if (name === 'three-gpu-pathtracer') return createPathTracerRenderer(canvas, setup, options);
-  if (name !== 'three-ss' && name !== 'three-ss-legacy') throw new Error(`Unknown renderer "${name}"`);
-  return createThreeSSRenderer(canvas, setup, {
-    ...options,
-    ssgiWeighting: name === 'three-ss-legacy' ? 'legacy' : 'solid-angle',
-  });
+  const screenSpace = screenSpaceOptions[name];
+  if (!screenSpace) throw new Error(`Unknown renderer "${name}"`);
+  return createSSGIRenderer(canvas, setup, { ...options, ...screenSpace });
 }

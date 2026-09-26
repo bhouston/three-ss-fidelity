@@ -1,14 +1,15 @@
 import { existsSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { passNames } from '@ss-fidelity/renderers';
+import { passNames, rendererNames } from '@ss-fidelity/renderers';
 import { listSceneNames } from '@ss-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
 import { compareImages, type MetricsFile } from '../compare.js';
 import { comparisonPaths, renderPath, resultsDir } from '../paths.js';
 import { selectNames } from '../select.js';
 
-const comparedRenderers = ['three-ss', 'three-ss-legacy'] as const;
+// Every screen-space renderer (everything but the path-traced reference itself).
+const comparedRenderers = rendererNames.filter((name) => name !== 'three-gpu-pathtracer');
 
 export const command = defineCommand({
   command: 'compare',
@@ -29,11 +30,7 @@ export const command = defineCommand({
       .option('output', { type: 'string', default: resultsDir, describe: 'Results directory' }),
   handler: async (argv) => {
     const passes = selectNames(passNames, argv.passes, 'pass');
-    const renderers = selectNames(
-      comparedRenderers,
-      argv.renderers,
-      'renderer',
-    ) as (typeof comparedRenderers)[number][];
+    const renderers = selectNames(comparedRenderers, argv.renderers, 'renderer');
     for (const scene of selectNames(listSceneNames(), argv.scenes, 'scene')) {
       for (const pass of passes) {
         const reference = renderPath(scene, pass, 'three-gpu-pathtracer', argv.output);

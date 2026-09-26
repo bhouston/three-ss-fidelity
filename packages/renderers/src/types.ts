@@ -11,6 +11,8 @@ export type PassName = (typeof passNames)[number];
 export interface RendererOptions {
   width: number;
   height: number;
+  /** Diagnostic GI reconstruction in three-ss beauty passes; defaults to the existing denoised pipeline. */
+  ssgiReconstruction?: 'raw' | 'temporal' | 'denoised';
   /**
    * beauty: the full image, each renderer with its complete pipeline.
    * direct: first-hit lighting only (three-ss without SSGI/SSR, the pathtracer with a single scatter).

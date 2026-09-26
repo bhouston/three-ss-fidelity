@@ -21,6 +21,8 @@ import {
   roughness,
   sample,
   screenUV,
+  specularColorBlended,
+  specularF90,
   smoothstep,
   texture,
   unpackRGBToNormal,
@@ -115,6 +117,8 @@ function createPipeline(
       velocity,
       // the ssgi example packs the material uniforms, the ssr example the (texture-mapped) material properties
       metalRoughness: ssgiExample ? vec2(materialMetalness, materialRoughness) : vec2(metalness, roughness),
+      // three-new-ssr re-evaluates the specular of SSR hits for the reflected ray's direction (see NewSSRNode.js)
+      ...(ssrMethod === 'new' ? { specular: vec4(specularColorBlended, specularF90) } : {}),
     }),
   );
   const prePassNormal: AnyNode = prePass.getTextureNode();
@@ -193,7 +197,14 @@ function createPipeline(
       // three-new-ssr is the reference configuration: stochastic VNDF rays over the full GGX lobe for every
       // material (dielectrics too), accumulated into an unbiased running mean for the static camera.
       ...(ssrMethod === 'new'
-        ? { reflectNonMetals: true, stochastic: true, accumulate: true, backDepthNode: backDepth() }
+        ? {
+            reflectNonMetals: true,
+            stochastic: true,
+            accumulate: true,
+            backDepthNode: backDepth(),
+            hitMaterialNode: prePass.getTextureNode('metalRoughness'),
+            hitSpecularNode: prePass.getTextureNode('specular'),
+          }
         : {}),
     });
     if (scene.environment) ssrPass.environmentIntensity.value = scene.environmentIntensity;

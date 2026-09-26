@@ -571,3 +571,50 @@ strongly from the radiance toward the floor. The reference is path-traced at 409
 In the `three-new-ssr` image the floor reflection of the gold box shows the camera's view of its faces (red and
 green reflections from above), where the path tracer shows a dark brown underside with a red tint, and the
 floor reflection of the chrome sphere shows red streaks copied from the camera's view of its lower rim.
+
+## R3.2 Re-evaluate the hit's specular for the reflected ray (kept)
+
+- **Hypothesis.** A hit reads the previous frame's color at the hit pixel, which is the radiance leaving the hit
+  toward the camera. For a glossy hit, the specular part of that color is wrong for the reflected ray. The scene
+  pass computed that specular as `radiance · (F0·DFG.x + F90·DFG.y)(N·V_camera)`, where `radiance` is this node's
+  own previous SSR result at the hit pixel. That term can be removed exactly and replaced by the specular toward
+  `−R`.
+- **Change.**
+  - **Pre-pass (`ssgi.ts`, three-new-ssr only).** A `specular` MRT target stores
+    `vec4(specularColorBlended, specularF90)` (F0 already blended by metalness). The node gets it and the
+    metal/roughness texture as `hitSpecularNode` / `hitMaterialNode`, sampled at the hit UV.
+  - **Hit shading (`NewSSRNode.js`).** At a front-facing hit (`N_hit·(−R) > 0`):
+    `L = L_hit − S_prev(hit)·Fss(N·V_camera) + L₂·w₂`. `S_prev` is the previous resolve at the hit pixel.
+    `Fss` uses three.js's own `DFGLUT` at the hit's roughness. `L₂·w₂` is a second screen-space bounce: one
+    VNDF sample of the hit's lobe for the view direction `−R` (F0 = the hit's specular color, noise decorrelated
+    from the primary ray's), traced with the same march, reading the previous frame's color on a hit and the
+    environment (PMREM level 0) on a miss. `w₂ = F·G2/G1` makes `L₂·w₂` an unbiased estimate of the hit's
+    specular toward `−R`. Back-face hits keep the visible side's radiance as a proxy, as before.
+  - **Refactor.** The march and binary refinement moved into a `trace()` helper so the second bounce reuses
+    them. The primary ray is unchanged (bit-identical results with the correction disabled).
+- **Variants (RMSE).**
+
+  | variant                                                  | metal-hit | steampunk mean | diag mean (old 11) |
+  | -------------------------------------------------------- | --------- | -------------- | ------------------ |
+  | round 2                                                  | 0.0380    | 0.0966         | 0.0295             |
+  | `−S_prev·Fss(V_cam) + Env(reflect(R, N), rough)·Fss(−R)` | 0.0310    | 0.0970         | 0.0298             |
+  | `−S_prev·Fss(V_cam) + L₂·w₂` (second bounce) — **kept**  | 0.0257    | 0.0929         | 0.0295             |
+  | second bounce, skipped for dual-layer (hidden-side) hits | —         | +0.0008        | +0.0001            |
+
+  The prefiltered-environment variant has no occlusion or inter-reflection for the second bounce, which costs
+  `roughness-0` +0.0067 and `mirror`/`rough-10` +0.001. The second bounce keeps them.
+
+- **Result (kept variant).** metal-hit 0.0380 → **0.0257**. Steampunk 0.0966 → **0.0929**: `camera`
+  0.0805 → 0.0767, `roughness-25` 0.1086 → 0.1053, `roughness-50` 0.1041 → 0.0953, `roughness-100`
+  0.0807 → 0.0769, but `roughness-0` 0.1090 → 0.1104 (see R3.3: the lens casing's scene-pass specular is
+  not `S_prev`, so subtracting it is wrong there until R3.3). The other diagnostics move by at most ±0.0003.
+  Cornell: `ssgi-metallic` 0.0504 → 0.0506, the others ±0.0001 (the chrome sphere's hits are the walls,
+  which are diffuse, and its own highlight is direct light, which this does not touch). Overall mean
+  0.0497 → **0.0479** (all 17 scenes), 0.0505 → 0.0493 over the 16 round-2 scenes.
+- **Visual check.** The gold box's floor reflection turns from the camera's view of its faces (red/green
+  reflections from above) into the dark brown underside of the reference. The chrome sphere's floor reflection
+  keeps red streaks where the floor sees its hidden underside: those hits are dual-layer proxies (the visible
+  surface's position and normal stand in for the hidden one), which no screen-space data can fix.
+- **Cost.** At 640×480 (`pnpm cli bench`, same machine, before → after, per rendered frame of 16 pipeline
+  frames): steampunk 182 → 268 ms (11.4 → 16.8 ms per pipeline frame), `rough-30` 171 → 211 ms
+  (10.7 → 13.2 ms), metal-hit 145 → 169 ms (9.1 → 10.5 ms). The second march only runs for hits.

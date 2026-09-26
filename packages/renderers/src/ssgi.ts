@@ -213,7 +213,9 @@ function createPipeline(
 
   // scene pass, anti-aliased; the effects sample its previous (anti-aliased) frame reprojected to the current one
   const scenePass = pass(scene, camera);
-  const aaPass: AnyNode = ssgiExample ? traa(scenePass, prePassDepth, prePassVelocity, camera) : smaa(scenePass);
+  // three-new-ssr-rt always uses TRAA: its reflections converge over time, and TRAA integrates them with the rest
+  const useTRAA = ssgiExample || ssrFast.realtime !== undefined;
+  const aaPass: AnyNode = useTRAA ? traa(scenePass, prePassDepth, prePassVelocity, camera) : smaa(scenePass);
   const previousFrame = texture(aaPass.getTextureNode().value);
   const previousRadiance = sample((uv: AnyNode) =>
     previousFrame.sample(uv.sub(prePassVelocity.sample(uv).xy.mul(vec2(0.5, -0.5)))),

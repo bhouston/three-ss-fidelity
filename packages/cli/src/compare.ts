@@ -18,7 +18,8 @@ export interface MetricsFile extends ImageMetrics {
   scene: string;
   pass: string;
   reference: 'three-gpu-pathtracer';
-  test: 'three-ss' | 'three-ss-legacy';
+  /** The screen-space renderer name being compared against the reference. */
+  test: string;
   width: number;
   height: number;
   generatedAt: string;

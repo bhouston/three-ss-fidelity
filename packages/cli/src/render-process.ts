@@ -19,7 +19,7 @@ export interface RenderJob {
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
 
 async function main(job: RenderJob): Promise<void> {
-  const screenSpace = job.renderer === 'three-ss' || job.renderer === 'three-ss-legacy';
+  const screenSpace = job.renderer !== 'three-gpu-pathtracer';
   const headless = screenSpace ? await import('./headless/webgpu.js') : await import('./headless/webgl.js');
   headless.install();
   const { createRenderer, passEffects } = await import('@ss-fidelity/renderers');

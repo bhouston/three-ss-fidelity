@@ -7,6 +7,7 @@ import {
   builtinGIContext,
   builtinRadianceContext,
   color,
+  context,
   float,
   materialMetalness,
   materialRoughness,
@@ -265,7 +266,15 @@ function createPipeline(
     }
   }
 
-  const radiance = reflections ? tsl.builtinRadianceContext(reflections) : null;
+  // builtinRadianceContext leaves transparent-flagged materials on the environment map. three-new-ssr's pre-passes
+  // include them (steampunk's opaque Lense_Casing), so they take the SSR radiance too.
+  const radiance = !reflections
+    ? null
+    : ssrMethod === 'new'
+      ? (context as AnyNode)(null, {
+          getRadiance: (inputNode: AnyNode) => (inputNode !== null ? inputNode.add(reflections) : reflections),
+        })
+      : tsl.builtinRadianceContext(reflections);
   if (giPass) {
     let ao: AnyNode = (temporal ? temporalDenoise(giPass.getAONode()) : giPass.getAONode()).sample(screenUV).r;
     const giSignal = giPass.getGINode();

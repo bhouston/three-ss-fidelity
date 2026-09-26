@@ -618,3 +618,19 @@ floor reflection of the chrome sphere shows red streaks copied from the camera's
 - **Cost.** At 640×480 (`pnpm cli bench`, same machine, before → after, per rendered frame of 16 pipeline
   frames): steampunk 182 → 268 ms (11.4 → 16.8 ms per pipeline frame), `rough-30` 171 → 211 ms
   (10.7 → 13.2 ms), metal-hit 145 → 169 ms (9.1 → 10.5 ms). The second march only runs for hits.
+
+## R3.3 SSR radiance for transparent-flagged materials (kept)
+
+- **Finding.** R2.5 added the steampunk `Lense_Casing` (opaque, but flagged `transparent`) to the pre-passes, so
+  rays hit it and it has a G-buffer. But `builtinRadianceContext` returns the environment radiance unchanged for
+  transparent-flagged materials, so the casing, which covers the whole front of the model, never received SSR
+  in the scene pass. It reflected the unoccluded environment, and R3.2 subtracted the wrong radiance at hits
+  on it, which is why `roughness-0` regressed there.
+- **Change (`ssgi.ts`, three-new-ssr only).** The scene pass uses a local copy of `builtinRadianceContext`
+  without the transparent check. `three-new-ssgi`/`three-ss-legacy` keep the three.js function.
+- **Result.** Steampunk 0.0929 → **0.0854**: `camera` 0.0767 → 0.0715, `roughness-0` 0.1104 → 0.1023,
+  `roughness-25` 0.1053 → 0.0960, `roughness-50` 0.0953 → 0.0855, `roughness-100` 0.0769 → 0.0715. The
+  diagnostics have no transparent materials and are unchanged. Overall 0.0479 → **0.0457**. The casing now
+  shows the dark, occluded reflections of the reference instead of the bright environment.
+- **Residual.** The model shows more per-pixel noise than in round 2: the casing's SSR and the second bounce
+  of R3.2 both add variance that 256 frames do not fully average out.

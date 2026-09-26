@@ -420,3 +420,118 @@ into view-independent (emissive + diffuse) and specular parts, then re-evaluatin
 `−R` from the hit G-buffer: normal, roughness, and F0/base color, which is not in the G-buffer today.
 This is left as future work. For glossy metal hits the error is roughly that of shading the hit with the
 wrong reflection vector, and it grows with the angle between the camera ray and `−R`.
+
+## R2.8 Silhouette zero-weight pixels and non-finite samples (kept)
+
+- **Finding.** On `ssr-diag-sphere` and on the steampunk parts, isolated silhouette pixels came out
+  black. At those pixels the interpolated normal faces away from the camera (N·V ≤ 0), every VNDF
+  sample gets weight 0, and the resolve returns 0. A debug resolve that painted `Σw = 0` magenta
+  confirmed this.
+- **Change.** The stochastic path bends its sampling normal toward V until N·V ≥ 0.02. The
+  accumulation also drops non-finite samples as zero-weight samples, because a single NaN would
+  otherwise poison a pixel's running mean for good.
+- **Result.** The black silhouette pixels are gone. Steampunk moves 0.0967 → 0.0966 and the
+  diagnostics do not change.
+
+## Round 2 summary
+
+| scene                              | baseline (three-new-ssgi) | round 1 | round 2 (final) |
+| ---------------------------------- | ------------------------- | ------- | --------------- |
+| ssr-diag-dielectric-0              | 0.0249                    | 0.0137  | 0.0132          |
+| ssr-diag-dielectric-30             | 0.0222                    | 0.0156  | 0.0128          |
+| ssr-diag-grazing                   | 0.0249                    | 0.0338  | 0.0213          |
+| ssr-diag-mirror                    | 0.0280                    | 0.0220  | 0.0167          |
+| ssr-diag-occlusion                 | 0.0184                    | 0.0154  | 0.0151          |
+| ssr-diag-offscreen                 | 0.0493                    | 0.0440  | 0.0333          |
+| ssr-diag-rough-10                  | 0.0271                    | 0.0224  | 0.0160          |
+| ssr-diag-rough-30                  | 0.0290                    | 0.0315  | 0.0158          |
+| ssr-diag-rough-60                  | 0.0517                    | 0.0548  | 0.0521          |
+| ssr-diag-sphere                    | 0.0676                    | 0.0646  | 0.0608          |
+| ssr-diag-wall                      | 0.0879                    | 0.0808  | 0.0677          |
+| ssr-steampunk-camera               | 0.0970                    | 0.1063  | 0.0805          |
+| ssr-steampunk-camera-roughness-0   | 0.1172                    | 0.1178  | 0.1090          |
+| ssr-steampunk-camera-roughness-25  | 0.1152                    | 0.1175  | 0.1086          |
+| ssr-steampunk-camera-roughness-50  | 0.1103                    | 0.1150  | 0.1041          |
+| ssr-steampunk-camera-roughness-100 | 0.0969                    | 0.1064  | 0.0807          |
+
+**Mean RMSE:**
+
+|                 | overall                          | diag                 | steampunk            |
+| --------------- | -------------------------------- | -------------------- | -------------------- |
+| baseline        | 0.0605                           | 0.0392               | 0.1073               |
+| round 1         | 0.0601                           | 0.0362               | 0.1126               |
+| round 2 (final) | **0.0505** (−16.5 % vs baseline) | **0.0295** (−24.7 %) | **0.0966** (−10.0 %) |
+
+Every scene is better than both the baseline and round 1, except `rough-60`, which is flat (see below).
+
+**Other scenes (beauty, `three-new-ssr` against the committed `three-new-ssgi`).**
+
+- **Scenes without SSR.** The `gi-*` scenes and `higharc_dogwood` have identical RMSE.
+- **Cornell `ssgi-*` scenes.** These use SSR, and they improve:
+
+  | scene                         | three-new-ssgi | three-new-ssr |
+  | ----------------------------- | -------------- | ------------- |
+  | `ssgi-basic`                  | 0.0681         | 0.0606        |
+  | `ssgi-rounded`                | 0.0519         | 0.0431        |
+  | `ssgi-metallic`               | 0.0707         | 0.0504        |
+  | `ssgi-animated`               | 0.0492         | 0.0401        |
+  | `ssgi-animated-visible-walls` | 0.0486         | 0.0398        |
+
+  In `ssgi-metallic` the chrome sphere now reflects the red and green walls and the floor instead of
+  being mostly black. These scenes' 128 frames become 256 pipeline frames, so SSGI's temporal
+  accumulation also gets twice as many frames. Part of that gain is therefore not SSR.
+
+**Cost.**
+
+- **Frames.** The `ssr-*` scenes run 16 pipeline frames per rendered frame (256 in total) with 1
+  stochastic ray per pixel per pipeline frame.
+- **Per pipeline frame.** At 640×480 (`pnpm cli bench`), one pipeline frame takes about 12 ms on
+  `ssr-steampunk-camera` and about 11 ms on `ssr-diag-rough-30`. `three-new-ssgi` takes 6.0 ms and
+  10.5 ms for its whole frame.
+- **Per rendered frame.** That makes `three-new-ssr` 17–33× slower per rendered frame (198 ms and
+  175 ms).
+- **Where the per-frame cost goes.**
+  - A dense 1-px march with binary refinement.
+  - An extra back-face depth pass.
+  - The accumulate and resolve passes.
+
+**Remaining error and how much is not SSR.**
+
+- **Multiscatter energy compensation.** This is a raster material-model difference. With three.js's
+  Fdez-Agüera indirect term and the direct compensation zeroed in a local, uncommitted build:
+  - `rough-60` drops 0.0521 → **0.0137**, which is essentially all of its error.
+  - `rough-30` drops 0.0158 → 0.0143.
+  - Steampunk drops by about 0.002 per scene.
+  - Overall mean falls 0.0517 → 0.0486 and diag 0.0295 → 0.0259.
+
+  The path tracer is single-scatter GGX (R2.3).
+
+- **Steampunk.** 87 % of the squared error lies inside the model's bounding box. The main SSR-side
+  causes there are:
+  - Hit radiance is view-dependent, and the model is almost entirely metal (R2.7, unfixed).
+  - Hidden sides of parts are proxied by their visible sides.
+  - Missing diffuse occlusion and GI: the scene has no SSGI, so the materials' diffuse and multiscatter
+    terms use unoccluded environment irradiance.
+
+  The last two are not SSR.
+
+- **Off-screen and hidden geometry.** This is inherent to SSR and dominates `wall`, where the lower
+  wall should mirror the floor near the camera, which is off-screen. It also dominates `sphere`, where
+  the lower hemisphere should mirror floor that is off-screen or hidden by the sphere, and the red
+  emitter is off-screen. In `offscreen` it is the box behind the camera.
+- **Environment prefilter.** The rays sample PMREM level 0 (sigma 0.04/0.05) where the path tracer uses
+  an unblurred cube. With 256 samples that is the better trade-off (R2.6).
+
+**Candidates for the optimization round.**
+
+- **Traversal.** Replace the 1-px march and 8-step bisection with Hi-Z traversal. The march is the
+  dominant cost.
+- **Ray count and noise.** Trace at half resolution with neighbour ray reuse in the resolve, the
+  ratio estimator with this pixel's BRDF (Stachowiak 2015). Add a spatio-temporal denoiser, or
+  reprojection with ratio-estimator history, in place of the 256-frame running mean.
+- **Rough surfaces.** Above a roughness threshold, fall back to the prefiltered environment plus a
+  visibility term. For rough-60 a few coarse rays already give the occlusion.
+- **Back-face depth pass.** Render it only for SSR-relevant geometry, or derive the thickness from a
+  conservative constant with dual-layer depth only where needed.
+- **Keep for quality.** VNDF sampling, `mirrorBias` 0, the ratio estimator, back-face hits,
+  background-hit rejection, and per-ray environment misses cost nothing extra and should stay.

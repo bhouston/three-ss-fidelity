@@ -1052,7 +1052,14 @@ class NewSSRNode extends Node {
         Xi.y.assign(mix(Xi.y, 0.0, this.mirrorBias.mul(Xi.w.sqrt())));
 
         albedo.assign(this.diffuseNode !== null ? this.diffuseNode.sample(uvPos).rgb : vec3(1));
-        const ggxSample = ggxReflectionSample(viewNormal, V, roughness, metalness, albedo, Xi).toVar();
+        // Silhouette pixels can have an interpolated normal facing (almost) away from the camera, where every VNDF
+        // sample gets weight 0 (N·V <= 0) and the pixel resolves to black: bend the sampling normal to N·V >= 0.02.
+        const NdotVRaw = dot(viewNormal, V);
+        const sampleNormal = viewNormal
+          .add(V.mul(float(0.02).sub(NdotVRaw).max(0)))
+          .normalize()
+          .toVar();
+        const ggxSample = ggxReflectionSample(sampleNormal, V, roughness, metalness, albedo, Xi).toVar();
 
         // A below-horizon sample has G2 = 0 (NdotL clamps to 0), so its weight is already 0: no re-sampling.
 
@@ -1447,9 +1454,17 @@ class NewSSRNode extends Node {
     if (this.accumulate) {
       this._accumHistory.value = this._accumTargets[0].texture;
       this._resolveHistory.value = this._accumTargets[0].texture;
+      // A non-finite sample (NaN fails every comparison) would poison the running mean forever: drop it as a
+      // zero-weight sample, which the ratio estimator ignores.
+      const current = reflectionBuffer.sample(uvNode);
+      const finite = current.a
+        .greaterThanEqual(0)
+        .and(current.a.lessThan(1e30))
+        .and(luminance(current.rgb).greaterThanEqual(0))
+        .and(luminance(current.rgb).lessThan(1e30));
       this._accumMaterial.fragmentNode = mix(
         this._accumHistory.sample(uvNode),
-        reflectionBuffer.sample(uvNode),
+        finite.select(current, vec4(0)),
         this._accumAlpha,
       );
       this._accumMaterial.needsUpdate = true;

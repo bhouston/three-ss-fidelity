@@ -7,6 +7,7 @@ import { visibleWallScenes } from './gi-visible-walls.js';
 import { ssgiScenes } from './ssgi.js';
 import { ssrScenes } from './ssr.js';
 import { ssrDiagnosticScenes } from './ssr-diagnostics.js';
+import { traaDiagnosticScenes } from './traa-diagnostics.js';
 import type { SceneContext, SceneDefinition } from './types.js';
 
 export type * from './types.js';
@@ -20,6 +21,7 @@ const scenes = new Map<string, SceneDefinition>(
     ...giDiagnosticScenes,
     ...visibleWallScenes,
     ...ssrDiagnosticScenes,
+    ...traaDiagnosticScenes,
   ].map((scene) => [scene.name, scene]),
 );
 

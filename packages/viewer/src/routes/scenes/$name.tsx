@@ -8,6 +8,7 @@ import { isSceneName, readSceneResult, sceneRegistry } from '#/lib/results.serve
 import {
   PASSES,
   RENDERERS,
+  SCREEN_SPACE_RENDERERS,
   formatMetric,
   parsePass,
   passSearch,
@@ -21,10 +22,8 @@ const getScene = createServerFn({ method: 'GET' })
   .handler(async ({ data: { name, pass } }) => {
     const registered = sceneRegistry().find((scene) => scene.name === name);
     const result = isSceneName(name) ? await readSceneResult(name, pass) : undefined;
-    if (
-      !result ||
-      (!registered && !result.metrics && !result.legacyMetrics && !Object.values(result.images).some(Boolean))
-    ) {
+    const hasAnyResult = result && (result.reference || Object.keys(result.renderers).length > 0);
+    if (!result || (!registered && !hasAnyResult)) {
       throw notFound();
     }
     return { ...result, description: registered?.description };
@@ -42,7 +41,7 @@ export const Route = createFileRoute('/scenes/$name')({
 
 function SceneDetail() {
   const scene = Route.useLoaderData();
-  const { metrics, legacyMetrics, images } = scene;
+  const { reference, renderers } = scene;
   const pass = parsePass(Route.useSearch().pass);
 
   return (
@@ -85,41 +84,41 @@ function SceneDetail() {
         </div>
 
         <p className="text-sm text-muted-foreground">
-          Both screen-space methods use the same three.js fork and scene settings. The legacy method retains the
-          previous angular weighting; the corrected method uses solid-angle weighting.
+          Every screen-space method uses the same three.js fork and scene settings; each is compared against the same
+          path-traced reference. A method missing from this scene's results is simply left out below.
         </p>
         <section className="grid gap-4 md:grid-cols-3">
           <figure>
-            <ResultImage alt="three-gpu-pathtracer reference" src={images.reference} />
+            <ResultImage alt="three-gpu-pathtracer reference" src={reference} />
             <figcaption className="mt-1 text-center text-sm text-muted-foreground">
               three-gpu-pathtracer (reference)
             </figcaption>
           </figure>
-          <figure>
-            <ResultImage alt="three-ss corrected" src={images.test} />
-            <figcaption className="mt-1 text-center text-sm text-muted-foreground">three-ss (corrected)</figcaption>
-          </figure>
-          <figure>
-            <ResultImage alt="three-ss-legacy" src={images.legacy} />
-            <figcaption className="mt-1 text-center text-sm text-muted-foreground">
-              three-ss-legacy (same fork)
-            </figcaption>
-          </figure>
+          {SCREEN_SPACE_RENDERERS.flatMap((renderer) => {
+            const result = renderers[renderer];
+            if (!result?.image) return [];
+            return [
+              <figure key={renderer}>
+                <ResultImage alt={renderer} src={result.image} />
+                <figcaption className="mt-1 text-center text-sm text-muted-foreground">{renderer}</figcaption>
+              </figure>,
+            ];
+          })}
         </section>
-        <MethodComparison
-          label="three-ss (corrected)"
-          reference={images.reference}
-          image={images.test}
-          delta={images.delta}
-          metrics={metrics}
-        />
-        <MethodComparison
-          label="three-ss-legacy (previous weighting)"
-          reference={images.reference}
-          image={images.legacy}
-          delta={images.legacyDelta}
-          metrics={legacyMetrics}
-        />
+        {SCREEN_SPACE_RENDERERS.flatMap((renderer) => {
+          const result = renderers[renderer];
+          if (!result) return [];
+          return [
+            <MethodComparison
+              delta={result.delta}
+              image={result.image}
+              key={renderer}
+              label={renderer}
+              metrics={result.metrics}
+              reference={reference}
+            />,
+          ];
+        })}
       </div>
     </>
   );

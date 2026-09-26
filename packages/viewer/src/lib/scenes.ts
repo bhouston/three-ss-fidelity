@@ -1,5 +1,10 @@
-export const RENDERERS = ['three-ss', 'three-ss-legacy', 'three-gpu-pathtracer'] as const;
+export const RENDERERS = ['three-new-ssgi', 'three-ss-legacy', 'three-new-ssr', 'three-gpu-pathtracer'] as const;
 export type RendererName = (typeof RENDERERS)[number];
+
+/** Every screen-space renderer: everything but the path-traced reference. */
+export const SCREEN_SPACE_RENDERERS = RENDERERS.filter(
+  (name): name is Exclude<RendererName, 'three-gpu-pathtracer'> => name !== 'three-gpu-pathtracer',
+);
 
 export function isRendererName(value: string): value is RendererName {
   return (RENDERERS as readonly string[]).includes(value);
@@ -37,13 +42,20 @@ export interface SceneMetrics {
   generatedAt: string;
 }
 
+/** One screen-space renderer's result images + metrics for a scene/pass; absent fields mean the file doesn't exist. */
+export interface RendererResult {
+  image?: string;
+  delta?: string;
+  metrics?: SceneMetrics;
+}
+
 export interface SceneSummary {
   name: string;
   description?: string;
-  /** Result image URLs; absent when the file does not exist. */
-  images: { reference?: string; test?: string; delta?: string; legacy?: string; legacyDelta?: string };
-  metrics?: SceneMetrics;
-  legacyMetrics?: SceneMetrics;
+  /** Path-traced reference image URL; absent when the file does not exist. */
+  reference?: string;
+  /** Keyed by screen-space renderer name; a renderer missing from a scene's results is simply absent here. */
+  renderers: Partial<Record<Exclude<RendererName, 'three-gpu-pathtracer'>, RendererResult>>;
 }
 
 export const SORT_OPTIONS = [
@@ -58,10 +70,11 @@ export function parseSort(value: unknown): SortValue {
   return SORT_OPTIONS.some((option) => option.value === value) ? (value as SortValue) : 'name';
 }
 
-/** Identical images (`psnr: null`) rank as best; scenes without metrics rank last. */
+/** Sorts by the primary renderer's PSNR. Identical images (`psnr: null`) rank as best; scenes without it rank last. */
 function psnrRank(scene: SceneSummary): number | undefined {
-  if (!scene.metrics) return undefined;
-  return scene.metrics.psnr ?? Number.POSITIVE_INFINITY;
+  const psnr = scene.renderers[SCREEN_SPACE_RENDERERS[0]]?.metrics?.psnr;
+  if (psnr === undefined) return undefined;
+  return psnr ?? Number.POSITIVE_INFINITY;
 }
 
 const byName = (a: SceneSummary, b: SceneSummary) => a.name.localeCompare(b.name, undefined, { numeric: true });

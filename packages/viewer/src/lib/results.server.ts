@@ -2,23 +2,18 @@ import { existsSync } from 'node:fs';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { getScene, listSceneNames } from '@ss-fidelity/scenes';
-import type { PassName, SceneMetrics, SceneSummary } from '#/lib/scenes';
+import { SCREEN_SPACE_RENDERERS, type PassName, type SceneMetrics, type SceneSummary } from '#/lib/scenes';
 
 export const REFERENCE_FILE = 'three-gpu-pathtracer.avif';
-export const TEST_FILE = 'three-ss.avif';
-export const DELTA_FILE = 'delta.avif';
-export const METRICS_FILE = 'metrics.json';
-export const LEGACY_FILE = 'three-ss-legacy.avif';
-export const LEGACY_DELTA_FILE = 'delta-three-ss-legacy.avif';
-export const LEGACY_METRICS_FILE = 'metrics-three-ss-legacy.json';
+
+/** results/<scene>/<pass>/ filenames for one screen-space renderer: R.avif, delta-R.avif, metrics-R.json. */
+export function rendererFiles(renderer: string) {
+  return { image: `${renderer}.avif`, delta: `delta-${renderer}.avif`, metrics: `metrics-${renderer}.json` };
+}
+
 export const RESULT_FILES = [
   REFERENCE_FILE,
-  TEST_FILE,
-  DELTA_FILE,
-  METRICS_FILE,
-  LEGACY_FILE,
-  LEGACY_DELTA_FILE,
-  LEGACY_METRICS_FILE,
+  ...SCREEN_SPACE_RENDERERS.flatMap((renderer) => Object.values(rendererFiles(renderer))),
 ];
 
 const SCENE_NAME = /^[a-z0-9][a-z0-9._-]*$/;
@@ -66,16 +61,24 @@ async function imageUrl(dir: string, name: string, pass: PassName, file: string)
 }
 
 export async function readSceneResult(name: string, pass: PassName, dir = resultsDir()): Promise<SceneSummary> {
-  const [reference, test, delta, metrics, legacy, legacyDelta, legacyMetrics] = await Promise.all([
+  const [reference, rendererResults] = await Promise.all([
     imageUrl(dir, name, pass, REFERENCE_FILE),
-    imageUrl(dir, name, pass, TEST_FILE),
-    imageUrl(dir, name, pass, DELTA_FILE),
-    readMetrics(path.join(dir, name, pass, METRICS_FILE)),
-    imageUrl(dir, name, pass, LEGACY_FILE),
-    imageUrl(dir, name, pass, LEGACY_DELTA_FILE),
-    readMetrics(path.join(dir, name, pass, LEGACY_METRICS_FILE)),
+    Promise.all(
+      SCREEN_SPACE_RENDERERS.map(async (renderer) => {
+        const files = rendererFiles(renderer);
+        const [image, delta, metrics] = await Promise.all([
+          imageUrl(dir, name, pass, files.image),
+          imageUrl(dir, name, pass, files.delta),
+          readMetrics(path.join(dir, name, pass, files.metrics)),
+        ]);
+        return [renderer, { image, delta, metrics }] as const;
+      }),
+    ),
   ]);
-  return { name, images: { reference, test, delta, legacy, legacyDelta }, metrics, legacyMetrics };
+  const renderers = Object.fromEntries(
+    rendererResults.filter(([, result]) => result.image || result.delta || result.metrics),
+  ) as SceneSummary['renderers'];
+  return { name, reference, renderers };
 }
 
 export async function listResultSceneNames(dir = resultsDir()): Promise<string[]> {

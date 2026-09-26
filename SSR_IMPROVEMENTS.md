@@ -634,3 +634,18 @@ floor reflection of the chrome sphere shows red streaks copied from the camera's
   shows the dark, occluded reflections of the reference instead of the bright environment.
 - **Residual.** The model shows more per-pixel noise than in round 2: the casing's SSR and the second bounce
   of R3.2 both add variance that 256 frames do not fully average out.
+
+## R3.4 Second bounce for hidden-side hits (kept)
+
+- **Hypothesis.** R3.2 skipped back-face hits and treated dual-layer hits (a ray inside a solid, behind the
+  visible surface) as if they hit the visible surface. For both, the visible pixel's normal is not the hit
+  surface's. On steampunk the floor next to the model reflects the model's underside, which the reference shows
+  bright (metal reflecting the white floor) and `three-new-ssr` showed as the dark top side.
+- **Change (`NewSSRNode.js`).** `trace()` also reports whether the hit was accepted only by the dual-layer test.
+  For those hits and for back-face hits, the second bounce assumes the hidden surface faces the ray
+  (`N = −R`); the material (F0, roughness) and the view-independent part still come from the visible pixel.
+- **Result.** Steampunk 0.0854 → **0.0840** (`camera` 0.0715 → 0.0703, `roughness-0` 0.1023 → 0.1000,
+  `roughness-25` 0.0960 → 0.0943, `roughness-50` 0.0855 → 0.0849, `roughness-100` 0.0715 → 0.0703).
+  metal-hit 0.0257 → 0.0261: the floor sees the undersides of the gold box and the chrome sphere, whose true
+  normals point down at the red tile, while `N = −R` sends the bounce back toward the grey floor. The other
+  diagnostics move by ±0.0001 and the Cornell scenes by +0.0000–0.0003. Overall 0.0457 → **0.0453**.

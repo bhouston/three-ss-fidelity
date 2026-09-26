@@ -1193,10 +1193,14 @@ class NewSSRNode extends Node {
         // Second bounce: one VNDF sample of the hit's lobe for the view direction -R, traced in screen space. Its
         // weight F·G2/G1 makes L·w an unbiased estimate of the hit's specular toward -R.
         const Xi2 = sampleMarchNoise(uvNode, this._frameIndex, SECONDARY_NOISE_SALT).toVar();
-        const secondary = ggxReflectionSample(Nh, Vray, hitRoughness, float(1), hitSpecular.rgb, Xi2).toVar();
+        // A hidden-side hit (back-facing, or accepted only by the dual-layer test) has no normal of its own: assume the
+        // hidden surface faces the ray.
+        const hidden = NdotVray.lessThanEqual(0).or(hitInside);
+        const Nb = hidden.select(Vray, Nh).toVar();
+        const secondary = ggxReflectionSample(Nb, Vray, hitRoughness, float(1), hitSpecular.rgb, Xi2).toVar();
         const dir2 = secondary.get('reflectDir').toVar();
         const L2 = vec3(0).toVar();
-        const second = trace(vPHit, Nh, dir2, viewReflectDir, uvHit, Xi2.z);
+        const second = trace(vPHit, Nb, dir2, viewReflectDir, uvHit, Xi2.z);
         If(second.foundHit, () => {
           L2.assign(this.colorNode.sample(second.hitUvS).rgb);
         }).Else(() => {
@@ -1213,7 +1217,7 @@ class NewSSRNode extends Node {
           .add(L2.mul(secondary.get('sampleWeight')))
           .max(0);
         // Back-face hits (the ray reaches the hidden side, N·(-R) <= 0) keep the visible side's radiance as a proxy.
-        return NdotVray.greaterThan(0).select(corrected, color);
+        return corrected;
       };
 
       // Marches a view-space ray from a surface point against the depth buffer. Returns whether it hit and the hit's
@@ -1294,6 +1298,7 @@ class NewSSRNode extends Node {
         // Carry the hit out of the loop so refinement runs after the march, not nested inside it (a
         // loop-inside-a-loop tripped shader-compiler bugs on some drivers). hitSLo/hitSHi bracket s.
         const foundHit = bool(false).toVar();
+        const hitInside = bool(false).toVar();
         const hitSLo = float(0).toVar();
         const hitSHi = float(0).toVar();
         // Carry the coarse hit's UV/depth to skip a redundant fetch when refinement is off.
@@ -1383,6 +1388,7 @@ class NewSSRNode extends Node {
               }
 
               foundHit.assign(true);
+              hitInside.assign(away.greaterThan(tk));
               hitUvS.assign(uvS);
               hitD.assign(d);
 
@@ -1417,12 +1423,12 @@ class NewSSRNode extends Node {
           }
         });
 
-        return { foundHit, hitUvS, hitD };
+        return { foundHit, hitUvS, hitD, hitInside };
       };
 
       const output = vec4(0).toVar();
       const hit = float(0).toVar();
-      const { foundHit, hitUvS, hitD } = trace(
+      const { foundHit, hitUvS, hitD, hitInside } = trace(
         viewPosition,
         viewNormal,
         viewReflectDir,

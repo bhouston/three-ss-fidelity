@@ -84,6 +84,8 @@ const screenSpaceOptions: Record<
       // Round 2: reproject the previous frame's radiance once into a texture instead of once per SSGI sample
       // (~32 samples/pixel).
       reprojectRadianceOnce: true,
+      // Round 3: store that reprojection as RG11B10 (SSGINode's own GI-output format), halving its bytes.
+      radianceRG11B10: true,
     },
   },
 };

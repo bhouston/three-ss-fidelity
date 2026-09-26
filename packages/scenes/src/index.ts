@@ -6,16 +6,21 @@ import { giDiagnosticScenes } from './gi-diagnostics.js';
 import { visibleWallScenes } from './gi-visible-walls.js';
 import { ssgiScenes } from './ssgi.js';
 import { ssrScenes } from './ssr.js';
+import { ssrDiagnosticScenes } from './ssr-diagnostics.js';
 import type { SceneContext, SceneDefinition } from './types.js';
 
 export type * from './types.js';
 export { ANIMATED_POSE_TIME } from './ssgi.js';
 
 const scenes = new Map<string, SceneDefinition>(
-  [...ssgiScenes, ...ssrScenes, ...higharcScenes, ...giDiagnosticScenes, ...visibleWallScenes].map((scene) => [
-    scene.name,
-    scene,
-  ]),
+  [
+    ...ssgiScenes,
+    ...ssrScenes,
+    ...higharcScenes,
+    ...giDiagnosticScenes,
+    ...visibleWallScenes,
+    ...ssrDiagnosticScenes,
+  ].map((scene) => [scene.name, scene]),
 );
 
 export function listSceneNames(): string[] {

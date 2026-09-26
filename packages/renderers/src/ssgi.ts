@@ -327,6 +327,7 @@ function createPipeline(
             // three-new-ssr-rt 'sssr': NewSSRNode's own spatial + temporal filter
             temporalFilter: ssrFast.realtime === 'sssr',
             velocityNode: prePassVelocity,
+            maxMarchSteps: ssrFast.maxMarchSteps ?? null,
             backDepthNode: backDepth(ssrFast.backDepthResolutionScale ?? 1),
             hitMaterialNode: prePass.getTextureNode('metalRoughness'),
             hitSpecularNode: prePass.getTextureNode('specular'),
@@ -485,11 +486,12 @@ export async function createSSGIRenderer(
     ssrMethod = 'fork',
     ssrFast,
     ssgiFast,
+    trackTimestamp = false,
   }: RendererOptions,
 ): Promise<LiveRenderer> {
   const setup = { ...sceneSetup, effects: passEffects(sceneSetup, renderPass) };
   const { scene, camera, effects } = setup;
-  const renderer = new WebGPURenderer({ canvas, antialias: false });
+  const renderer = new WebGPURenderer({ canvas, antialias: false, trackTimestamp });
   renderer.shadowMap.enabled = true;
   if (renderPass === 'ao') renderer.outputColorSpace = LinearSRGBColorSpace;
   renderer.toneMapping = effects.toneMapping;

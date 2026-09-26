@@ -54,6 +54,8 @@ export interface SSRFastOptions {
    * `'sssr'` NewSSRNode's own stochastic-SSR-style spatial ratio-estimator resolve + temporal filter. See SSR_TEMPORAL.md.
    */
   realtime?: 'reset' | 'fork' | 'sssr';
+  /** Cap on the dense march's steps per ray (steps then grow away from the origin); unset marches uncapped. */
+  maxMarchSteps?: number;
 }
 
 /**
@@ -97,6 +99,8 @@ export interface RendererOptions {
   ssrFast?: SSRFastOptions;
   /** three-new-ssgi-fast speed options for direct createSSGIRenderer callers; the registry selects it by name. */
   ssgiFast?: SSGIFastOptions;
+  /** Screen-space renderers: record WebGPU timestamp queries (renderer.resolveTimestampsAsync) for GPU timing. */
+  trackTimestamp?: boolean;
   /** Diagnostic GI reconstruction in three-new-ssgi beauty passes; defaults to the existing denoised pipeline. */
   ssgiReconstruction?: 'raw' | 'temporal' | 'denoised';
   /**

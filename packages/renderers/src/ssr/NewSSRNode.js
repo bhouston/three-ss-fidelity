@@ -142,6 +142,7 @@ class NewSSRNode extends Node {
       radianceHistoryNode = null,
       temporalFilter = false,
       velocityNode = null,
+      maxMarchSteps = null,
       // three-new-ssr-fast options (see SSRFastOptions in types.ts). Every default below reproduces
       // three-new-ssr's reference behavior exactly, so leaving them unset changes nothing.
       clipRaysToScreen = false,
@@ -577,6 +578,15 @@ class NewSSRNode extends Node {
      * @type {boolean}
      */
     this.temporalFilter = temporalFilter && stochastic && outputRadiance && !accumulate;
+
+    /**
+     * perf(three-new-ssr-rt): cap the dense march at this many steps per ray (compile-time constant). Rays longer
+     * than that march with steps growing as `(i/n)^stepExponent` (never under one texel), so near contacts stay dense
+     * and far hits rely on binary refinement plus the per-frame jitter. `null` keeps the uncapped dense march.
+     *
+     * @type {?number}
+     */
+    this._maxMarchSteps = maxMarchSteps;
     this.velocityNode = velocityNode;
 
     this._ssrRenderTarget = new RenderTarget(1, 1, {
@@ -1435,9 +1445,14 @@ class NewSSRNode extends Node {
         // coherent stochastic sampling; each step then spans the whole ray as rayVec / totalStep.
         // Radiance mode marches every ray (mirror or stochastic) densely: one step per 1/quality texels.
         const denseMarch = this.stochastic === false || this.outputRadiance;
+        const cappedMarch = denseMarch && this._maxMarchSteps !== null;
         const totalStep = int(
           denseMarch
-            ? trunc(max(abs(xLen), abs(yLen)).mul(marchQuality).min(65536))
+            ? trunc(
+                max(abs(xLen), abs(yLen))
+                  .mul(marchQuality)
+                  .min(cappedMarch ? this._maxMarchSteps : 65536),
+              )
                 .max(int(1))
                 .toConst()
             : marchQuality.mul(MAX_STEPS).max(float(1)),
@@ -1479,9 +1494,11 @@ class NewSSRNode extends Node {
         // Ray parameter s ∈ [0,1] for step `idx`. Blur marches uniformly (one step per 1/quality texels),
         // jittered per pixel so the hits don't snap to the steps, which showed as bands. Scatter uses an exponential remap `(idx/steps)^stepExponent`
         // that concentrates samples near the origin, floored to ≥1 texel/step; `jitter` dissolves banding.
-        const sampleFraction = denseMarch
-          ? (idx) => idx.add(jitter.sub(0.5)).div(totalStep).max(0)
-          : (idx) => max(idx.add(jitter.sub(0.5)).div(totalStep).pow(this.stepExponent), idx.div(rayLen));
+        const sampleFraction = cappedMarch
+          ? (idx) => max(idx.add(jitter.sub(0.5)).div(totalStep).max(0).pow(this.stepExponent), idx.div(rayLen))
+          : denseMarch
+            ? (idx) => idx.add(jitter.sub(0.5)).div(totalStep).max(0)
+            : (idx) => max(idx.add(jitter.sub(0.5)).div(totalStep).pow(this.stepExponent), idx.div(rayLen));
 
         // Carry the hit out of the loop so refinement runs after the march, not nested inside it (a
         // loop-inside-a-loop tripped shader-compiler bugs on some drivers). hitSLo/hitSHi bracket s.

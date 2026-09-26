@@ -38,6 +38,8 @@ const screenSpaceOptions: Record<
       // reading the prefiltered environment for the sampled direction instead. A rough hit's second
       // bounce is already a poor one-sample stand-in for a wide GGX lobe, so the march there buys little.
       secondBounceRoughnessCutoff: 0.8,
+      // Round 3: fewer accumulated pipeline frames per rendered result (time-to-image, not per-frame cost).
+      accumFrames: 192,
     },
   },
 };

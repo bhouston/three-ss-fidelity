@@ -830,3 +830,40 @@ own note) is the working noise floor; a round is only kept if its speedup clears
 - **Kept.** Clearly faster on 3 of 4 benchmark scenes, flat on the fourth, quality within budget.
 - **Cumulative:** speedup **1.03 × 1.088 ≈ 1.12×**, quality **0.05%** regression vs `three-new-ssr` (worst
   single scene ≈0.5%, both well within the 1%/3% budgets).
+
+## Round 3: fewer accumulated pipeline frames (time-to-image, kept)
+
+- **Candidate.** `three-new-ssr` always runs `subFrames = ceil(SSR_ACCUM_FRAMES / effects.frames)` pipeline
+  frames per rendered result (256 total). `SSRFastOptions.accumFrames` lowers that budget: fewer stochastic
+  samples per rendered frame, at the same per-pipeline-frame cost, i.e. a time-to-image win rather than a
+  per-frame one.
+- **Tuning: the `ceil()` cliff.** `accumFrames: 128` looked reasonable (half) but the Cornell `ssgi-*`
+  scenes have `effects.frames = 128`, so `ceil(256/128) = 2` and `ceil(128/128) = 1`: that halves their
+  sample count too, not just the SSR diagnostics'. Result: mean regression **+1.54%** (over the 1% budget),
+  driven by `ssgi-*` (e.g. `ssgi-basic` 0.0606 → 0.0621) and steampunk (`camera` 0.0703 → 0.0733) — both hit
+  the `ceil()` cliff. **Reverted.**
+- **Fix: stay above the Cornell cliff.** `accumFrames: 192` keeps `ceil(192/128) = 2` for `ssgi-*` (so those
+  5 scenes are completely unaffected — confirmed identical RMSE below) while lowering the `ssr-diag-*`/
+  `ssr-steampunk-*` scenes' `subFrames` from `ceil(256/16)=16` to `ceil(192/16)=12` (25% fewer pipeline
+  frames, only where the risk is contained to scenes this task's diagnostics were built to measure).
+- **Quality.** Mean RMSE 0.0457 → **0.0458 (+0.34%)**, threshold 1%. Every `ssgi-*` scene's RMSE is
+  byte-for-byte unchanged (confirming the `ceil()` analysis). Worst single-scene move: `ssr-steampunk-camera`/
+  `roughness-100` 0.0703 → 0.0715 (**+1.7%**), within the ~3% worst-scene budget. **QUALITY OK.**
+- **Speed.** `pnpm cli bench`, 1920×1080, warmup 10 / measure 40, cumulative through round 3:
+
+  | scene                  | three-new-ssr (ms) | three-new-ssr-fast (ms) | speedup   |
+  | ---------------------- | ------------------ | ----------------------- | --------- |
+  | `ssgi-metallic`        | 1503               | 1263                    | 1.189     |
+  | `ssr-steampunk-camera` | 2005               | 1476                    | 1.358     |
+  | `ssr-diag-rough-30`    | 1923               | 1297                    | 1.482     |
+  | `ssr-diag-metal-hit`   | 1284               | 908                     | 1.414     |
+  | **mean**               |                    |                         | **1.361** |
+
+  `ssgi-metallic`'s speedup (1.189) matches round 2's alone (1.185, within noise) since its `subFrames` is
+  unchanged — this round adds nothing there, as predicted. `steampunk`/`rough-30`/`metal-hit` jump
+  substantially: the 25% fewer pipeline frames stacks multiplicatively with rounds 1-2's per-frame savings.
+
+- **Kept.** Large win concentrated exactly where the quality budget has room, none of it on the Cornell
+  scenes where the `ceil()` cliff would have made it risky.
+- **Cumulative:** speedup **1.03 × 1.088 × (≈1.25 further) ≈ 1.36×** (measured directly above), quality
+  **0.34%** regression vs `three-new-ssr` (worst single scene ≈1.7%, both within the 1%/3% budgets).

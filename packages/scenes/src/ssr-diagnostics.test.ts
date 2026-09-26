@@ -24,6 +24,7 @@ const sceneNames = [
   'ssr-diag-occlusion',
   'ssr-diag-wall',
   'ssr-diag-sphere',
+  'ssr-diag-metal-hit',
 ];
 
 describe('SSR diagnostic scenes', () => {

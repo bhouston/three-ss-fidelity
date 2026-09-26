@@ -535,3 +535,39 @@ Every scene is better than both the baseline and round 1, except `rough-60`, whi
   conservative constant with dual-layer depth only where needed.
 - **Keep for quality.** VNDF sampling, `mirrorBias` 0, the ratio estimator, back-face hits,
   background-hit rejection, and per-ray environment misses cost nothing extra and should stay.
+
+---
+
+# Round 3: view-dependent hit radiance
+
+## R3.0 Note on the Cornell (`ssgi-*`) gains of round 2
+
+Round 2 noted that part of the `ssgi-*` gain might come from `three-new-ssr` running 256 pipeline frames
+instead of 128. That is not the main cause. `three-new-ssgi` rendered with `--frames 256`:
+
+| scene                         | three-new-ssgi (128) | three-new-ssgi (256) | three-new-ssr |
+| ----------------------------- | -------------------- | -------------------- | ------------- |
+| `ssgi-basic`                  | 0.0681               | 0.0669               | 0.0606        |
+| `ssgi-rounded`                | 0.0519               | 0.0507               | 0.0431        |
+| `ssgi-metallic`               | 0.0707               | 0.0697               | 0.0504        |
+| `ssgi-animated`               | 0.0492               | 0.0484               | 0.0401        |
+| `ssgi-animated-visible-walls` | 0.0486               | 0.0478               | 0.0398        |
+
+The extra frames explain about 0.001 of each scene's 0.008–0.020 improvement; the rest is SSR.
+
+## R3.1 New diagnostic: `ssr-diag-metal-hit`
+
+A mirror metal floor reflects a floating chrome sphere (roughness 0) and a floating gold box (roughness 0.3,
+rotated 45°). Those reflect an overhead panel, out of frame, whose own floor reflection is below the frame, and
+a red emissive tile on the floor under them, plus a blue cylinder and a green sphere. The camera sees the metals
+from above and the floor sees them from below, so the radiance an SSR hit reads (toward the camera) differs
+strongly from the radiance toward the floor. The reference is path-traced at 4096 samples.
+
+| renderer       | RMSE   |
+| -------------- | ------ |
+| three-new-ssgi | 0.0374 |
+| three-new-ssr  | 0.0380 |
+
+In the `three-new-ssr` image the floor reflection of the gold box shows the camera's view of its faces (red and
+green reflections from above), where the path tracer shows a dark brown underside with a red tint, and the
+floor reflection of the chrome sphere shows red streaks copied from the camera's view of its lower rim.

@@ -199,6 +199,35 @@ function sphere(): SceneSetup {
   return setup;
 }
 
+/**
+ * Mirror floor reflecting glossy metal objects (a chrome sphere, a rough-0.3 gold box rotated 45°) that themselves
+ * reflect an overhead panel (out of frame, and whose own floor reflection is below the frame) and low emitters. The
+ * floor sees the metals from below and the camera sees them from above, so a reflection of a metal differs strongly
+ * from the camera's view of it: this isolates the view dependence of SSR hit radiance.
+ */
+function metalHit(): SceneSetup {
+  const setup = baseSetup([0, 2.3, 3.2], [0, 0.3, -0.8], 50, 6, 0.05);
+  floor(setup.scene, metal(0));
+  // floating, so each reflection is separated from its object and shows the object's underside
+  const chrome = new Mesh(new SphereGeometry(0.4, 48, 32), metal(0));
+  chrome.position.set(-0.65, 0.75, -0.9);
+  chrome.name = 'receiver-chrome-sphere';
+  setup.scene.add(chrome);
+  const gold = new Mesh(
+    new BoxGeometry(0.6, 0.6, 0.6),
+    new MeshStandardMaterial({ color: new Color().setRGB(1, 0.78, 0.34), metalness: 1, roughness: 0.3 }),
+  );
+  gold.position.set(0.7, 0.7, -0.9);
+  gold.rotation.set(0, Math.PI / 4, 0);
+  gold.name = 'receiver-gold-box';
+  setup.scene.add(gold);
+  addEmitter(setup.scene, new BoxGeometry(2.4, 0.05, 1.2), [0.9, 0.85, 0.7], [0, 3, 1.2], 'panel-overhead');
+  addEmitter(setup.scene, new BoxGeometry(2.2, 0.04, 0.6), RED, [0, 0.02, -0.9], 'tile-red-low');
+  addEmitter(setup.scene, new CylinderGeometry(0.15, 0.15, 1.2, 24), BLUE, [0.05, 0.6, -1.9], 'cylinder-blue');
+  addEmitter(setup.scene, new SphereGeometry(0.2, 20, 14), GREEN, [-1.6, 0.2, -0.3], 'sphere-green');
+  return setup;
+}
+
 function diagnostic(name: string, description: string, create: () => SceneSetup): SceneDefinition {
   return { name, description, width: WIDTH, height: HEIGHT, create: async () => create() };
 }
@@ -245,5 +274,10 @@ export const ssrDiagnosticScenes: SceneDefinition[] = [
     'ssr-diag-sphere',
     'Large metal sphere (roughness 0.1) surrounded by emitters, over a matte black floor: curved normals.',
     sphere,
+  ),
+  diagnostic(
+    'ssr-diag-metal-hit',
+    'Mirror floor reflecting a chrome sphere and a rough-0.3 gold box that themselves reflect an overhead panel and low emitters: view-dependent radiance at SSR hits.',
+    metalHit,
   ),
 ];

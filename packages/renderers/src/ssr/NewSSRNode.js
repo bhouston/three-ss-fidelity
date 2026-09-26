@@ -83,11 +83,27 @@ const _quadMesh = /*@__PURE__*/ new QuadMesh();
 const _size = /*@__PURE__*/ new Vector2();
 let _rendererState;
 
+/** Whether a ratio-estimator sample is finite (NaN fails every comparison). */
+const isFiniteSample = (v) =>
+  v.a
+    .greaterThanEqual(0)
+    .and(v.a.lessThan(1e30))
+    .and(luminance(v.rgb).greaterThanEqual(0))
+    .and(luminance(v.rgb).lessThan(1e30));
+const toYCoCg = (c) => vec3(dot(c, vec3(0.25, 0.5, 0.25)), dot(c, vec3(0.5, 0, -0.5)), dot(c, vec3(-0.25, 0.5, -0.25)));
+const fromYCoCg = (c) => vec3(c.x.add(c.y).sub(c.z), c.x.add(c.z), c.x.sub(c.y).sub(c.z));
+const insideScreen = (coord) =>
+  coord.x.greaterThan(0).and(coord.x.lessThan(1)).and(coord.y.greaterThan(0)).and(coord.y.lessThan(1));
+const halfFloatTarget = (name) => {
+  const t = new RenderTarget(1, 1, { depthBuffer: false, type: HalfFloatType });
+  t.texture.name = name;
+  return t;
+};
 /** World position -> UV in the frame of a view-projection matrix ((-1, -1) behind the camera). */
 const projectToUV = (world, viewProjection) => {
   const clip = viewProjection.mul(vec4(world, 1)).toVar();
-  const uv = clip.xy.div(clip.w).mul(0.5).add(0.5);
-  return clip.w.greaterThan(0).select(vec2(uv.x, uv.y.oneMinus()), vec2(-1));
+  const screen = clip.xy.div(clip.w).mul(0.5).add(0.5);
+  return clip.w.greaterThan(0).select(vec2(screen.x, screen.y.oneMinus()), vec2(-1));
 };
 
 /** Levels of the Hi-Z min-depth pyramid (level 0 = trace resolution). */
@@ -649,17 +665,12 @@ class NewSSRNode extends Node {
       this._ssrRenderTarget.textures[1].format = RGFormat;
       this._ratioField = property('vec4');
       this._hitDistanceField = property('vec2');
-      const target = (name) => {
-        const t = new RenderTarget(1, 1, { depthBuffer: false, type: HalfFloatType });
-        t.texture.name = name;
-        return t;
-      };
-      this._spatialTarget = target('NewSSRNode.Spatial');
-      this._temporalTarget = target('NewSSRNode.Temporal');
-      this._historyTarget = target('NewSSRNode.History');
-      this._geometryTarget = target('NewSSRNode.PreviousGeometry');
+      this._spatialTarget = halfFloatTarget('NewSSRNode.Spatial');
+      this._temporalTarget = halfFloatTarget('NewSSRNode.Temporal');
+      this._historyTarget = halfFloatTarget('NewSSRNode.History');
+      this._geometryTarget = halfFloatTarget('NewSSRNode.PreviousGeometry');
       // with resolutionScale < 1: the filtered result upsampled to full resolution, depth/normal aware
-      this._upsampleTarget = target('NewSSRNode.Upsample');
+      this._upsampleTarget = halfFloatTarget('NewSSRNode.Upsample');
       this._upsampleMaterial = new NodeMaterial();
       this._spatialMaterial = new NodeMaterial();
       this._temporalMaterial = new NodeMaterial();
@@ -1413,7 +1424,7 @@ class NewSSRNode extends Node {
               // last frame's filtered output, reprojected to this frame by the surface motion
               const previous = texture(this._temporalTarget.texture);
               return {
-                sample: (uv) => previous.sample(uv.sub(this.velocityNode.sample(uv).xy.mul(vec2(0.5, -0.5)))),
+                sample: (coord) => previous.sample(coord.sub(this.velocityNode.sample(coord).xy.mul(vec2(0.5, -0.5)))),
               };
             })()
           : this.radianceHistoryNode;
@@ -1477,7 +1488,7 @@ class NewSSRNode extends Node {
       // Marches a view-space ray from a surface point against the depth buffer. Returns whether it hit and the hit's
       // UV and depth (refined when `binaryRefine`). `incidentDir` is the direction the point was viewed along.
       // The parameters deliberately shadow the primary ray's names, which the march body was written against.
-      // oxlint-disable-next-line no-shadow
+      /* oxlint-disable no-shadow */
       const trace = (
         viewPosition,
         viewNormal,
@@ -1488,6 +1499,7 @@ class NewSSRNode extends Node {
         qualityOverride = null,
         hiZ = this._hiZ,
       ) => {
+        /* oxlint-enable no-shadow */
         // perf(three-new-ssr-fast): the second bounce can march at a different (lower) step density than
         // the primary ray via `qualityOverride` (SSRFastOptions.secondBounceQuality); `null` uses `quality`.
         const marchQuality = qualityOverride === null ? this.quality.clamp() : float(qualityOverride).clamp();
@@ -1998,19 +2010,10 @@ class NewSSRNode extends Node {
     const resolution = this._resolution;
     const texel = vec2(1).div(resolution);
     // exact texel of a UV (the per-pixel samples must not be blended bilinearly)
-    const snap = (uv) => uv.mul(resolution).floor().add(0.5).mul(texel);
-    const viewPositionAt = (uv, depth) => getViewPosition(uv, depth, this._cameraProjectionMatrixInverse);
-    const normalAt = (uv) => this.normalNode.sample(uv).rgb.normalize();
-    const roughnessAt = (uv) => this.hitMaterialNode.sample(uv).g;
-    const finite = (v) =>
-      v.a
-        .greaterThanEqual(0)
-        .and(v.a.lessThan(1e30))
-        .and(luminance(v.rgb).greaterThanEqual(0))
-        .and(luminance(v.rgb).lessThan(1e30));
-    const toYCoCg = (c) =>
-      vec3(dot(c, vec3(0.25, 0.5, 0.25)), dot(c, vec3(0.5, 0, -0.5)), dot(c, vec3(-0.25, 0.5, -0.25)));
-    const fromYCoCg = (c) => vec3(c.x.add(c.y).sub(c.z), c.x.add(c.z), c.x.sub(c.y).sub(c.z));
+    const snap = (coord) => coord.mul(resolution).floor().add(0.5).mul(texel);
+    const viewPositionAt = (coord, depth) => getViewPosition(coord, depth, this._cameraProjectionMatrixInverse);
+    const normalAt = (coord) => this.normalNode.sample(coord).rgb.normalize();
+    const roughnessAt = (coord) => this.hitMaterialNode.sample(coord).g;
 
     // Spatial: Σ L·w / Σ w over this pixel's and up to 8 neighbours' rays (Stachowiak 2015), each neighbour weighted by
     // plane distance, normal and roughness similarity. The radius follows the lobe width (GGX alpha); mirrors keep
@@ -2022,7 +2025,7 @@ class NewSSRNode extends Node {
       const N = normalAt(uvNode).toVar();
       const roughness = roughnessAt(uvNode).toVar();
       const center = ratioTexture.sample(uvNode).toVar();
-      center.assign(finite(center).select(center, vec4(0)));
+      center.assign(isFiniteSample(center).select(center, vec4(0)));
       const numerator = center.rgb.toVar();
       const denominator = center.a.toVar();
       const distanceSum = center.a.mul(distanceTexture.sample(uvNode).r).toVar();
@@ -2060,7 +2063,7 @@ class NewSSRNode extends Node {
             .mul(inside.and(tapDepth.lessThan(1)).select(float(1), float(0)))
             .toVar();
           const tap = ratioTexture.sample(uvTap).toVar();
-          weight.mulAssign(finite(tap).select(float(1), float(0)));
+          weight.mulAssign(isFiniteSample(tap).select(float(1), float(0)));
           numerator.addAssign(tap.rgb.mul(weight));
           denominator.addAssign(tap.a.mul(weight));
           distanceSum.addAssign(tap.a.mul(weight).mul(distanceTexture.sample(uvTap).r));
@@ -2108,13 +2111,12 @@ class NewSSRNode extends Node {
       const sigma = sqrt(m2.div(9).sub(mean.mul(mean)).max(0)).toVar();
 
       const project = projectToUV;
-      const inside = (uv) => uv.x.greaterThan(0).and(uv.x.lessThan(1)).and(uv.y.greaterThan(0)).and(uv.y.lessThan(1));
       const cameraPosition = this._cameraWorldPosition;
       const previousDistance = distance(this._previousCameraPosition, worldPosition).toVar();
 
       const uvSurface = uvNode.sub(this.velocityNode.sample(uvNode).xy.mul(vec2(0.5, -0.5))).toVar();
       const geometrySurface = geometryTexture.sample(uvSurface).toVar();
-      const validSurface = inside(uvSurface)
+      const validSurface = insideScreen(uvSurface)
         .and(dot(geometrySurface.xyz, worldNormal).greaterThan(0.9))
         .and(abs(geometrySurface.w.sub(previousDistance)).lessThan(previousDistance.mul(0.05)));
 
@@ -2129,7 +2131,7 @@ class NewSSRNode extends Node {
         .sub(project(virtualPoint, this._currentViewProjection))
         .toVar();
       const geometryVirtual = geometryTexture.sample(uvVirtual).toVar();
-      const validVirtual = inside(uvVirtual).and(dot(geometryVirtual.xyz, worldNormal).greaterThan(0.9));
+      const validVirtual = insideScreen(uvVirtual).and(dot(geometryVirtual.xyz, worldNormal).greaterThan(0.9));
 
       const historySurface = historyTexture.sample(uvSurface).toVar();
       const historyVirtual = historyTexture.sample(uvVirtual).toVar();

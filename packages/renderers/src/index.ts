@@ -81,6 +81,9 @@ const screenSpaceOptions: Record<
     ssgiFast: {
       // Round 1: evaluate the per-pixel initial ray step once instead of every horizon-search step. Bit-identical.
       loopInvariantInitialStep: true,
+      // Round 2: reproject the previous frame's radiance once into a texture instead of once per SSGI sample
+      // (~32 samples/pixel).
+      reprojectRadianceOnce: true,
     },
   },
 };

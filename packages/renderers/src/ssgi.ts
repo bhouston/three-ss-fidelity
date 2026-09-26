@@ -179,8 +179,13 @@ function createPipeline(
   };
   const ssgiExample = effects.antialias === 'traa';
   const resolutionScale = effects.resolutionScale ?? 1;
+  // three-new-ssgi-fast: rtt() render targets (giRadianceSource/packed below) aren't tracked by RenderPipeline's
+  // own dispose(), so they're collected here and disposed explicitly in createSSGIRenderer's dispose() -- see
+  // SSGI_FAST.md's cross-scene GPU-resource investigation.
+  const rttDisposables: AnyNode[] = [];
 
   const renderPipeline = new RenderPipeline(renderer);
+  (renderPipeline as AnyNode).rttDisposables = rttDisposables;
 
   // pre-pass: SSGI/SSR run before the scene pass so their results can light the materials, which means depth,
   // normals and velocity have to come from a separate pass
@@ -249,23 +254,27 @@ function createPipeline(
     let giRadianceSource: AnyNode = previousRadiance;
     let lightNormalSource: AnyNode | undefined;
     if (ssgiFastFlags.packLightNormals) {
+      // The reprojection/pack pass's own resolutionScale must match SSGI's (giPass.resolutionScale below), not
+      // default to the full canvas: on scenes that run SSGI itself at a fraction of the canvas resolution (e.g.
+      // higharc_dogwood's 1/2), a full-resolution reprojection pass costs more than the fetches it replaces save.
       const packed: AnyNode = rtt(
         packRadianceNormal(previousRadiance.sample(screenUV).rgb, sceneNormal.sample(screenUV).rgb),
         null,
         null,
-        { type: UnsignedIntType, format: RedIntegerFormat },
+        { type: UnsignedIntType, format: RedIntegerFormat, resolutionScale },
       );
+      rttDisposables.push(packed);
       const packedSize = vec2(textureSize(packed) as AnyNode);
       const loadPacked = (uv: AnyNode): AnyNode => packed.load(ivec2(uv.mul(packedSize))).x;
       giRadianceSource = sample((uv: AnyNode) => unpackRadiance(loadPacked(uv)));
       lightNormalSource = sample((uv: AnyNode) => unpackNormal(loadPacked(uv)));
     } else if (ssgiFastFlags.reprojectRadianceOnce) {
-      giRadianceSource = rtt(
-        previousRadiance.sample(screenUV),
-        null,
-        null,
-        ssgiFastFlags.radianceRG11B10 ? { type: UnsignedInt101111Type, format: RGBFormat } : undefined,
-      );
+      // Same resolutionScale reasoning as the packLightNormals branch above.
+      giRadianceSource = rtt(previousRadiance.sample(screenUV), null, null, {
+        resolutionScale,
+        ...(ssgiFastFlags.radianceRG11B10 ? { type: UnsignedInt101111Type, format: RGBFormat } : {}),
+      });
+      rttDisposables.push(giRadianceSource);
     }
     giPass = tsl.ssgi(giRadianceSource, prePassDepth, sceneNormal, camera);
     if (lightNormalSource) giPass.lightNormalNode = lightNormalSource;
@@ -510,6 +519,9 @@ export async function createSSGIRenderer(
       if (newCamera !== camera) camera.copy(newCamera);
     },
     dispose() {
+      // three-new-ssgi-fast: dispose the rtt() render targets ssgi.ts creates for radiance reprojection/packing --
+      // RenderPipeline.dispose() and Renderer.dispose() don't reach them (see SSGI_FAST.md).
+      for (const disposable of (renderPipeline as AnyNode).rttDisposables ?? []) disposable.dispose();
       renderPipeline.dispose();
       renderer.dispose();
     },

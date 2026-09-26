@@ -88,7 +88,10 @@ const screenSpaceOptions: Record<
       radianceRG11B10: true,
       // Round 4: pack the reprojected radiance and a coarse light-source normal into one 32-bit fetch, instead
       // of a separate normal-texture fetch per SSGI sample. Supersedes radianceRG11B10's own format.
-      packLightNormals: true,
+      // Implemented and quality-gated, but left OFF by default: it measurably regresses higharc_dogwood (a
+      // light-SSGI, no-regression scene) with no offsetting benefit there, while adding real but secondary
+      // speedup on top of rounds 1-3 on SSGI-heavy scenes. See SSGI_FAST.md's "Round 4" section.
+      packLightNormals: false,
     },
   },
 };

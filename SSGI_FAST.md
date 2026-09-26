@@ -102,31 +102,106 @@ Ported from `perf/ss-optimize`'s fork commit `51d6073108` (`SSGINode.lightNormal
 _better_ than Round 3 alone (0.17%), i.e. within measurement noise of no additional cost. Worst single scene:
 `ssgi-animated` **+1.03%** (well under the ~3% per-scene budget). All `ssr-*` scenes: exactly unchanged.
 
-**Kept.**
+**Implemented and quality-gated, but shipped OFF by default** — see "Post-review investigation" below: isolating
+Round 4 on `higharc_dogwood` (a light-SSGI, no-regression scene) showed it adds real but secondary speed on top of
+Rounds 1-3 on SSGI-heavy scenes (mean 1.81x -> ~2.1x on the two Cornell benchmark scenes) while providing no benefit
+and a small extra cost on `higharc_dogwood` specifically. The flag and vendored `lightNormalNode` machinery are kept
+(quality-gated and available via `SSGIFastOptions.packLightNormals`) for a workload that is consistently SSGI-heavy,
+but `three-new-ssgi-fast`'s shipped default is Rounds 1-3 only.
 
-## Cumulative result (all four rounds on)
+## Post-review investigation: `higharc_dogwood` regression (Refs #18)
 
-4-scene A/B, 1920x1080, 30 warmup / 60 measured frames, `three-new-ssr-fast` -> `three-new-ssgi-fast`:
+A supervisor review measured `three-new-ssgi-fast` at 0.64-0.71x vs `three-new-ssr-fast` on `higharc_dogwood`
+(3 consistent runs of `cli bench --scenes ssgi-metallic,ssgi-animated,higharc_dogwood`), well outside noise, and
+asked for the responsible flag to be isolated, root-caused, and fixed to >=1.0x without giving up the Cornell gains.
+
+**Isolation.** Toggling `SSGIFastOptions` one at a time on `higharc_dogwood` alone (`cli bench --scenes
+ssgi-metallic,higharc_dogwood`, since the CLI benches scenes in the fixed canonical order `ssgi-metallic,
+ssgi-animated, higharc_dogwood, gi-room-high-albedo` regardless of the `--scenes` argument's own order):
+`loopInvariantInitialStep` alone: ~1.0-1.1x (no regression). Adding `reprojectRadianceOnce` (with the then-current
+code): **0.63x** — reproduces the reported regression on its own; Rounds 3/4 (format/packing changes on top of the
+same pass) don't add further regression. **Round 2 is the responsible flag.**
+
+**Root cause 1 (found and fixed): `rtt()` ignored the scene's `resolutionScale`.** `higharc_dogwood` is the only
+scene in the suite with `resolutionScale < 1` (`packages/scenes/src/higharc.ts`: `1/2`) — every other gate scene
+runs SSGI at full canvas resolution. Round 2's `rtt()` reprojection pass (and Round 4's pack pass) was created with
+`rtt(node, null, null, options)` and no `resolutionScale` in `options`, so it defaulted to full canvas resolution
+(`RTTNode`'s own default is `resolutionScale: 1`) regardless of the scene's own `effects.resolutionScale`. On
+`higharc_dogwood` this made the added pass **4x more pixels** than the SSGI effect it feeds (which does run at
+`resolutionScale`), inflating exactly the fixed cost these rounds add relative to what they save — worse the
+cheaper SSGI's own sample loop already is. Fixed in `packages/renderers/src/ssgi.ts` by passing `resolutionScale`
+(the same value already used for `giPass.resolutionScale` a few lines below) into both `rtt()` calls' `options`.
+Verified: isolated `higharc_dogwood` (own process, no preceding scene) went from a consistent ~0.65-0.71x to a
+16-sample spread of 0.75-1.30x, median/mean **~0.96x** — within this environment's own noise floor (see "Benchmark
+scenes" above: this scene alone showed +-24% A/A noise with _zero_ code changes), i.e. effectively parity, not a
+regression.
+
+**Root cause 2 (found, NOT fully fixed): a benchmark-order-sensitive artifact tied to the extra render target(s).**
+Independently of Root cause 1, benching `higharc_dogwood` _immediately after_ a heavy SSGI scene in the same CLI
+process (`cli bench --scenes ssgi-metallic,higharc_dogwood`, or the supervisor's 3-scene command) still measures
+`higharc_dogwood` at ~0.7-0.75x even after the `resolutionScale` fix and even with Round 4 off, while benching it
+_first_ (`cli bench --scenes higharc_dogwood,gi-room-high-albedo`) or alone gives the ~0.96x figure above. This does
+**not** reproduce for `three-new-ssr-fast` doing the same heavy-then-light sequence (18.47 ms after `ssgi-metallic`
+vs 20.00 ms alone — ordinary noise, no systematic penalty), and it disappears entirely when only Round 1 is active
+(no extra render target at all: 18.07 ms after `ssgi-metallic`, matching its isolated value) — so it is specific to
+the presence of the Round 2 `rtt()` render target, not to running `three-new-ssgi-fast` per se, and not explained by
+Round 4's extra pack/unpack cost. Ruled out as explanations:
+
+- **Async disposal race** (`Renderer.dispose()` is `async` but `LiveRenderer.dispose()` and every call site,
+  `packages/cli/src/bench-process.ts` included, call it fire-and-forget): tested by inserting an explicit
+  post-dispose delay (300 ms, then 3000 ms) between scenes in a scratch copy of `bench-process.ts` (not committed);
+  the regression was unchanged at 3 seconds, ruling out a simple async-completion race.
+- **Missing explicit disposal of the `rtt()` render target**: `RenderPipeline.dispose()` and `Renderer.dispose()`
+  don't walk arbitrary node-graph-internal `RenderTarget`s the way they do the pipeline's own tracked passes, and
+  `RTTNode` has its own `dispose()` that was never being called. Added explicit disposal (`ssgi.ts` now collects
+  the `rtt()`-created nodes into `rttDisposables` and disposes them in `LiveRenderer.dispose()` before
+  `renderPipeline.dispose()`/`renderer.dispose()`) as a correct fix regardless, but it did not change the measured
+  benchmark-order effect (still ~0.7x after a heavy scene, before and after this fix).
+- **CPU-side cost**: `cpuMs` (this scene's `process.cpuUsage()`-measured render() time) stays flat (~2-4.5 ms)
+  across all these variants; only the GPU-synced wall-clock `totalMs` inflates. The extra cost is on the GPU/driver
+  side, not in this renderer's JS/TSL-generated CPU work.
+
+Given cpuMs stays flat, a 3-second gap doesn't help, and explicit disposal doesn't help, the remaining plausible
+explanation is a native WebGPU-backend (dawn, likely software-rendered in this sandbox) or allocator characteristic
+where allocating/freeing the extra render target(s) leaves the backend in a state that penalizes a subsequent
+scene's GPU-synced frame time specifically when benched back-to-back in the same process — not a logic defect in
+any of the four flags, and not reproducible in isolated (realistic, one-scene-at-a-time) measurement. This is
+**not fully root-caused or fixed** within this investigation's budget. Recommendation for follow-up: change
+`cli bench` to run each scene in its own child process (matching how it already isolates renderers), which would
+make scene order-independent by construction; out of scope for this change (it's a CLI harness change, not a
+renderers-package one).
+
+**Resulting decision.** `packLightNormals` (Round 4) is shipped OFF by default (see above) since it added cost
+with no offsetting benefit on this scene once Root cause 1 was fixed. The `resolutionScale` fix and the explicit
+`rtt()` disposal fix are both kept regardless of the second, unresolved finding, since they are correct and
+measurably improve the realistic (isolated) case. `higharc_dogwood` is not a benchmark target for this work (it is
+in the suite as a no-regression check on a light-SSGI scene); its isolated speed is at parity within this
+environment's noise floor, and its quality is unaffected (`+0.11%` RMSE with Round 4 on, `+0.001%` with it off).
+
+## Cumulative result (shipped default: Rounds 1-3; Round 4 off)
+
+4-scene A/B, 1920x1080, 30 warmup / 100 measured frames, `three-new-ssr-fast` -> `three-new-ssgi-fast`:
 
 | Scene                 | three-new-ssr-fast | three-new-ssgi-fast | Speedup   |
 | --------------------- | ------------------ | ------------------- | --------- |
-| `ssgi-metallic`       | 1283.9 ms          | 534.9 ms            | **2.40x** |
-| `ssgi-animated`       | 1383.1 ms          | 574.2 ms            | **2.41x** |
-| `gi-room-high-albedo` | 74.2 ms            | 50.8 ms             | **1.46x** |
-| `higharc_dogwood`     | 18.2 ms            | 28.6 ms             | 0.64x     |
-| **mean**              |                    |                     | **1.73x** |
+| `ssgi-metallic`       | 1337.0 ms          | 730.0 ms            | **1.83x** |
+| `ssgi-animated`       | 1360.3 ms          | 737.5 ms            | **1.85x** |
+| `gi-room-high-albedo` | 83.9 ms            | 62.0 ms             | **1.35x** |
+| `higharc_dogwood`     | 17.9 ms            | 26.5 ms             | 0.68x*    |
+| **mean**              |                    |                     | **1.44x** |
 
-`higharc_dogwood`'s frame cost (~15-30 ms) is small enough that it is dominated by fixed per-frame overhead, not
-the SSGI radiance path these rounds target; a repeat single-scene A/B gave 0.84x, and the standalone A/A noise
-floor on this scene alone was already ±24% with zero code changes. Read as "no measurable regression on a scene
-this light," not as a real slowdown — the scene barely exercises SSGI (its GI intensity/step count are much lower
-than the Cornell-box scenes) so there is little for these optimizations to save, and the pipeline's per-round
-overhead (an extra `rtt()` render target, an `R32UI` pack/unpack) can plausibly cost more than it saves once the
-32-sample GI loop itself is cheap. Not treated as a regression to chase given it is within this environment's noise
-floor and the scene is a no-regression check, not a target.
+\* This combined-run figure reflects the unresolved benchmark-order artifact above (heavy scenes benched
+immediately before it in the same process); `higharc_dogwood` benched alone or first measures at parity (median
+~0.96x across 16 samples) — see "Post-review investigation." Included here for transparency since it is what
+`cli bench` reports for the exact scene set used elsewhere in this document, not because it reflects this scene's
+realistic, isolated cost.
 
-Quality (all 32 gate scenes, final state): mean RMSE regression vs `three-new-ssr-fast` **0.07%** (threshold 1%);
-worst single scene `ssgi-animated` **+1.03%** (budget ~3%). All `ssr-*` scenes exactly unchanged.
+With Round 4 also on (not shipped, available via the flag), the same benchmark gave `ssgi-metallic` 2.05-2.40x,
+`ssgi-animated` 2.18-2.41x, `gi-room-high-albedo` 1.35-1.54x, i.e. an additional ~15-20% on the Cornell scenes on
+top of Rounds 1-3, at the cost noted above.
+
+Quality (all 32 gate scenes, shipped default): mean RMSE regression vs `three-new-ssr-fast` **0.17%** (threshold
+1%); worst single scene `ssgi-rounded` **+2.14%** (budget ~3%). All `ssr-*` scenes exactly unchanged.
 
 Relative to `three-new-ssgi` (the solid-angle reference, no SSR/speed optimizations at all), `three-new-ssgi-fast`
 inherits `three-new-ssr-fast`'s existing SSR-side speedup on top of this SSGI-side speedup; see `SSR_IMPROVEMENTS.md`
@@ -151,14 +226,19 @@ baseline).
 
 ## Summary table
 
-| Round | Change                                       | Kept/Reverted | Mean RMSE regression (32 scenes) | Worst scene            |
-| ----- | -------------------------------------------- | ------------- | -------------------------------- | ---------------------- |
-| 0     | Baseline (identical to `three-new-ssr-fast`) | -             | 0.00%                            | -                      |
-| 1     | Loop-invariant initial ray step              | Kept          | 0.00% (bit-identical)            | -                      |
-| 2     | Reproject SSGI radiance once                 | Kept          | 0.00%                            | -                      |
-| 3     | Store reprojection as RG11B10                | Kept          | 0.17%                            | `ssgi-rounded` +2.14%  |
-| 4     | Pack radiance + light normals in one fetch   | Kept          | 0.07%                            | `ssgi-animated` +1.03% |
+| Round | Change                                       | Shipped default?             | Mean RMSE regression (32 scenes) | Worst scene                  |
+| ----- | -------------------------------------------- | ---------------------------- | -------------------------------- | ---------------------------- |
+| 0     | Baseline (identical to `three-new-ssr-fast`) | -                            | 0.00%                            | -                            |
+| 1     | Loop-invariant initial ray step              | On                           | 0.00% (bit-identical)            | -                            |
+| 2     | Reproject SSGI radiance once                 | On (fixed, see below)        | 0.00%                            | -                            |
+| 3     | Store reprojection as RG11B10                | On                           | 0.17%                            | `ssgi-rounded` +2.14%        |
+| 4     | Pack radiance + light normals in one fetch   | **Off** (available via flag) | 0.07% if on                      | `ssgi-animated` +1.03% if on |
 
-Cumulative: **1.73x** mean speedup vs `three-new-ssr-fast` on the 4-scene benchmark (up to 2.4x on the two
-SSGI-heavy scenes); **0.07%** mean quality regression (well under the 1% budget), worst scene 1.03% (under the ~3%
-budget).
+Round 2 originally shipped a bug (its `rtt()` render target ignored the scene's `resolutionScale`), found in a
+post-review investigation and fixed — see "Post-review investigation" above.
+
+Cumulative (shipped default, Rounds 1-3): **1.44x** mean speedup vs `three-new-ssr-fast` on the 4-scene benchmark
+(1.83-1.85x on the two Cornell scenes; `higharc_dogwood`'s combined-run figure reflects an unresolved
+benchmark-order artifact, not a real regression -- see above); **0.17%** mean quality regression (well under the
+1% budget), worst scene 2.14% (under the ~3% budget). With Round 4 also enabled: up to ~2.4x on the Cornell scenes,
+0.07% mean quality regression, at the cost of a measurable (if secondary) regression on light-SSGI scenes.

@@ -11,7 +11,7 @@ describe('listScenes', () => {
   beforeAll(async () => {
     dir = await mkdtemp(path.join(tmpdir(), 'ss-fidelity-results-'));
     await mkdir(path.join(dir, 'full', 'beauty'), { recursive: true });
-    await writeFile(path.join(dir, 'full', 'beauty', 'three-ss.png'), 'png');
+    await writeFile(path.join(dir, 'full', 'beauty', 'three-ss.avif'), 'avif');
     await writeFile(path.join(dir, 'full', 'beauty', 'metrics.json'), JSON.stringify({ scene: 'full', psnr: 31.5 }));
     await mkdir(path.join(dir, 'broken', 'beauty'), { recursive: true });
     await writeFile(path.join(dir, 'broken', 'beauty', 'metrics.json'), '{not json');
@@ -27,7 +27,7 @@ describe('listScenes', () => {
     expect(Object.keys(byName).toSorted()).toEqual(['broken', 'full', 'unrendered']);
     expect(byName.full?.description).toBe('d');
     expect(byName.full?.metrics?.psnr).toBe(31.5);
-    expect(byName.full?.images.test).toMatch(/^\/api\/results\/full\/beauty\/three-ss\.png\?v=\d+$/);
+    expect(byName.full?.images.test).toMatch(/^\/api\/results\/full\/beauty\/three-ss\.avif\?v=\d+$/);
     expect(byName.full?.images.reference).toBeUndefined();
     expect(byName.broken?.metrics).toBeUndefined();
     expect(byName.unrendered?.images).toEqual({});

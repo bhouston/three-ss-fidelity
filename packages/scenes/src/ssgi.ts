@@ -28,7 +28,14 @@ const HEIGHT = 480;
 export const ANIMATED_POSE_TIME = 1;
 
 const effects: SceneEffects = {
-  ssgi: { sliceCount: 2, stepCount: 8, giIntensity: (Math.PI * Math.PI) / 2 },
+  // Validated indoor preset; keep the asset-free diagnostic controls and world-space exterior settings separate.
+  ssgi: {
+    sliceCount: 8,
+    stepCount: 32,
+    radius: 32,
+    thickness: 4,
+    giIntensity: (Math.PI * Math.PI) / 2,
+  },
   ssr: { maxDistance: 20 },
   antialias: 'traa',
   temporalDenoise: true,

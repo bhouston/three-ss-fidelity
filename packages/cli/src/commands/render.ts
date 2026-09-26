@@ -26,7 +26,10 @@ export const command = defineCommand({
       .option('passes', { type: 'string', default: '*', describe: 'Pass name glob(s), comma separated' })
       .option('renderers', { type: 'string', default: '*', describe: 'Renderer name glob(s), comma separated' })
       .option('samples', { type: 'number', default: 1024, describe: 'three-gpu-pathtracer samples per pixel' })
-      .option('frames', { type: 'number', describe: 'three-ss frames (default: each scene’s effects.frames)' })
+      .option('frames', {
+        type: 'number',
+        describe: 'Screen-space renderer frames (default: each scene’s effects.frames)',
+      })
       .option('output', { type: 'string', default: resultsDir, describe: 'Results directory' }),
   handler: async (argv) => {
     const scenes = selectNames(listSceneNames(), argv.scenes, 'scene');

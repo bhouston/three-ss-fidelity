@@ -19,7 +19,9 @@ it('resolves one copy of three (the submodule) everywhere', () => {
     'three-mesh-bvh': fromPathtracer.resolve('three-mesh-bvh'),
   };
   for (const [name, importer] of Object.entries(importers)) {
-    const resolved = realpathSync(createRequire(importer).resolve('three'));
+    // The fork's build/dev scripts produce ESM bundles, not its historical three.cjs entry.
+    // This condition-independent export checks package identity without requiring a stale CJS build.
+    const resolved = realpathSync(createRequire(importer).resolve('three/webgpu'));
     expect(path.dirname(resolved), name).toBe(threeBuild);
   }
 });

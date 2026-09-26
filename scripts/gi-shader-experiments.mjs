@@ -1,9 +1,9 @@
 // Process-local shader experiments. No installed three.js files are modified.
 import { registerHooks } from 'node:module';
 export function installShaderExperiment(mode) {
-  // baseline is the native corrected shader; sample-jacobian remains an alias for old recipes.
-  if (!mode || mode === 'baseline' || mode === 'sample-jacobian') return;
-  const supported = ['legacy', 'skip-tangent', 'snap-samples', 'solid-angle', 'solid-angle-azimuth'];
+  // Native and legacy weighting now use the renderer/node parameter. Only alternate shader prototypes need hooks.
+  if (!mode || mode === 'baseline' || mode === 'sample-jacobian' || mode === 'legacy') return;
+  const supported = ['skip-tangent', 'snap-samples', 'solid-angle', 'solid-angle-azimuth'];
   if (!supported.includes(mode)) throw new Error(`Unknown shader experiment: ${mode}`);
   registerHooks({
     load(url, context, nextLoad) {

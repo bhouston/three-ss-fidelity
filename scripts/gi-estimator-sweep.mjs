@@ -19,6 +19,7 @@ const { getScene } = await import('../packages/scenes/dist/index.js');
 const { createNodeSceneContext } = await import('../packages/scenes/dist/node.js');
 const { compareImages } = await import('../packages/cli/dist/compare.js');
 const ctx = createNodeSceneContext();
+const rendererName = process.env.GI_RENDERER ?? (process.env.GI_SHADER === 'legacy' ? 'three-ss-legacy' : 'three-ss');
 const scenes = process.argv.slice(3);
 if (!scenes.length) scenes.push('gi-emitter-corner', 'gi-room-open-high-albedo', 'ssgi-animated');
 const variants = JSON.parse(process.env.GI_VARIANTS ?? 'null') ?? [
@@ -45,7 +46,13 @@ for (const name of scenes) {
   const reference = path.join(root, 'results', name, 'beauty/three-gpu-pathtracer.png');
   for (const variant of variants) {
     const setup = await definition.create(ctx);
-    setup.effects = { ...setup.effects, ssgi: { ...setup.effects.ssgi, ...variant.ssgi } };
+    // Preserve the investigation's original Cornell baseline after production presets change.
+    // The ordinary CLI uses the registered scene settings, including the new indoor quality preset.
+    const historicalCornell = name.startsWith('ssgi-') ? { sliceCount: 2, stepCount: 8, radius: 12, thickness: 1 } : {};
+    setup.effects = {
+      ...setup.effects,
+      ssgi: { ...setup.effects.ssgi, ...historicalCornell, ...variant.ssgi },
+    };
     if (variant.temporalDenoise !== undefined) setup.effects.temporalDenoise = variant.temporalDenoise;
     if (variant.noSSR) setup.effects.ssr = undefined;
     if (variant.cameraPosition) {
@@ -61,7 +68,7 @@ for (const name of scenes) {
       height: 16,
     };
     const canvas = headless.createCanvas(width, height);
-    const renderer = await createRenderer('three-ss', canvas, setup, {
+    const renderer = await createRenderer(rendererName, canvas, setup, {
       width,
       height,
       pass: 'beauty',
@@ -83,6 +90,8 @@ for (const name of scenes) {
     const metrics = variant.cameraPosition ? {} : (await compareImages(reference, file)).metrics;
     const row = {
       scene: name,
+      renderer: rendererName,
+      effectiveSSGI: setup.effects.ssgi,
       shader: process.env.GI_SHADER ?? 'baseline',
       ...variant,
       frames,

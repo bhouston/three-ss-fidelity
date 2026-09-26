@@ -1,0 +1,208 @@
+{
+  "threeCommit": "eaf4609a9b47285cee0037045cbae0f1c40acd64",
+  "description": "Both methods in one codebase at identical scene settings. Cornell uses 8/32, screen radius32, thickness4. 128 frames except the SSR scenes (16). Existing path-tracer reference images retained.",
+  "beautyComparisons": [
+    {
+      "scene": "gi-emitter-corner",
+      "correctedRMSE": 0.06178251722987615,
+      "legacyRMSE": 0.07025840356724973,
+      "rmseReduction": 0.008475886337373582
+    },
+    {
+      "scene": "gi-emitter-corner-dense",
+      "correctedRMSE": 0.05198679998483207,
+      "legacyRMSE": 0.06254183125536808,
+      "rmseReduction": 0.01055503127053601
+    },
+    {
+      "scene": "gi-emitter-corner-thick",
+      "correctedRMSE": 0.05470148946744977,
+      "legacyRMSE": 0.06354496827152144,
+      "rmseReduction": 0.008843478804071665
+    },
+    {
+      "scene": "gi-emitter-enclosure-crop",
+      "correctedRMSE": 0.5399051478620749,
+      "legacyRMSE": 0.5399051478620749,
+      "rmseReduction": 0.0
+    },
+    {
+      "scene": "gi-emitter-enclosure-wide",
+      "correctedRMSE": 0.29938657390608847,
+      "legacyRMSE": 0.32147555961772456,
+      "rmseReduction": 0.02208898571163609
+    },
+    {
+      "scene": "gi-room-high-albedo",
+      "correctedRMSE": 0.2671876022503728,
+      "legacyRMSE": 0.2796415534910218,
+      "rmseReduction": 0.01245395124064902
+    },
+    {
+      "scene": "gi-room-low-albedo",
+      "correctedRMSE": 0.007283108640881573,
+      "legacyRMSE": 0.008357954500344563,
+      "rmseReduction": 0.0010748458594629908
+    },
+    {
+      "scene": "gi-room-open-high-albedo",
+      "correctedRMSE": 0.03216689969991164,
+      "legacyRMSE": 0.04613398530765991,
+      "rmseReduction": 0.013967085607748266
+    },
+    {
+      "scene": "gi-room-open-low-albedo",
+      "correctedRMSE": 0.012765491430607604,
+      "legacyRMSE": 0.011685235756872166,
+      "rmseReduction": -0.0010802556737354377
+    },
+    {
+      "scene": "higharc_dogwood",
+      "correctedRMSE": 0.08131393323519422,
+      "legacyRMSE": 0.08218547721124432,
+      "rmseReduction": 0.0008715439760501043
+    },
+    {
+      "scene": "ssgi-animated",
+      "correctedRMSE": 0.04931205333908156,
+      "legacyRMSE": 0.10510764808728262,
+      "rmseReduction": 0.05579559474820106
+    },
+    {
+      "scene": "ssgi-animated-visible-walls",
+      "correctedRMSE": 0.048650817597408594,
+      "legacyRMSE": 0.10305298064030813,
+      "rmseReduction": 0.054402163042899535
+    },
+    {
+      "scene": "ssgi-basic",
+      "correctedRMSE": 0.06821572802633079,
+      "legacyRMSE": 0.1261071502634326,
+      "rmseReduction": 0.05789142223710182
+    },
+    {
+      "scene": "ssgi-metallic",
+      "correctedRMSE": 0.07074939134677986,
+      "legacyRMSE": 0.11889433253341901,
+      "rmseReduction": 0.048144941186639145
+    },
+    {
+      "scene": "ssgi-rounded",
+      "correctedRMSE": 0.05196235099710926,
+      "legacyRMSE": 0.11002694568176631,
+      "rmseReduction": 0.05806459468465705
+    },
+    {
+      "scene": "ssr-steampunk-camera",
+      "correctedRMSE": 0.09700634244001378,
+      "legacyRMSE": 0.09700634244001378,
+      "rmseReduction": 0.0
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-0",
+      "correctedRMSE": 0.11741520391647753,
+      "legacyRMSE": 0.11741520391647753,
+      "rmseReduction": 0.0
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-100",
+      "correctedRMSE": 0.09702450184436115,
+      "legacyRMSE": 0.09702450184436115,
+      "rmseReduction": 0.0
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-25",
+      "correctedRMSE": 0.11536209536468958,
+      "legacyRMSE": 0.11536209536468958,
+      "rmseReduction": 0.0
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-50",
+      "correctedRMSE": 0.11042456980571247,
+      "legacyRMSE": 0.11042456980571247,
+      "rmseReduction": 0.0
+    }
+  ],
+  "methodIsolationChecks": [
+    {
+      "scene": "ssgi-animated",
+      "pass": "direct",
+      "pixelIdentical": true
+    },
+    {
+      "scene": "ssgi-animated",
+      "pass": "ao",
+      "pixelIdentical": true
+    },
+    {
+      "scene": "ssgi-animated-visible-walls",
+      "pass": "direct",
+      "pixelIdentical": true
+    },
+    {
+      "scene": "ssgi-animated-visible-walls",
+      "pass": "ao",
+      "pixelIdentical": true
+    },
+    {
+      "scene": "ssgi-basic",
+      "pass": "direct",
+      "pixelIdentical": true
+    },
+    {
+      "scene": "ssgi-basic",
+      "pass": "ao",
+      "pixelIdentical": true
+    },
+    {
+      "scene": "ssgi-metallic",
+      "pass": "direct",
+      "pixelIdentical": true
+    },
+    {
+      "scene": "ssgi-metallic",
+      "pass": "ao",
+      "pixelIdentical": true
+    },
+    {
+      "scene": "ssgi-rounded",
+      "pass": "direct",
+      "pixelIdentical": true
+    },
+    {
+      "scene": "ssgi-rounded",
+      "pass": "ao",
+      "pixelIdentical": true
+    },
+    {
+      "scene": "ssr-steampunk-camera",
+      "pass": "beauty",
+      "pixelIdentical": true,
+      "reason": "No SSGI in this scene"
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-0",
+      "pass": "beauty",
+      "pixelIdentical": true,
+      "reason": "No SSGI in this scene"
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-100",
+      "pass": "beauty",
+      "pixelIdentical": true,
+      "reason": "No SSGI in this scene"
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-25",
+      "pass": "beauty",
+      "pixelIdentical": true,
+      "reason": "No SSGI in this scene"
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-50",
+      "pass": "beauty",
+      "pixelIdentical": true,
+      "reason": "No SSGI in this scene"
+    }
+  ]
+}

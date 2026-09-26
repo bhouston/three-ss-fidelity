@@ -112,9 +112,9 @@ function Index() {
       </Header>
       <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-4 py-6 sm:px-6">
         <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-          Each scene is rendered with three.js screen-space effects (<code>three-ss</code>: SSGI, SSR, AO on
-          WebGPURenderer) and with <code>three-gpu-pathtracer</code> as ground truth. The delta image and PSNR / RMSE /
-          MAE show how far the screen-space approximation is from the reference.
+          Compare the corrected <code>three-ss</code> method and <code>three-ss-legacy</code> (the previous method in
+          the same three.js fork) against the <code>three-gpu-pathtracer</code> reference. Each delta and metric set
+          measures one screen-space method against that reference.
         </p>
         <section>
           {shown.length > 0 ? (
@@ -134,11 +134,13 @@ function Index() {
 
 function SceneRow({ scene, pass }: { scene: SceneSummary; pass: PassName }) {
   const search = { pass: passSearch(pass) };
-  const { metrics, images } = scene;
+  const { metrics, legacyMetrics, images } = scene;
   const cells = [
     { label: 'three-gpu-pathtracer (reference)', src: images.reference },
-    { label: 'three-ss', src: images.test },
-    { label: 'delta', src: images.delta },
+    { label: 'three-ss (corrected)', src: images.test },
+    { label: 'three-ss delta', src: images.delta },
+    { label: 'three-ss-legacy (fork)', src: images.legacy },
+    { label: 'legacy delta', src: images.legacyDelta },
   ];
   return (
     <article className="border-b border-border py-4 last:border-b-0">
@@ -168,7 +170,7 @@ function SceneRow({ scene, pass }: { scene: SceneSummary; pass: PassName }) {
       </div>
       <div className="mt-3 flex flex-wrap items-start gap-3">
         <Link
-          className="grid flex-1 grid-cols-3 gap-px"
+          className="grid min-w-0 flex-1 grid-cols-5 gap-px"
           params={{ name: scene.name }}
           search={search}
           to="/scenes/$name"
@@ -180,15 +182,25 @@ function SceneRow({ scene, pass }: { scene: SceneSummary; pass: PassName }) {
             </figure>
           ))}
         </Link>
-        <dl className={`grid w-40 grid-cols-2 gap-x-2 p-2 font-mono text-xs ${psnrClassName(metrics)}`}>
-          <dt>PSNR</dt>
-          <dd className="text-right">{formatMetric(metrics?.psnr)}</dd>
-          <dt>RMSE</dt>
-          <dd className="text-right">{formatMetric(metrics?.rmse, 4)}</dd>
-          <dt>MAE</dt>
-          <dd className="text-right">{formatMetric(metrics?.mae, 4)}</dd>
-        </dl>
+        <div className="flex flex-wrap gap-2">
+          <MetricSummary label="three-ss" metrics={metrics} />
+          <MetricSummary label="legacy" metrics={legacyMetrics} />
+        </div>
       </div>
     </article>
+  );
+}
+
+function MetricSummary({ label, metrics }: { label: string; metrics?: SceneSummary['metrics'] }) {
+  return (
+    <dl className={`grid w-36 grid-cols-2 gap-x-2 p-2 font-mono text-xs ${psnrClassName(metrics)}`}>
+      <dt className="col-span-2 mb-1 font-semibold">{label}</dt>
+      <dt>PSNR</dt>
+      <dd className="text-right">{formatMetric(metrics?.psnr)}</dd>
+      <dt>RMSE</dt>
+      <dd className="text-right">{formatMetric(metrics?.rmse, 4)}</dd>
+      <dt>MAE</dt>
+      <dd className="text-right">{formatMetric(metrics?.mae, 4)}</dd>
+    </dl>
   );
 }

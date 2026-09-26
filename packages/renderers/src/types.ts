@@ -1,16 +1,20 @@
 import type { PerspectiveCamera, WebGLRenderer } from 'three';
 import type { WebGPURenderer } from 'three/webgpu';
 
-export const rendererNames = ['three-ss', 'three-gpu-pathtracer'] as const;
+export const rendererNames = ['three-ss', 'three-ss-legacy', 'three-gpu-pathtracer'] as const;
 export type RendererName = (typeof rendererNames)[number];
 
 /** What is rendered: render settings applied to every scene (not scene settings). */
 export const passNames = ['beauty', 'direct', 'ao'] as const;
 export type PassName = (typeof passNames)[number];
 
+export type SSGIWeighting = 'solid-angle' | 'legacy';
+
 export interface RendererOptions {
   width: number;
   height: number;
+  /** SSGI integration method for direct createThreeSSRenderer callers; the registry selects it by name. */
+  ssgiWeighting?: SSGIWeighting;
   /** Diagnostic GI reconstruction in three-ss beauty passes; defaults to the existing denoised pipeline. */
   ssgiReconstruction?: 'raw' | 'temporal' | 'denoised';
   /**

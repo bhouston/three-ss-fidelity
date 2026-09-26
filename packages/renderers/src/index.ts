@@ -13,7 +13,10 @@ export function createRenderer(
   setup: SceneSetup,
   options: RendererOptions,
 ): Promise<LiveRenderer> {
-  return name === 'three-ss'
-    ? createThreeSSRenderer(canvas, setup, options)
-    : createPathTracerRenderer(canvas, setup, options);
+  if (name === 'three-gpu-pathtracer') return createPathTracerRenderer(canvas, setup, options);
+  if (name !== 'three-ss' && name !== 'three-ss-legacy') throw new Error(`Unknown renderer "${name}"`);
+  return createThreeSSRenderer(canvas, setup, {
+    ...options,
+    ssgiWeighting: name === 'three-ss-legacy' ? 'legacy' : 'solid-angle',
+  });
 }

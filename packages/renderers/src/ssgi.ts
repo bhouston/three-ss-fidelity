@@ -182,12 +182,12 @@ function createPipeline(
   // three-new-ssr-fast can render it at a lower resolution (SSRFastOptions.backDepthResolutionScale):
   // NewSSRNode only uses it as a coarse "is this ray still inside the solid" test with slack (`tk`), so a
   // bilinearly-sampled lower-resolution depth is an adequate approximation for a cheaper extra scene pass.
-  const backDepth = (resolutionScale: number): AnyNode => {
+  const backDepth = (backDepthResolutionScale: number): AnyNode => {
     const backPass = pass(scene, camera);
     backPass.name = 'Back-Face Depth Pre-Pass';
     backPass.transparent = true; // like the pre-pass (three-new-ssr only)
     backPass.overrideMaterial = new MeshBasicNodeMaterial({ side: BackSide });
-    if (resolutionScale !== 1) backPass.setResolutionScale(resolutionScale);
+    if (backDepthResolutionScale !== 1) backPass.setResolutionScale(backDepthResolutionScale);
     return backPass.getTextureNode('depth');
   };
 

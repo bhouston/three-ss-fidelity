@@ -17,6 +17,15 @@ function run(job: RenderJob): Promise<number | null> {
   });
 }
 
+function parseMotion(value: string | undefined): RenderJob['motion'] {
+  if (value === undefined) return undefined;
+  const [degrees, moveFrames, ...captures] = value.split(',').map(Number);
+  if (degrees === undefined || moveFrames === undefined || captures.length === 0 || captures.some(Number.isNaN)) {
+    throw new Error(`--motion expects "degrees,moveFrames,capture,...", got "${value}"`);
+  }
+  return { degrees, moveFrames, captures };
+}
+
 export const command = defineCommand({
   command: 'render',
   describe: 'Render scenes with renderers into results/<scene>/<pass>/<renderer>.avif',
@@ -29,6 +38,11 @@ export const command = defineCommand({
       .option('frames', {
         type: 'number',
         describe: 'Screen-space renderer frames (default: each scene’s effects.frames)',
+      })
+      .option('motion', {
+        type: 'string',
+        describe:
+          'Temporal evaluation "degrees,moveFrames,capture1,capture2,...": orbit back to the scene pose, write <renderer>@m<capture>.avif',
       })
       .option('output', { type: 'string', default: resultsDir, describe: 'Results directory' }),
   handler: async (argv) => {
@@ -45,6 +59,7 @@ export const command = defineCommand({
         outDir: argv.output,
         frames: argv.frames,
         samples: argv.samples,
+        motion: parseMotion(argv.motion),
       });
       if (code !== 0) {
         console.error(`${renderer} failed (exit code ${code})`);

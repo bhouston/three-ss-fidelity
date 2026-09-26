@@ -11,7 +11,9 @@ import {
   div,
   dot,
   float,
+  fract,
   getScreenPosition,
+  hash,
   getViewPosition,
   int,
   logarithmicDepthToViewZ,
@@ -40,6 +42,7 @@ import {
   context,
 } from 'three/tsl';
 import {
+  FloatType,
   HalfFloatType,
   LinearFilter,
   LinearMipmapLinearFilter,
@@ -119,6 +122,7 @@ class NewSSRNode extends Node {
       diffuseNode = null,
       binaryRefine = false,
       outputRadiance = false,
+      accumulate = false,
     } = options;
 
     let camera = options.camera ?? null;
@@ -502,6 +506,38 @@ class NewSSRNode extends Node {
     this._blurRenderTarget.texture.mipmaps.push({}, {}, {}, {}, {});
 
     /**
+     * Static-camera progressive accumulation (stochastic radiance mode only): a plain running mean over
+     * frames of the per-frame ratio-estimator terms `vec4(L·w, w)`, resolved to `rgb / a`. Unlike the
+     * temporal reprojection/denoise chain it has no clamping, so it converges to the unbiased lobe average.
+     * Restarts when the camera moves or the size changes. Fixed at construction time.
+     *
+     * @type {boolean}
+     */
+    this.accumulate = accumulate && stochastic && outputRadiance;
+    this._accumTargets = this.accumulate
+      ? [0, 1].map(() => new RenderTarget(1, 1, { depthBuffer: false, type: FloatType }))
+      : null;
+    this._resolveTarget = this.accumulate ? new RenderTarget(1, 1, { depthBuffer: false, type: HalfFloatType }) : null;
+    this._accumHistory = texture(null);
+    this._accumAlpha = uniform(1);
+    this._accumCount = 0;
+    this._accumIndex = 0;
+    this._accumCameraMatrix = new Matrix4();
+    this._accumMaterial = new NodeMaterial();
+    this._accumMaterial.name = 'NewSSRNode.Accumulate';
+    this._resolveMaterial = new NodeMaterial();
+    this._resolveMaterial.name = 'NewSSRNode.Resolve';
+    this._resolveHistory = texture(null);
+
+    /**
+     * Frame counter driving the per-frame sample sequence (one increment per `updateBefore`).
+     *
+     * @private
+     */
+    this._frameIndex = uniform(0);
+    this._frameCounter = 0;
+
+    /**
      * The material that is used to render the effect.
      *
      * @private
@@ -544,7 +580,10 @@ class NewSSRNode extends Node {
      * @private
      * @type {PassTextureNode}
      */
-    this._textureNode = passTexture(this, this._ssrRenderTarget.texture);
+    this._textureNode = passTexture(
+      this,
+      this.accumulate ? this._resolveTarget.texture : this._ssrRenderTarget.texture,
+    );
 
     let blurredTextureNode = null;
 
@@ -708,6 +747,10 @@ class NewSSRNode extends Node {
     this._resolution.value.set(width, height);
     this._ssrRenderTarget.setSize(width, height);
     this._blurRenderTarget.setSize(width, height);
+    if (this.accumulate) {
+      for (const target of this._accumTargets) target.setSize(width, height);
+      this._resolveTarget.setSize(width, height);
+    }
   }
 
   /**
@@ -808,6 +851,34 @@ class NewSSRNode extends Node {
     _quadMesh.name = 'SSR [ Reflections ]';
     _quadMesh.render(renderer);
 
+    this._frameIndex.value = this.useTemporalFiltering === true ? this._frameCounter++ : 0;
+
+    if (this.accumulate) {
+      // restart the running mean when the view changes (the CLI camera is static)
+      const w = ssrRenderTarget.width;
+      const h = ssrRenderTarget.height;
+      if (!this._accumCameraMatrix.equals(this.camera.matrixWorld) || this._accumSize !== w * 100000 + h) {
+        this._accumCameraMatrix.copy(this.camera.matrixWorld);
+        this._accumSize = w * 100000 + h;
+        this._accumCount = 0;
+      }
+      const read = this._accumTargets[this._accumIndex];
+      const write = this._accumTargets[1 - this._accumIndex];
+      this._accumAlpha.value = 1 / (this._accumCount + 1);
+      this._accumCount++;
+      this._accumHistory.value = read.texture;
+      _quadMesh.material = this._accumMaterial;
+      renderer.setRenderTarget(write);
+      _quadMesh.name = 'SSR [ Accumulate ]';
+      _quadMesh.render(renderer);
+      this._resolveHistory.value = write.texture;
+      _quadMesh.material = this._resolveMaterial;
+      renderer.setRenderTarget(this._resolveTarget);
+      _quadMesh.name = 'SSR [ Resolve ]';
+      _quadMesh.render(renderer);
+      this._accumIndex = 1 - this._accumIndex;
+    }
+
     // blur (optional)
 
     if (this.stochastic === false && this.roughnessNode !== null) {
@@ -887,7 +958,18 @@ class NewSSRNode extends Node {
       return depth;
     };
 
-    const sampleMarchNoise = bindAnalyticNoise(this._resolution, 47);
+    // Per-pixel, per-frame decorrelated samples: a 4-D Kronecker (R-sequence, generalized golden ratio) sequence
+    // over the frame index, Cranley-Patterson rotated by an independent PCG hash per pixel and dimension. Each
+    // pixel sees a low-discrepancy sequence over frames with no correlation between dimensions (unlike the
+    // analytic R² tile noise, whose four components derive from one scalar per pixel).
+    const sampleMarchNoise = (uvCoord, frameIndex) => {
+      const pixel = uvCoord.mul(this._resolution).floor();
+      const seed = pixel.x.add(pixel.y.mul(this._resolution.x)).mul(4);
+      const rotation = vec4(hash(seed), hash(seed.add(1)), hash(seed.add(2)), hash(seed.add(3)));
+      const g = 1.1673039782614187; // x^5 = x + 1
+      const alpha = vec4(1 / g, 1 / g ** 2, 1 / g ** 3, 1 / g ** 4);
+      return fract(rotation.add(alpha.mul(float(frameIndex))));
+    };
 
     const computeScreenBorderFactor = Fn(([uvCoord, borderWidth]) => {
       const border = borderWidth.max(1e-4);
@@ -909,7 +991,7 @@ class NewSSRNode extends Node {
     });
 
     const ssr = Fn(() => {
-      const noise = sampleMarchNoise(uvNode, this._noiseIndex);
+      const noise = sampleMarchNoise(uvNode, this._frameIndex).toVar();
       const uvPos = uvNode.toVar();
 
       const depth = sampleDepth(uvPos).toVar();
@@ -945,6 +1027,7 @@ class NewSSRNode extends Node {
       const V = viewIncidentDir.negate().normalize().toVar();
 
       let viewReflectDir, finalSampleWeight, specDominantFactor;
+      let sampleRatioWeight = float(1);
       const albedo = vec3(1).toVar();
       let sampleEnvReflection = null;
 
@@ -955,19 +1038,20 @@ class NewSSRNode extends Node {
       } else {
         const Xi = noise.toVar();
         // Mirror-bias: pull `Xi.y` toward the cap top to tighten the GGX lobe and cut mid-roughness
-        // noise. Unbiased — bounded VNDF keeps brdf·cos/pdf ~constant (EA, "Stochastic SSR").
+        // noise. This is biased (the pdf/weight are not corrected), so a reference sets it to 0.
         Xi.y.assign(mix(Xi.y, 0.0, this.mirrorBias.mul(Xi.w.sqrt())));
 
         albedo.assign(this.diffuseNode !== null ? this.diffuseNode.sample(uvPos).rgb : vec3(1));
         const ggxSample = ggxReflectionSample(viewNormal, V, roughness, metalness, albedo, Xi).toVar();
 
-        // Sometimes the GGX sample is facing away from the surface, so we need to re-sample.
-        If(ggxSample.get('reflectDir').dot(viewNormal).lessThan(0), () => {
-          ggxSample.assign(ggxReflectionSample(viewNormal, V, roughness, metalness, albedo, Xi.add(Xi.mul(7)).fract()));
-        });
+        // A below-horizon sample has G2 = 0 (NdotL clamps to 0), so its weight is already 0: no re-sampling.
 
         viewReflectDir = ggxSample.get('reflectDir').toVar();
         finalSampleWeight = this.outputRadiance ? vec3(1) : ggxSample.get('sampleWeight').toVar();
+        // Radiance mode: ratio-estimator weight w = F·G2/G1 (luminance) of this VNDF sample; the pass outputs
+        // vec4(L·w, w) and the accumulation resolves Σ L·w / Σ w, the lobe-normalized incoming radiance the
+        // material multiplies by its pre-integrated DFG (which is E[w]).
+        if (this.outputRadiance) sampleRatioWeight = luminance(ggxSample.get('sampleWeight')).toVar();
         specDominantFactor = getSpecularDominantFactor(ggxSample.get('NdotV'), roughness).toVar();
 
         sampleEnvReflection = () => {
@@ -1084,9 +1168,11 @@ class NewSSRNode extends Node {
       // Blur traces a single mirror ray, so spend steps in proportion to the ray's screen-space
       // length (cheap for the short rays that dominate). Scatter needs a fixed, bounded count for
       // coherent stochastic sampling; each step then spans the whole ray as rayVec / totalStep.
+      // Radiance mode marches every ray (mirror or stochastic) densely: one step per 1/quality texels.
+      const denseMarch = this.stochastic === false || this.outputRadiance;
       const totalStep = int(
-        this.stochastic === false
-          ? trunc(max(abs(xLen), abs(yLen)).mul(this.quality.clamp()))
+        denseMarch
+          ? trunc(max(abs(xLen), abs(yLen)).mul(this.quality.clamp()).min(65536))
               .max(int(1))
               .toConst()
           : this.quality.clamp().mul(MAX_STEPS).max(float(1)),
@@ -1120,10 +1206,9 @@ class NewSSRNode extends Node {
       // Ray parameter s ∈ [0,1] for step `idx`. Blur marches uniformly (one step per 1/quality texels),
       // jittered per pixel so the hits don't snap to the steps, which showed as bands. Scatter uses an exponential remap `(idx/steps)^stepExponent`
       // that concentrates samples near the origin, floored to ≥1 texel/step; `jitter` dissolves banding.
-      const sampleFraction =
-        this.stochastic === false
-          ? (idx) => idx.add(noise.z.sub(0.5)).div(totalStep).max(0)
-          : (idx) => max(idx.add(noise.z.sub(0.5)).div(totalStep).pow(this.stepExponent), idx.div(rayLen));
+      const sampleFraction = denseMarch
+        ? (idx) => idx.add(noise.z.sub(0.5)).div(totalStep).max(0)
+        : (idx) => max(idx.add(noise.z.sub(0.5)).div(totalStep).pow(this.stepExponent), idx.div(rayLen));
 
       // Carry the hit out of the loop so refinement runs after the march, not nested inside it (a
       // loop-inside-a-loop tripped shader-compiler bugs on some drivers). hitSLo/hitSHi bracket s.
@@ -1175,15 +1260,23 @@ class NewSSRNode extends Node {
           const tk = max(minThickness, max(this.thickness, depthProportionalThickness)).toVar();
 
           If(away.lessThanEqual(tk), () => {
+            // Background (cleared far-plane depth) is not geometry: a ray running past the far plane must not
+            // "hit" the screen-space backdrop, it continues and falls back to the environment.
+            If(d.greaterThanEqual(1.0), () => {
+              Continue();
+            });
+
             const vN = this.normalNode.sample(uvS).rgb.normalize().toVar();
 
             // the reflected ray is pointing towards the same side as the fragment's normal (current ray position),
             // which means it wouldn't reflect off the surface. The loop continues to the next step for the next ray sample.
-            if (this.stochastic === false) {
+            if (this.stochastic === false || this.outputRadiance) {
               If(dot(viewReflectDir, vN).greaterThanEqual(0), () => {
                 Continue();
               });
+            }
 
+            if (this.stochastic === false) {
               // Distance exceeding limit: The reflection is potentially too far away and might not
               // contribute significantly to the final color. In radiance mode there is no artistic
               // cutoff to honor (maxDistance there is only a ray-length budget, not a hit-rejection
@@ -1307,7 +1400,10 @@ class NewSSRNode extends Node {
 
       // Radiance mode: blend toward the environment on misses and fades, after the luminance cap so the
       // environment matches the materials. Misses report the environment ray length to the denoisers.
-      if (this.outputRadiance) {
+      if (this.accumulate) {
+        // ratio-estimator terms, resolved as Σ L·w / Σ w by the accumulation
+        output.assign(vec4(mix(sampleEnvRadiance(), output.rgb, hitWeight).mul(sampleRatioWeight), sampleRatioWeight));
+      } else if (this.outputRadiance) {
         output.assign(
           vec4(mix(sampleEnvRadiance(), output.rgb, hitWeight), hit.equal(1).select(output.a, float(ENV_RAY_LENGTH))),
         );
@@ -1328,6 +1424,20 @@ class NewSSRNode extends Node {
 
     this._copyMaterial.fragmentNode = reflectionBuffer;
     this._copyMaterial.needsUpdate = true;
+
+    if (this.accumulate) {
+      this._accumHistory.value = this._accumTargets[0].texture;
+      this._resolveHistory.value = this._accumTargets[0].texture;
+      this._accumMaterial.fragmentNode = mix(
+        this._accumHistory.sample(uvNode),
+        reflectionBuffer.sample(uvNode),
+        this._accumAlpha,
+      );
+      this._accumMaterial.needsUpdate = true;
+      const sum = this._resolveHistory.sample(uvNode);
+      this._resolveMaterial.fragmentNode = vec4(sum.rgb.div(sum.a.max(1e-8)), 1);
+      this._resolveMaterial.needsUpdate = true;
+    }
 
     //
 
@@ -1350,6 +1460,12 @@ class NewSSRNode extends Node {
 
     this._ssrMaterial.dispose();
     this._blurMaterial.dispose();
+    if (this.accumulate) {
+      for (const target of this._accumTargets) target.dispose();
+      this._resolveTarget.dispose();
+      this._accumMaterial.dispose();
+      this._resolveMaterial.dispose();
+    }
     this._copyMaterial.dispose();
 
     if (this._importanceEnvironment !== null) {

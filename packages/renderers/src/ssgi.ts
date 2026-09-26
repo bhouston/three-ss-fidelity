@@ -42,6 +42,9 @@ import type { LiveRenderer, PassName, RendererOptions } from './types.js';
 /** SSGINode's AO frames: the temporal denoiser converges at ~64 (see PLAN.md). */
 const AO_FRAMES = 128;
 
+/** three-new-ssr's minimum pipeline frames per rendered result (its stochastic SSR is a running mean over them). */
+const SSR_ACCUM_FRAMES = 256;
+
 /** The three-new-ssgi / three-ss-legacy / three-new-ssr pipeline settings of a pass. */
 export function passEffects(setup: SceneSetup, renderPass: PassName): SceneEffects {
   const { effects } = setup;
@@ -176,9 +179,9 @@ function createPipeline(
       outputRadiance: true,
       environmentNode: scene.environment ?? undefined,
       camera,
-      // three-new-ssr traces dielectrics too, so black/painted receivers show the Fresnel-ramped
-      // reflection a path tracer would (the fork keeps its metals-only default).
-      ...(ssrMethod === 'new' ? { reflectNonMetals: true } : {}),
+      // three-new-ssr is the reference configuration: stochastic VNDF rays over the full GGX lobe for every
+      // material (dielectrics too), accumulated into an unbiased running mean for the static camera.
+      ...(ssrMethod === 'new' ? { reflectNonMetals: true, stochastic: true, accumulate: true } : {}),
     });
     if (scene.environment) ssrPass.environmentIntensity.value = scene.environmentIntensity;
     // three-new-ssr drops the fork's distance-fade/hit-rejection use of maxDistance in radiance mode
@@ -194,8 +197,19 @@ function createPipeline(
     ssrPass.binaryRefine = ssrMethod === 'new' ? true : (params.binaryRefine ?? ssrPass.binaryRefine);
     ssrPass.useTemporalFiltering = temporal; // without temporal accumulation the march jitter is kept fixed
     ssrPass.resolutionScale = resolutionScale;
+    if (ssrMethod === 'new') {
+      // unbiased reference: full VNDF lobe, no luminance clamp, no screen-edge fade (a hit is a hit;
+      // rays leaving the screen fall back to the environment), fresh samples every frame
+      ssrPass.mirrorBias.value = 0;
+      ssrPass.maxLuminance.value = 1e9;
+      ssrPass.screenEdgeFade.value = 0;
+      ssrPass.useTemporalFiltering = true;
+    }
 
-    if (temporal) {
+    if (ssrMethod === 'new') {
+      // NewSSRNode accumulates internally (see `accumulate`); the clamping reprojection/denoise chain would bias it
+      reflections = ssrPass.getTextureNode().sample(screenUV).rgb;
+    } else if (temporal) {
       // reflections are reprojected with their hit points (specular mode)
       const ssrReprojected = tsl.temporalReproject(ssrPass, prePassDepth, prePassNormal, prePassVelocity, camera, {
         mode: 'specular',
@@ -301,6 +315,9 @@ export async function createSSGIRenderer(
     ssrMethod,
   );
   let frames = 0;
+  // three-new-ssr accumulates stochastic reflections over at least ACCUM_FRAMES pipeline frames per output frame
+  // budget: each render() runs several pipeline frames (scenes without SSR are left unchanged)
+  const subFrames = ssrMethod === 'new' && effects.ssr ? Math.max(1, Math.ceil(SSR_ACCUM_FRAMES / effects.frames)) : 1;
 
   const handle: LiveRenderer = {
     name: ssgiWeighting === 'legacy' ? 'three-ss-legacy' : ssrMethod === 'new' ? 'three-new-ssr' : 'three-new-ssgi',
@@ -309,7 +326,13 @@ export async function createSSGIRenderer(
       return frames;
     },
     render() {
-      renderPipeline.render();
+      for (let i = 0; i < subFrames; i++) {
+        // effect passes only advance with the node frame, which the animation loop updates once per display
+        // frame: advance it for the extra pipeline frames rendered within this one
+        // oxlint-disable-next-line typescript/no-explicit-any
+        if (i > 0) (renderer as any)._nodes.nodeFrame.update();
+        renderPipeline.render();
+      }
       frames++;
     },
     setSize(w, h) {

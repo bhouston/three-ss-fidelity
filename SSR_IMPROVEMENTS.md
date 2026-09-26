@@ -219,3 +219,106 @@ slightly in RMSE despite being visually similar or arguably more correct in dire
 instead of an accidental grey match) — their dominant remaining error is the wide-lobe visibility gap
 (A3/A4), which is the next round's stochastic GGX / temporal-accumulation work, not something fixable within
 this round's scope.
+
+---
+
+# Round 2: stochastic reference configuration
+
+Round 2 targets accuracy on rough surfaces and fixes round 1's regressions. Speed is still not a goal.
+Every number below is beauty RMSE against the path tracer. The column order is baseline
+(`three-new-ssgi`), round 1, and then the step being described.
+
+## R2.1 Diagnosis of the round-1 regressions
+
+- **`ssr-diag-grazing` (−2.65 dB).** Looking at the images shows a dark trapezoid on the floor near the
+  horizon. The cause is rays that no longer stop at `maxDistance`: they run past the far plane and "hit"
+  the cleared background depth (`depth = 1`, `viewZ = −far`). The depth-proportional thickness
+  (`0.02·|z| = 2` units at z = −100) accepts that hit, so the reflection samples the screen-space
+  gradient backdrop (0.14–0.22) instead of the environment. The fix is to never accept a crossing
+  whose depth sample is `>= 1` (the march `Continue`s instead). With the round-1 mirror path plus only
+  this fix, grazing goes from 0.0338 to 0.0215, which beats the 0.0249 baseline.
+- **Steampunk (+5 %).** The white metal disc has roughness 0.5, yet round 1 reflected the model on it as
+  a sharp, displaced mirror image. The fork's distance fade used to hide that image, and removing the
+  fade exposed it. The path tracer shows only a soft reddish tint with contact darkening. A mirror ray
+  plus a small screen-space blur cannot produce that result; a real GGX lobe can (R2.2). The
+  background-hit fix alone moves `ssr-steampunk-camera` only from 0.1063 to 0.1052.
+- **`rough-30/60`.** These regressed for the same reason: sharp mirror hits on rough floors.
+
+## R2.2 E0: stochastic VNDF reference with unbiased accumulation (kept)
+
+- **Change (`NewSSRNode.js`).**
+  - **Sampling.** The stochastic path samples bounded-VNDF GGX with α = roughness², the same
+    distribution as the path tracer (`surf.roughness = roughness²`, and `filterGlossyFactor` is 0).
+    `mirrorBias` is 0. Below-horizon samples get weight 0 (G2 = 0) instead of a correlated
+    re-sample.
+  - **Noise.** The per-pixel, per-frame random numbers are a 4-D R-sequence over a node-local frame
+    counter, Cranley–Patterson rotated by a PCG hash per pixel and per dimension. This replaces the
+    32×32 analytic R² tile, whose four dimensions derive from one scalar.
+  - **March.** Stochastic rays use the same dense 1-px uniform march with binary refinement as the
+    mirror path, instead of 32 `s²`-spaced steps.
+  - **Hit validation.** Back-face hits are rejected in both modes, and background hits are rejected
+    (R2.1).
+  - **Misses and off-screen rays.** Both sample `pmremTexture(env, rayDir, 0)`: the environment in
+    that ray's own direction at the sharpest prefilter level, not the full-lobe prefiltered value.
+  - **Output and accumulation.** With `accumulate`, the pass outputs the ratio-estimator terms
+    `vec4(L·w, w)`, where `w = luminance(F·G2/G1)` is the VNDF sample weight. A plain running mean
+    (FloatType ping-pong, no clamping, restarted when the camera or size changes) is resolved to
+    `Σ L·w / Σ w`. That value is lobe-normalized incoming radiance, which `builtinRadianceContext`
+    feeds to `PhysicalLightingModel.indirectSpecular` as `radiance · (F0·DFG.x + F90·DFG.y)`. The
+    Fresnel/DFG term is therefore applied exactly once, and E[w] is the DFG term.
+- **Change (`ssgi.ts`, three-new-ssr only).**
+  - **Node options.** `stochastic` and `accumulate` are on, `maxLuminance` is 1e9 (no cap), and
+    `screenEdgeFade` is 0. A hit is a hit; rays that leave the screen fall back to the environment.
+  - **Denoise chain.** The temporal reprojection/denoise chain is bypassed.
+  - **Frame count.** Each `render()` runs `ceil(256 / effects.frames)` pipeline frames, advancing the
+    node frame for the extra ones, so each result averages at least 256 frames. That is 16 sub-frames
+    for the SSR scenes. Scenes without SSR are unchanged.
+- **Result.** Every SSR scene improved on round 1. Overall 0.0601 → **0.0529**, diag 0.0362 → 0.0319,
+  steampunk 0.1126 → 0.0993.
+
+| scene                              | baseline | round 1 | E0     |
+| ---------------------------------- | -------- | ------- | ------ |
+| ssr-diag-dielectric-0              | 0.0249   | 0.0137  | 0.0135 |
+| ssr-diag-dielectric-30             | 0.0222   | 0.0156  | 0.0130 |
+| ssr-diag-grazing                   | 0.0249   | 0.0338  | 0.0214 |
+| ssr-diag-mirror                    | 0.0280   | 0.0220  | 0.0219 |
+| ssr-diag-occlusion                 | 0.0184   | 0.0154  | 0.0152 |
+| ssr-diag-offscreen                 | 0.0493   | 0.0440  | 0.0381 |
+| ssr-diag-rough-10                  | 0.0271   | 0.0224  | 0.0209 |
+| ssr-diag-rough-30                  | 0.0290   | 0.0315  | 0.0197 |
+| ssr-diag-rough-60                  | 0.0517   | 0.0548  | 0.0524 |
+| ssr-diag-sphere                    | 0.0676   | 0.0646  | 0.0617 |
+| ssr-diag-wall                      | 0.0879   | 0.0808  | 0.0728 |
+| ssr-steampunk-camera               | 0.0970   | 0.1063  | 0.0839 |
+| ssr-steampunk-camera-roughness-0   | 0.1172   | 0.1178  | 0.1131 |
+| ssr-steampunk-camera-roughness-25  | 0.1152   | 0.1175  | 0.1114 |
+| ssr-steampunk-camera-roughness-50  | 0.1103   | 0.1150  | 0.1042 |
+| ssr-steampunk-camera-roughness-100 | 0.0969   | 0.1064  | 0.0839 |
+
+- **Pitfall found.** The first attempt looped `renderPipeline.render()` inside one `render()` call and
+  produced 16-sample noise. Effect passes (`updateBefore` with `FRAME`) only run once per node frame,
+  and the node frame advances only in the animation loop, so the loop must call
+  `nodeFrame.update()` for each extra sub-frame.
+
+## R2.3 Non-SSR residual: multiscatter energy compensation
+
+On `ssr-diag-rough-60`, the floor far from any emitter (bottom corners) is sRGB 141 in both
+`three-new-ssr` and `three-new-ssgi`, against 126 in the path tracer. In linear terms the raster floor is
+about 1.27× brighter. On `mirror`, `rough-10` and `rough-30` the same patch agrees to within 1/255.
+
+Monte-Carlo single-scatter GGX albedo `Ess(α, N·V)` with height-correlated Smith G2, as the path tracer
+uses, is:
+
+| roughness (α) | Ess at N·V 0.3 / 0.5 / 0.7 / 0.9 |
+| ------------- | -------------------------------- |
+| 0.3 (0.09)    | 0.945 / 0.975 / 0.985 / 0.989    |
+| 0.5 (0.25)    | 0.838 / 0.857 / 0.885 / 0.907    |
+| 0.6 (0.36)    | 0.797 / 0.782 / 0.795 / 0.814    |
+| 1.0 (1.0)     | 0.561 / 0.451 / 0.380 / 0.328    |
+
+For a white metal (F0 = 1), three.js's Fdez-Agüera term adds `Ems·E_irr/π`, so the raster reflects
+about 1/Ess of the single-scatter energy. At rough-60 and N·V ≈ 0.75 that is 1/0.795 = 1.26×, which
+matches the measured 1.27×. The rough-floor brightness offset is therefore entirely material-model
+(single- vs multi-scatter) and cannot be fixed in SSR. It is the dominant remaining error on
+`rough-60` away from the emitters, and about 15 % of floor radiance on the steampunk disc
+(roughness 0.5, α = 0.25).

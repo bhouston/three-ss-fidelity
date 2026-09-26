@@ -32,7 +32,7 @@ for (const scene of scenes) {
   const { width, height, channels } = refBuf.info;
   const diff = Buffer.alloc(refBuf.data.length);
   for (let i = 0; i < diff.length; i++) {
-    if (i % channels === channels - 1) {
+    if (channels === 4 && i % 4 === 3) {
       diff[i] = 255; // alpha
       continue;
     }

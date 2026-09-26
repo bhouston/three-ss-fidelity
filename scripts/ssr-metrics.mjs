@@ -13,7 +13,7 @@ const renderers = (process.argv[2] ?? 'three-new-ssgi,three-new-ssr').split(',')
 
 const scenes = readdirSync(resultsDir)
   .filter((name) => name.startsWith('ssr-'))
-  .sort();
+  .toSorted();
 
 function group(scene) {
   return scene.startsWith('ssr-diag-') ? 'diag' : 'steampunk';
@@ -45,6 +45,8 @@ for (const row of rows) {
   console.log(cells.join(' | '));
 }
 
+const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : NaN);
+
 console.log('\nMean RMSE:');
 for (const renderer of renderers) {
   const all = rows.map((r) => r[renderer]?.rmse).filter((v) => v !== undefined && v !== null);
@@ -56,7 +58,6 @@ for (const renderer of renderers) {
     .filter((r) => r.group === 'steampunk')
     .map((r) => r[renderer]?.rmse)
     .filter((v) => v != null);
-  const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : NaN);
   console.log(
     `  ${renderer}: overall ${mean(all).toFixed(4)}, diag ${mean(diag).toFixed(4)}, steampunk ${mean(steampunk).toFixed(4)}`,
   );

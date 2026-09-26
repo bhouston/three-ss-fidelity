@@ -17,7 +17,7 @@ const scenes = process.argv[3]
   ? process.argv[3].split(',')
   : readdirSync(resultsDir)
       .filter((name) => name.startsWith('ssr-'))
-      .sort();
+      .toSorted();
 
 for (const scene of scenes) {
   const dir = path.join(resultsDir, scene, 'beauty');

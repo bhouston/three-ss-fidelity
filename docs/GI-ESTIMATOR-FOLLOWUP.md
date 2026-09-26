@@ -4,7 +4,13 @@ September 25, 2026; continuation of [issue #9](https://github.com/bhouston/ss-fi
 
 We found a substantial, reproducible improvement without changing GI intensity or adding unseen lighting. The local three.js visibility-bitmask estimator counts equal **slice-angle** sectors but does not include the spherical solid-angle Jacobian. A process-local shader experiment adds that directional weight. Together with a larger sampling footprint and more samples, it reduces the original Cornell beauty RMSE from **0.16462 to 0.04931 (70.0%)**. This is display-RGB RMSE, not a percentage of missing physical energy.
 
-This remains an opt-in investigation. Registered scenes, normal renderer defaults, the three.js submodule, and saved `results/` images are unchanged. The experiment runs actual headless WebGPU shaders; it is not an image brightness adjustment.
+## Default promotion
+
+The lightweight `sample-jacobian` correction is now the default in the `ssgi-traa-redesign` branch of [bhouston/three.js](https://github.com/bhouston/three.js/tree/ssgi-traa-redesign), and the parent submodule reference follows that change. Ordinary `SSGINode` users receive the corrected weighting without an experiment loader or opt-in flag. The existing sample counts, radius, thickness, GI intensity and AO algorithm remain unchanged; the larger quality settings responsible for part of the 70% improvement are still optional. At original Cornell sampling settings the correction changes RMSE from about 0.16462 to 0.15587; at the documented higher-quality settings it reaches 0.04931.
+
+The tables and [76-run dataset](gi-estimator-metrics.json) below record the investigation **before promotion**. In those records, `baseline` means the old weighting. New runs with no `GI_SHADER` override (or `baseline`/`sample-jacobian`) use the native corrected shader. Use `GI_SHADER=legacy` to reproduce the old weighting. Other experimental modes explicitly replace the native correction rather than applying it twice. Saved `results/` images remain historical references. [Default-promotion validation](gi-default-validation.json) compares native rendering and legacy/per-sector controls with the recorded experiments.
+
+The investigation ran actual headless WebGPU shaders; it was not an image brightness adjustment.
 
 ## Results and controls
 
@@ -105,12 +111,12 @@ Use Node 26 and the repository's pinned pnpm. Existing `results/` references fro
 ```sh
 pnpm build
 node scripts/gi-angular-oracle.mjs
-node scripts/gi-estimator-sweep.mjs /tmp/ss-fidelity-estimator-initial
+GI_SHADER=legacy node scripts/gi-estimator-sweep.mjs /tmp/ss-fidelity-estimator-initial
 GI_SHADER=solid-angle node scripts/gi-estimator-sweep.mjs /tmp/ss-fidelity-solid-angle
 GI_SHADER=sample-jacobian GI_VARIANTS='[{"name":"dense-radius32-thickness4","ssgi":{"sliceCount":8,"stepCount":32,"radius":32,"thickness":4}}]' node scripts/gi-estimator-sweep.mjs /tmp/ss-fidelity-sample-jacobian
-GI_VARIANTS='[{"name":"raw","reconstruction":"raw"},{"name":"temporal","reconstruction":"temporal"}]' node scripts/gi-estimator-sweep.mjs /tmp/ss-fidelity-reconstruction
+GI_SHADER=legacy GI_VARIANTS='[{"name":"raw","reconstruction":"raw"},{"name":"temporal","reconstruction":"temporal"}]' node scripts/gi-estimator-sweep.mjs /tmp/ss-fidelity-reconstruction
 ```
 
-Pass scene names after the output directory to select controls. `GI_VARIANTS` is a JSON array of independent overrides (`ssgi`, `reconstruction`, `frames`, `cameraPosition`, and optionally `temporalDenoise`/`noSSR`). Each run emits PNGs and `metrics.json`. The consolidated metrics record the exact variants used for the other camera, visibility and negative controls. Shader modes are implemented by a process-local Node loader with source-match guards; no three.js files are patched on disk.
+Pass scene names after the output directory to select controls. `GI_VARIANTS` is a JSON array of independent overrides (`ssgi`, `reconstruction`, `frames`, `cameraPosition`, and optionally `temporalDenoise`/`noSSR`). Each run emits PNGs and `metrics.json`. The consolidated metrics record the exact variants used for the other camera, visibility and negative controls. Alternative shader modes are implemented by a process-local Node loader with source-match guards; the loader does not patch three.js files on disk. The sample-direction correction itself now lives in the fork's normal SSGINode implementation.
 
 Validation: `pnpm build`, `pnpm tsc`, `pnpm lint`, and `pnpm test --coverage` pass (40 tests). The numerical oracle checks pass and the comparison figure was visually inspected. `pnpm audit --audit-level=high` reports seven high and one moderate existing transitive vulnerabilities; high findings are in `tar-fs`, `ws`, and `extract-zip` under the path-tracer submodule's Puppeteer dependencies. No dependencies changed in this investigation.

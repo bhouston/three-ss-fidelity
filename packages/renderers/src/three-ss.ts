@@ -1,7 +1,14 @@
 // three-ss: WebGPURenderer + RenderPipeline replicating examples/webgpu_postprocessing_ssgi.html (antialias 'traa')
 // and examples/webgpu_postprocessing_ssr.html (antialias 'smaa') of the three.js fork.
 import { LinearSRGBColorSpace, NoToneMapping } from 'three';
-import { PMREMGenerator, RenderPipeline, UnsignedByteType, WebGPURenderer } from 'three/webgpu';
+import {
+  PMREMGenerator,
+  RenderPipeline,
+  RGBFormat,
+  UnsignedByteType,
+  UnsignedInt101111Type,
+  WebGPURenderer,
+} from 'three/webgpu';
 import {
   builtinGIContext,
   builtinRadianceContext,
@@ -140,8 +147,13 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: b
   let giPass: AnyNode = null;
   if (effects.ssgi) {
     // SSGI samples the radiance ~32 times per pixel; reprojecting it once into a texture replaces each sample's
-    // dependent velocity + previous-frame fetch pair with a single fetch
-    giPass = ssgi(rtt(previousRadiance.sample(screenUV)), prePassDepth, sceneNormal, camera);
+    // dependent velocity + previous-frame fetch pair with a single fetch. RG11B10 (like SSGINode's GI output) halves
+    // the bandwidth of those scattered fetches.
+    const radianceTexture = rtt(previousRadiance.sample(screenUV), null, null, {
+      type: UnsignedInt101111Type,
+      format: RGBFormat,
+    });
+    giPass = ssgi(radianceTexture, prePassDepth, sceneNormal, camera);
     giPass.sliceCount.value = effects.ssgi.sliceCount;
     giPass.stepCount.value = effects.ssgi.stepCount;
     giPass.giIntensity.value = effects.ssgi.giIntensity;

@@ -4,16 +4,21 @@ import { LinearSRGBColorSpace, NoToneMapping } from 'three';
 import {
   PMREMGenerator,
   RenderPipeline,
-  RGBFormat,
+  RedIntegerFormat,
   UnsignedByteType,
-  UnsignedInt101111Type,
+  UnsignedIntType,
   WebGPURenderer,
 } from 'three/webgpu';
 import {
   builtinGIContext,
   builtinRadianceContext,
+  ceil,
   color,
+  exp2,
   float,
+  Fn,
+  ivec2,
+  log2,
   materialMetalness,
   materialRoughness,
   metalness,
@@ -24,13 +29,18 @@ import {
   pass,
   perspectiveDepthToViewZ,
   reference,
+  round,
   roughness,
   rtt,
   sample,
   screenUV,
   smoothstep,
   texture,
+  textureSize,
+  uint,
   unpackRGBToNormal,
+  uvec2,
+  uvec3,
   vec2,
   vec3,
   vec4,
@@ -83,6 +93,56 @@ export function passEffects(setup: SceneSetup, renderPass: PassName): SceneEffec
 // The fork's TSL nodes are ahead of @types/three; the graph is built exactly as in the examples, so it is typed loosely.
 // oxlint-disable-next-line typescript/no-explicit-any
 type AnyNode = any;
+
+/** Per-component sign of a vec2 that never returns 0 (for the octahedral normal encoding). */
+const octSign = (v: AnyNode): AnyNode =>
+  vec2(v.x.greaterThanEqual(0).select(1, -1), v.y.greaterThanEqual(0).select(1, -1));
+
+/**
+ * Packs HDR radiance and a unit normal into 32 bits: the radiance as shared-exponent RGB (5-bit mantissas, 5-bit
+ * exponent) in bits 0-19, the normal octahedrally (6 + 6 bits) in bits 20-31.
+ */
+const packRadianceNormal = (radiance: AnyNode, normal: AnyNode): AnyNode =>
+  Fn(() => {
+    const rgb = radiance.max(0).toConst();
+    const exponent = ceil(
+      log2(
+        rgb.x
+          .max(rgb.y)
+          .max(rgb.z)
+          .max(2 ** -16),
+      ),
+    )
+      .clamp(-15, 16)
+      .toConst();
+    const mantissas: AnyNode = uvec3(round(rgb.mul(exp2(exponent.negate())).mul(31)).min(31) as AnyNode);
+    const oct = normal.xy.div(normal.x.abs().add(normal.y.abs()).add(normal.z.abs())).toConst();
+    const folded = normal.z.lessThan(0).select(vec2(1).sub(oct.yx.abs()).mul(octSign(oct)), oct);
+    const octBits: AnyNode = uvec2(round(folded.mul(0.5).add(0.5).mul(63)) as AnyNode);
+    return mantissas.x
+      .bitOr(mantissas.y.shiftLeft(5))
+      .bitOr(mantissas.z.shiftLeft(10))
+      .bitOr((uint(exponent.add(15)) as AnyNode).shiftLeft(15))
+      .bitOr(octBits.x.shiftLeft(20))
+      .bitOr(octBits.y.shiftLeft(26));
+  })();
+
+/** Inverse of {@link packRadianceNormal}: the radiance. */
+const unpackRadiance = (bits: AnyNode): AnyNode =>
+  vec3((uvec3(bits, bits.shiftRight(5), bits.shiftRight(10)) as AnyNode).bitAnd(uvec3(31))).mul(
+    exp2(float(bits.shiftRight(15).bitAnd(31)).sub(15)).div(31),
+  );
+
+/** Inverse of {@link packRadianceNormal}: the (unnormalized) normal. */
+const unpackNormal = (bits: AnyNode): AnyNode =>
+  Fn(() => {
+    const oct = vec2((uvec2(bits.shiftRight(20), bits.shiftRight(26)) as AnyNode).bitAnd(uvec2(63)))
+      .div(63 / 2)
+      .sub(1)
+      .toConst();
+    const z = float(1).sub(oct.x.abs()).sub(oct.y.abs()).toConst();
+    return vec3(oct.sub(octSign(oct).mul(z.negate().max(0))), z);
+  })();
 
 function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: boolean): RenderPipeline {
   const { scene, camera, effects } = setup;
@@ -147,13 +207,24 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: b
   let giPass: AnyNode = null;
   if (effects.ssgi) {
     // SSGI samples the radiance ~32 times per pixel; reprojecting it once into a texture replaces each sample's
-    // dependent velocity + previous-frame fetch pair with a single fetch. RG11B10 (like SSGINode's GI output) halves
-    // the bandwidth of those scattered fetches.
-    const radianceTexture = rtt(previousRadiance.sample(screenUV), null, null, {
-      type: UnsignedInt101111Type,
-      format: RGBFormat,
-    });
-    giPass = ssgi(radianceTexture, prePassDepth, sceneNormal, camera);
+    // dependent velocity + previous-frame fetch pair with a single fetch. The sampled light sources' normals (only
+    // tested for which way they face) are packed into the same 32 bits, so that one scattered (point-sampled) fetch
+    // serves both; the shading point's own normal keeps full precision.
+    const packed: AnyNode = rtt(
+      packRadianceNormal(previousRadiance.sample(screenUV).rgb, sceneNormal.sample(screenUV).rgb),
+      null,
+      null,
+      { type: UnsignedIntType, format: RedIntegerFormat },
+    );
+    const packedSize = vec2(textureSize(packed) as AnyNode);
+    const loadPacked = (uv: AnyNode): AnyNode => packed.load(ivec2(uv.mul(packedSize))).x;
+    giPass = ssgi(
+      sample((uv: AnyNode) => unpackRadiance(loadPacked(uv))),
+      prePassDepth,
+      sceneNormal,
+      camera,
+    );
+    giPass.lightNormalNode = sample((uv: AnyNode) => unpackNormal(loadPacked(uv)));
     giPass.sliceCount.value = effects.ssgi.sliceCount;
     giPass.stepCount.value = effects.ssgi.stepCount;
     giPass.giIntensity.value = effects.ssgi.giIntensity;

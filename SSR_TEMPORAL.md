@@ -350,7 +350,8 @@ Blackman-Harris reconstruction of the current sample, would need the TRAA node v
 
 - Tracing inherited from `three-new-ssr-fast`: `clipRaysToScreen`, `secondBounceRoughnessCutoff 0.8`,
   `quality 0.6`, `secondBounceQuality 0.4`.
-- `realtime: 'sssr'`, `traceResolutionScale: 0.5`, `hiZ: true` (96 iterations).
+- `realtime: 'sssr'`, `hiZ: true` (96 iterations), traced at full resolution (the E7 half-resolution trace is no
+  longer the default; set `traceResolutionScale: 0.5` to get it back, with its joint bilateral upsample).
 - TRAA.
 - Filter uniforms: `spatialRadius 40`, `spatialMaxRadius 12`, history 4–32 by roughness, `clipGamma 3`, with 0.5σ and
   2 frames where reflected objects move.

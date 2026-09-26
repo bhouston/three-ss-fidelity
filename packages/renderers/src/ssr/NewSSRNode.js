@@ -965,7 +965,14 @@ class NewSSRNode extends Node {
    * @param {number} height - The height of the effect.
    */
   setSize(width, height) {
-    if (this.temporalFilter) this._upsampleTarget.setSize(width, height);
+    if (this.temporalFilter) {
+      // the upsample only runs at resolutionScale < 1; at full resolution the temporal result is used directly
+      this._upsample = this.resolutionScale < 1;
+      if (this._upsample) this._upsampleTarget.setSize(width, height);
+      if (!this.accumulate) {
+        this._textureNode.value = (this._upsample ? this._upsampleTarget : this._temporalTarget).texture;
+      }
+    }
     width = Math.round(this.resolutionScale * width);
     height = Math.round(this.resolutionScale * height);
 
@@ -1132,7 +1139,7 @@ class NewSSRNode extends Node {
         [this._temporalMaterial, this._temporalTarget, 'SSR [ Temporal ]'],
         [this._historyCopyMaterial, this._historyTarget, 'SSR [ History ]'],
         [this._geometryMaterial, this._geometryTarget, 'SSR [ Previous Geometry ]'],
-        [this._upsampleMaterial, this._upsampleTarget, 'SSR [ Upsample ]'],
+        ...(this._upsample ? [[this._upsampleMaterial, this._upsampleTarget, 'SSR [ Upsample ]']] : []),
       ];
       for (const [material, target, name] of passes) {
         _quadMesh.material = material;

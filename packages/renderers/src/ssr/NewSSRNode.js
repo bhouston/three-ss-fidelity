@@ -123,7 +123,17 @@ class NewSSRNode extends Node {
       binaryRefine = false,
       outputRadiance = false,
       accumulate = false,
+      backDepthNode = null,
     } = options;
+
+    /**
+     * Optional depth of the nearest back faces (a BackSide depth pre-pass). When set, a depth crossing is
+     * also a hit whenever the ray is still in front of that back face, i.e. inside the solid between the
+     * front and back surface, instead of only within the heuristic `thickness` of the front surface.
+     *
+     * @type {?Node<float>}
+     */
+    this.backDepthNode = backDepthNode;
 
     let camera = options.camera ?? null;
 
@@ -1259,7 +1269,13 @@ class NewSSRNode extends Node {
           const depthProportionalThickness = abs(vZ).mul(0.02).toVar();
           const tk = max(minThickness, max(this.thickness, depthProportionalThickness)).toVar();
 
-          If(away.lessThanEqual(tk), () => {
+          // Dual-layer depth: inside the solid (behind its front surface, in front of its back surface).
+          const insideSolid =
+            this.backDepthNode !== null
+              ? viewReflectRayZ.greaterThanEqual(getViewZ(this.backDepthNode.sample(uvS).r).sub(tk))
+              : bool(false);
+
+          If(away.lessThanEqual(tk).or(insideSolid), () => {
             // Background (cleared far-plane depth) is not geometry: a ray running past the far plane must not
             // "hit" the screen-space backdrop, it continues and falls back to the environment.
             If(d.greaterThanEqual(1.0), () => {
@@ -1270,7 +1286,10 @@ class NewSSRNode extends Node {
 
             // the reflected ray is pointing towards the same side as the fragment's normal (current ray position),
             // which means it wouldn't reflect off the surface. The loop continues to the next step for the next ray sample.
-            if (this.stochastic === false || this.outputRadiance) {
+            // Radiance mode keeps such hits: the ray is inside a solid whose (hidden) back side it would hit, and the
+            // visible side's radiance is a better proxy than continuing past the solid to the environment (a mirror
+            // facing the camera shows the far sides of the objects in front of it).
+            if (this.stochastic === false && !this.outputRadiance) {
               If(dot(viewReflectDir, vN).greaterThanEqual(0), () => {
                 Continue();
               });

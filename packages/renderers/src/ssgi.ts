@@ -1,8 +1,8 @@
 // three-new-ssgi / three-ss-legacy / three-new-ssr: WebGPURenderer + RenderPipeline replicating
 // examples/webgpu_postprocessing_ssgi.html (antialias 'traa') and examples/webgpu_postprocessing_ssr.html
 // (antialias 'smaa') of the three.js fork.
-import { LinearSRGBColorSpace, NoToneMapping } from 'three';
-import { PMREMGenerator, RenderPipeline, UnsignedByteType, WebGPURenderer } from 'three/webgpu';
+import { BackSide, LinearSRGBColorSpace, NoToneMapping } from 'three';
+import { MeshBasicNodeMaterial, PMREMGenerator, RenderPipeline, UnsignedByteType, WebGPURenderer } from 'three/webgpu';
 import {
   builtinGIContext,
   builtinRadianceContext,
@@ -170,6 +170,15 @@ function createPipeline(
     if (useScreenSpaceSampling !== undefined) giPass.useScreenSpaceSampling.value = useScreenSpaceSampling;
   }
 
+  // three-new-ssr: depth of the nearest back faces, so SSR knows how thick each solid actually is
+  const backDepth = (): AnyNode => {
+    const backPass = pass(scene, camera);
+    backPass.name = 'Back-Face Depth Pre-Pass';
+    backPass.transparent = false;
+    backPass.overrideMaterial = new MeshBasicNodeMaterial({ side: BackSide });
+    return backPass.getTextureNode('depth');
+  };
+
   let reflections: AnyNode = null;
   if (effects.ssr) {
     const params = effects.ssr;
@@ -181,7 +190,9 @@ function createPipeline(
       camera,
       // three-new-ssr is the reference configuration: stochastic VNDF rays over the full GGX lobe for every
       // material (dielectrics too), accumulated into an unbiased running mean for the static camera.
-      ...(ssrMethod === 'new' ? { reflectNonMetals: true, stochastic: true, accumulate: true } : {}),
+      ...(ssrMethod === 'new'
+        ? { reflectNonMetals: true, stochastic: true, accumulate: true, backDepthNode: backDepth() }
+        : {}),
     });
     if (scene.environment) ssrPass.environmentIntensity.value = scene.environmentIntensity;
     // three-new-ssr drops the fork's distance-fade/hit-rejection use of maxDistance in radiance mode

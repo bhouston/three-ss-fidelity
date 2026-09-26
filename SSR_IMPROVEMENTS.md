@@ -322,3 +322,44 @@ matches the measured 1.27×. The rough-floor brightness offset is therefore enti
 (single- vs multi-scatter) and cannot be fixed in SSR. It is the dominant remaining error on
 `rough-60` away from the emitters, and about 15 % of floor radiance on the steampunk disc
 (roughness 0.5, α = 0.25).
+
+## R2.4 Hit acceptance: keep back-face hits and add dual-layer depth (kept)
+
+- **Hypothesis 1: back-face rejection leaks the environment.** The `dot(R, N_hit) >= 0 → Continue`
+  back-face test makes a ray that enters a solid from its hidden side march straight through it to the
+  environment. This happens, for example, when a camera-facing mirror wall reflects the far sides of
+  the emitters in front of it. A path tracer would hit that hidden side.
+- **Hypothesis 2: the thickness heuristic is scene-scale dependent.** The heuristic
+  `max(3 px, thickness, 0.02·|z|)` misses rays that pass under or behind an object's visible surface,
+  for example the floor at the base of an emitter reaching the emitter's hidden underside. That is why
+  contact glow was missing on `mirror` and `rough-*`.
+- **Experiments (overall / diag / steampunk).**
+
+| variant                                    | overall    | diag       | steampunk |
+| ------------------------------------------ | ---------- | ---------- | --------- |
+| E0                                         | 0.0529     | 0.0319     | 0.0993    |
+| keep back-face hits                        | 0.0526     | 0.0312     | 0.0996    |
+| infinite thickness                         | 0.0535     | 0.0323     | 0.1000    |
+| keep back-face hits + infinite thickness   | 0.0543     | 0.0323     | 0.1027    |
+| keep back-face hits + thickness 0.15       | 0.0533     | 0.0300     | 0.1047    |
+| keep back-face hits + thickness 0.4        | 0.0531     | 0.0305     | 0.1027    |
+| **keep back-face hits + dual-layer depth** | **0.0517** | **0.0295** | 0.1004    |
+
+- **Keeping back-face hits.** The wall improves from 0.0728 to 0.0674. The steampunk scenes move by
+  +0.001 because the visible side is only a proxy for the radiance of the hidden side.
+- **Any global thickness.** Contacts improve on the diagnostics (mirror 0.0219 → 0.0183), but
+  steampunk loses up to +0.008 and infinite thickness makes the sphere 0.0617 → 0.0722. The rays that
+  pass behind the thin, intricate parts of the model, or behind the sphere's own silhouette, then get
+  blocked. No single constant fits both scene scales.
+- **Change.** `three-new-ssr` renders an extra depth pre-pass of back faces (`overrideMaterial` with
+  `side: BackSide`, depth only) and passes it to the node as `backDepthNode`. A depth crossing is a hit
+  when the ray lies inside the solid, which means behind the front depth and in front of the back-face
+  depth plus the same `tk` slack. The old thickness test still applies as an alternative. Open
+  surfaces such as the floor and the wall have no back face in front of anything behind them, so they
+  count as solid, which is right for a ground plane.
+- **Result.** Overall 0.0529 → **0.0517**, diag 0.0319 → 0.0295. Mirror 0.0219 → 0.0167, rough-10
+  0.0209 → 0.0160, rough-30 0.0197 → 0.0158, offscreen 0.0381 → 0.0333, wall 0.0728 → 0.0677.
+  Steampunk is flat overall (0.0993 → 0.1004). `roughness-50` moved +0.003 and the others by
+  0.000–0.0014. Visually the steampunk images are indistinguishable: the differences are on
+  inter-reflections between parts of the model, where hidden-side radiance is proxied anyway. **Kept**,
+  because it is the principled fix and a clear, scale-independent win on every diagnostic.

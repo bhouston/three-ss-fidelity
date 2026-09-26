@@ -6,6 +6,7 @@ export const rendererNames = [
   'three-ss-legacy',
   'three-new-ssr',
   'three-new-ssr-fast',
+  'three-new-ssgi-fast',
   'three-gpu-pathtracer',
 ] as const;
 export type RendererName = (typeof rendererNames)[number];
@@ -47,6 +48,36 @@ export interface SSRFastOptions {
   secondBounceQuality?: number;
 }
 
+/**
+ * `three-new-ssgi-fast` speed options for the SSGI side of the `three-new-ssr-fast` pipeline (same `ssrFast`
+ * plus these). Every field defaults to reproducing the vendored SSGINode's exact three-new-ssgi-fast-baseline
+ * behavior (identical to the fork's `ssgi()`, see `ssgi-fast/SSGINode.js`); each is a separate, togglable
+ * optimization measured and logged in SSGI_FAST.md.
+ */
+export interface SSGIFastOptions {
+  /**
+   * perf(three-new-ssgi-fast): evaluate the per-pixel initial ray step once instead of re-emitting it (a sin,
+   * a mod and spatialOffsets()) inside every horizon-search step. Bit-identical output.
+   */
+  loopInvariantInitialStep?: boolean;
+  /**
+   * perf(three-new-ssgi-fast): reproject the previous frame's radiance once into a texture instead of each of
+   * SSGINode's ~32 samples/pixel doing its own dependent velocity + previous-frame fetch pair.
+   */
+  reprojectRadianceOnce?: boolean;
+  /**
+   * perf(three-new-ssgi-fast): store that reprojected radiance in an RG11B10 target (half the bytes of the
+   * renderer's default HDR format) instead of the default. Requires `reprojectRadianceOnce`.
+   */
+  radianceRG11B10?: boolean;
+  /**
+   * perf(three-new-ssgi-fast): pack the reprojected radiance and a coarse (octahedral) light-source normal into
+   * one 32-bit fetch (SSGINode.lightNormalNode) instead of a separate normal-texture fetch per sample.
+   * Supersedes `radianceRG11B10` (uses its own R32UI packed format instead).
+   */
+  packLightNormals?: boolean;
+}
+
 export interface RendererOptions {
   width: number;
   height: number;
@@ -56,6 +87,8 @@ export interface RendererOptions {
   ssrMethod?: SSRMethod;
   /** three-new-ssr-fast speed options for direct createSSGIRenderer callers; the registry selects it by name. */
   ssrFast?: SSRFastOptions;
+  /** three-new-ssgi-fast speed options for direct createSSGIRenderer callers; the registry selects it by name. */
+  ssgiFast?: SSGIFastOptions;
   /** Diagnostic GI reconstruction in three-new-ssgi beauty passes; defaults to the existing denoised pipeline. */
   ssgiReconstruction?: 'raw' | 'temporal' | 'denoised';
   /**

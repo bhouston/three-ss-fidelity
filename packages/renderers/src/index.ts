@@ -1,7 +1,15 @@
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import { createPathTracerRenderer } from './pathtracer.js';
 import { createSSGIRenderer } from './ssgi.js';
-import type { LiveRenderer, RendererName, RendererOptions, SSGIWeighting, SSRFastOptions, SSRMethod } from './types.js';
+import type {
+  LiveRenderer,
+  RendererName,
+  RendererOptions,
+  SSGIFastOptions,
+  SSGIWeighting,
+  SSRFastOptions,
+  SSRMethod,
+} from './types.js';
 
 export * from './types.js';
 export { createPathTracerRenderer, PATHTRACER_BOUNCES } from './pathtracer.js';
@@ -16,7 +24,7 @@ export { createSSGIRenderer, passEffects } from './ssgi.js';
  */
 const screenSpaceOptions: Record<
   Exclude<RendererName, 'three-gpu-pathtracer'>,
-  { ssgiWeighting: SSGIWeighting; ssrMethod: SSRMethod; ssrFast?: SSRFastOptions }
+  { ssgiWeighting: SSGIWeighting; ssrMethod: SSRMethod; ssrFast?: SSRFastOptions; ssgiFast?: SSGIFastOptions }
 > = {
   'three-new-ssgi': { ssgiWeighting: 'solid-angle', ssrMethod: 'fork' },
   'three-ss-legacy': { ssgiWeighting: 'legacy', ssrMethod: 'fork' },
@@ -52,6 +60,38 @@ const screenSpaceOptions: Record<
       // small correction term for hits below the round-2 roughness cutoff and doesn't feed hit-acceptance
       // like the primary ray or the back-face pass do.
       secondBounceQuality: 0.4,
+    },
+  },
+  // three-new-ssgi-fast: built on three-new-ssr-fast (same ssgiWeighting/ssrMethod/ssrFast) plus SSGI-side speed
+  // flags on the vendored SSGINode (packages/renderers/src/ssgi-fast/), each an explicit, togglable optimization
+  // measured and logged in SSGI_FAST.md. Every field starts at its three-new-ssr-fast-reproducing default; each
+  // optimization round flips one on here after passing its own quality gate.
+  'three-new-ssgi-fast': {
+    ssgiWeighting: 'solid-angle',
+    ssrMethod: 'new',
+    ssrFast: {
+      clipRaysToScreen: true,
+      secondBounceRoughnessCutoff: 0.8,
+      accumFrames: 192,
+      quality: 0.6,
+      secondBounceQuality: 0.4,
+    },
+    // Every ssgiFast field starts at its three-new-ssr-fast-reproducing default (false); each optimization
+    // round flips one on here after passing its own quality gate (see SSGI_FAST.md).
+    ssgiFast: {
+      // Round 1: evaluate the per-pixel initial ray step once instead of every horizon-search step. Bit-identical.
+      loopInvariantInitialStep: true,
+      // Round 2: reproject the previous frame's radiance once into a texture instead of once per SSGI sample
+      // (~32 samples/pixel).
+      reprojectRadianceOnce: true,
+      // Round 3: store that reprojection as RG11B10 (SSGINode's own GI-output format), halving its bytes.
+      radianceRG11B10: true,
+      // Round 4: pack the reprojected radiance and a coarse light-source normal into one 32-bit fetch, instead
+      // of a separate normal-texture fetch per SSGI sample. Supersedes radianceRG11B10's own format.
+      // Implemented and quality-gated, but left OFF by default: it measurably regresses higharc_dogwood (a
+      // light-SSGI, no-regression scene) with no offsetting benefit there, while adding real but secondary
+      // speedup on top of rounds 1-3 on SSGI-heavy scenes. See SSGI_FAST.md's "Round 4" section.
+      packLightNormals: false,
     },
   },
 };

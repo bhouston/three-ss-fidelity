@@ -2,13 +2,28 @@
 // examples/webgpu_postprocessing_ssgi.html (antialias 'traa') and examples/webgpu_postprocessing_ssr.html
 // (antialias 'smaa') of the three.js fork.
 import { BackSide, LinearSRGBColorSpace, NoToneMapping } from 'three';
-import { MeshBasicNodeMaterial, PMREMGenerator, RenderPipeline, UnsignedByteType, WebGPURenderer } from 'three/webgpu';
+import {
+  MeshBasicNodeMaterial,
+  PMREMGenerator,
+  RedIntegerFormat,
+  RenderPipeline,
+  RGBFormat,
+  UnsignedByteType,
+  UnsignedInt101111Type,
+  UnsignedIntType,
+  WebGPURenderer,
+} from 'three/webgpu';
 import {
   builtinGIContext,
   builtinRadianceContext,
+  ceil,
   color,
   context,
+  exp2,
   float,
+  Fn,
+  ivec2,
+  log2,
   materialMetalness,
   materialRoughness,
   metalness,
@@ -19,14 +34,20 @@ import {
   pass,
   perspectiveDepthToViewZ,
   reference,
+  round,
   roughness,
+  rtt,
   sample,
   screenUV,
   specularColorBlended,
   specularF90,
   smoothstep,
   texture,
+  textureSize,
+  uint,
   unpackRGBToNormal,
+  uvec2,
+  uvec3,
   vec2,
   vec3,
   vec4,
@@ -38,9 +59,10 @@ import { ssgi } from 'three/addons/tsl/display/SSGINode.js';
 import { ssr } from 'three/addons/tsl/display/SSRNode.js';
 import { previousFrameGeometry, temporalReproject } from 'three/addons/tsl/display/TemporalReprojectNode.js';
 import { traa } from 'three/addons/tsl/display/TRAANode.js';
+import { ssgi as ssgiFastImpl } from './ssgi-fast/SSGINode.js';
 import { newSSR } from './ssr/NewSSRNode.js';
 import type { SceneEffects, SceneSetup } from '@ss-fidelity/scenes';
-import type { LiveRenderer, PassName, RendererOptions, SSRFastOptions } from './types.js';
+import type { LiveRenderer, PassName, RendererOptions, SSGIFastOptions, SSRFastOptions } from './types.js';
 
 /** SSGINode's AO frames: the temporal denoiser converges at ~64 (see PLAN.md). */
 const AO_FRAMES = 128;
@@ -84,6 +106,58 @@ export function passEffects(setup: SceneSetup, renderPass: PassName): SceneEffec
 // oxlint-disable-next-line typescript/no-explicit-any
 type AnyNode = any;
 
+// three-new-ssgi-fast (packLightNormals): per-component sign of a vec2 that never returns 0, for the octahedral
+// normal encoding below.
+const octSign = (v: AnyNode): AnyNode =>
+  vec2(v.x.greaterThanEqual(0).select(1, -1), v.y.greaterThanEqual(0).select(1, -1));
+
+/**
+ * three-new-ssgi-fast (packLightNormals): packs HDR radiance and a unit normal into 32 bits: the radiance as
+ * shared-exponent RGB (5-bit mantissas, 5-bit exponent) in bits 0-19, the normal octahedrally (6 + 6 bits) in
+ * bits 20-31. Ported from the ss-optimize branch's three-ss.ts (pre-solid-angle-correction); see SSGI_FAST.md.
+ */
+const packRadianceNormal = (radiance: AnyNode, normalNode: AnyNode): AnyNode =>
+  Fn(() => {
+    const rgb = radiance.max(0).toConst();
+    const exponent = ceil(
+      log2(
+        rgb.x
+          .max(rgb.y)
+          .max(rgb.z)
+          .max(2 ** -16),
+      ),
+    )
+      .clamp(-15, 16)
+      .toConst();
+    const mantissas: AnyNode = uvec3(round(rgb.mul(exp2(exponent.negate())).mul(31)).min(31) as AnyNode);
+    const oct = normalNode.xy.div(normalNode.x.abs().add(normalNode.y.abs()).add(normalNode.z.abs())).toConst();
+    const folded = normalNode.z.lessThan(0).select(vec2(1).sub(oct.yx.abs()).mul(octSign(oct)), oct);
+    const octBits: AnyNode = uvec2(round(folded.mul(0.5).add(0.5).mul(63)) as AnyNode);
+    return mantissas.x
+      .bitOr(mantissas.y.shiftLeft(5))
+      .bitOr(mantissas.z.shiftLeft(10))
+      .bitOr((uint(exponent.add(15)) as AnyNode).shiftLeft(15))
+      .bitOr(octBits.x.shiftLeft(20))
+      .bitOr(octBits.y.shiftLeft(26));
+  })();
+
+/** Inverse of {@link packRadianceNormal}: the radiance. */
+const unpackRadiance = (bits: AnyNode): AnyNode =>
+  vec3((uvec3(bits, bits.shiftRight(5), bits.shiftRight(10)) as AnyNode).bitAnd(uvec3(31))).mul(
+    exp2(float(bits.shiftRight(15).bitAnd(31)).sub(15)).div(31),
+  );
+
+/** Inverse of {@link packRadianceNormal}: the (unnormalized) normal. */
+const unpackNormal = (bits: AnyNode): AnyNode =>
+  Fn(() => {
+    const oct = vec2((uvec2(bits.shiftRight(20), bits.shiftRight(26)) as AnyNode).bitAnd(uvec2(63)))
+      .div(63 / 2)
+      .sub(1)
+      .toConst();
+    const z = float(1).sub(oct.x.abs()).sub(oct.y.abs()).toConst();
+    return vec3(oct.sub(octSign(oct).mul(z.negate().max(0))), z);
+  })();
+
 function createPipeline(
   renderer: WebGPURenderer,
   setup: SceneSetup,
@@ -92,10 +166,12 @@ function createPipeline(
   ssgiWeighting: NonNullable<RendererOptions['ssgiWeighting']>,
   ssrMethod: NonNullable<RendererOptions['ssrMethod']>,
   ssrFast: SSRFastOptions,
+  ssgiFast: SSGIFastOptions | undefined,
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const tsl = {
     ssr: (ssrMethod === 'new' ? newSSR : ssr) as AnyNode,
+    ssgi: (ssgiFast !== undefined ? ssgiFastImpl : ssgi) as AnyNode,
     temporalReproject: temporalReproject as AnyNode,
     recurrentDenoise: recurrentDenoise as AnyNode,
     builtinGIContext: builtinGIContext as AnyNode,
@@ -103,8 +179,13 @@ function createPipeline(
   };
   const ssgiExample = effects.antialias === 'traa';
   const resolutionScale = effects.resolutionScale ?? 1;
+  // three-new-ssgi-fast: rtt() render targets (giRadianceSource/packed below) aren't tracked by RenderPipeline's
+  // own dispose(), so they're collected here and disposed explicitly in createSSGIRenderer's dispose() -- see
+  // SSGI_FAST.md's cross-scene GPU-resource investigation.
+  const rttDisposables: AnyNode[] = [];
 
   const renderPipeline = new RenderPipeline(renderer);
+  (renderPipeline as AnyNode).rttDisposables = rttDisposables;
 
   // pre-pass: SSGI/SSR run before the scene pass so their results can light the materials, which means depth,
   // normals and velocity have to come from a separate pass
@@ -164,7 +245,40 @@ function createPipeline(
 
   let giPass: AnyNode = null;
   if (effects.ssgi) {
-    giPass = ssgi(previousRadiance, prePassDepth, sceneNormal, camera);
+    const ssgiFastFlags = ssgiFast ?? {};
+    // three-new-ssgi-fast (reprojectRadianceOnce): SSGINode samples the radiance ~32 times per pixel, each a
+    // dependent velocity + previous-frame fetch pair; reprojecting it once into a texture replaces that with a
+    // single fetch per sample. radianceRG11B10 stores that reprojection in SSGINode's own GI-output format
+    // (half the bytes). packLightNormals additionally packs a coarse light-source normal into that same 32-bit
+    // fetch (SSGINode.lightNormalNode), replacing a separate normal-texture fetch per sample.
+    let giRadianceSource: AnyNode = previousRadiance;
+    let lightNormalSource: AnyNode | undefined;
+    if (ssgiFastFlags.packLightNormals) {
+      // The reprojection/pack pass's own resolutionScale must match SSGI's (giPass.resolutionScale below), not
+      // default to the full canvas: on scenes that run SSGI itself at a fraction of the canvas resolution (e.g.
+      // higharc_dogwood's 1/2), a full-resolution reprojection pass costs more than the fetches it replaces save.
+      const packed: AnyNode = rtt(
+        packRadianceNormal(previousRadiance.sample(screenUV).rgb, sceneNormal.sample(screenUV).rgb),
+        null,
+        null,
+        { type: UnsignedIntType, format: RedIntegerFormat, resolutionScale },
+      );
+      rttDisposables.push(packed);
+      const packedSize = vec2(textureSize(packed) as AnyNode);
+      const loadPacked = (uv: AnyNode): AnyNode => packed.load(ivec2(uv.mul(packedSize))).x;
+      giRadianceSource = sample((uv: AnyNode) => unpackRadiance(loadPacked(uv)));
+      lightNormalSource = sample((uv: AnyNode) => unpackNormal(loadPacked(uv)));
+    } else if (ssgiFastFlags.reprojectRadianceOnce) {
+      // Same resolutionScale reasoning as the packLightNormals branch above.
+      giRadianceSource = rtt(previousRadiance.sample(screenUV), null, null, {
+        resolutionScale,
+        ...(ssgiFastFlags.radianceRG11B10 ? { type: UnsignedInt101111Type, format: RGBFormat } : {}),
+      });
+      rttDisposables.push(giRadianceSource);
+    }
+    giPass = tsl.ssgi(giRadianceSource, prePassDepth, sceneNormal, camera);
+    if (lightNormalSource) giPass.lightNormalNode = lightNormalSource;
+    if (ssgiFast) giPass.loopInvariantInitialStep = ssgiFastFlags.loopInvariantInitialStep ?? false;
     giPass.useSolidAngleWeighting.value = ssgiWeighting === 'solid-angle';
     giPass.sliceCount.value = effects.ssgi.sliceCount;
     giPass.stepCount.value = effects.ssgi.stepCount;
@@ -332,6 +446,7 @@ export async function createSSGIRenderer(
     ssgiWeighting = 'solid-angle',
     ssrMethod = 'fork',
     ssrFast,
+    ssgiFast,
   }: RendererOptions,
 ): Promise<LiveRenderer> {
   const setup = { ...sceneSetup, effects: passEffects(sceneSetup, renderPass) };
@@ -361,6 +476,7 @@ export async function createSSGIRenderer(
     ssgiWeighting,
     ssrMethod,
     ssrFast ?? {},
+    ssgiFast,
   );
   let frames = 0;
   // three-new-ssr accumulates stochastic reflections over at least ACCUM_FRAMES pipeline frames per output frame
@@ -374,9 +490,11 @@ export async function createSSGIRenderer(
       ssgiWeighting === 'legacy'
         ? 'three-ss-legacy'
         : ssrMethod === 'new'
-          ? ssrFast !== undefined
-            ? 'three-new-ssr-fast'
-            : 'three-new-ssr'
+          ? ssgiFast !== undefined
+            ? 'three-new-ssgi-fast'
+            : ssrFast !== undefined
+              ? 'three-new-ssr-fast'
+              : 'three-new-ssr'
           : 'three-new-ssgi',
     renderer,
     get frames() {
@@ -401,6 +519,9 @@ export async function createSSGIRenderer(
       if (newCamera !== camera) camera.copy(newCamera);
     },
     dispose() {
+      // three-new-ssgi-fast: dispose the rtt() render targets ssgi.ts creates for radiance reprojection/packing --
+      // RenderPipeline.dispose() and Renderer.dispose() don't reach them (see SSGI_FAST.md).
+      for (const disposable of (renderPipeline as AnyNode).rttDisposables ?? []) disposable.dispose();
       renderPipeline.dispose();
       renderer.dispose();
     },

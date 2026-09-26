@@ -43,7 +43,7 @@ const rows = [];
 for (const name of scenes) {
   const definition = getScene(name);
   const { width, height } = definition;
-  const reference = path.join(root, 'results', name, 'beauty/three-gpu-pathtracer.png');
+  const reference = path.join(root, 'results', name, 'beauty/three-gpu-pathtracer.avif');
   for (const variant of variants) {
     const setup = await definition.create(ctx);
     // Preserve the investigation's original Cornell baseline after production presets change.

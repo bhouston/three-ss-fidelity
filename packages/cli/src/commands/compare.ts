@@ -46,7 +46,7 @@ export const command = defineCommand({
             );
             continue;
           }
-          const { metrics, width, height, deltaPng } = await compareImages(reference, test);
+          const { metrics, width, height, deltaImage } = await compareImages(reference, test);
           const file: MetricsFile = {
             scene,
             pass,
@@ -58,7 +58,7 @@ export const command = defineCommand({
             generatedAt: new Date().toISOString(),
           };
           const paths = comparisonPaths(scene, pass, renderer, argv.output);
-          await writeFile(paths.delta, deltaPng);
+          await writeFile(paths.delta, deltaImage);
           await writeFile(paths.metrics, `${JSON.stringify(file, null, 2)}\n`);
           console.log(
             `${scene} | ${pass} | ${renderer}: PSNR ${metrics.psnr?.toFixed(2) ?? '∞'} dB, RMSE ${metrics.rmse.toFixed(4)}`,

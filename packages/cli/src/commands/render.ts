@@ -19,7 +19,7 @@ function run(job: RenderJob): Promise<number | null> {
 
 export const command = defineCommand({
   command: 'render',
-  describe: 'Render scenes with renderers into results/<scene>/<pass>/<renderer>.png',
+  describe: 'Render scenes with renderers into results/<scene>/<pass>/<renderer>.avif',
   builder: (yargs) =>
     yargs
       .option('scenes', { type: 'string', default: '*', describe: 'Scene name glob(s), comma separated' })

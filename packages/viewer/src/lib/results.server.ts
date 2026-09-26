@@ -4,12 +4,12 @@ import path from 'node:path';
 import { getScene, listSceneNames } from '@ss-fidelity/scenes';
 import type { PassName, SceneMetrics, SceneSummary } from '#/lib/scenes';
 
-export const REFERENCE_FILE = 'three-gpu-pathtracer.png';
-export const TEST_FILE = 'three-ss.png';
-export const DELTA_FILE = 'delta.png';
+export const REFERENCE_FILE = 'three-gpu-pathtracer.avif';
+export const TEST_FILE = 'three-ss.avif';
+export const DELTA_FILE = 'delta.avif';
 export const METRICS_FILE = 'metrics.json';
-export const LEGACY_FILE = 'three-ss-legacy.png';
-export const LEGACY_DELTA_FILE = 'delta-three-ss-legacy.png';
+export const LEGACY_FILE = 'three-ss-legacy.avif';
+export const LEGACY_DELTA_FILE = 'delta-three-ss-legacy.avif';
 export const LEGACY_METRICS_FILE = 'metrics-three-ss-legacy.json';
 export const RESULT_FILES = [
   REFERENCE_FILE,

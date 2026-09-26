@@ -26,7 +26,7 @@ const variants = [
   { name: 'worldRadius25', ssgi: { useScreenSpaceSampling: false, radius: 25, stepCount: 32, sliceCount: 4 } },
   { name: 'noSSR', noSSR: true },
 ];
-const reference = path.join(root, 'results/ssgi-animated/beauty/three-gpu-pathtracer.png');
+const reference = path.join(root, 'results/ssgi-animated/beauty/three-gpu-pathtracer.avif');
 const rows = [];
 for (const variant of variants) {
   const setup = await definition.create(ctx);

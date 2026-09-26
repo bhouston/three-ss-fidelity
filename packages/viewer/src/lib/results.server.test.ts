@@ -11,10 +11,10 @@ describe('listScenes', () => {
   beforeAll(async () => {
     dir = await mkdtemp(path.join(tmpdir(), 'ss-fidelity-results-'));
     await mkdir(path.join(dir, 'full', 'beauty'), { recursive: true });
-    await writeFile(path.join(dir, 'full', 'beauty', 'three-ss.png'), 'png');
+    await writeFile(path.join(dir, 'full', 'beauty', 'three-ss.avif'), 'avif');
     await writeFile(path.join(dir, 'full', 'beauty', 'metrics.json'), JSON.stringify({ scene: 'full', psnr: 31.5 }));
-    await writeFile(path.join(dir, 'full', 'beauty', 'three-ss-legacy.png'), 'png');
-    await writeFile(path.join(dir, 'full', 'beauty', 'delta-three-ss-legacy.png'), 'png');
+    await writeFile(path.join(dir, 'full', 'beauty', 'three-ss-legacy.avif'), 'avif');
+    await writeFile(path.join(dir, 'full', 'beauty', 'delta-three-ss-legacy.avif'), 'avif');
     await writeFile(
       path.join(dir, 'full', 'beauty', 'metrics-three-ss-legacy.json'),
       JSON.stringify({ scene: 'full', psnr: 24.3 }),
@@ -22,7 +22,7 @@ describe('listScenes', () => {
     await mkdir(path.join(dir, 'broken', 'beauty'), { recursive: true });
     await writeFile(path.join(dir, 'broken', 'beauty', 'metrics.json'), '{not json');
     await mkdir(path.join(dir, 'older', 'beauty'), { recursive: true });
-    await writeFile(path.join(dir, 'older', 'beauty', 'three-ss.png'), 'png');
+    await writeFile(path.join(dir, 'older', 'beauty', 'three-ss.avif'), 'avif');
     await mkdir(path.join(dir, '.hidden'));
     await writeFile(path.join(dir, 'stray.txt'), '');
   });
@@ -35,11 +35,11 @@ describe('listScenes', () => {
     expect(Object.keys(byName).toSorted()).toEqual(['broken', 'full', 'older', 'unrendered']);
     expect(byName.full?.description).toBe('d');
     expect(byName.full?.metrics?.psnr).toBe(31.5);
-    expect(byName.full?.images.test).toMatch(/^\/api\/results\/full\/beauty\/three-ss\.png\?v=\d+$/);
+    expect(byName.full?.images.test).toMatch(/^\/api\/results\/full\/beauty\/three-ss\.avif\?v=\d+$/);
     expect(byName.full?.images.reference).toBeUndefined();
-    expect(byName.full?.images.legacy).toMatch(/^\/api\/results\/full\/beauty\/three-ss-legacy\.png\?v=\d+$/);
+    expect(byName.full?.images.legacy).toMatch(/^\/api\/results\/full\/beauty\/three-ss-legacy\.avif\?v=\d+$/);
     expect(byName.full?.images.legacyDelta).toMatch(
-      /^\/api\/results\/full\/beauty\/delta-three-ss-legacy\.png\?v=\d+$/,
+      /^\/api\/results\/full\/beauty\/delta-three-ss-legacy\.avif\?v=\d+$/,
     );
     expect(byName.full?.legacyMetrics?.psnr).toBe(24.3);
     expect(byName.broken?.metrics).toBeUndefined();
@@ -50,10 +50,10 @@ describe('listScenes', () => {
   });
 
   it('only serves the recognized result filenames', () => {
-    expect(RESULT_FILES).toContain('three-ss-legacy.png');
-    expect(RESULT_FILES).toContain('delta-three-ss-legacy.png');
+    expect(RESULT_FILES).toContain('three-ss-legacy.avif');
+    expect(RESULT_FILES).toContain('delta-three-ss-legacy.avif');
     expect(RESULT_FILES).toContain('metrics-three-ss-legacy.json');
-    expect(RESULT_FILES).not.toContain('unrelated.png');
+    expect(RESULT_FILES).not.toContain('unrelated.avif');
   });
 
   it('returns nothing for a missing results dir', async () => {

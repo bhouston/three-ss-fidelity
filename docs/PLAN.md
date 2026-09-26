@@ -15,7 +15,7 @@ packages/renderers   @ss-fidelity/renderers  three-ss (WebGPURenderer + SSGI/SSR
 packages/cli         @ss-fidelity/cli        yargs + yargs-file-commands + clidoc; headless GPU (dawn `webgpu`,
                                              `@onirenaud/node-webgl` ANGLE), render + compare (sharp)
 packages/viewer      @ss-fidelity/viewer     TanStack Start + Router: results listing, scene detail, live views
-results/<scene>/<pass>/  three-ss.png, three-gpu-pathtracer.png, delta.png, metrics.json (committed)
+results/<scene>/<pass>/  three-ss.avif, three-gpu-pathtracer.avif, delta.avif, metrics.json (committed)
 ```
 
 ## Scene contract (`@ss-fidelity/scenes`)
@@ -157,8 +157,8 @@ renderer cannot express. Everything else is the example verbatim.
 
 ```
 pnpm cli render  --scenes 'ssgi-*' --passes '*' --renderers '*' [--samples 1024] [--frames N]
-                                                     # results/<scene>/<pass>/<renderer>.png
-pnpm cli compare --scenes '*' --passes '*'           # writes delta.png + metrics.json (PSNR, RMSE, MAE)
+                                                     # results/<scene>/<pass>/<renderer>.avif
+pnpm cli compare --scenes '*' --passes '*'           # writes delta.avif + metrics.json (PSNR, RMSE, MAE)
 pnpm cli list                                        # scene names
 ```
 

@@ -8,12 +8,12 @@ describe('comparison output paths', () => {
   it('keeps existing three-ss filenames and gives legacy results separate files', () => {
     const corrected = comparisonPaths('cornell', 'combined', 'three-ss', root);
     const legacy = comparisonPaths('cornell', 'combined', 'three-ss-legacy', root);
-    expect(corrected.delta).toBe(path.join(root, 'cornell', 'combined', 'delta.png'));
+    expect(corrected.delta).toBe(path.join(root, 'cornell', 'combined', 'delta.avif'));
     expect(corrected.metrics).toBe(path.join(root, 'cornell', 'combined', 'metrics.json'));
-    expect(legacy.delta).toBe(path.join(root, 'cornell', 'combined', 'delta-three-ss-legacy.png'));
+    expect(legacy.delta).toBe(path.join(root, 'cornell', 'combined', 'delta-three-ss-legacy.avif'));
     expect(legacy.metrics).toBe(path.join(root, 'cornell', 'combined', 'metrics-three-ss-legacy.json'));
     expect(renderPath('cornell', 'combined', 'three-ss-legacy', root)).toBe(
-      path.join(root, 'cornell', 'combined', 'three-ss-legacy.png'),
+      path.join(root, 'cornell', 'combined', 'three-ss-legacy.avif'),
     );
   });
 });

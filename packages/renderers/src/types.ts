@@ -7,6 +7,7 @@ export const rendererNames = [
   'three-new-ssr',
   'three-new-ssr-fast',
   'three-new-ssgi-fast',
+  'three-new-ssr-rt',
   'three-gpu-pathtracer',
 ] as const;
 export type RendererName = (typeof rendererNames)[number];
@@ -46,6 +47,13 @@ export interface SSRFastOptions {
   backDepthResolutionScale?: number;
   /** March step density, 0..1, for the second (hit-specular) bounce only; defaults to `quality`. */
   secondBounceQuality?: number;
+  /**
+   * three-new-ssr-rt: one pipeline frame per rendered frame (no sub-frame accumulation loop). How the stochastic
+   * reflections converge over time: `'reset'` keeps the running mean that restarts on every camera change, `'fork'`
+   * uses the three.js fork's temporal reprojection + recurrent denoiser chain (the one three-new-ssgi uses for its SSR).
+   * See SSR_TEMPORAL.md.
+   */
+  realtime?: 'reset' | 'fork';
 }
 
 /**

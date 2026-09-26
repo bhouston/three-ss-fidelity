@@ -483,7 +483,8 @@ export async function createSSGIRenderer(
   // budget: each render() runs several pipeline frames (scenes without SSR are left unchanged). three-new-ssr-fast
   // can lower this budget via ssrFast.accumFrames (time-to-image: fewer frames at the same per-frame cost).
   const accumFrames = ssrFast?.accumFrames ?? SSR_ACCUM_FRAMES;
-  const subFrames = ssrMethod === 'new' && effects.ssr ? Math.max(1, Math.ceil(accumFrames / effects.frames)) : 1;
+  const subFrames =
+    ssrMethod === 'new' && effects.ssr && !ssrFast?.realtime ? Math.max(1, Math.ceil(accumFrames / effects.frames)) : 1;
 
   const handle: LiveRenderer = {
     name:
@@ -492,9 +493,11 @@ export async function createSSGIRenderer(
         : ssrMethod === 'new'
           ? ssgiFast !== undefined
             ? 'three-new-ssgi-fast'
-            : ssrFast !== undefined
-              ? 'three-new-ssr-fast'
-              : 'three-new-ssr'
+            : ssrFast?.realtime
+              ? 'three-new-ssr-rt'
+              : ssrFast !== undefined
+                ? 'three-new-ssr-fast'
+                : 'three-new-ssr'
           : 'three-new-ssgi',
     renderer,
     get frames() {

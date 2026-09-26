@@ -34,6 +34,53 @@ pair measured three times in a row gave speedups of 1.234, 1.062 and 1.230 — r
 this frame count. Use more frames/scenes for anything you intend to act on; this command is for local iteration,
 not for gating on a shared/noisy CI runner.
 
+### `--gpu`: GPU timing via WebGPU timestamp queries
+
+Wall-clock is unreliable on a shared machine. `--gpu` reports actual GPU time instead, for screen-space
+renderers only (`three-gpu-pathtracer` is WebGL/ANGLE here and has no timestamp-query API available):
+
+```sh
+pnpm cli bench --renderers three-new-ssr-rt --scenes ssr-diag-rough-30 --warmup 10 --measure 20 --gpu
+```
+
+```text
+three-new-ssr-rt | ssr-diag-rough-30: 87.16 ms (cpu 4.15 ms)
+  gpu 598.540 ms/frame
+    Render Pipeline: 78.578 ms
+    TRAA: 77.595 ms
+    SSR [ Previous Geometry ]: 75.366 ms
+    SSR [ History ]: 75.170 ms
+    SSR [ Temporal ]: 74.514 ms
+    SSR [ Spatial Resolve ]: 73.859 ms
+    SSR [ Reflections ]: 70.910 ms
+    Pre-Pass: 2.949 ms
+    Back-Face Depth Pre-Pass: 2.490 ms
+```
+
+It creates the renderer with `trackTimestamp: true` and, after every measured frame, calls
+`renderer.resolveTimestampsAsync('render')` and `('compute')` (this forces a GPU sync every frame, so `totalMs`
+in `--gpu` mode measures per-frame sync latency, not pipelined throughput — read `gpu` for the GPU cost, not
+`totalMs`). `gpu` is the median, across measured frames, of the sum of every render + compute timestamp range
+recorded for that frame; the indented lines below it are the median ms of each named pass, descending.
+
+Pass names come from the `scene`/`computeNodes` argument passed to `renderer.render()`/`renderer.compute()` at
+the point each pass's timestamp query is allocated (e.g. a `QuadMesh.name` like `'SSR [ Reflections ]'`, or a
+`Mesh.name` like `'Pre-Pass'`) — three.js's `RenderContext` itself carries no such label, so this is inferred by
+patching the renderer instance at bench time (not three.js/renderers), and falls back to the render context's
+uid (e.g. `r:3:4`) when nothing set a `.name`.
+
+Caveat: on tile-based GPUs (Apple Silicon/Metal, which is what this repo's dawn-backed headless WebGPU normally
+runs on) consecutive render passes without an explicit barrier can overlap on the GPU, so the sum of per-pass
+timestamp ranges can legitimately exceed the frame's wall-clock time (as in the example above: 598ms of summed
+GPU ranges for an 87ms frame). Read `gpu` and the per-pass breakdown as relative costs for comparing renderers or
+passes against each other, not as a serial time budget that should add up to wall time.
+
+If the adapter has no `timestamp-query` feature, `--gpu` prints `(gpu unsupported)` instead and falls back to
+`totalMs`/`cpuMs` only; dawn's `webgpu` package exposes it by default (see `packages/cli/src/headless/webgpu.ts`,
+which also disables dawn's timestamp-quantization toggle, a WebGPU spec timing-side-channel mitigation that
+otherwise rounds query results to a coarse granularity -- safe here since this is a headless benchmark process,
+not a browser sandbox).
+
 ## `cli quality-gate`: RMSE regression gate
 
 Compares two already-compared renderers' mean RMSE against the `three-gpu-pathtracer` reference (i.e. it reads

@@ -964,3 +964,21 @@ baseline for this task; `three-new-ssr` was), but `three-new-ssgi` doesn't run `
 accumulation loop at all, so it remains faster in absolute terms than either `three-new-ssr` or
 `three-new-ssr-fast` — the point of this task was closing part of that gap without losing the fidelity work,
 which the **1.97×** cumulative speedup and the 23%-lower-than-`three-new-ssgi` RMSE both confirm.
+
+## Absolute cost vs `three-new-ssgi` (supervisor check)
+
+`pnpm cli bench --renderers three-new-ssgi,three-new-ssr-fast` at 1920×1080 (30 warm-up / 100 measured frames). One
+`render()` of `three-new-ssr-fast` runs `ceil(192 / effects.frames)` pipeline frames (12 for the SSR scenes, 2 for
+Cornell):
+
+| scene                | three-new-ssgi (ms/render) | three-new-ssr-fast (ms/render) | ≈ ms per pipeline frame |
+| -------------------- | -------------------------- | ------------------------------ | ----------------------- |
+| ssr-steampunk-camera | 22.4                       | 987.5                          | 82                      |
+| ssr-diag-rough-30    | 40.1                       | 847.7                          | 71                      |
+| ssgi-metallic        | 568.6                      | 1091.5                         | 546                     |
+
+So per pipeline frame the SSR-only scenes cost ~2–4× `three-new-ssgi`, and the unbiased running mean needs ~192
+frames to converge. `three-new-ssr-fast` is a 2× faster _reference-quality_ SSR, not yet a real-time one. The next
+steps toward real time are Hi-Z traversal (not attempted in the five rounds) and converging with the temporal
+reprojection/denoiser chain in a few frames instead of the running mean; both are expected to cost more than the
+1% quality budget used here, so they are left as follow-up work.

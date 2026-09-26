@@ -1056,14 +1056,19 @@ class NewSSRNode extends Node {
       // Guard grazing or back-facing normals, which would make the ray infinite or reverse it.
       const maxReflectRayLen = this.maxDistance.div(dot(viewIncidentDir.negate(), viewNormal).max(1e-3)).toVar();
 
-      const d1viewPosition = viewPosition.add(viewReflectDir.mul(maxReflectRayLen)).toVar();
+      // Offset the march's origin along the surface normal, scaled by view depth, so the first few
+      // steps of a ray leaving a curved or grazing surface don't immediately re-cross that same
+      // surface's own depth-buffer samples (self-intersection speckle, worst on curved normals).
+      const rayOrigin = viewPosition.add(viewNormal.mul(abs(viewPosition.z).mul(0.002).max(0.001))).toVar();
+
+      const d1viewPosition = rayOrigin.add(viewReflectDir.mul(maxReflectRayLen)).toVar();
 
       // Camera type is fixed at build time, so guard the near-plane clamp with a JS branch
       // rather than a runtime uniform (the orthographic case compiles it out entirely).
       if (this.camera.isPerspectiveCamera) {
         If(d1viewPosition.z.greaterThan(this._cameraNear.negate()), () => {
-          const t = sub(this._cameraNear.negate(), viewPosition.z).div(viewReflectDir.z);
-          d1viewPosition.assign(viewPosition.add(viewReflectDir.mul(t)));
+          const t = sub(this._cameraNear.negate(), rayOrigin.z).div(viewReflectDir.z);
+          d1viewPosition.assign(rayOrigin.add(viewReflectDir.mul(t)));
         });
       }
 
@@ -1101,13 +1106,13 @@ class NewSSRNode extends Node {
 
       // Reflected-ray view-space Z at ray parameter s ∈ [0,1] (linear in 1/z for perspective),
       // hoisted so the march and refinement evaluate it identically.
-      const recipVPZ = float(1).div(viewPosition.z).toConst();
+      const recipVPZ = float(1).div(rayOrigin.z).toConst();
       const recipD1VPZ = float(1).div(d1viewPosition.z).toConst();
 
       // Camera type is known at build time, so branch at compile time rather than via a runtime select.
       const reflectRayZAt = this.camera.isPerspectiveCamera
         ? (sVal) => float(1).div(recipVPZ.add(sVal.mul(recipD1VPZ.sub(recipVPZ))))
-        : (sVal) => viewPosition.z.add(sVal.mul(d1viewPosition.z.sub(viewPosition.z)));
+        : (sVal) => rayOrigin.z.add(sVal.mul(d1viewPosition.z.sub(rayOrigin.z)));
 
       // Screen-space position along the ray for a given s ∈ [0,1].
       const screenPosAt = (sVal) => d0.add(stepVec.mul(sVal.mul(totalStep)));
@@ -1158,12 +1163,16 @@ class NewSSRNode extends Node {
           // Depth crossing: ray went behind the depth buffer. Gate by thickness before stopping
           // so an occluder gap doesn't end the march prematurely.
           const vP = getViewPosition(uvS, d, this._cameraProjectionMatrixInverse).toVar();
-          const away = pointToLineDistance(vP, viewPosition, d1viewPosition).toVar();
+          const away = pointToLineDistance(vP, rayOrigin, d1viewPosition).toVar();
 
           const uvNeighbor = uvS.add(uvPixelStepX).toVar();
           const vPNeighbor = getViewPosition(uvNeighbor, d, this._cameraProjectionMatrixInverse).toVar();
           const minThickness = vPNeighbor.x.sub(vP.x).mul(3).toVar();
-          const tk = max(minThickness, this.thickness).toVar();
+          // Depth-proportional thickness (McGuire & Mara / Unreal HZB SSR): a surface farther from the
+          // camera is assumed thicker in world units for the same screen footprint, so solid occluders
+          // (the camera body, a box hiding another box) don't get leaked through as the ray recedes.
+          const depthProportionalThickness = abs(vZ).mul(0.02).toVar();
+          const tk = max(minThickness, max(this.thickness, depthProportionalThickness)).toVar();
 
           If(away.lessThanEqual(tk), () => {
             const vN = this.normalNode.sample(uvS).rgb.normalize().toVar();
@@ -1175,14 +1184,19 @@ class NewSSRNode extends Node {
                 Continue();
               });
 
-              // this distance represents the depth of the intersection point between the reflected ray and the scene.
-              const distance = pointPlaneDistance(vP, viewPosition, viewNormal).toVar();
+              // Distance exceeding limit: The reflection is potentially too far away and might not
+              // contribute significantly to the final color. In radiance mode there is no artistic
+              // cutoff to honor (maxDistance there is only a ray-length budget, not a hit-rejection
+              // radius): the ray already stops at the frustum/near-plane bound computed above, so a
+              // real hit here should always be shaded rather than dropped back to the environment.
+              if (!this.outputRadiance) {
+                // this distance represents the depth of the intersection point between the reflected ray and the scene.
+                const distance = pointPlaneDistance(vP, viewPosition, viewNormal).toVar();
 
-              // Distance exceeding limit: The reflection is potentially too far away and
-              // might not contribute significantly to the final color
-              If(distance.greaterThan(this.maxDistance), () => {
-                Break();
-              });
+                If(distance.greaterThan(this.maxDistance), () => {
+                  Break();
+                });
+              }
             }
 
             foundHit.assign(true);
@@ -1223,11 +1237,15 @@ class NewSSRNode extends Node {
         const uvS = hitUvS;
         const vP = getViewPosition(uvS, hitD, this._cameraProjectionMatrixInverse).toVar();
 
-        // In blur mode the ratio² falloff re-grows past maxDistance, so over-range hits fall back
-        // to env. The scatter path bounds reach via ray length, so every hit shades.
+        // In blur mode (non-radiance) the ratio² falloff re-grows past maxDistance, so over-range hits
+        // fall back to env. The scatter path bounds reach via ray length, so every hit shades. Radiance
+        // mode has no such artistic cutoff (see the Break above), so every hit is within range.
         const distancePointPlane =
           this.stochastic === false ? pointPlaneDistance(vP, viewPosition, viewNormal).toVar() : float(0);
-        const withinRange = distancePointPlane.lessThanEqual(this.maxDistance);
+        const withinRange =
+          this.stochastic === false && !this.outputRadiance
+            ? distancePointPlane.lessThanEqual(this.maxDistance)
+            : bool(true);
 
         If(withinRange, () => {
           const hitWorldPosition = this._cameraWorldMatrix.mul(vec4(vP, 1.0)).xyz.toVar();
@@ -1247,12 +1265,13 @@ class NewSSRNode extends Node {
           let weightedColor = reflectColor.rgb.mul(finalSampleWeight);
 
           if (this.stochastic === false) {
-            const ratio = float(1).sub(distancePointPlane.div(this.maxDistance)).toVar();
-            const attenuation = ratio.mul(ratio).toVar();
-
             if (this.outputRadiance) {
-              hitWeight.assign(attenuation.mul(computeScreenBorderFactor(uvS, this.screenEdgeFade)));
+              // No distance fade for a reference: a real hit replaces the environment outright.
+              // Only the screen-border fade remains, for hits found near the edge of the trace.
+              hitWeight.assign(computeScreenBorderFactor(uvS, this.screenEdgeFade));
             } else {
+              const ratio = float(1).sub(distancePointPlane.div(this.maxDistance)).toVar();
+              const attenuation = ratio.mul(ratio).toVar();
               weightedColor = weightedColor.mul(attenuation);
 
               const fresnelCoe = div(dot(viewIncidentDir, viewReflectDir).add(1), 2).toVar();

@@ -176,14 +176,22 @@ function createPipeline(
       outputRadiance: true,
       environmentNode: scene.environment ?? undefined,
       camera,
+      // three-new-ssr traces dielectrics too, so black/painted receivers show the Fresnel-ramped
+      // reflection a path tracer would (the fork keeps its metals-only default).
+      ...(ssrMethod === 'new' ? { reflectNonMetals: true } : {}),
     });
     if (scene.environment) ssrPass.environmentIntensity.value = scene.environmentIntensity;
-    ssrPass.maxDistance.value = params.maxDistance;
-    if (params.quality !== undefined) ssrPass.quality.value = params.quality;
+    // three-new-ssr drops the fork's distance-fade/hit-rejection use of maxDistance in radiance mode
+    // (see NewSSRNode.js), so its maxDistance is only a ray-length budget: use a large, scene-independent
+    // value (twice the camera's far plane) instead of the scene's artistic cutoff.
+    ssrPass.maxDistance.value = ssrMethod === 'new' ? camera.far * 2 : params.maxDistance;
+    // three-new-ssr traces at full step density with sub-step refinement: speed does not matter for a
+    // fidelity reference, and a coarse march stair-steps and skips thin geometry (the diagnostics' pole).
+    ssrPass.quality.value = ssrMethod === 'new' ? 1 : (params.quality ?? ssrPass.quality.value);
     if (params.blurQuality !== undefined) ssrPass.blurQuality = params.blurQuality;
     if (params.intensity !== undefined) ssrPass.intensity.value = params.intensity;
     if (params.thickness !== undefined) ssrPass.thickness.value = params.thickness;
-    if (params.binaryRefine !== undefined) ssrPass.binaryRefine = params.binaryRefine;
+    ssrPass.binaryRefine = ssrMethod === 'new' ? true : (params.binaryRefine ?? ssrPass.binaryRefine);
     ssrPass.useTemporalFiltering = temporal; // without temporal accumulation the march jitter is kept fixed
     ssrPass.resolutionScale = resolutionScale;
 

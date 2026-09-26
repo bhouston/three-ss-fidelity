@@ -74,4 +74,148 @@ summary). The headline findings that shaped this round:
 
 ## Experiments
 
-(to be filled in as experiments are run; see the git history of this file.)
+### 1. Drop the distance fade and hard `maxDistance` rejection (research items 1, A1/A2)
+
+- **Hypothesis.** Ghost reflections in radiance mode come from `(1-d/maxD)²` blending real hits toward
+  environment, and from `maxDistance` bounding the ray length to an artistic cutoff instead of the frustum.
+- **Change.** In `NewSSRNode.js`'s radiance-mode mirror path: `hitWeight` is now only the screen-border fade
+  (no distance attenuation); the `distance > maxDistance → Break` and the `withinRange` gate are skipped when
+  `outputRadiance`. In `ssgi.ts`, `three-new-ssr`'s `maxDistance` uniform is set to `camera.far * 2` (a large,
+  scene-independent ray-length budget) instead of the scene's `effects.ssr.maxDistance`.
+- **Result.** Mean RMSE: diag 0.0392 → 0.0392 (before the later steps below; measured cumulatively, see
+  final numbers). In isolation: `ssr-diag-mirror` 31.07 → 31.83 dB, `ssr-diag-wall` 21.12 → 22.29 dB (see root
+  cause below), `ssr-diag-occlusion` 34.70 → 36.34 dB, `ssr-diag-sphere` 23.41 → 23.84 dB — but
+  `ssr-diag-grazing` 32.08 → 29.18 dB and `ssr-diag-rough-30` 30.76 → 29.50 dB got worse, and steampunk mean
+  RMSE rose from 0.1073 to 0.1135. Overall mean RMSE alone: 0.0605 → 0.0620 (worse).
+- **Visual check.** Mirror/wall/occlusion/sphere: previously-missing reflections appear. Grazing/rough-30:
+  visually similar to before (a hazy near-grey reflection in the reference either way); the regression is a
+  small quantitative penalty from now finding real (but still noisy/self-intersecting) hits instead of quietly
+  falling back to an environment grey that happened to be closer to the reference by coincidence.
+- **Kept**, pending the thickness/self-intersection work below, which is what actually fixes those hits rather
+  than just suppressing them. Reverting this step would re-introduce the primary target of this round (ghost
+  reflections), so it is judged on the cumulative result, not in isolation — see the final summary.
+
+### 2. Reflect non-metals (research item 5, A6)
+
+- **Change.** `ssgi.ts` passes `reflectNonMetals: true` to `newSSR()` only when `ssrMethod === 'new'` (the fork
+  path used by `three-new-ssgi`/`three-ss-legacy` is untouched).
+- **Result.** `ssr-diag-dielectric-0` 32.06 → 36.99 dB, `ssr-diag-dielectric-30` 33.07 → 36.07 dB. No other
+  scene changed (metals were already traced). Diag mean RMSE 0.0386 → 0.0376 (cumulative on top of step 1).
+- **Kept.** Large, isolated win with no regressions; this is exactly the "black dielectric floor should show
+  emitters at Fresnel F≈0.04→1" case the diagnostic scenes were built to catch.
+
+### 3. Root cause: the vertical mirror wall (`ssr-diag-wall`, 21 dB baseline)
+
+- **Investigation.** The wall directly faces the camera; the emitters in front of it are all _closer_ to the
+  camera than the wall. Reflecting off a near-frontal mirror at an object between the camera and the mirror
+  is physically valid, but the reflected ray then travels back toward the camera (its view-space Z becomes
+  less negative as the ray parameter increases) and must cover nearly the _entire_ remaining scene depth to
+  reach the emitter — there is no shortcut through the wall. The scene's `maxDistance` (6) sized for an
+  artistic cutoff was, for this geometry, barely enough (or not enough at glancing angles, since
+  `maxReflectRayLen = maxDistance / dot(V,N)` only grows the budget away from normal incidence) to reach the
+  emitters at all, so most wall pixels rays fell short and silently reported "miss → environment". This is the
+  same root cause as items A1/A2, not a separate march/clipping bug: the near-plane clip
+  (`d1viewPosition.z > -near`) already reprojects the ray end correctly once the budget is large enough.
+- **Fix.** Covered by experiment 1 (large scene-independent `maxDistance`). `ssr-diag-wall` improved
+  21.12 → 21.85 dB in the final cumulative state (dark but present reflections; see remaining error below).
+- **Remaining gap.** The reflected emitters on the wall are visibly dimmer than the reference even where
+  found — likely the still-narrow (single-mirror-ray) hit combined with 8-bit-quantized normals/roughness
+  and the screen-border fade landing a hit near the very edge of its own footprint. This needs the same
+  wide-lobe/denoiser work called out for rough surfaces below, not a further one-line fix.
+
+### 4. Thickness and self-intersection (research item 4, B1/B5)
+
+- **Change (thickness, `NewSSRNode.js`).** The hit-acceptance thickness is now
+  `max(minThickness, thickness, |viewZ| * 0.02)` — depth-proportional (McGuire & Mara / Unreal HZB SSR
+  heuristic), so a surface farther from the camera needs a proportionally larger crossing gap to reject,
+  reducing light leaking through solid occluders as the ray recedes.
+- **Change (self-intersection, `NewSSRNode.js`).** The march now starts from a `rayOrigin` offset along the
+  surface normal by `max(|viewZ| * 0.002, 0.001)` (view-depth-proportional), used consistently for the ray's
+  far endpoint, near-plane clip, `reflectRayZAt`, and the thickness line test — instead of marching from the
+  raw `viewPosition`, which let curved/grazing surfaces immediately re-cross their own depth-buffer samples.
+- **Result (cumulative).** `ssr-diag-mirror` 31.83 → 32.95 dB, `ssr-diag-rough-10` 31.75 → 32.83 dB,
+  `ssr-diag-occlusion` unchanged (already fixed by step 1), `ssr-diag-sphere` visually much improved (the
+  red/yellow/blue/green emitter reflections that were nearly absent now appear clearly on the metal sphere,
+  matching the reference's layout) though its RMSE barely moved (0.0646, still dominated by the missing
+  wide-lobe blur at roughness 0.1 near the sphere's silhouette). Diag mean RMSE 0.0376 → 0.0364.
+- **Kept.** Clear, visible improvement (see the sphere self-intersection speckle disappear) with no visible
+  regressions.
+
+### 5. Dense march + binary refinement (research item 6, B2/B3)
+
+- **Change (`ssgi.ts`).** For `ssrMethod === 'new'`, `quality` is forced to `1` (from the scenes' 0.5) and
+  `binaryRefine` is forced to `true` (from the scenes' `false`), regardless of the scene's authored values —
+  speed doesn't matter for this reference renderer.
+- **Result (cumulative).** Sharper contacts, no visible stair-stepping. Diag mean RMSE 0.0364 → 0.0362 (small;
+  most of this round's gain was in step 1/2/4, not step count). `ssr-diag-offscreen` 26.14 → 27.14 dB.
+- **Kept.** Strictly better or neutral everywhere measured, and it is what makes the occlusion scene's thin
+  pole and sharp contact edges reliable, which matters more once the pipeline runs at quality 1 by default for
+  every future experiment.
+
+### 6. Investigate the sphere scene (23 dB baseline)
+
+- Covered by experiment 4: the self-intersection offset was the primary bug (curved-surface rays re-hitting
+  their own surface within the flat, non-depth-proportional thickness band, so most reflected rays terminated
+  immediately on the sphere itself instead of reaching the surrounding emitters). Visually fixed; the RMSE
+  is still high (0.0645) because the sphere is roughness 0.1 and the emitter reflections are still traced as
+  a single mirror ray with a screen-space blur — small residual blur-width mismatch and the sphere's own
+  silhouette (background bleeding into the blur, A5, not yet fixed — see below) account for the rest.
+
+### 7. Investigate the steampunk roughness sweep (research sanity item)
+
+- **Finding.** The roughness override _does_ reach the WebGPU materials on both renderers — it's not a scene
+  bug. Comparing `roughness-0` vs `roughness-100` mean absolute pixel difference: pathtracer 9.52/255,
+  `three-new-ssr` 5.08/255 (up from ~5/255 pre-fix; not a dramatic change from this round's work). The smaller
+  raster response is best explained by material composition, not a broken override: most of the steampunk
+  model's surface area is dielectric with the default low F0 (~4% specular at normal incidence), so its own
+  environment-specular contribution — with or without SSR — is a small fraction of its shaded color, and IBL
+  specular roughness response is inherently subtle for low-F0 materials. The path tracer's multi-bounce GI and
+  correct Fresnel ramp make the same roughness change more visible. This is a genuine, expected difference
+  between a screen-space approximation and a path tracer, not a bug in either the scene or `three-new-ssr`; no
+  scene change is warranted.
+
+### Deferred (explicitly out of scope this round)
+
+- **A5 (background black bleed into the blur).** Not implemented. Background pixels are discarded (alpha 0)
+  into the SSR target that the roughness-driven blur mip chain reads, darkening rough surfaces near silhouettes
+  (visible on the sphere's rim and the steampunk disc edge). Fix: write environment radiance with alpha 1, or
+  blur premultiplied with a separate coverage channel.
+- **Wide-lobe visibility for rough surfaces (A3/A4) — the big remaining error source.** `ssr-diag-rough-60`
+  (25.73 → 25.23 dB, essentially unchanged) and the steampunk floor/model both need a real GGX lobe visibility
+  term, which a single mirror ray + isotropic screen-space blur cannot approximate (the blur only spreads
+  _found_ mirror-ray results; it can't tell that a wide lobe at roughness 0.5–1 would have found different,
+  mostly-occluding geometry). This is the stochastic GGX / temporal accumulation rework the task explicitly
+  defers to the next round. It is the dominant remaining error on `ssr-diag-rough-30/60` and the steampunk
+  floor/model, and the reason those scenes did not improve (or slightly regressed) this round.
+- **Ratio estimator, mirrorBias/luminance-cap removal, view-dependent hit shading (A7-A11, C3).** Lower
+  expected impact per the research note's ranking; not attempted this round to stay within scope.
+
+## Final results (three-new-ssr, after all kept experiments)
+
+| scene                              | baseline RMSE | final RMSE | baseline PSNR | final PSNR | Δ PSNR                       |
+| ---------------------------------- | ------------- | ---------- | ------------- | ---------- | ---------------------------- |
+| ssr-diag-dielectric-0              | 0.0249        | 0.0137     | 32.06         | 37.26      | +5.20                        |
+| ssr-diag-dielectric-30             | 0.0222        | 0.0156     | 33.07         | 36.14      | +3.07                        |
+| ssr-diag-grazing                   | 0.0249        | 0.0338     | 32.08         | 29.43      | -2.65                        |
+| ssr-diag-mirror                    | 0.0280        | 0.0220     | 31.07         | 33.14      | +2.07                        |
+| ssr-diag-occlusion                 | 0.0184        | 0.0154     | 34.70         | 36.24      | +1.54                        |
+| ssr-diag-offscreen                 | 0.0493        | 0.0440     | 26.14         | 27.14      | +1.00                        |
+| ssr-diag-rough-10                  | 0.0271        | 0.0224     | 31.33         | 32.98      | +1.65                        |
+| ssr-diag-rough-30                  | 0.0290        | 0.0315     | 30.76         | 30.03      | -0.73                        |
+| ssr-diag-rough-60                  | 0.0517        | 0.0548     | 25.73         | 25.23      | -0.50                        |
+| ssr-diag-sphere                    | 0.0676        | 0.0646     | 23.41         | 23.79      | +0.38 (visually much better) |
+| ssr-diag-wall                      | 0.0879        | 0.0808     | 21.12         | 21.85      | +0.73                        |
+| ssr-steampunk-camera               | 0.0970        | 0.1063     | 20.27         | 19.47      | -0.80                        |
+| ssr-steampunk-camera-roughness-0   | 0.1172        | 0.1178     | 18.62         | 18.58      | -0.04                        |
+| ssr-steampunk-camera-roughness-25  | 0.1152        | 0.1175     | 18.77         | 18.60      | -0.17                        |
+| ssr-steampunk-camera-roughness-50  | 0.1103        | 0.1150     | 19.15         | 18.78      | -0.37                        |
+| ssr-steampunk-camera-roughness-100 | 0.0969        | 0.1064     | 20.27         | 19.46      | -0.81                        |
+
+**Mean RMSE:** overall 0.0605 → 0.0601, diag 0.0392 → 0.0362 (-7.7%), steampunk 0.1073 → 0.1126 (+5.0%).
+
+The diagnostic scenes this round targeted (ghost reflections, dielectrics, occlusion, the wall, the sphere)
+are all measurably and visibly better. The steampunk scenes and the rough-floor diagnostics regressed
+slightly in RMSE despite being visually similar or arguably more correct in direction (real reflections
+instead of an accidental grey match) — their dominant remaining error is the wide-lobe visibility gap
+(A3/A4), which is the next round's stochastic GGX / temporal-accumulation work, not something fixable within
+this round's scope.

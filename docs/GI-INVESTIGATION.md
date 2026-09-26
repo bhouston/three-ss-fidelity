@@ -1,5 +1,7 @@
 # Indoor SSGI energy investigation
 
+**Follow-up:** [Angular-weighting experiments](GI-ESTIMATOR-FOLLOWUP.md) identify a missing solid-angle factor and substantially reduce the original Cornell error. The report below records the initial investigation before that correction.
+
 Investigation of issue #9, September 25, 2026. The existing Cornell rooms have much darker SSGI beauty passes than the path tracer, despite close direct-pass agreement. Dogwood's exposed ground and sunlit surfaces agree more closely.
 
 The key result is that the original animated Cornell discrepancy survives removing the off-screen parts of its room planes: RMSE changes only from 0.1646 to 0.1623. Multi-bounce feedback and linear HDR intermediates are already present. A fully visible emitter is also strongly underestimated, so a probe fallback is useful future work but is not established as the main fix for the current indoor results.

@@ -76,7 +76,12 @@ export function passEffects(setup: SceneSetup, renderPass: PassName): SceneEffec
 // oxlint-disable-next-line typescript/no-explicit-any
 type AnyNode = any;
 
-function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: boolean): RenderPipeline {
+function createPipeline(
+  renderer: WebGPURenderer,
+  setup: SceneSetup,
+  aoOutput: boolean,
+  ssgiReconstruction: NonNullable<RendererOptions['ssgiReconstruction']>,
+): RenderPipeline {
   const { scene, camera, effects } = setup;
   const tsl = {
     ssr: ssr as AnyNode,
@@ -120,7 +125,7 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: b
 
   const temporal = effects.temporalDenoise;
   const sharedPreviousFrame = temporal ? previousFrameGeometry(prePassDepth, prePassNormal) : null;
-  const temporalDenoise = (signal: AnyNode): AnyNode => {
+  const temporalDenoise = (signal: AnyNode, spatial = true): AnyNode => {
     const reprojected = tsl.temporalReproject(signal, prePassDepth, prePassNormal, prePassVelocity, camera, {
       previousFrameGeometry: sharedPreviousFrame,
     });
@@ -131,6 +136,12 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: b
     });
     denoised.alphaSource = 'none';
     denoised.useTemporalFiltering = true;
+    if (!spatial) {
+      // Zero radius samples the same texel, and zero flicker suppression makes the feedback
+      // a linear current/history blend. Keep the same reprojection and feedback chain.
+      denoised.radius.value = 0;
+      denoised.flickerSuppression.value = 0;
+    }
     reprojected.setHistoryTexture(denoised);
     reprojected.resolutionScale = denoised.resolutionScale = resolutionScale;
     return denoised.getTextureNode();
@@ -206,7 +217,12 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: b
   const radiance = reflections ? tsl.builtinRadianceContext(reflections) : null;
   if (giPass) {
     let ao: AnyNode = (temporal ? temporalDenoise(giPass.getAONode()) : giPass.getAONode()).sample(screenUV).r;
-    let gi: AnyNode = (temporal ? temporalDenoise(giPass.getGINode()) : giPass.getGINode()).sample(screenUV).rgb;
+    const giSignal = giPass.getGINode();
+    const giTexture =
+      temporal && ssgiReconstruction !== 'raw'
+        ? temporalDenoise(giSignal, ssgiReconstruction === 'denoised')
+        : giSignal;
+    let gi: AnyNode = giTexture.sample(screenUV).rgb;
     const fadeRange = effects.ssgi?.fade;
     if (fadeRange) {
       // fade AO/GI out in the distance (webgpu_higharc_ao)
@@ -235,7 +251,7 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: b
 export async function createThreeSSRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
-  { width, height, pass: renderPass }: RendererOptions,
+  { width, height, pass: renderPass, ssgiReconstruction = 'denoised' }: RendererOptions,
 ): Promise<LiveRenderer> {
   const setup = { ...sceneSetup, effects: passEffects(sceneSetup, renderPass) };
   const { scene, camera, effects } = setup;
@@ -256,7 +272,7 @@ export async function createThreeSSRenderer(
     pmremGenerator.dispose();
   }
 
-  const renderPipeline = createPipeline(renderer, setup, renderPass === 'ao');
+  const renderPipeline = createPipeline(renderer, setup, renderPass === 'ao', ssgiReconstruction);
   let frames = 0;
 
   const handle: LiveRenderer = {

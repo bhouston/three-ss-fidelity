@@ -323,7 +323,10 @@ function createPipeline(
             reflectNonMetals: true,
             stochastic: true,
             // three-new-ssr-rt 'fork': per-frame vec4(L, hit distance) for the fork's temporal chain below
-            accumulate: ssrFast.realtime !== 'fork',
+            accumulate: ssrFast.realtime === undefined || ssrFast.realtime === 'reset',
+            // three-new-ssr-rt 'sssr': NewSSRNode's own spatial + temporal filter
+            temporalFilter: ssrFast.realtime === 'sssr',
+            velocityNode: prePassVelocity,
             backDepthNode: backDepth(ssrFast.backDepthResolutionScale ?? 1),
             hitMaterialNode: prePass.getTextureNode('metalRoughness'),
             hitSpecularNode: prePass.getTextureNode('specular'),

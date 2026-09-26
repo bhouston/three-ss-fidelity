@@ -41,6 +41,11 @@ import {
   viewZToPerspectiveDepth,
   context,
   DFGLUT,
+  cos,
+  sin,
+  sqrt,
+  property,
+  outputStruct,
 } from 'three/tsl';
 import {
   FloatType,
@@ -50,7 +55,9 @@ import {
   Matrix4,
   NodeMaterial,
   NodeUpdateType,
+  PerspectiveCamera,
   QuadMesh,
+  RedFormat,
   RenderTarget,
   RendererUtils,
   Node,
@@ -133,6 +140,8 @@ class NewSSRNode extends Node {
       hitMaterialNode = null,
       hitSpecularNode = null,
       radianceHistoryNode = null,
+      temporalFilter = false,
+      velocityNode = null,
       // three-new-ssr-fast options (see SSRFastOptions in types.ts). Every default below reproduces
       // three-new-ssr's reference behavior exactly, so leaving them unset changes nothing.
       clipRaysToScreen = false,
@@ -559,8 +568,56 @@ class NewSSRNode extends Node {
      * @private
      * @type {RenderTarget}
      */
-    this._ssrRenderTarget = new RenderTarget(1, 1, { depthBuffer: false, type: HalfFloatType });
+    /**
+     * Real-time temporal filter (three-new-ssr-rt 'sssr', see SSR_TEMPORAL.md): instead of the running mean, each
+     * frame's ratio-estimator terms go through a spatial ratio-estimator resolve over neighbouring pixels and a
+     * temporal accumulation with surface and virtual-point (hit parallax) reprojection, variance clipping and a
+     * roughness-dependent history length. Needs `stochastic`, `outputRadiance`, `hitMaterialNode` and `velocityNode`.
+     *
+     * @type {boolean}
+     */
+    this.temporalFilter = temporalFilter && stochastic && outputRadiance && !accumulate;
+    this.velocityNode = velocityNode;
+
+    this._ssrRenderTarget = new RenderTarget(1, 1, {
+      depthBuffer: false,
+      type: HalfFloatType,
+      count: this.temporalFilter ? 2 : 1,
+    });
     this._ssrRenderTarget.texture.name = 'NewSSRNode.SSR';
+    if (this.temporalFilter) {
+      // hit distance of this frame's ray (ENV_RAY_LENGTH on a miss), for the virtual-point reprojection
+      this._ssrRenderTarget.textures[1].name = 'NewSSRNode.HitDistance';
+      this._ssrRenderTarget.textures[1].format = RedFormat;
+      this._ratioField = property('vec4');
+      this._hitDistanceField = property('float');
+      const target = (name) => {
+        const t = new RenderTarget(1, 1, { depthBuffer: false, type: HalfFloatType });
+        t.texture.name = name;
+        return t;
+      };
+      this._spatialTarget = target('NewSSRNode.Spatial');
+      this._temporalTarget = target('NewSSRNode.Temporal');
+      this._historyTarget = target('NewSSRNode.History');
+      this._geometryTarget = target('NewSSRNode.PreviousGeometry');
+      this._spatialMaterial = new NodeMaterial();
+      this._temporalMaterial = new NodeMaterial();
+      this._historyCopyMaterial = new NodeMaterial();
+      this._geometryMaterial = new NodeMaterial();
+      this._previousViewProjection = uniform(new Matrix4());
+      this._previousCameraPosition = uniform(new Vector3());
+      this._historyValid = uniform(0);
+      this._unjitteredCamera = new PerspectiveCamera();
+      /** Spatial resolve radius in pixels per unit GGX alpha (roughness²), capped at `spatialMaxRadius`. */
+      this.spatialRadius = uniform(40);
+      this.spatialMaxRadius = uniform(12);
+      /** History length cap for mirrors and for roughness >= `historyRoughness`. */
+      this.historyMin = uniform(4);
+      this.historyMax = uniform(32);
+      this.historyRoughness = uniform(0.4);
+      /** Variance-clip box half-size in standard deviations. */
+      this.clipGamma = uniform(1.25);
+    }
 
     if (stochastic === false && roughnessNode !== null) {
       // The blur reads prefiltered mips of the SSR texture, so its taps don't skip texels.
@@ -660,7 +717,11 @@ class NewSSRNode extends Node {
      */
     this._textureNode = passTexture(
       this,
-      this.accumulate ? this._resolveTarget.texture : this._ssrRenderTarget.texture,
+      this.accumulate
+        ? this._resolveTarget.texture
+        : this.temporalFilter
+          ? this._temporalTarget.texture
+          : this._ssrRenderTarget.texture,
     );
 
     let blurredTextureNode = null;
@@ -799,7 +860,16 @@ class NewSSRNode extends Node {
     if (this._ssrFn === null) return;
 
     this._ssrMaterial.contextNode = context(this._sharedContext);
-    this._ssrMaterial.fragmentNode = this._ssrFn();
+    if (this.temporalFilter) {
+      // MRT: ratio-estimator terms and hit distance
+      this._ssrMaterial.colorNode = Fn(() => {
+        this._ratioField.assign(this._ssrFn());
+        return vec4(0);
+      })();
+      this._ssrMaterial.outputNode = outputStruct(this._ratioField, this._hitDistanceField);
+    } else {
+      this._ssrMaterial.fragmentNode = this._ssrFn();
+    }
     this._ssrMaterial.needsUpdate = true;
   }
 
@@ -828,6 +898,12 @@ class NewSSRNode extends Node {
     if (this.accumulate) {
       for (const target of this._accumTargets) target.setSize(width, height);
       this._resolveTarget.setSize(width, height);
+    }
+    if (this.temporalFilter) {
+      if (this._spatialTarget.width !== width || this._spatialTarget.height !== height) this._historyValid.value = 0;
+      for (const t of [this._spatialTarget, this._temporalTarget, this._historyTarget, this._geometryTarget]) {
+        t.setSize(width, height);
+      }
     }
   }
 
@@ -955,6 +1031,28 @@ class NewSSRNode extends Node {
       _quadMesh.name = 'SSR [ Resolve ]';
       _quadMesh.render(renderer);
       this._accumIndex = 1 - this._accumIndex;
+    }
+
+    if (this.temporalFilter) {
+      const passes = [
+        [this._spatialMaterial, this._spatialTarget, 'SSR [ Spatial Resolve ]'],
+        [this._temporalMaterial, this._temporalTarget, 'SSR [ Temporal ]'],
+        [this._historyCopyMaterial, this._historyTarget, 'SSR [ History ]'],
+        [this._geometryMaterial, this._geometryTarget, 'SSR [ Previous Geometry ]'],
+      ];
+      for (const [material, target, name] of passes) {
+        _quadMesh.material = material;
+        _quadMesh.name = name;
+        renderer.setRenderTarget(target);
+        _quadMesh.render(renderer);
+      }
+      // next frame's reprojection: this frame's camera without TRAA's sub-pixel jitter (like the velocity buffer)
+      const camera = this._unjitteredCamera.copy(this.camera);
+      if (camera.view !== null && camera.view.enabled) camera.clearViewOffset();
+      camera.updateMatrixWorld();
+      this._previousViewProjection.value.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+      this._previousCameraPosition.value.setFromMatrixPosition(camera.matrixWorld);
+      this._historyValid.value = 1;
     }
 
     // blur (optional)
@@ -1190,6 +1288,7 @@ class NewSSRNode extends Node {
 
       // Radiance mode: how much the hit replaces the environment, so fades blend toward it instead of black.
       const hitWeight = float(0).toVar();
+      const hitDistance = float(ENV_RAY_LENGTH).toVar();
 
       // Multi-bounce: fold in the previous frame's reflection at the hit point, reprojected by its
       // own motion. The (1 - history.a) decay damps the feedback. No-op until both textures are set.
@@ -1227,7 +1326,17 @@ class NewSSRNode extends Node {
       // split-sum indirect specular for the camera direction (the radiance the scene pass used, i.e. the previous SSR
       // result at the hit pixel, times the DFG term at N·V_camera) for one evaluated for -R by a second screen-space
       // bounce. The view-independent part (emissive, diffuse) is kept.
-      const previousRadianceTexture = this.accumulate ? texture(this._resolveTarget.texture) : this.radianceHistoryNode;
+      const previousRadianceTexture = this.accumulate
+        ? texture(this._resolveTarget.texture)
+        : this.temporalFilter
+          ? (() => {
+              // last frame's filtered output, reprojected to this frame by the surface motion
+              const previous = texture(this._temporalTarget.texture);
+              return {
+                sample: (uv) => previous.sample(uv.sub(this.velocityNode.sample(uv).xy.mul(vec2(0.5, -0.5)))),
+              };
+            })()
+          : this.radianceHistoryNode;
       const redirectHitSpecular = (uvHit, vPHit, color) => {
         const hitMaterial = this.hitMaterialNode.sample(uvHit);
         const hitSpecular = this.hitSpecularNode.sample(uvHit);
@@ -1535,6 +1644,7 @@ class NewSSRNode extends Node {
 
         If(withinRange, () => {
           const hitWorldPosition = this._cameraWorldMatrix.mul(vec4(vP, 1.0)).xyz.toVar();
+          hitDistance.assign(distance(worldPosition, hitWorldPosition));
           const worldDistance = distance(worldPosition, hitWorldPosition).mul(specDominantFactor).toVar();
 
           const reflectColor = this.colorNode.sample(uvS).toVar();
@@ -1597,7 +1707,8 @@ class NewSSRNode extends Node {
 
       // Radiance mode: blend toward the environment on misses and fades, after the luminance cap so the
       // environment matches the materials. Misses report the environment ray length to the denoisers.
-      if (this.accumulate) {
+      if (this.temporalFilter) this._hitDistanceField.assign(hitDistance);
+      if (this.accumulate || this.temporalFilter) {
         // ratio-estimator terms, resolved as Σ L·w / Σ w by the accumulation
         output.assign(vec4(mix(sampleEnvRadiance(), output.rgb, hitWeight).mul(sampleRatioWeight), sampleRatioWeight));
       } else if (this.outputRadiance) {
@@ -1644,9 +1755,180 @@ class NewSSRNode extends Node {
       this._resolveMaterial.needsUpdate = true;
     }
 
+    if (this.temporalFilter) this._setupTemporalFilter(uvNode, sampleDepth);
+
     //
 
     return this.getTextureNode();
+  }
+
+  /**
+   * Builds the real-time filter passes (see `temporalFilter`): spatial ratio-estimator resolve, temporal
+   * accumulation, history copy and the previous-frame geometry used to validate reprojected history.
+   *
+   * @private
+   */
+  _setupTemporalFilter(uvNode, sampleDepth) {
+    const ratioTexture = texture(this._ssrRenderTarget.textures[0]);
+    const distanceTexture = texture(this._ssrRenderTarget.textures[1]);
+    const spatialTexture = texture(this._spatialTarget.texture);
+    const historyTexture = texture(this._historyTarget.texture);
+    const geometryTexture = texture(this._geometryTarget.texture);
+    const resolution = this._resolution;
+    const texel = vec2(1).div(resolution);
+    // exact texel of a UV (the per-pixel samples must not be blended bilinearly)
+    const snap = (uv) => uv.mul(resolution).floor().add(0.5).mul(texel);
+    const viewPositionAt = (uv, depth) => getViewPosition(uv, depth, this._cameraProjectionMatrixInverse);
+    const normalAt = (uv) => this.normalNode.sample(uv).rgb.normalize();
+    const roughnessAt = (uv) => this.hitMaterialNode.sample(uv).g;
+    const finite = (v) =>
+      v.a
+        .greaterThanEqual(0)
+        .and(v.a.lessThan(1e30))
+        .and(luminance(v.rgb).greaterThanEqual(0))
+        .and(luminance(v.rgb).lessThan(1e30));
+    const toYCoCg = (c) =>
+      vec3(dot(c, vec3(0.25, 0.5, 0.25)), dot(c, vec3(0.5, 0, -0.5)), dot(c, vec3(-0.25, 0.5, -0.25)));
+    const fromYCoCg = (c) => vec3(c.x.add(c.y).sub(c.z), c.x.add(c.z), c.x.sub(c.y).sub(c.z));
+
+    // Spatial: Σ L·w / Σ w over this pixel's and up to 8 neighbours' rays (Stachowiak 2015), each neighbour weighted by
+    // plane distance, normal and roughness similarity. The radius follows the lobe width (GGX alpha); mirrors keep
+    // their own ray. Also resolves the w-weighted hit distance for the virtual-point reprojection.
+    const spatial = Fn(() => {
+      const depth = sampleDepth(uvNode).toVar();
+      depth.greaterThanEqual(1.0).discard();
+      const P = viewPositionAt(uvNode, depth).toVar();
+      const N = normalAt(uvNode).toVar();
+      const roughness = roughnessAt(uvNode).toVar();
+      const center = ratioTexture.sample(uvNode).toVar();
+      center.assign(finite(center).select(center, vec4(0)));
+      const numerator = center.rgb.toVar();
+      const denominator = center.a.toVar();
+      const distanceSum = center.a.mul(distanceTexture.sample(uvNode).r).toVar();
+      const radius = roughness.mul(roughness).mul(this.spatialRadius).min(this.spatialMaxRadius).toVar();
+      If(radius.greaterThan(0.5), () => {
+        const pixel = uvNode.mul(resolution).floor();
+        const seed = pixel.x.add(pixel.y.mul(resolution.x));
+        const rotation = fract(hash(seed.mul(3).add(1)).add(float(this._frameIndex).mul(0.618034))).mul(Math.PI * 2);
+        const TAPS = 8;
+        for (let i = 0; i < TAPS; i++) {
+          const angle = rotation.add(i * 2.399963);
+          const uvTap = snap(
+            uvNode.add(
+              vec2(cos(angle), sin(angle))
+                .mul(radius.mul(Math.sqrt((i + 0.5) / TAPS)))
+                .mul(texel),
+            ),
+          );
+          const inside = uvTap.x
+            .greaterThan(0)
+            .and(uvTap.x.lessThan(1))
+            .and(uvTap.y.greaterThan(0))
+            .and(uvTap.y.lessThan(1));
+          const tapDepth = sampleDepth(uvTap);
+          const planeDistance = abs(dot(N, viewPositionAt(uvTap, tapDepth).sub(P))).div(abs(P.z).mul(0.01).add(1e-4));
+          const weight = float(1)
+            .sub(planeDistance)
+            .max(0)
+            .mul(dot(N, normalAt(uvTap)).max(0).pow(16))
+            .mul(
+              abs(roughness.sub(roughnessAt(uvTap)))
+                .mul(-20)
+                .exp(),
+            )
+            .mul(inside.and(tapDepth.lessThan(1)).select(float(1), float(0)))
+            .toVar();
+          const tap = ratioTexture.sample(uvTap).toVar();
+          weight.mulAssign(finite(tap).select(float(1), float(0)));
+          numerator.addAssign(tap.rgb.mul(weight));
+          denominator.addAssign(tap.a.mul(weight));
+          distanceSum.addAssign(tap.a.mul(weight).mul(distanceTexture.sample(uvTap).r));
+        }
+      });
+      const inverse = float(1).div(denominator.max(1e-8));
+      return vec4(numerator.mul(inverse), distanceSum.mul(inverse));
+    });
+    this._spatialMaterial.fragmentNode = spatial();
+    this._spatialMaterial.needsUpdate = true;
+
+    // Temporal: reproject the history along the surface motion and to the reflection's virtual point (the hit seen
+    // through the mirror, which is what moves on screen for sharp reflections), keep whichever valid one is closer to
+    // this frame's neighbourhood, variance-clip it and blend with 1/n, n capped by a roughness-dependent history length.
+    const temporal = Fn(() => {
+      const depth = sampleDepth(uvNode).toVar();
+      depth.greaterThanEqual(1.0).discard();
+      const P = viewPositionAt(uvNode, depth).toVar();
+      const worldPosition = this._cameraWorldMatrix.mul(vec4(P, 1)).xyz.toVar();
+      const worldNormal = this._cameraWorldMatrix
+        .mul(vec4(normalAt(uvNode), 0))
+        .xyz.normalize()
+        .toVar();
+      const roughness = roughnessAt(uvNode).toVar();
+      const current = spatialTexture.sample(uvNode).toVar();
+
+      const m1 = vec3(0).toVar();
+      const m2 = vec3(0).toVar();
+      for (let y = -1; y <= 1; y++) {
+        for (let x = -1; x <= 1; x++) {
+          const c = toYCoCg(spatialTexture.sample(uvNode.add(vec2(x, y).mul(texel))).rgb).toVar();
+          m1.addAssign(c);
+          m2.addAssign(c.mul(c));
+        }
+      }
+      const mean = m1.div(9).toVar();
+      const sigma = sqrt(m2.div(9).sub(mean.mul(mean)).max(0)).toVar();
+
+      const project = (world) => {
+        const clip = this._previousViewProjection.mul(vec4(world, 1)).toVar();
+        const uv = clip.xy.div(clip.w).mul(0.5).add(0.5);
+        return clip.w.greaterThan(0).select(vec2(uv.x, uv.y.oneMinus()), vec2(-1));
+      };
+      const inside = (uv) => uv.x.greaterThan(0).and(uv.x.lessThan(1)).and(uv.y.greaterThan(0)).and(uv.y.lessThan(1));
+      const cameraPosition = this._cameraWorldPosition;
+      const previousDistance = distance(this._previousCameraPosition, worldPosition).toVar();
+
+      const uvSurface = uvNode.sub(this.velocityNode.sample(uvNode).xy.mul(vec2(0.5, -0.5))).toVar();
+      const geometrySurface = geometryTexture.sample(uvSurface).toVar();
+      const validSurface = inside(uvSurface)
+        .and(dot(geometrySurface.xyz, worldNormal).greaterThan(0.9))
+        .and(abs(geometrySurface.w.sub(previousDistance)).lessThan(previousDistance.mul(0.05)));
+
+      const viewDirection = worldPosition.sub(cameraPosition).normalize();
+      const virtualPoint = cameraPosition.add(
+        viewDirection.mul(distance(cameraPosition, worldPosition).add(current.a)),
+      );
+      const uvVirtual = project(virtualPoint).toVar();
+      const geometryVirtual = geometryTexture.sample(uvVirtual).toVar();
+      const validVirtual = inside(uvVirtual).and(dot(geometryVirtual.xyz, worldNormal).greaterThan(0.9));
+
+      const historySurface = historyTexture.sample(uvSurface).toVar();
+      const historyVirtual = historyTexture.sample(uvVirtual).toVar();
+      const score = (h) => abs(toYCoCg(h.rgb).x.sub(mean.x)).div(sigma.x.add(1e-4));
+      const useVirtual = validVirtual.and(validSurface.not().or(score(historyVirtual).lessThan(score(historySurface))));
+      const history = useVirtual.select(historyVirtual, historySurface).toVar();
+      const valid = validVirtual.or(validSurface).and(this._historyValid.greaterThan(0));
+
+      const maxFrames = mix(this.historyMin, this.historyMax, roughness.div(this.historyRoughness).clamp());
+      const frames = valid.select(history.a.add(1), float(1)).min(maxFrames).toVar();
+      const box = sigma.mul(this.clipGamma);
+      const clipped = fromYCoCg(toYCoCg(history.rgb).clamp(mean.sub(box), mean.add(box)));
+      return vec4(mix(clipped, current.rgb, float(1).div(frames)), frames);
+    });
+    this._temporalMaterial.fragmentNode = temporal();
+    this._temporalMaterial.needsUpdate = true;
+
+    this._historyCopyMaterial.fragmentNode = texture(this._temporalTarget.texture).sample(uvNode);
+    this._historyCopyMaterial.needsUpdate = true;
+
+    // this frame's geometry for next frame's validation: world normal and distance to the (unjittered) camera
+    this._geometryMaterial.fragmentNode = Fn(() => {
+      const depth = sampleDepth(uvNode).toVar();
+      depth.greaterThanEqual(1.0).discard();
+      const worldPosition = this._cameraWorldMatrix.mul(vec4(viewPositionAt(uvNode, depth), 1)).xyz;
+      const worldNormal = this._cameraWorldMatrix.mul(vec4(normalAt(uvNode), 0)).xyz.normalize();
+      return vec4(worldNormal, distance(this._cameraWorldPosition, worldPosition));
+    })();
+    this._geometryMaterial.needsUpdate = true;
   }
 
   getRenderTarget() {
@@ -1672,6 +1954,18 @@ class NewSSRNode extends Node {
       this._resolveMaterial.dispose();
     }
     this._copyMaterial.dispose();
+    if (this.temporalFilter) {
+      for (const t of [this._spatialTarget, this._temporalTarget, this._historyTarget, this._geometryTarget])
+        t.dispose();
+      for (const m of [
+        this._spatialMaterial,
+        this._temporalMaterial,
+        this._historyCopyMaterial,
+        this._geometryMaterial,
+      ]) {
+        m.dispose();
+      }
+    }
 
     if (this._importanceEnvironment !== null) {
       this._importanceEnvironment.dispose();

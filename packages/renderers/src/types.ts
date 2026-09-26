@@ -50,10 +50,10 @@ export interface SSRFastOptions {
   /**
    * three-new-ssr-rt: one pipeline frame per rendered frame (no sub-frame accumulation loop). How the stochastic
    * reflections converge over time: `'reset'` keeps the running mean that restarts on every camera change, `'fork'`
-   * uses the three.js fork's temporal reprojection + recurrent denoiser chain (the one three-new-ssgi uses for its SSR).
-   * See SSR_TEMPORAL.md.
+   * uses the three.js fork's temporal reprojection + recurrent denoiser chain (the one three-new-ssgi uses for its SSR),
+   * `'sssr'` NewSSRNode's own stochastic-SSR-style spatial ratio-estimator resolve + temporal filter. See SSR_TEMPORAL.md.
    */
-  realtime?: 'reset' | 'fork';
+  realtime?: 'reset' | 'fork' | 'sssr';
 }
 
 /**

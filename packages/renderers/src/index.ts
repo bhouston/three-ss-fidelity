@@ -72,7 +72,7 @@ const screenSpaceOptions: Record<
       secondBounceRoughnessCutoff: 0.8,
       quality: 0.6,
       secondBounceQuality: 0.4,
-      realtime: 'reset',
+      realtime: 'sssr',
     },
   },
   // three-new-ssgi-fast: built on three-new-ssr-fast (same ssgiWeighting/ssrMethod/ssrFast) plus SSGI-side speed

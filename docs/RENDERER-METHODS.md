@@ -2,11 +2,12 @@
 
 All screen-space methods use the same `bhouston/three.js` codebase, the same SSGINode, and the same scene setup. Select the integration method by renderer name:
 
-| Renderer               | Method                                                                                                          |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `three-ss`             | Corrected sample-direction solid-angle weighting (default).                                                     |
-| `three-ss-legacy`      | Previous equal-angle-sector weighting. This is the legacy method in our fork, not unmodified upstream three.js. |
-| `three-gpu-pathtracer` | Path-traced reference with scene-space visibility.                                                              |
+| Renderer               | Method                                                                                                                                                                                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `three-new-ssgi`       | Corrected sample-direction solid-angle weighting (default).                                                                                                                                                                                       |
+| `three-ss-legacy`      | Previous equal-angle-sector weighting. This is the legacy method in our fork, not unmodified upstream three.js.                                                                                                                                   |
+| `three-new-ssr`        | `three-new-ssgi`'s pipeline, but SSR runs through a vendored copy of SSRNode.js (`packages/renderers/src/ssr/`) instead of the three.js fork's, so SSR can be modified without touching the submodule. Pixel-identical to `three-new-ssgi` today. |
+| `three-gpu-pathtracer` | Path-traced reference with scene-space visibility.                                                                                                                                                                                                |
 
 The screen-space methods differ only in GI sample weighting. They share sample counts, radius, thickness, GI intensity, AO, SSR, temporal reconstruction and AA. Direct and AO outputs should agree between them. Keeping geometry and quality settings fixed lets us measure future estimator improvements independently of the sampling budget.
 
@@ -16,7 +17,7 @@ Cornell scenes (`ssgi-basic`, `ssgi-rounded`, `ssgi-metallic`, `ssgi-animated`, 
 
 ```sh
 pnpm build
-pnpm cli render --scenes 'ssgi-*' --passes beauty --renderers 'three-ss,three-ss-legacy'
+pnpm cli render --scenes 'ssgi-*' --passes beauty --renderers 'three-new-ssgi,three-ss-legacy'
 pnpm cli compare --scenes 'ssgi-*' --passes beauty
 ```
 
@@ -24,9 +25,12 @@ Render path-tracer references when missing using `--renderers three-gpu-pathtrac
 
 The files in each `results/<scene>/<pass>/` directory are:
 
-- `three-ss.png`, `delta.png`, `metrics.json` for the corrected renderer.
-- `three-ss-legacy.png`, `delta-three-ss-legacy.png`, `metrics-three-ss-legacy.json` for legacy weighting.
-- `three-gpu-pathtracer.png` for the reference.
+Every screen-space renderer `R` uses the same `R.avif`, `delta-R.avif`, `metrics-R.json` naming, for example:
+
+- `three-new-ssgi.avif`, `delta-three-new-ssgi.avif`, `metrics-three-new-ssgi.json`
+- `three-ss-legacy.avif`, `delta-three-ss-legacy.avif`, `metrics-three-ss-legacy.json`
+- `three-new-ssr.avif`, `delta-three-new-ssr.avif`, `metrics-three-new-ssr.json`
+- `three-gpu-pathtracer.avif` for the reference (never compared against itself).
 
 Live routes use the same names, for example `/live/ssgi-animated/three-ss-legacy`. Both screen-space renderers keep accumulating frames; neither uses the path tracer's sample limit.
 
@@ -43,8 +47,9 @@ gi.useSolidAngleWeighting.value = true; // corrected, default
 The renderer factory selects this parameter for each independently constructed pipeline:
 
 ```ts
-const corrected = await createRenderer('three-ss', canvasA, setupA, options);
+const corrected = await createRenderer('three-new-ssgi', canvasA, setupA, options);
 const legacy = await createRenderer('three-ss-legacy', canvasB, setupB, options);
+const newSSR = await createRenderer('three-new-ssr', canvasC, setupC, options);
 ```
 
 Use independent equivalent scene setups/canvases for the two pipelines. No source loader is involved in these normal renderer paths. When toggling the node parameter interactively, allow its temporal/beauty feedback history to converge; creating a fresh renderer gives a clean measurement.

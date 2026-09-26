@@ -19,7 +19,8 @@ const { getScene } = await import('../packages/scenes/dist/index.js');
 const { createNodeSceneContext } = await import('../packages/scenes/dist/node.js');
 const { compareImages } = await import('../packages/cli/dist/compare.js');
 const ctx = createNodeSceneContext();
-const rendererName = process.env.GI_RENDERER ?? (process.env.GI_SHADER === 'legacy' ? 'three-ss-legacy' : 'three-ss');
+const rendererName =
+  process.env.GI_RENDERER ?? (process.env.GI_SHADER === 'legacy' ? 'three-ss-legacy' : 'three-new-ssgi');
 const scenes = process.argv.slice(3);
 if (!scenes.length) scenes.push('gi-emitter-corner', 'gi-room-open-high-albedo', 'ssgi-animated');
 const variants = JSON.parse(process.env.GI_VARIANTS ?? 'null') ?? [

@@ -1,11 +1,11 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import { createRenderer } from './index.js';
-import { createThreeSSRenderer } from './three-ss.js';
+import { createSSGIRenderer } from './ssgi.js';
 import { createPathTracerRenderer } from './pathtracer.js';
 import type { RendererName } from './types.js';
 
-vi.mock('./three-ss.js', () => ({ createThreeSSRenderer: vi.fn(), passEffects: vi.fn() }));
+vi.mock('./ssgi.js', () => ({ createSSGIRenderer: vi.fn(), passEffects: vi.fn() }));
 vi.mock('./pathtracer.js', () => ({ createPathTracerRenderer: vi.fn(), PATHTRACER_BOUNCES: 8 }));
 beforeEach(() => vi.clearAllMocks());
 
@@ -14,10 +14,24 @@ it('selects screen-space methods without changing shared scene quality or using 
   const before = structuredClone(setup);
   const canvas = {} as HTMLCanvasElement;
   const options = { width: 640, height: 480, pass: 'beauty' as const };
-  createRenderer('three-ss', canvas, setup, options);
+  createRenderer('three-new-ssgi', canvas, setup, options);
   createRenderer('three-ss-legacy', canvas, setup, options);
-  expect(createThreeSSRenderer).toHaveBeenNthCalledWith(1, canvas, setup, { ...options, ssgiWeighting: 'solid-angle' });
-  expect(createThreeSSRenderer).toHaveBeenNthCalledWith(2, canvas, setup, { ...options, ssgiWeighting: 'legacy' });
+  createRenderer('three-new-ssr', canvas, setup, options);
+  expect(createSSGIRenderer).toHaveBeenNthCalledWith(1, canvas, setup, {
+    ...options,
+    ssgiWeighting: 'solid-angle',
+    ssrMethod: 'fork',
+  });
+  expect(createSSGIRenderer).toHaveBeenNthCalledWith(2, canvas, setup, {
+    ...options,
+    ssgiWeighting: 'legacy',
+    ssrMethod: 'fork',
+  });
+  expect(createSSGIRenderer).toHaveBeenNthCalledWith(3, canvas, setup, {
+    ...options,
+    ssgiWeighting: 'solid-angle',
+    ssrMethod: 'new',
+  });
   expect(createPathTracerRenderer).not.toHaveBeenCalled();
   expect(setup).toEqual(before);
 });
@@ -30,6 +44,6 @@ it('rejects unknown renderer names rather than silently choosing a method', () =
       pass: 'beauty',
     }),
   ).toThrow('Unknown renderer');
-  expect(createThreeSSRenderer).not.toHaveBeenCalled();
+  expect(createSSGIRenderer).not.toHaveBeenCalled();
   expect(createPathTracerRenderer).not.toHaveBeenCalled();
 });

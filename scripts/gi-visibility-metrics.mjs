@@ -13,7 +13,7 @@ const pairs = [
 const rows = [];
 for (const [reference, test] of pairs) {
   for (const pass of ['beauty', 'direct']) {
-    for (const renderer of ['three-ss', 'three-gpu-pathtracer']) {
+    for (const renderer of ['three-new-ssgi', 'three-gpu-pathtracer']) {
       const { metrics } = await compareImages(
         path.join(root, reference, pass, `${renderer}.avif`),
         path.join(root, test, pass, `${renderer}.avif`),

@@ -1,7 +1,7 @@
 import type { PerspectiveCamera, WebGLRenderer } from 'three';
 import type { WebGPURenderer } from 'three/webgpu';
 
-export const rendererNames = ['three-ss', 'three-ss-legacy', 'three-gpu-pathtracer'] as const;
+export const rendererNames = ['three-new-ssgi', 'three-ss-legacy', 'three-new-ssr', 'three-gpu-pathtracer'] as const;
 export type RendererName = (typeof rendererNames)[number];
 
 /** What is rendered: render settings applied to every scene (not scene settings). */
@@ -10,16 +10,21 @@ export type PassName = (typeof passNames)[number];
 
 export type SSGIWeighting = 'solid-angle' | 'legacy';
 
+/** Which SSR node implementation the pipeline uses: the three.js fork's or the vendored copy in src/ssr. */
+export type SSRMethod = 'fork' | 'new';
+
 export interface RendererOptions {
   width: number;
   height: number;
-  /** SSGI integration method for direct createThreeSSRenderer callers; the registry selects it by name. */
+  /** SSGI integration method for direct createSSGIRenderer callers; the registry selects it by name. */
   ssgiWeighting?: SSGIWeighting;
-  /** Diagnostic GI reconstruction in three-ss beauty passes; defaults to the existing denoised pipeline. */
+  /** SSR node implementation for direct createSSGIRenderer callers; the registry selects it by name. */
+  ssrMethod?: SSRMethod;
+  /** Diagnostic GI reconstruction in three-new-ssgi beauty passes; defaults to the existing denoised pipeline. */
   ssgiReconstruction?: 'raw' | 'temporal' | 'denoised';
   /**
    * beauty: the full image, each renderer with its complete pipeline.
-   * direct: first-hit lighting only (three-ss without SSGI/SSR, the pathtracer with a single scatter).
+   * direct: first-hit lighting only (three-new-ssgi without SSGI/SSR, the pathtracer with a single scatter).
    * ao: ambient occlusion within `SceneSetup.aoRadius`, written linear (1 = unoccluded, also for the background).
    */
   pass: PassName;
@@ -29,7 +34,7 @@ export interface RendererOptions {
 export interface LiveRenderer {
   readonly name: RendererName;
   readonly renderer: WebGPURenderer | WebGLRenderer;
-  /** Pipeline frames (three-ss) or accumulated path-traced samples (three-gpu-pathtracer). */
+  /** Pipeline frames (three-new-ssgi) or accumulated path-traced samples (three-gpu-pathtracer). */
   readonly frames: number;
   /** Renders one frame / one full-frame sample to the canvas. */
   render(): void;

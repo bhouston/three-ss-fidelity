@@ -1,5 +1,6 @@
-// three-ss: WebGPURenderer + RenderPipeline replicating examples/webgpu_postprocessing_ssgi.html (antialias 'traa')
-// and examples/webgpu_postprocessing_ssr.html (antialias 'smaa') of the three.js fork.
+// three-new-ssgi / three-ss-legacy / three-new-ssr: WebGPURenderer + RenderPipeline replicating
+// examples/webgpu_postprocessing_ssgi.html (antialias 'traa') and examples/webgpu_postprocessing_ssr.html
+// (antialias 'smaa') of the three.js fork.
 import { LinearSRGBColorSpace, NoToneMapping } from 'three';
 import { PMREMGenerator, RenderPipeline, UnsignedByteType, WebGPURenderer } from 'three/webgpu';
 import {
@@ -34,13 +35,14 @@ import { ssgi } from 'three/addons/tsl/display/SSGINode.js';
 import { ssr } from 'three/addons/tsl/display/SSRNode.js';
 import { previousFrameGeometry, temporalReproject } from 'three/addons/tsl/display/TemporalReprojectNode.js';
 import { traa } from 'three/addons/tsl/display/TRAANode.js';
+import { newSSR } from './ssr/NewSSRNode.js';
 import type { SceneEffects, SceneSetup } from '@ss-fidelity/scenes';
 import type { LiveRenderer, PassName, RendererOptions } from './types.js';
 
 /** SSGINode's AO frames: the temporal denoiser converges at ~64 (see PLAN.md). */
 const AO_FRAMES = 128;
 
-/** The three-ss pipeline settings of a pass. */
+/** The three-new-ssgi / three-ss-legacy / three-new-ssr pipeline settings of a pass. */
 export function passEffects(setup: SceneSetup, renderPass: PassName): SceneEffects {
   const { effects } = setup;
   switch (renderPass) {
@@ -82,10 +84,11 @@ function createPipeline(
   aoOutput: boolean,
   ssgiReconstruction: NonNullable<RendererOptions['ssgiReconstruction']>,
   ssgiWeighting: NonNullable<RendererOptions['ssgiWeighting']>,
+  ssrMethod: NonNullable<RendererOptions['ssrMethod']>,
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const tsl = {
-    ssr: ssr as AnyNode,
+    ssr: (ssrMethod === 'new' ? newSSR : ssr) as AnyNode,
     temporalReproject: temporalReproject as AnyNode,
     recurrentDenoise: recurrentDenoise as AnyNode,
     builtinGIContext: builtinGIContext as AnyNode,
@@ -250,10 +253,17 @@ function createPipeline(
   return renderPipeline;
 }
 
-export async function createThreeSSRenderer(
+export async function createSSGIRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
-  { width, height, pass: renderPass, ssgiReconstruction = 'denoised', ssgiWeighting = 'solid-angle' }: RendererOptions,
+  {
+    width,
+    height,
+    pass: renderPass,
+    ssgiReconstruction = 'denoised',
+    ssgiWeighting = 'solid-angle',
+    ssrMethod = 'fork',
+  }: RendererOptions,
 ): Promise<LiveRenderer> {
   const setup = { ...sceneSetup, effects: passEffects(sceneSetup, renderPass) };
   const { scene, camera, effects } = setup;
@@ -274,11 +284,18 @@ export async function createThreeSSRenderer(
     pmremGenerator.dispose();
   }
 
-  const renderPipeline = createPipeline(renderer, setup, renderPass === 'ao', ssgiReconstruction, ssgiWeighting);
+  const renderPipeline = createPipeline(
+    renderer,
+    setup,
+    renderPass === 'ao',
+    ssgiReconstruction,
+    ssgiWeighting,
+    ssrMethod,
+  );
   let frames = 0;
 
   const handle: LiveRenderer = {
-    name: ssgiWeighting === 'legacy' ? 'three-ss-legacy' : 'three-ss',
+    name: ssgiWeighting === 'legacy' ? 'three-ss-legacy' : ssrMethod === 'new' ? 'three-new-ssr' : 'three-new-ssgi',
     renderer,
     get frames() {
       return frames;

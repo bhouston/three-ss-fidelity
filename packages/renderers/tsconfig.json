@@ -2,7 +2,11 @@
   "extends": "../../tsconfig.node.json",
   "compilerOptions": {
     "composite": true,
-    "lib": ["ES2024", "DOM"]
+    "lib": ["ES2024", "DOM"],
+    // The vendored SSR node (src/ssr/NewSSRNode.js) is a straight copy of the three.js fork's JS source;
+    // allowJs lets it build without a hand-written .d.ts, same as the fork it's copied from.
+    "allowJs": true,
+    "checkJs": false
   },
   "references": [{ "path": "../../packages/scenes" }]
 }

@@ -78,7 +78,10 @@ const screenSpaceOptions: Record<
     },
     // Every ssgiFast field starts at its three-new-ssr-fast-reproducing default (false); each optimization
     // round flips one on here after passing its own quality gate (see SSGI_FAST.md).
-    ssgiFast: {},
+    ssgiFast: {
+      // Round 1: evaluate the per-pixel initial ray step once instead of every horizon-search step. Bit-identical.
+      loopInvariantInitialStep: true,
+    },
   },
 };
 

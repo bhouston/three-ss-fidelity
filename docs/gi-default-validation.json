@@ -1,0 +1,394 @@
+{
+  "description": "Native default solid-angle correction compared with prior prototype, plus legacy and alternative estimator reproduction",
+  "threeCommit": "117d0f2da007676ea802ce393888754a1b532f21",
+  "threeRemote": "https://github.com/bhouston/three.js",
+  "branch": "ssgi-traa-redesign",
+  "absoluteTolerance": 1e-5,
+  "note": "Timing includes shader warmup/readback and concurrent build activity; not a benchmark. Scene sampling defaults unchanged.",
+  "checks": [
+    {
+      "mode": "native",
+      "scene": "gi-emitter-corner",
+      "variant": "baseline",
+      "originalExperiment": "sample-controls",
+      "absoluteDifference": {
+        "rmse": 0.0,
+        "receiver": 0.0
+      },
+      "passed": true
+    },
+    {
+      "mode": "native",
+      "scene": "gi-emitter-corner",
+      "variant": "dense-radius32-thickness4",
+      "originalExperiment": "sample-jacobian",
+      "absoluteDifference": {
+        "rmse": 0.0,
+        "receiver": 0.0
+      },
+      "passed": true
+    },
+    {
+      "mode": "native",
+      "scene": "gi-room-open-high-albedo",
+      "variant": "baseline",
+      "originalExperiment": "sample-controls",
+      "absoluteDifference": {
+        "rmse": 0.0,
+        "receiver": 0.0
+      },
+      "passed": true
+    },
+    {
+      "mode": "native",
+      "scene": "gi-room-open-high-albedo",
+      "variant": "dense-radius32-thickness4",
+      "originalExperiment": "sample-jacobian",
+      "absoluteDifference": {
+        "rmse": 0.0,
+        "receiver": 0.0
+      },
+      "passed": true
+    },
+    {
+      "mode": "native",
+      "scene": "ssgi-animated",
+      "variant": "baseline",
+      "originalExperiment": "sample-controls",
+      "absoluteDifference": {
+        "rmse": 3.741572042720298e-6
+      },
+      "passed": true
+    },
+    {
+      "mode": "native",
+      "scene": "ssgi-animated",
+      "variant": "dense-radius32-thickness4",
+      "originalExperiment": "sample-jacobian",
+      "absoluteDifference": {
+        "rmse": 3.5210851423439493e-7
+      },
+      "passed": true
+    },
+    {
+      "mode": "legacy",
+      "scene": "gi-emitter-corner",
+      "variant": "baseline",
+      "originalExperiment": "estimator-initial",
+      "absoluteDifference": {
+        "rmse": 0.0,
+        "receiver": 0.0
+      },
+      "passed": true
+    },
+    {
+      "mode": "legacy",
+      "scene": "gi-emitter-corner",
+      "variant": "dense-radius32-thickness4",
+      "originalExperiment": "estimator-initial",
+      "absoluteDifference": {
+        "rmse": 0.0,
+        "receiver": 0.0
+      },
+      "passed": true
+    },
+    {
+      "mode": "legacy",
+      "scene": "ssgi-animated",
+      "variant": "baseline",
+      "originalExperiment": "estimator-initial",
+      "absoluteDifference": {
+        "rmse": 7.394710380137504e-8
+      },
+      "passed": true
+    },
+    {
+      "mode": "legacy",
+      "scene": "ssgi-animated",
+      "variant": "dense-radius32-thickness4",
+      "originalExperiment": "estimator-initial",
+      "absoluteDifference": {
+        "rmse": 0.0
+      },
+      "passed": true
+    },
+    {
+      "mode": "sector",
+      "scene": "gi-emitter-corner",
+      "variant": "dense-radius32",
+      "originalExperiment": "solid-angle",
+      "absoluteDifference": {
+        "rmse": 0.0,
+        "receiver": 0.0
+      },
+      "passed": true
+    }
+  ],
+  "renders": {
+    "native": [
+      {
+        "scene": "gi-emitter-corner",
+        "shader": "baseline",
+        "name": "baseline",
+        "frames": 128,
+        "milliseconds": 3946.55575,
+        "psnr": 24.182583793892356,
+        "rmse": 0.06178325859770745,
+        "mae": 0.03541976821592835,
+        "maxError": 0.3058823529411765,
+        "patch": {
+          "left": 232,
+          "top": 227,
+          "width": 16,
+          "height": 16
+        },
+        "receiver": 0.02150323553977111,
+        "referenceReceiver": 0.03875404510847663,
+        "receiverRatio": 0.5548642852528375,
+        "analyticLambertPoint": 0.03349009931713049,
+        "analyticPointRatio": 0.6420773893845101,
+        "emitterProjectedCorners": [
+          [132.98477229000508, 180],
+          [347.0152277099949, 180],
+          [115.8623358564059, 41.689286858076066],
+          [364.1376641435941, 41.689286858076066]
+        ]
+      },
+      {
+        "scene": "gi-emitter-corner",
+        "shader": "baseline",
+        "name": "dense-radius32-thickness4",
+        "ssgi": {
+          "sliceCount": 8,
+          "stepCount": 32,
+          "radius": 32,
+          "thickness": 4
+        },
+        "frames": 128,
+        "milliseconds": 4302.340084,
+        "psnr": 35.41186879065799,
+        "rmse": 0.016959246806112105,
+        "mae": 0.008853304284676834,
+        "maxError": 0.3058823529411765,
+        "patch": {
+          "left": 232,
+          "top": 227,
+          "width": 16,
+          "height": 16
+        },
+        "receiver": 0.03208315843392889,
+        "referenceReceiver": 0.03875404510847663,
+        "receiverRatio": 0.8278660548627833,
+        "analyticLambertPoint": 0.03349009931713049,
+        "analyticPointRatio": 0.9579893487362119,
+        "emitterProjectedCorners": [
+          [132.98477229000508, 180],
+          [347.0152277099949, 180],
+          [115.8623358564059, 41.689286858076066],
+          [364.1376641435941, 41.689286858076066]
+        ]
+      },
+      {
+        "scene": "gi-room-open-high-albedo",
+        "shader": "baseline",
+        "name": "baseline",
+        "frames": 128,
+        "milliseconds": 1515.3892919999998,
+        "psnr": 29.85146603017401,
+        "rmse": 0.03216819542545021,
+        "mae": 0.02885729091019124,
+        "maxError": 0.08235294117647059,
+        "patch": {
+          "left": 232,
+          "top": 171,
+          "width": 16,
+          "height": 16
+        },
+        "receiver": 0.12710369571967178,
+        "referenceReceiver": 0.1322952580028514,
+        "receiverRatio": 0.9607577598656807
+      },
+      {
+        "scene": "gi-room-open-high-albedo",
+        "shader": "baseline",
+        "name": "dense-radius32-thickness4",
+        "ssgi": {
+          "sliceCount": 8,
+          "stepCount": 32,
+          "radius": 32,
+          "thickness": 4
+        },
+        "frames": 128,
+        "milliseconds": 3478.833208,
+        "psnr": 34.44190958477791,
+        "rmse": 0.018962889780081538,
+        "mae": 0.014907036734446866,
+        "maxError": 0.0784313725490196,
+        "patch": {
+          "left": 232,
+          "top": 171,
+          "width": 16,
+          "height": 16
+        },
+        "receiver": 0.13469978083399908,
+        "referenceReceiver": 0.1322952580028514,
+        "receiverRatio": 1.0181754272031114
+      },
+      {
+        "scene": "ssgi-animated",
+        "shader": "baseline",
+        "name": "baseline",
+        "frames": 128,
+        "milliseconds": 3328.6190000000006,
+        "psnr": 16.144699422715174,
+        "rmse": 0.15587089491466508,
+        "mae": 0.13335967286220043,
+        "maxError": 0.7215686274509804
+      },
+      {
+        "scene": "ssgi-animated",
+        "shader": "baseline",
+        "name": "dense-radius32-thickness4",
+        "ssgi": {
+          "sliceCount": 8,
+          "stepCount": 32,
+          "radius": 32,
+          "thickness": 4
+        },
+        "frames": 128,
+        "milliseconds": 35821.193625,
+        "psnr": 26.14111437161581,
+        "rmse": 0.04931105354057606,
+        "mae": 0.03942241115196078,
+        "maxError": 0.6274509803921569
+      }
+    ],
+    "legacy": [
+      {
+        "scene": "gi-emitter-corner",
+        "shader": "legacy",
+        "name": "baseline",
+        "frames": 128,
+        "milliseconds": 11633.012292,
+        "psnr": 23.066052565572623,
+        "rmse": 0.07025825705083043,
+        "mae": 0.04239491799806342,
+        "maxError": 0.3058823529411765,
+        "patch": {
+          "left": 232,
+          "top": 227,
+          "width": 16,
+          "height": 16
+        },
+        "receiver": 0.012563973281619732,
+        "referenceReceiver": 0.03875404510847663,
+        "receiverRatio": 0.32419772559101523,
+        "analyticLambertPoint": 0.03349009931713049,
+        "analyticPointRatio": 0.3751548528610408,
+        "emitterProjectedCorners": [
+          [132.98477229000508, 180],
+          [347.0152277099949, 180],
+          [115.8623358564059, 41.689286858076066],
+          [364.1376641435941, 41.689286858076066]
+        ]
+      },
+      {
+        "scene": "gi-emitter-corner",
+        "shader": "legacy",
+        "name": "dense-radius32-thickness4",
+        "ssgi": {
+          "sliceCount": 8,
+          "stepCount": 32,
+          "radius": 32,
+          "thickness": 4
+        },
+        "frames": 128,
+        "milliseconds": 8813.4195,
+        "psnr": 27.368353398322384,
+        "rmse": 0.04281365746105324,
+        "mae": 0.02518197772936335,
+        "maxError": 0.3058823529411765,
+        "patch": {
+          "left": 232,
+          "top": 227,
+          "width": 16,
+          "height": 16
+        },
+        "receiver": 0.017917803245196914,
+        "referenceReceiver": 0.03875404510847663,
+        "receiverRatio": 0.46234665813705655,
+        "analyticLambertPoint": 0.03349009931713049,
+        "analyticPointRatio": 0.5350179190430706,
+        "emitterProjectedCorners": [
+          [132.98477229000508, 180],
+          [347.0152277099949, 180],
+          [115.8623358564059, 41.689286858076066],
+          [364.1376641435941, 41.689286858076066]
+        ]
+      },
+      {
+        "scene": "ssgi-animated",
+        "shader": "legacy",
+        "name": "baseline",
+        "frames": 128,
+        "milliseconds": 19432.267374999996,
+        "psnr": 15.670372047806795,
+        "rmse": 0.16461954523625072,
+        "mae": 0.13927136948529412,
+        "maxError": 0.7215686274509804
+      },
+      {
+        "scene": "ssgi-animated",
+        "shader": "legacy",
+        "name": "dense-radius32-thickness4",
+        "ssgi": {
+          "sliceCount": 8,
+          "stepCount": 32,
+          "radius": 32,
+          "thickness": 4
+        },
+        "frames": 128,
+        "milliseconds": 23965.591625,
+        "psnr": 19.567199146251905,
+        "rmse": 0.10510903350292092,
+        "mae": 0.08759060117102396,
+        "maxError": 0.6784313725490196
+      }
+    ],
+    "sector": [
+      {
+        "scene": "gi-emitter-corner",
+        "shader": "solid-angle",
+        "name": "dense-radius32",
+        "ssgi": {
+          "sliceCount": 8,
+          "stepCount": 32,
+          "radius": 32
+        },
+        "frames": 128,
+        "milliseconds": 13629.264708000002,
+        "psnr": 33.13037137959966,
+        "rmse": 0.022053698401361555,
+        "mae": 0.012062779895908982,
+        "maxError": 0.3058823529411765,
+        "patch": {
+          "left": 232,
+          "top": 227,
+          "width": 16,
+          "height": 16
+        },
+        "receiver": 0.03260121449596696,
+        "referenceReceiver": 0.03875404510847663,
+        "receiverRatio": 0.841233848097992,
+        "analyticLambertPoint": 0.03349009931713049,
+        "analyticPointRatio": 0.9734582805280347,
+        "emitterProjectedCorners": [
+          [132.98477229000508, 180],
+          [347.0152277099949, 180],
+          [115.8623358564059, 41.689286858076066],
+          [364.1376641435941, 41.689286858076066]
+        ]
+      }
+    ]
+  }
+}

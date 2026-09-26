@@ -2,6 +2,8 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
 import { higharcScenes } from './higharc.js';
+import { giDiagnosticScenes } from './gi-diagnostics.js';
+import { visibleWallScenes } from './gi-visible-walls.js';
 import { ssgiScenes } from './ssgi.js';
 import { ssrScenes } from './ssr.js';
 import type { SceneContext, SceneDefinition } from './types.js';
@@ -10,7 +12,10 @@ export type * from './types.js';
 export { ANIMATED_POSE_TIME } from './ssgi.js';
 
 const scenes = new Map<string, SceneDefinition>(
-  [...ssgiScenes, ...ssrScenes, ...higharcScenes].map((scene) => [scene.name, scene]),
+  [...ssgiScenes, ...ssrScenes, ...higharcScenes, ...giDiagnosticScenes, ...visibleWallScenes].map((scene) => [
+    scene.name,
+    scene,
+  ]),
 );
 
 export function listSceneNames(): string[] {

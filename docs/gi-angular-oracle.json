@@ -1,0 +1,105 @@
+{
+  "description": "Continuous angular-integration oracle for gi-emitter-corner and a uniform-bright hemisphere",
+  "assumptions": [
+    "Corner geometry, camera, radiance, and receiver albedo match packages/scenes/src/gi-diagnostics.ts.",
+    "The corner wall is fully visible and the receiver is the floor origin.",
+    "The angular estimate uses the current pi²/2 gain and omits finite depth samples, bit quantization, and denoising.",
+    "Projected screen-radius circles are an idealized footprint; expFactor and sample jitter make the actual shader footprint variable.",
+    "The hemisphere oracle assumes continuous complete angular coverage, uniform slice azimuth about the view direction, and unit incident radiance."
+  ],
+  "analyticCornerIrradiance": 0.21042449996537949,
+  "corner": {
+    "grid": [800, 480],
+    "receiverPixel": [240, 235.77044884754997],
+    "numericPhysicalIrradiance": 0.21042475036189603,
+    "numericPhysicalOutgoingRadiance": 0.033490139168973844,
+    "fullWallAngularToPhysical": 0.5661355673929471,
+    "radii": [
+      {
+        "radiusPixels": 100,
+        "physicalFraction": 0.14086901485360503,
+        "angularEstimatorFraction": 0.09795511682509105
+      },
+      {
+        "radiusPixels": 120,
+        "physicalFraction": 0.303873027312654,
+        "angularEstimatorFraction": 0.19572996389678085
+      },
+      {
+        "radiusPixels": 140,
+        "physicalFraction": 0.4927836782313351,
+        "angularEstimatorFraction": 0.30152243519861993
+      },
+      {
+        "radiusPixels": 160,
+        "physicalFraction": 0.674352442427214,
+        "angularEstimatorFraction": 0.3986230011460477
+      },
+      {
+        "radiusPixels": 180,
+        "physicalFraction": 0.8339392229071191,
+        "angularEstimatorFraction": 0.48150244584312113
+      },
+      {
+        "radiusPixels": 200,
+        "physicalFraction": 0.9582473880936407,
+        "angularEstimatorFraction": 0.5449672245725791
+      },
+      {
+        "radiusPixels": 240,
+        "physicalFraction": 1,
+        "angularEstimatorFraction": 0.5661355673929471
+      }
+    ]
+  },
+  "hemisphere": {
+    "grid": [1024, 512],
+    "results": [
+      {
+        "tiltDegrees": 0,
+        "oldRatio": 1.0000015687332187,
+        "correctedRatio": 1.0000062749531575
+      },
+      {
+        "tiltDegrees": 15,
+        "oldRatio": 0.9830366336563375,
+        "correctedRatio": 1.0000028285950797
+      },
+      {
+        "tiltDegrees": 30,
+        "oldRatio": 0.9342155051013403,
+        "correctedRatio": 1.0000028016875915
+      },
+      {
+        "tiltDegrees": 45,
+        "oldRatio": 0.8598465213893451,
+        "correctedRatio": 1.0000020380401564
+      },
+      {
+        "tiltDegrees": 60,
+        "oldRatio": 0.7709821500777486,
+        "correctedRatio": 1.0000015082876466
+      },
+      {
+        "tiltDegrees": 75,
+        "oldRatio": 0.685260846419059,
+        "correctedRatio": 1.000000865792255
+      },
+      {
+        "tiltDegrees": 90,
+        "oldRatio": 0.6366217697421587,
+        "correctedRatio": 1.0000015687330874
+      }
+    ]
+  },
+  "convergence": {
+    "cornerMaxAbsoluteRatioDifference": 0.00013941713975912373,
+    "hemisphereMaxAbsoluteRatioDifference": 0.000018825190010396398
+  },
+  "checks": {
+    "analyticCornerAbsoluteError": 2.5039651654901185e-7,
+    "cornerMaxAbsoluteRatioDifference": 0.00013941713975912373,
+    "hemisphereMaxAbsoluteRatioDifference": 0.000018825190010396398,
+    "correctedHemisphereMaxError": 0.000006274953157525687
+  }
+}

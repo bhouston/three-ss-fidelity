@@ -8,7 +8,18 @@ export const REFERENCE_FILE = 'three-gpu-pathtracer.avif';
 export const TEST_FILE = 'three-ss.avif';
 export const DELTA_FILE = 'delta.avif';
 export const METRICS_FILE = 'metrics.json';
-export const RESULT_FILES = [REFERENCE_FILE, TEST_FILE, DELTA_FILE, METRICS_FILE];
+export const LEGACY_FILE = 'three-ss-legacy.avif';
+export const LEGACY_DELTA_FILE = 'delta-three-ss-legacy.avif';
+export const LEGACY_METRICS_FILE = 'metrics-three-ss-legacy.json';
+export const RESULT_FILES = [
+  REFERENCE_FILE,
+  TEST_FILE,
+  DELTA_FILE,
+  METRICS_FILE,
+  LEGACY_FILE,
+  LEGACY_DELTA_FILE,
+  LEGACY_METRICS_FILE,
+];
 
 const SCENE_NAME = /^[a-z0-9][a-z0-9._-]*$/;
 
@@ -55,13 +66,16 @@ async function imageUrl(dir: string, name: string, pass: PassName, file: string)
 }
 
 export async function readSceneResult(name: string, pass: PassName, dir = resultsDir()): Promise<SceneSummary> {
-  const [reference, test, delta, metrics] = await Promise.all([
+  const [reference, test, delta, metrics, legacy, legacyDelta, legacyMetrics] = await Promise.all([
     imageUrl(dir, name, pass, REFERENCE_FILE),
     imageUrl(dir, name, pass, TEST_FILE),
     imageUrl(dir, name, pass, DELTA_FILE),
     readMetrics(path.join(dir, name, pass, METRICS_FILE)),
+    imageUrl(dir, name, pass, LEGACY_FILE),
+    imageUrl(dir, name, pass, LEGACY_DELTA_FILE),
+    readMetrics(path.join(dir, name, pass, LEGACY_METRICS_FILE)),
   ]);
-  return { name, images: { reference, test, delta }, metrics };
+  return { name, images: { reference, test, delta, legacy, legacyDelta }, metrics, legacyMetrics };
 }
 
 export async function listResultSceneNames(dir = resultsDir()): Promise<string[]> {

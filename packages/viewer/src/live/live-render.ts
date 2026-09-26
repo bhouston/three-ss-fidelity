@@ -14,7 +14,7 @@ export interface LiveRenderOptions {
   sceneName: string;
   renderer: RendererName;
   pass: PassName;
-  /** Called after every rendered frame with the pipeline frame count (three-ss) or accumulated samples (pathtracer). */
+  /** Called after every rendered frame with the pipeline frame count (screen space) or accumulated samples (pathtracer). */
   onFrame: (frames: number) => void;
 }
 
@@ -44,9 +44,9 @@ export async function startLiveRender({
   controls.update();
   controls.addEventListener('change', () => live.setCamera(setup.camera));
 
-  // three-ss is temporal (TRAA / denoise), so it renders every frame; the pathtracer stops once converged enough.
+  // Both screen-space methods are temporal (TRAA / denoise); the pathtracer stops once converged enough.
   let frame = requestAnimationFrame(function tick() {
-    if (renderer === 'three-ss' || live.frames < MAX_PATHTRACER_SAMPLES) {
+    if (renderer !== 'three-gpu-pathtracer' || live.frames < MAX_PATHTRACER_SAMPLES) {
       live.render();
       onFrame(live.frames);
     }

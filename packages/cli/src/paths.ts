@@ -11,3 +11,15 @@ export const passDir = (sceneName: string, passName: string, root = resultsDir) 
 
 export const renderPath = (sceneName: string, passName: string, rendererName: string, root = resultsDir) =>
   path.join(passDir(sceneName, passName, root), `${rendererName}.avif`);
+
+/** Keep corrected three-ss comparison filenames stable for existing consumers. */
+export function comparisonPaths(
+  sceneName: string,
+  passName: string,
+  rendererName: 'three-ss' | 'three-ss-legacy',
+  root = resultsDir,
+) {
+  const suffix = rendererName === 'three-ss' ? '' : `-${rendererName}`;
+  const dir = passDir(sceneName, passName, root);
+  return { delta: path.join(dir, `delta${suffix}.avif`), metrics: path.join(dir, `metrics${suffix}.json`) };
+}

@@ -328,6 +328,7 @@ function createPipeline(
             temporalFilter: ssrFast.realtime === 'sssr',
             velocityNode: prePassVelocity,
             maxMarchSteps: ssrFast.maxMarchSteps ?? null,
+            hiZ: ssrFast.hiZ ?? false,
             backDepthNode: backDepth(ssrFast.backDepthResolutionScale ?? 1),
             hitMaterialNode: prePass.getTextureNode('metalRoughness'),
             hitSpecularNode: prePass.getTextureNode('specular'),

@@ -74,6 +74,7 @@ const screenSpaceOptions: Record<
       secondBounceQuality: 0.4,
       realtime: 'sssr',
       traceResolutionScale: 0.5,
+      hiZ: true,
     },
   },
   // three-new-ssgi-fast: built on three-new-ssr-fast (same ssgiWeighting/ssrMethod/ssrFast) plus SSGI-side speed

@@ -58,6 +58,8 @@ export interface SSRFastOptions {
   maxMarchSteps?: number;
   /** Resolution of the SSR trace and its filter relative to the effects' resolution (three-new-ssr uses 1). */
   traceResolutionScale?: number;
+  /** Hierarchical (Hi-Z min-depth pyramid) traversal instead of the dense march. */
+  hiZ?: boolean;
 }
 
 /**

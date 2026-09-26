@@ -16,6 +16,10 @@ import {
   hash,
   getViewPosition,
   int,
+  ivec2,
+  exp2,
+  textureLoad,
+  textureSize,
   logarithmicDepthToViewZ,
   luminance,
   max,
@@ -51,6 +55,7 @@ import {
   FloatType,
   HalfFloatType,
   LinearFilter,
+  NearestFilter,
   LinearMipmapLinearFilter,
   Matrix4,
   NodeMaterial,
@@ -58,6 +63,7 @@ import {
   PerspectiveCamera,
   QuadMesh,
   RGFormat,
+  RedFormat,
   RenderTarget,
   RendererUtils,
   Node,
@@ -83,6 +89,9 @@ const projectToUV = (world, viewProjection) => {
   const uv = clip.xy.div(clip.w).mul(0.5).add(0.5);
   return clip.w.greaterThan(0).select(vec2(uv.x, uv.y.oneMinus()), vec2(-1));
 };
+
+/** Levels of the Hi-Z min-depth pyramid (level 0 = trace resolution). */
+const HIZ_LEVELS = 7;
 
 // Maximum ray-march step count; `quality` (0..1) scales it to a fixed per-ray count.
 const MAX_STEPS = 64;
@@ -150,6 +159,7 @@ class NewSSRNode extends Node {
       temporalFilter = false,
       velocityNode = null,
       maxMarchSteps = null,
+      hiZ = false,
       // three-new-ssr-fast options (see SSRFastOptions in types.ts). Every default below reproduces
       // three-new-ssr's reference behavior exactly, so leaving them unset changes nothing.
       clipRaysToScreen = false,
@@ -594,6 +604,36 @@ class NewSSRNode extends Node {
      * @type {?number}
      */
     this._maxMarchSteps = maxMarchSteps;
+
+    /**
+     * perf(three-new-ssr-rt): hierarchical (Hi-Z) traversal instead of the dense march, radiance + stochastic mode
+     * only (compile-time constant). A min-depth pyramid of the depth buffer at the trace resolution lets the ray skip
+     * whole cells it passes in front of; at the finest level the dense march's hit test runs per texel. The pyramid
+     * ping-pongs between two mip-chained targets (even levels in one, odd in the other), since a pass cannot sample
+     * the texture it renders into.
+     *
+     * @type {boolean}
+     */
+    this._hiZ = hiZ && stochastic && outputRadiance;
+    if (this._hiZ) {
+      this._hiZTargets = [0, 1].map((i) => {
+        const t = new RenderTarget(1, 1, {
+          depthBuffer: false,
+          type: FloatType,
+          format: RedFormat,
+          minFilter: NearestFilter,
+          magFilter: NearestFilter,
+        });
+        t.texture.name = `NewSSRNode.HiZ${i}`;
+        for (let level = 0; level < HIZ_LEVELS; level++) t.texture.mipmaps.push({});
+        return t;
+      });
+      // one material per level (the source level is a constant): level 0 from the depth buffer, odd levels from
+      // target 0, even levels from target 1
+      this._hiZMaterials = Array.from({ length: HIZ_LEVELS }, () => new NodeMaterial());
+      /** Traversal iteration budget per ray. */
+      this.hiZIterations = 96;
+    }
     this.velocityNode = velocityNode;
 
     this._ssrRenderTarget = new RenderTarget(1, 1, {
@@ -919,6 +959,7 @@ class NewSSRNode extends Node {
     height = Math.round(this.resolutionScale * height);
 
     this._resolution.value.set(width, height);
+    if (this._hiZ) for (const t of this._hiZTargets) t.setSize(width, height);
     this._ssrRenderTarget.setSize(width, height);
     this._blurRenderTarget.setSize(width, height);
     if (this.accumulate) {
@@ -1026,6 +1067,16 @@ class NewSSRNode extends Node {
     renderer.setClearColor(0x000000, 0);
 
     // ssr
+
+    if (this._hiZ) {
+      for (let level = 0; level < HIZ_LEVELS; level++) {
+        _quadMesh.material = this._hiZMaterials[level];
+        renderer.setRenderTarget(this._hiZTargets[level % 2], 0, level);
+        _quadMesh.name = `SSR [ Hi-Z ${level} ]`;
+        _quadMesh.render(renderer);
+      }
+      _quadMesh.material = this._ssrMaterial;
+    }
 
     renderer.setRenderTarget(ssrRenderTarget);
     _quadMesh.name = 'SSR [ Reflections ]';
@@ -1427,7 +1478,16 @@ class NewSSRNode extends Node {
       // UV and depth (refined when `binaryRefine`). `incidentDir` is the direction the point was viewed along.
       // The parameters deliberately shadow the primary ray's names, which the march body was written against.
       // oxlint-disable-next-line no-shadow
-      const trace = (viewPosition, viewNormal, viewReflectDir, incidentDir, uvPos, jitter, qualityOverride = null) => {
+      const trace = (
+        viewPosition,
+        viewNormal,
+        viewReflectDir,
+        incidentDir,
+        uvPos,
+        jitter,
+        qualityOverride = null,
+        hiZ = this._hiZ,
+      ) => {
         // perf(three-new-ssr-fast): the second bounce can march at a different (lower) step density than
         // the primary ray via `qualityOverride` (SSRFastOptions.secondBounceQuality); `null` uses `quality`.
         const marchQuality = qualityOverride === null ? this.quality.clamp() : float(qualityOverride).clamp();
@@ -1529,104 +1589,184 @@ class NewSSRNode extends Node {
         const hitUvS = vec2(0).toVar();
         const hitD = float(0).toVar();
 
-        // March from d0 toward d1 (inclusive), looking for an intersection with the depth buffer.
-        Loop({ start: int(1), end: totalStep, condition: '<=' }, ({ i }) => {
-          // Exponentially-distributed ray parameter, shared by the sample position and ray depth.
-          // The jitter can push the last step past d1, so clamp it to the ray's end.
-          const s = sampleFraction(float(i)).min(1).toVar();
-
-          const xy = screenPosAt(s).toVar();
-
-          If(
-            this._clipRaysToScreen
-              ? s.greaterThan(sExit)
-              : xy.x
-                  .lessThan(0)
-                  .or(xy.x.greaterThan(this._resolution.x))
-                  .or(xy.y.lessThan(0))
-                  .or(xy.y.greaterThan(this._resolution.y)),
-            () => {
-              Break();
-            },
-          );
-
-          const uvS = xy.mul(invResolution).toVar();
-          const d = sampleDepth(uvS).toVar();
-          const vZ = getViewZ(d).toVar();
-
-          const viewReflectRayZ = reflectRayZAt(s).toVar();
-
-          If(viewReflectRayZ.lessThanEqual(vZ), () => {
-            // Depth crossing: ray went behind the depth buffer. Gate by thickness before stopping
-            // so an occluder gap doesn't end the march prematurely.
-            const vP = getViewPosition(uvS, d, this._cameraProjectionMatrixInverse).toVar();
-            const away = pointToLineDistance(vP, rayOrigin, d1viewPosition).toVar();
-
-            const uvNeighbor = uvS.add(uvPixelStepX).toVar();
-            const vPNeighbor = getViewPosition(uvNeighbor, d, this._cameraProjectionMatrixInverse).toVar();
-            const minThickness = vPNeighbor.x.sub(vP.x).mul(3).toVar();
-            // Depth-proportional thickness (McGuire & Mara / Unreal HZB SSR): a surface farther from the
-            // camera is assumed thicker in world units for the same screen footprint, so solid occluders
-            // (the camera body, a box hiding another box) don't get leaked through as the ray recedes.
-            const depthProportionalThickness = abs(vZ).mul(0.02).toVar();
-            const tk = max(minThickness, max(this.thickness, depthProportionalThickness)).toVar();
-
-            // Dual-layer depth: inside the solid (behind its front surface, in front of its back surface).
-            const insideSolid =
-              this.backDepthNode !== null
-                ? viewReflectRayZ.greaterThanEqual(getViewZ(this.backDepthNode.sample(uvS).r).sub(tk))
-                : bool(false);
-
-            If(away.lessThanEqual(tk).or(insideSolid), () => {
-              // Background (cleared far-plane depth) is not geometry: a ray running past the far plane must not
-              // "hit" the screen-space backdrop, it continues and falls back to the environment.
-              If(d.greaterThanEqual(1.0), () => {
-                Continue();
-              });
-
-              const vN = this.normalNode.sample(uvS).rgb.normalize().toVar();
-
-              // the reflected ray is pointing towards the same side as the fragment's normal (current ray position),
-              // which means it wouldn't reflect off the surface. The loop continues to the next step for the next ray sample.
-              // Radiance mode keeps such hits: the ray is inside a solid whose (hidden) back side it would hit, and the
-              // visible side's radiance is a better proxy than continuing past the solid to the environment (a mirror
-              // facing the camera shows the far sides of the objects in front of it).
-              if (this.stochastic === false && !this.outputRadiance) {
-                If(dot(viewReflectDir, vN).greaterThanEqual(0), () => {
-                  Continue();
-                });
-              }
-
-              if (this.stochastic === false) {
-                // Distance exceeding limit: The reflection is potentially too far away and might not
-                // contribute significantly to the final color. In radiance mode there is no artistic
-                // cutoff to honor (maxDistance there is only a ray-length budget, not a hit-rejection
-                // radius): the ray already stops at the frustum/near-plane bound computed above, so a
-                // real hit here should always be shaded rather than dropped back to the environment.
-                if (!this.outputRadiance) {
-                  // this distance represents the depth of the intersection point between the reflected ray and the scene.
-                  const distance = pointPlaneDistance(vP, viewPosition, viewNormal).toVar();
-
-                  If(distance.greaterThan(this.maxDistance), () => {
-                    Break();
-                  });
-                }
-              }
-
-              foundHit.assign(true);
-              hitInside.assign(away.greaterThan(tk));
-              hitUvS.assign(uvS);
-              hitD.assign(d);
-
-              if (this.binaryRefine) {
-                hitSLo.assign(sampleFraction(float(i).sub(1)));
-                hitSHi.assign(s);
-              }
-
+        if (hiZ) {
+          // Hi-Z traversal: at each step the ray's current cell at `level`; if the ray stays in front of the nearest
+          // surface in the cell over the whole cell, skip it and go one level coarser, otherwise go one level finer.
+          // At level 0 (one trace texel) run the dense march's hit test at the texel's exit.
+          const dir = vec2(xLen, yLen);
+          const level = int(0).toVar();
+          // start where the dense march takes its first sample (jittered, ~1/quality texels out): testing every texel
+          // from the origin re-hits curved surfaces' own neighbouring texels
+          const sCur = jitter.add(0.5).div(rayLen.mul(marchQuality)).toVar();
+          const epsilon = float(0.01).div(rayLen);
+          Loop({ start: int(0), end: int(this.hiZIterations), condition: '<' }, () => {
+            If(sCur.greaterThanEqual(1).or(this._clipRaysToScreen ? sCur.greaterThan(sExit) : bool(false)), () => {
               Break();
             });
+            const pos = d0.add(dir.mul(sCur)).toVar();
+            const cellSize = exp2(float(level)).toVar();
+            const cell = pos.div(cellSize).floor().toVar();
+            const boundary = vec2(
+              xLen.greaterThan(0).select(cell.x.add(1), cell.x),
+              yLen.greaterThan(0).select(cell.y.add(1), cell.y),
+            ).mul(cellSize);
+            const sx = abs(xLen).greaterThan(1e-5).select(boundary.x.sub(d0.x).div(xLen), float(1e9));
+            const sy = abs(yLen).greaterThan(1e-5).select(boundary.y.sub(d0.y).div(yLen), float(1e9));
+            const sNext = min(sx, sy).add(epsilon).toVar();
+            // mip sizes round down: a cell past the last full one isn't in the pyramid, so it is never skipped
+            const levelSize = this._resolution.div(cellSize).floor().max(1);
+            const covered = cell.x.lessThan(levelSize.x).and(cell.y.lessThan(levelSize.y));
+            const coord = ivec2(cell.clamp(vec2(0), levelSize.sub(1)));
+            const nearest = float(0).toVar();
+            If(covered.not(), () => {
+              nearest.assign(0);
+            })
+              .ElseIf(level.bitAnd(1).equal(0), () => {
+                nearest.assign(textureLoad(this._hiZTargets[0].texture, coord, level).r);
+              })
+              .Else(() => {
+                nearest.assign(textureLoad(this._hiZTargets[1].texture, coord, level).r);
+              });
+            const nearestZ = getViewZ(nearest);
+            const inFront = min(reflectRayZAt(sCur), reflectRayZAt(sNext.min(1))).greaterThan(nearestZ);
+            If(inFront, () => {
+              sCur.assign(sNext);
+              level.assign(level.add(1).min(HIZ_LEVELS - 1));
+            })
+              .ElseIf(level.greaterThan(0), () => {
+                level.subAssign(1);
+              })
+              .Else(() => {
+                // the dense march's crossing test at the middle of the ray's span inside this texel (depth and ray
+                // depth at the same point; the texel's far end would sample the next texel)
+                const sTest = sCur.add(sNext.min(1)).mul(0.5).toVar();
+                const uvS = screenPosAt(sTest).mul(invResolution).toVar();
+                const d = sampleDepth(uvS).toVar();
+                const vZ = getViewZ(d).toVar();
+                const viewReflectRayZ = reflectRayZAt(sTest).toVar();
+                If(viewReflectRayZ.lessThanEqual(vZ).and(d.lessThan(1.0)), () => {
+                  // the dense march's acceptance (radiance mode): within the thickness, or inside the solid
+                  const vP = getViewPosition(uvS, d, this._cameraProjectionMatrixInverse).toVar();
+                  const away = pointToLineDistance(vP, rayOrigin, d1viewPosition).toVar();
+                  const vPNeighbor = getViewPosition(uvS.add(uvPixelStepX), d, this._cameraProjectionMatrixInverse);
+                  const tk = max(vPNeighbor.x.sub(vP.x).mul(3), max(this.thickness, abs(vZ).mul(0.02))).toVar();
+                  const insideSolid =
+                    this.backDepthNode !== null
+                      ? viewReflectRayZ.greaterThanEqual(getViewZ(this.backDepthNode.sample(uvS).r).sub(tk))
+                      : bool(false);
+                  If(away.lessThanEqual(tk).or(insideSolid), () => {
+                    foundHit.assign(true);
+                    hitInside.assign(away.greaterThan(tk));
+                    hitUvS.assign(uvS);
+                    hitD.assign(d);
+                    hitSLo.assign(sCur);
+                    hitSHi.assign(sTest);
+                    Break();
+                  });
+                });
+                sCur.assign(sNext);
+              });
           });
-        });
+        } else {
+          // March from d0 toward d1 (inclusive), looking for an intersection with the depth buffer.
+          Loop({ start: int(1), end: totalStep, condition: '<=' }, ({ i }) => {
+            // Exponentially-distributed ray parameter, shared by the sample position and ray depth.
+            // The jitter can push the last step past d1, so clamp it to the ray's end.
+            const s = sampleFraction(float(i)).min(1).toVar();
+
+            const xy = screenPosAt(s).toVar();
+
+            If(
+              this._clipRaysToScreen
+                ? s.greaterThan(sExit)
+                : xy.x
+                    .lessThan(0)
+                    .or(xy.x.greaterThan(this._resolution.x))
+                    .or(xy.y.lessThan(0))
+                    .or(xy.y.greaterThan(this._resolution.y)),
+              () => {
+                Break();
+              },
+            );
+
+            const uvS = xy.mul(invResolution).toVar();
+            const d = sampleDepth(uvS).toVar();
+            const vZ = getViewZ(d).toVar();
+
+            const viewReflectRayZ = reflectRayZAt(s).toVar();
+
+            If(viewReflectRayZ.lessThanEqual(vZ), () => {
+              // Depth crossing: ray went behind the depth buffer. Gate by thickness before stopping
+              // so an occluder gap doesn't end the march prematurely.
+              const vP = getViewPosition(uvS, d, this._cameraProjectionMatrixInverse).toVar();
+              const away = pointToLineDistance(vP, rayOrigin, d1viewPosition).toVar();
+
+              const uvNeighbor = uvS.add(uvPixelStepX).toVar();
+              const vPNeighbor = getViewPosition(uvNeighbor, d, this._cameraProjectionMatrixInverse).toVar();
+              const minThickness = vPNeighbor.x.sub(vP.x).mul(3).toVar();
+              // Depth-proportional thickness (McGuire & Mara / Unreal HZB SSR): a surface farther from the
+              // camera is assumed thicker in world units for the same screen footprint, so solid occluders
+              // (the camera body, a box hiding another box) don't get leaked through as the ray recedes.
+              const depthProportionalThickness = abs(vZ).mul(0.02).toVar();
+              const tk = max(minThickness, max(this.thickness, depthProportionalThickness)).toVar();
+
+              // Dual-layer depth: inside the solid (behind its front surface, in front of its back surface).
+              const insideSolid =
+                this.backDepthNode !== null
+                  ? viewReflectRayZ.greaterThanEqual(getViewZ(this.backDepthNode.sample(uvS).r).sub(tk))
+                  : bool(false);
+
+              If(away.lessThanEqual(tk).or(insideSolid), () => {
+                // Background (cleared far-plane depth) is not geometry: a ray running past the far plane must not
+                // "hit" the screen-space backdrop, it continues and falls back to the environment.
+                If(d.greaterThanEqual(1.0), () => {
+                  Continue();
+                });
+
+                const vN = this.normalNode.sample(uvS).rgb.normalize().toVar();
+
+                // the reflected ray is pointing towards the same side as the fragment's normal (current ray position),
+                // which means it wouldn't reflect off the surface. The loop continues to the next step for the next ray sample.
+                // Radiance mode keeps such hits: the ray is inside a solid whose (hidden) back side it would hit, and the
+                // visible side's radiance is a better proxy than continuing past the solid to the environment (a mirror
+                // facing the camera shows the far sides of the objects in front of it).
+                if (this.stochastic === false && !this.outputRadiance) {
+                  If(dot(viewReflectDir, vN).greaterThanEqual(0), () => {
+                    Continue();
+                  });
+                }
+
+                if (this.stochastic === false) {
+                  // Distance exceeding limit: The reflection is potentially too far away and might not
+                  // contribute significantly to the final color. In radiance mode there is no artistic
+                  // cutoff to honor (maxDistance there is only a ray-length budget, not a hit-rejection
+                  // radius): the ray already stops at the frustum/near-plane bound computed above, so a
+                  // real hit here should always be shaded rather than dropped back to the environment.
+                  if (!this.outputRadiance) {
+                    // this distance represents the depth of the intersection point between the reflected ray and the scene.
+                    const distance = pointPlaneDistance(vP, viewPosition, viewNormal).toVar();
+
+                    If(distance.greaterThan(this.maxDistance), () => {
+                      Break();
+                    });
+                  }
+                }
+
+                foundHit.assign(true);
+                hitInside.assign(away.greaterThan(tk));
+                hitUvS.assign(uvS);
+                hitD.assign(d);
+
+                if (this.binaryRefine) {
+                  hitSLo.assign(sampleFraction(float(i).sub(1)));
+                  hitSHi.assign(s);
+                }
+
+                Break();
+              });
+            });
+          });
+        }
 
         If(foundHit, () => {
           // Bisect the bracketed crossing toward the exact intersection. Run after the march, not
@@ -1801,6 +1941,42 @@ class NewSSRNode extends Node {
     }
 
     if (this.temporalFilter) this._setupTemporalFilter(uvNode, sampleDepth);
+
+    if (this._hiZ) {
+      // level 0: the nearest of the depth samples covering the trace texel (2x2 at half resolution)
+      const quarter = vec2(0.25).div(this._resolution);
+      this._hiZMaterials[0].fragmentNode = vec4(
+        min(
+          min(sampleDepth(uvNode.add(quarter.mul(vec2(-1, -1)))), sampleDepth(uvNode.add(quarter.mul(vec2(1, -1))))),
+          min(sampleDepth(uvNode.add(quarter.mul(vec2(-1, 1)))), sampleDepth(uvNode.add(quarter))),
+        ),
+      );
+      // level L: the nearest of the 2x2 texels of level L - 1, plus the leftover row/column of an odd-sized source
+      // (a 3x3 footprint, clamped), so every source texel is covered
+      const downsample = (source, sourceLevel) =>
+        Fn(() => {
+          const sourceSize = ivec2(textureSize(textureLoad(source), int(sourceLevel)));
+          const size = sourceSize.div(2).max(1);
+          const base = ivec2(uvNode.mul(vec2(size)).floor()).mul(2);
+          const last = sourceSize.sub(1);
+          const tap = (x, y) => textureLoad(source, base.add(ivec2(x, y)).min(last), int(sourceLevel)).r;
+          const nearest = min(min(tap(0, 0), tap(1, 0)), min(tap(0, 1), tap(1, 1))).toVar();
+          for (const [x, y] of [
+            [2, 0],
+            [2, 1],
+            [2, 2],
+            [0, 2],
+            [1, 2],
+          ]) {
+            nearest.assign(min(nearest, tap(x, y)));
+          }
+          return vec4(nearest);
+        })();
+      for (let level = 1; level < HIZ_LEVELS; level++) {
+        this._hiZMaterials[level].fragmentNode = downsample(this._hiZTargets[(level - 1) % 2].texture, level - 1);
+      }
+      for (const m of this._hiZMaterials) m.needsUpdate = true;
+    }
 
     //
 
@@ -2053,6 +2229,10 @@ class NewSSRNode extends Node {
       this._resolveMaterial.dispose();
     }
     this._copyMaterial.dispose();
+    if (this._hiZ) {
+      for (const t of this._hiZTargets) t.dispose();
+      for (const m of this._hiZMaterials) m.dispose();
+    }
     if (this.temporalFilter) {
       for (const t of [this._spatialTarget, this._temporalTarget, this._historyTarget, this._geometryTarget]) {
         t.dispose();

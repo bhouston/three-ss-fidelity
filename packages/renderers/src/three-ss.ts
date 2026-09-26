@@ -18,6 +18,7 @@ import {
   perspectiveDepthToViewZ,
   reference,
   roughness,
+  rtt,
   sample,
   screenUV,
   smoothstep,
@@ -138,7 +139,9 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: b
 
   let giPass: AnyNode = null;
   if (effects.ssgi) {
-    giPass = ssgi(previousRadiance, prePassDepth, sceneNormal, camera);
+    // SSGI samples the radiance ~32 times per pixel; reprojecting it once into a texture replaces each sample's
+    // dependent velocity + previous-frame fetch pair with a single fetch
+    giPass = ssgi(rtt(previousRadiance.sample(screenUV)), prePassDepth, sceneNormal, camera);
     giPass.sliceCount.value = effects.ssgi.sliceCount;
     giPass.stepCount.value = effects.ssgi.stepCount;
     giPass.giIntensity.value = effects.ssgi.giIntensity;

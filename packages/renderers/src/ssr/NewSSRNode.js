@@ -132,7 +132,39 @@ class NewSSRNode extends Node {
       backDepthNode = null,
       hitMaterialNode = null,
       hitSpecularNode = null,
+      // three-new-ssr-fast options (see SSRFastOptions in types.ts). Every default below reproduces
+      // three-new-ssr's reference behavior exactly, so leaving them unset changes nothing.
+      clipRaysToScreen = false,
+      binaryRefineSteps = 8,
+      secondBounceRoughnessCutoff = null,
     } = options;
+
+    /**
+     * perf(three-new-ssr-fast): precompute the ray parameter where the march leaves the screen once per
+     * ray, so the per-step bounds test is a single comparison instead of four. Bit-identical output
+     * (same exit point, only the arithmetic differs). Compile-time constant.
+     *
+     * @type {boolean}
+     */
+    this._clipRaysToScreen = clipRaysToScreen;
+
+    /**
+     * perf(three-new-ssr-fast): bisection steps for binary-refinement hit refinement (three-new-ssr
+     * always uses 8). Fewer steps trade contact precision for speed. Compile-time constant.
+     *
+     * @type {number}
+     */
+    this._binaryRefineSteps = binaryRefineSteps;
+
+    /**
+     * perf(three-new-ssr-fast): when set, the second (hit-specular) screen-space bounce skips its march
+     * and reads the prefiltered environment directly for hits whose roughness is at or above this value
+     * (a wide GGX lobe on a rough hit is already poorly approximated by one screen-space sample, so the
+     * march's cost there buys little). `null` (three-new-ssr) always traces. Compile-time constant.
+     *
+     * @type {?number}
+     */
+    this._secondBounceRoughnessCutoff = secondBounceRoughnessCutoff;
 
     /**
      * Pre-pass G-buffer of each pixel's specular material (see `hitMaterialNode` / `hitSpecularNode`).
@@ -1200,10 +1232,7 @@ class NewSSRNode extends Node {
         const secondary = ggxReflectionSample(Nb, Vray, hitRoughness, float(1), hitSpecular.rgb, Xi2).toVar();
         const dir2 = secondary.get('reflectDir').toVar();
         const L2 = vec3(0).toVar();
-        const second = trace(vPHit, Nb, dir2, viewReflectDir, uvHit, Xi2.z);
-        If(second.foundHit, () => {
-          L2.assign(this.colorNode.sample(second.hitUvS).rgb);
-        }).Else(() => {
+        const sampleEnvForDir2 = () => {
           if (this.environmentNode !== null) {
             L2.assign(
               pmremTexture(this.environmentNode, this._cameraWorldMatrix.mul(vec4(dir2, 0)).xyz, float(0)).mul(
@@ -1211,6 +1240,23 @@ class NewSSRNode extends Node {
               ),
             );
           }
+        };
+        // perf(three-new-ssr-fast): for a hit rough enough that a single screen-space sample is already a
+        // poor stand-in for its wide GGX lobe, skip the second bounce's march entirely and read the
+        // prefiltered environment for the sampled direction instead (three-new-ssr always marches).
+        const skipSecondMarch =
+          this._secondBounceRoughnessCutoff !== null
+            ? hitRoughness.greaterThanEqual(this._secondBounceRoughnessCutoff)
+            : bool(false);
+        If(skipSecondMarch, () => {
+          sampleEnvForDir2();
+        }).Else(() => {
+          const second = trace(vPHit, Nb, dir2, viewReflectDir, uvHit, Xi2.z);
+          If(second.foundHit, () => {
+            L2.assign(this.colorNode.sample(second.hitUvS).rgb);
+          }).Else(() => {
+            sampleEnvForDir2();
+          });
         });
         const corrected = color
           .sub(radianceCam.mul(fss(NdotVcam)))
@@ -1274,6 +1320,17 @@ class NewSSRNode extends Node {
         const invResolution = vec2(float(1), float(1)).div(this._resolution).toVar();
         const uvPixelStepX = vec2(invResolution.x, float(0)).toVar();
 
+        // perf(three-new-ssr-fast): the ray parameter where the march leaves the screen, computed once so
+        // the per-step bounds test is a single comparison against it instead of four comparisons against
+        // the screen edges. Same exit point as the per-step test, so the output is unchanged.
+        const sExit = this._clipRaysToScreen
+          ? (() => {
+              const exitS = (p, len, bound) =>
+                len.equal(0).select(float(1e9), len.greaterThan(0).select(bound.sub(p), p.negate()).div(len));
+              return min(exitS(d0.x, xLen, this._resolution.x), exitS(d0.y, yLen, this._resolution.y)).toConst();
+            })()
+          : null;
+
         // Reflected-ray view-space Z at ray parameter s ∈ [0,1] (linear in 1/z for perspective),
         // hoisted so the march and refinement evaluate it identically.
         const recipVPZ = float(1).div(rayOrigin.z).toConst();
@@ -1313,11 +1370,13 @@ class NewSSRNode extends Node {
           const xy = screenPosAt(s).toVar();
 
           If(
-            xy.x
-              .lessThan(0)
-              .or(xy.x.greaterThan(this._resolution.x))
-              .or(xy.y.lessThan(0))
-              .or(xy.y.greaterThan(this._resolution.y)),
+            this._clipRaysToScreen
+              ? s.greaterThan(sExit)
+              : xy.x
+                  .lessThan(0)
+                  .or(xy.x.greaterThan(this._resolution.x))
+                  .or(xy.y.lessThan(0))
+                  .or(xy.y.greaterThan(this._resolution.y)),
             () => {
               Break();
             },
@@ -1405,7 +1464,7 @@ class NewSSRNode extends Node {
           // Bisect the bracketed crossing toward the exact intersection. Run after the march, not
           // nested (a loop-inside-a-loop tripped shader-compiler bugs on some drivers).
           if (this.binaryRefine) {
-            Loop({ start: int(0), end: int(8), type: 'int', condition: '<' }, () => {
+            Loop({ start: int(0), end: int(this._binaryRefineSteps), type: 'int', condition: '<' }, () => {
               const sMid = hitSLo.add(hitSHi).mul(0.5).toVar();
               const sceneZMid = getViewZ(sampleDepth(screenPosAt(sMid).mul(invResolution)));
 

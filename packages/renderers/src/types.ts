@@ -1,7 +1,13 @@
 import type { PerspectiveCamera, WebGLRenderer } from 'three';
 import type { WebGPURenderer } from 'three/webgpu';
 
-export const rendererNames = ['three-new-ssgi', 'three-ss-legacy', 'three-new-ssr', 'three-gpu-pathtracer'] as const;
+export const rendererNames = [
+  'three-new-ssgi',
+  'three-ss-legacy',
+  'three-new-ssr',
+  'three-new-ssr-fast',
+  'three-gpu-pathtracer',
+] as const;
 export type RendererName = (typeof rendererNames)[number];
 
 /** What is rendered: render settings applied to every scene (not scene settings). */
@@ -13,6 +19,28 @@ export type SSGIWeighting = 'solid-angle' | 'legacy';
 /** Which SSR node implementation the pipeline uses: the three.js fork's or the vendored copy in src/ssr. */
 export type SSRMethod = 'fork' | 'new';
 
+/**
+ * `three-new-ssr-fast` speed options for the `three-new-ssr` (`ssrMethod: 'new'`) pipeline. Every field
+ * defaults to reproducing `three-new-ssr`'s exact reference behavior; each is a separate, togglable
+ * optimization measured and logged in SSR_IMPROVEMENTS.md.
+ */
+export interface SSRFastOptions {
+  /**
+   * perf(three-new-ssr-fast): precompute the ray parameter where the march leaves the screen once per
+   * ray instead of testing all four screen edges every step. Bit-identical output.
+   */
+  clipRaysToScreen?: boolean;
+  /** Binary-refinement bisection steps after a coarse hit (three-new-ssr always uses 8). */
+  binaryRefineSteps?: number;
+  /**
+   * Skip the second (hit-specular) bounce's march for hits at or above this roughness, reading the
+   * prefiltered environment for the sampled direction instead. `undefined` (three-new-ssr) always marches.
+   */
+  secondBounceRoughnessCutoff?: number;
+  /** Minimum accumulated pipeline frames (three-new-ssr uses 256). */
+  accumFrames?: number;
+}
+
 export interface RendererOptions {
   width: number;
   height: number;
@@ -20,6 +48,8 @@ export interface RendererOptions {
   ssgiWeighting?: SSGIWeighting;
   /** SSR node implementation for direct createSSGIRenderer callers; the registry selects it by name. */
   ssrMethod?: SSRMethod;
+  /** three-new-ssr-fast speed options for direct createSSGIRenderer callers; the registry selects it by name. */
+  ssrFast?: SSRFastOptions;
   /** Diagnostic GI reconstruction in three-new-ssgi beauty passes; defaults to the existing denoised pipeline. */
   ssgiReconstruction?: 'raw' | 'temporal' | 'denoised';
   /**

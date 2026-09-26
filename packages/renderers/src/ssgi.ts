@@ -40,7 +40,7 @@ import { previousFrameGeometry, temporalReproject } from 'three/addons/tsl/displ
 import { traa } from 'three/addons/tsl/display/TRAANode.js';
 import { newSSR } from './ssr/NewSSRNode.js';
 import type { SceneEffects, SceneSetup } from '@ss-fidelity/scenes';
-import type { LiveRenderer, PassName, RendererOptions } from './types.js';
+import type { LiveRenderer, PassName, RendererOptions, SSRFastOptions } from './types.js';
 
 /** SSGINode's AO frames: the temporal denoiser converges at ~64 (see PLAN.md). */
 const AO_FRAMES = 128;
@@ -91,6 +91,7 @@ function createPipeline(
   ssgiReconstruction: NonNullable<RendererOptions['ssgiReconstruction']>,
   ssgiWeighting: NonNullable<RendererOptions['ssgiWeighting']>,
   ssrMethod: NonNullable<RendererOptions['ssrMethod']>,
+  ssrFast: SSRFastOptions,
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const tsl = {
@@ -205,6 +206,11 @@ function createPipeline(
             backDepthNode: backDepth(),
             hitMaterialNode: prePass.getTextureNode('metalRoughness'),
             hitSpecularNode: prePass.getTextureNode('specular'),
+            // three-new-ssr-fast: each of these defaults to three-new-ssr's exact behavior (see
+            // SSRFastOptions); the options table in index.ts is what actually turns one on.
+            clipRaysToScreen: ssrFast.clipRaysToScreen ?? false,
+            binaryRefineSteps: ssrFast.binaryRefineSteps ?? 8,
+            secondBounceRoughnessCutoff: ssrFast.secondBounceRoughnessCutoff ?? null,
           }
         : {}),
     });
@@ -318,6 +324,7 @@ export async function createSSGIRenderer(
     ssgiReconstruction = 'denoised',
     ssgiWeighting = 'solid-angle',
     ssrMethod = 'fork',
+    ssrFast,
   }: RendererOptions,
 ): Promise<LiveRenderer> {
   const setup = { ...sceneSetup, effects: passEffects(sceneSetup, renderPass) };
@@ -346,14 +353,24 @@ export async function createSSGIRenderer(
     ssgiReconstruction,
     ssgiWeighting,
     ssrMethod,
+    ssrFast ?? {},
   );
   let frames = 0;
   // three-new-ssr accumulates stochastic reflections over at least ACCUM_FRAMES pipeline frames per output frame
-  // budget: each render() runs several pipeline frames (scenes without SSR are left unchanged)
-  const subFrames = ssrMethod === 'new' && effects.ssr ? Math.max(1, Math.ceil(SSR_ACCUM_FRAMES / effects.frames)) : 1;
+  // budget: each render() runs several pipeline frames (scenes without SSR are left unchanged). three-new-ssr-fast
+  // can lower this budget via ssrFast.accumFrames (time-to-image: fewer frames at the same per-frame cost).
+  const accumFrames = ssrFast?.accumFrames ?? SSR_ACCUM_FRAMES;
+  const subFrames = ssrMethod === 'new' && effects.ssr ? Math.max(1, Math.ceil(accumFrames / effects.frames)) : 1;
 
   const handle: LiveRenderer = {
-    name: ssgiWeighting === 'legacy' ? 'three-ss-legacy' : ssrMethod === 'new' ? 'three-new-ssr' : 'three-new-ssgi',
+    name:
+      ssgiWeighting === 'legacy'
+        ? 'three-ss-legacy'
+        : ssrMethod === 'new'
+          ? ssrFast !== undefined
+            ? 'three-new-ssr-fast'
+            : 'three-new-ssr'
+          : 'three-new-ssgi',
     renderer,
     get frames() {
       return frames;

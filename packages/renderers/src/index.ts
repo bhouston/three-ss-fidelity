@@ -30,6 +30,14 @@ const screenSpaceOptions: Record<
       // Round 1: precompute the screen-exit ray parameter once per ray instead of a 4-comparison bounds
       // test every march step. Bit-identical output.
       clipRaysToScreen: true,
+      // Round 2 (tried, reverted): fewer binary-refinement steps (4, then 2) barely cleared the ~3%
+      // bench noise floor (mean speedup ~1.01x) and 2 steps pushed ssr-diag-metal-hit's RMSE regression
+      // to +5.7% (over the ~3% worst-scene budget). The dense 1px march dominates cost far more than its
+      // 8-step bisection, so this candidate isn't worth the risk; left at three-new-ssr's default (8).
+      // Round 2: skip the second (hit-specular) bounce's march for hits at or above this roughness,
+      // reading the prefiltered environment for the sampled direction instead. A rough hit's second
+      // bounce is already a poor one-sample stand-in for a wide GGX lobe, so the march there buys little.
+      secondBounceRoughnessCutoff: 0.8,
     },
   },
 };

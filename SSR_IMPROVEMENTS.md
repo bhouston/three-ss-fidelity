@@ -790,3 +790,43 @@ own note) is the working noise floor; a round is only kept if its speedup clears
 - **Kept.** Positive on every scene in the clean run, zero quality cost, matches the task's named candidate.
 - **Cumulative:** speedup **1.03×**, quality **0.00%** regression vs `three-new-ssr` (both cumulative, since
   this is the first round).
+
+## Round 2: skip the second bounce's march for rough hits (kept)
+
+- **Profiling first.** Before picking a candidate, tried fewer binary-refinement steps
+  (`SSRFastOptions.binaryRefineSteps`, already wired in round 1's commit): 8 → 4 gave mean bench speedup
+  1.009× (within the ~3% noise floor, i.e. not measurably faster) at +0.06% mean quality regression; 8 → 2
+  gave 1.02–1.03-ish territory but pushed `ssr-diag-metal-hit` to **+5.7%** RMSE regression, over the ~3%
+  worst-scene budget. The dense 1px march (`quality` = 1) dominates cost far more than its 8-step bisection,
+  so this candidate was reverted (left at the default 8) rather than kept at a risky step count for a
+  sub-noise-floor gain.
+- **Candidate.** `redirectHitSpecular`'s second bounce (R3.2) traces a full second march (`trace()`, the same
+  cost as the primary ray) for every hit, to re-evaluate the hit's specular toward `-R`. For a rough hit, a
+  single VNDF sample is already a poor stand-in for a wide GGX lobe (R2's "wide-lobe visibility" gap, still
+  the dominant remaining error on rough surfaces per the round-2/3 logs above), so marching for it buys little
+  accuracy. `SSRFastOptions.secondBounceRoughnessCutoff`: above this hit roughness, skip `trace()` and read
+  the prefiltered environment for the sampled direction `dir2` directly (still an unbiased VNDF sample of the
+  lobe, weighted the same way; only the screen-space occlusion/inter-reflection term of that one sample is
+  dropped).
+- **Tuning.** Cutoff 0.6: mean regression +0.13%, `ssr-diag-rough-30` +4.4% (over the ~3% worst-scene budget:
+  0.0158 → 0.0165 — that scene's hits include the rougher parts of its own floor, which are hit targets for
+  other rays even though the _primary_ surface is roughness 0.3). Cutoff 0.8: mean regression **+0.05%**,
+  every scene within ~0.5% of its `three-new-ssr` RMSE (worst: `ssr-diag-offscreen` 0.0331 → 0.0332).
+  **QUALITY OK** at 0.8; kept at that value.
+- **Speed.** `pnpm cli bench`, 1920×1080, warmup 10 / measure 40, cutoff 0.8 vs round 1:
+
+  | scene                  | three-new-ssr (ms) | three-new-ssr-fast (ms) | speedup   |
+  | ---------------------- | ------------------ | ----------------------- | --------- |
+  | `ssgi-metallic`        | 1493               | 1260                    | 1.185     |
+  | `ssr-steampunk-camera` | 2005               | 2007                    | 0.999     |
+  | `ssr-diag-rough-30`    | 1914               | 1724                    | 1.110     |
+  | `ssr-diag-metal-hit`   | 1294               | 1222                    | 1.059     |
+  | **mean**               |                    |                         | **1.088** |
+
+  Clearly above the ~3% noise floor. `ssr-steampunk-camera` doesn't move: its disc is roughness 0.5 and its
+  model is mostly low-roughness metal, so few of its hits clear the 0.8 cutoff. `ssgi-metallic`/`rough-30`/
+  `metal-hit` have plenty of rough dielectric hits (Cornell walls, floor) that now skip their second march.
+
+- **Kept.** Clearly faster on 3 of 4 benchmark scenes, flat on the fourth, quality within budget.
+- **Cumulative:** speedup **1.03 × 1.088 ≈ 1.12×**, quality **0.05%** regression vs `three-new-ssr` (worst
+  single scene ≈0.5%, both well within the 1%/3% budgets).

@@ -132,6 +132,7 @@ class NewSSRNode extends Node {
       backDepthNode = null,
       hitMaterialNode = null,
       hitSpecularNode = null,
+      radianceHistoryNode = null,
       // three-new-ssr-fast options (see SSRFastOptions in types.ts). Every default below reproduces
       // three-new-ssr's reference behavior exactly, so leaving them unset changes nothing.
       clipRaysToScreen = false,
@@ -182,6 +183,16 @@ class NewSSRNode extends Node {
      */
     this.hitMaterialNode = hitMaterialNode;
     this.hitSpecularNode = hitSpecularNode;
+
+    /**
+     * Without `accumulate`: the previous frame's filtered SSR radiance, sampled at a hit's current-frame UV (so
+     * already reprojected), which the hit-specular redirection subtracts in place of the running mean's resolve
+     * (three-new-ssr-rt with an external temporal filter). May be assigned after construction, before the first
+     * render.
+     *
+     * @type {?Node}
+     */
+    this.radianceHistoryNode = radianceHistoryNode;
 
     /**
      * Optional depth of the nearest back faces (a BackSide depth pre-pass). When set, a depth crossing is
@@ -1216,7 +1227,7 @@ class NewSSRNode extends Node {
       // split-sum indirect specular for the camera direction (the radiance the scene pass used, i.e. the previous SSR
       // result at the hit pixel, times the DFG term at N·V_camera) for one evaluated for -R by a second screen-space
       // bounce. The view-independent part (emissive, diffuse) is kept.
-      const previousRadianceTexture = this.accumulate ? texture(this._resolveTarget.texture) : null;
+      const previousRadianceTexture = this.accumulate ? texture(this._resolveTarget.texture) : this.radianceHistoryNode;
       const redirectHitSpecular = (uvHit, vPHit, color) => {
         const hitMaterial = this.hitMaterialNode.sample(uvHit);
         const hitSpecular = this.hitSpecularNode.sample(uvHit);
@@ -1531,7 +1542,7 @@ class NewSSRNode extends Node {
           // Multi-bounce: add the reprojected previous-frame reflection at the hit point.
           reflectColor.rgb.assign(reprojectHitPointHistory(uvS, reflectColor.rgb));
 
-          if (this.accumulate && this.hitSpecularNode !== null && this.hitMaterialNode !== null) {
+          if (previousRadianceTexture !== null && this.hitSpecularNode !== null && this.hitMaterialNode !== null) {
             reflectColor.rgb.assign(redirectHitSpecular(uvS, vP, reflectColor.rgb));
           }
 

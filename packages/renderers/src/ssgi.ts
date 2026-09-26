@@ -322,7 +322,8 @@ function createPipeline(
         ? {
             reflectNonMetals: true,
             stochastic: true,
-            accumulate: true,
+            // three-new-ssr-rt 'fork': per-frame vec4(L, hit distance) for the fork's temporal chain below
+            accumulate: ssrFast.realtime !== 'fork',
             backDepthNode: backDepth(ssrFast.backDepthResolutionScale ?? 1),
             hitMaterialNode: prePass.getTextureNode('metalRoughness'),
             hitSpecularNode: prePass.getTextureNode('specular'),
@@ -360,7 +361,39 @@ function createPipeline(
       ssrPass.useTemporalFiltering = true;
     }
 
-    if (ssrMethod === 'new') {
+    if (ssrFast.realtime === 'fork') {
+      // three-new-ssr-rt: the fork's specular reprojection + recurrent denoiser, wired like three-new-ssgi's below,
+      // and its output (reprojected to the current frame) is the radiance the hit-specular redirection subtracts
+      const ssrReprojected = tsl.temporalReproject(ssrPass, prePassDepth, prePassNormal, prePassVelocity, camera, {
+        mode: 'specular',
+        previousFrameGeometry: sharedPreviousFrame ?? previousFrameGeometry(prePassDepth, prePassNormal),
+      });
+      ssrReprojected.maxFrames.value = 16;
+      ssrReprojected.clampIntensity.value = 0.25;
+      const ssrDenoised = tsl.recurrentDenoise(ssrReprojected, camera, {
+        depth: prePassDepth,
+        normal: prePassNormal,
+        raw: ssrPass,
+        metalRoughness: prePassMetalRoughness,
+        mode: 'specular',
+      });
+      ssrDenoised.alphaSource = 'raylength';
+      ssrDenoised.lumaPhi.value = 0.75;
+      ssrDenoised.depthPhi.value = 20;
+      ssrDenoised.normalPhi.value = 0.3;
+      ssrDenoised.radius.value = 1.5;
+      ssrDenoised.alphaPhi.value = 5;
+      ssrDenoised.strength.value = 0.725;
+      ssrDenoised.adaptiveTrust.value = 1;
+      ssrDenoised.useTemporalFiltering = true;
+      ssrReprojected.setHistoryTexture(ssrDenoised);
+      ssrReprojected.resolutionScale = ssrDenoised.resolutionScale = resolutionScale;
+      const filtered = texture(ssrDenoised.getTextureNode().value);
+      ssrPass.radianceHistoryNode = sample((uv: AnyNode) =>
+        filtered.sample(uv.sub(prePassVelocity.sample(uv).xy.mul(vec2(0.5, -0.5)))),
+      );
+      reflections = ssrDenoised.getTextureNode().sample(screenUV).rgb;
+    } else if (ssrMethod === 'new') {
       // NewSSRNode accumulates internally (see `accumulate`); the clamping reprojection/denoise chain would bias it
       reflections = ssrPass.getTextureNode().sample(screenUV).rgb;
     } else if (temporal) {

@@ -216,6 +216,12 @@ function createPipeline(
   // three-new-ssr-rt always uses TRAA: its reflections converge over time, and TRAA integrates them with the rest
   const useTRAA = ssgiExample || ssrFast.realtime !== undefined;
   const aaPass: AnyNode = useTRAA ? traa(scenePass, prePassDepth, prePassVelocity, camera) : smaa(scenePass);
+  // three-new-ssr-rt: once the view is still, TRAA's history becomes an exact running mean (render() below restarts
+  // it when an object moves)
+  if (ssrFast.realtime !== undefined) {
+    aaPass.progressive = true;
+    (renderPipeline as AnyNode).progressiveTRAA = aaPass;
+  }
   const previousFrame = texture(aaPass.getTextureNode().value);
   const previousRadiance = sample((uv: AnyNode) =>
     previousFrame.sample(uv.sub(prePassVelocity.sample(uv).xy.mul(vec2(0.5, -0.5)))),
@@ -520,6 +526,7 @@ export async function createSSGIRenderer(
     ssgiFast,
   );
   let frames = 0;
+  let sceneSignature = 0;
   // three-new-ssr accumulates stochastic reflections over at least ACCUM_FRAMES pipeline frames per output frame
   // budget: each render() runs several pipeline frames (scenes without SSR are left unchanged). three-new-ssr-fast
   // can lower this budget via ssrFast.accumFrames (time-to-image: fewer frames at the same per-frame cost).
@@ -545,6 +552,14 @@ export async function createSSGIRenderer(
       return frames;
     },
     render() {
+      const progressive = (renderPipeline as AnyNode).progressiveTRAA;
+      if (progressive) {
+        // ponytail: sums every world matrix per frame, O(objects); a scene version counter if scenes get big
+        let signature = 0;
+        setup.scene.traverse((o) => o.matrixWorld.elements.forEach((e, i) => (signature += e * (i + 1))));
+        if (signature !== sceneSignature) progressive.resetAccumulation();
+        sceneSignature = signature;
+      }
       for (let i = 0; i < subFrames; i++) {
         // effect passes only advance with the node frame, which the animation loop updates once per display
         // frame: advance it for the extra pipeline frames rendered within this one

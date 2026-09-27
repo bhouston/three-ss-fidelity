@@ -32,7 +32,15 @@ export const command = defineCommand({
       .option('height', { type: 'number', default: 1080 })
       .option('warmup', { type: 'number', default: 60, describe: 'Frames rendered (and GPU-synced) before measuring' })
       .option('measure', { type: 'number', default: 120, describe: 'Frames measured in total, in batches of 20' })
-      .option('out', { type: 'string', describe: 'Write the full per-renderer results (and A/B summary) as JSON' }),
+      .option('out', { type: 'string', describe: 'Write the full per-renderer results (and A/B summary) as JSON' })
+      .option('gpu', {
+        type: 'boolean',
+        default: false,
+        describe:
+          'Screen-space renderers only: report WebGPU timestamp-query GPU ms/frame (total and per named pass) ' +
+          'via trackTimestamp, in addition to wall-clock totalMs. Forces a GPU sync every frame, so totalMs is ' +
+          'less meaningful in this mode.',
+      }),
   handler: async (argv) => {
     const renderers = selectNames(rendererNames, argv.renderers, 'renderer');
     const scenes = selectNames(listSceneNames(), argv.scenes, 'scene');
@@ -52,6 +60,7 @@ export const command = defineCommand({
           warmup: argv.warmup,
           measure: argv.measure,
           out,
+          gpu: argv.gpu,
         });
         if (code !== 0) {
           console.error(`${renderer} failed (exit code ${code})`);

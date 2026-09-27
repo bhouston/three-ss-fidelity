@@ -16,6 +16,10 @@ import {
   hash,
   getViewPosition,
   int,
+  ivec2,
+  exp2,
+  textureLoad,
+  textureSize,
   logarithmicDepthToViewZ,
   luminance,
   max,
@@ -41,16 +45,25 @@ import {
   viewZToPerspectiveDepth,
   context,
   DFGLUT,
+  cos,
+  sin,
+  sqrt,
+  property,
+  outputStruct,
 } from 'three/tsl';
 import {
   FloatType,
   HalfFloatType,
   LinearFilter,
+  NearestFilter,
   LinearMipmapLinearFilter,
   Matrix4,
   NodeMaterial,
   NodeUpdateType,
+  PerspectiveCamera,
   QuadMesh,
+  RGFormat,
+  RedFormat,
   RenderTarget,
   RendererUtils,
   Node,
@@ -69,6 +82,32 @@ import ImportanceSampledEnvironment from 'three/addons/tsl/display/ImportanceSam
 const _quadMesh = /*@__PURE__*/ new QuadMesh();
 const _size = /*@__PURE__*/ new Vector2();
 let _rendererState;
+
+/** Whether a ratio-estimator sample is finite (NaN fails every comparison). */
+const isFiniteSample = (v) =>
+  v.a
+    .greaterThanEqual(0)
+    .and(v.a.lessThan(1e30))
+    .and(luminance(v.rgb).greaterThanEqual(0))
+    .and(luminance(v.rgb).lessThan(1e30));
+const toYCoCg = (c) => vec3(dot(c, vec3(0.25, 0.5, 0.25)), dot(c, vec3(0.5, 0, -0.5)), dot(c, vec3(-0.25, 0.5, -0.25)));
+const fromYCoCg = (c) => vec3(c.x.add(c.y).sub(c.z), c.x.add(c.z), c.x.sub(c.y).sub(c.z));
+const insideScreen = (coord) =>
+  coord.x.greaterThan(0).and(coord.x.lessThan(1)).and(coord.y.greaterThan(0)).and(coord.y.lessThan(1));
+const halfFloatTarget = (name) => {
+  const t = new RenderTarget(1, 1, { depthBuffer: false, type: HalfFloatType });
+  t.texture.name = name;
+  return t;
+};
+/** World position -> UV in the frame of a view-projection matrix ((-1, -1) behind the camera). */
+const projectToUV = (world, viewProjection) => {
+  const clip = viewProjection.mul(vec4(world, 1)).toVar();
+  const screen = clip.xy.div(clip.w).mul(0.5).add(0.5);
+  return clip.w.greaterThan(0).select(vec2(screen.x, screen.y.oneMinus()), vec2(-1));
+};
+
+/** Levels of the Hi-Z min-depth pyramid (level 0 = trace resolution). */
+const HIZ_LEVELS = 7;
 
 // Maximum ray-march step count; `quality` (0..1) scales it to a fixed per-ray count.
 const MAX_STEPS = 64;
@@ -132,6 +171,13 @@ class NewSSRNode extends Node {
       backDepthNode = null,
       hitMaterialNode = null,
       hitSpecularNode = null,
+      radianceHistoryNode = null,
+      temporalFilter = false,
+      velocityNode = null,
+      maxMarchSteps = null,
+      hiZ = false,
+      debugView = null,
+      silhouetteFetch = false,
       // three-new-ssr-fast options (see SSRFastOptions in types.ts). Every default below reproduces
       // three-new-ssr's reference behavior exactly, so leaving them unset changes nothing.
       clipRaysToScreen = false,
@@ -147,6 +193,22 @@ class NewSSRNode extends Node {
      * @type {?number}
      */
     this._secondBounceQuality = secondBounceQuality;
+
+    /**
+     * Diagnostic: the trace pass writes the primary ray's outcome ('hits') or the scene color it read ('hitcolor')
+     * instead of radiance (see the `debugView` block at the end of the ssr() shader). Compile-time constant.
+     *
+     * @type {?('hits'|'hitcolor')}
+     */
+    this.debugView = debugView;
+
+    /**
+     * Reads a hit's color from inside the hit object's screen footprint instead of its anti-aliased silhouette texel
+     * (see the trace). Needs `backDepthNode` and `hitMaterialNode`. Compile-time constant.
+     *
+     * @type {boolean}
+     */
+    this._silhouetteFetch = silhouetteFetch && backDepthNode !== null && hitMaterialNode !== null;
 
     /**
      * perf(three-new-ssr-fast): precompute the ray parameter where the march leaves the screen once per
@@ -182,6 +244,16 @@ class NewSSRNode extends Node {
      */
     this.hitMaterialNode = hitMaterialNode;
     this.hitSpecularNode = hitSpecularNode;
+
+    /**
+     * Without `accumulate`: the previous frame's filtered SSR radiance, sampled at a hit's current-frame UV (so
+     * already reprojected), which the hit-specular redirection subtracts in place of the running mean's resolve
+     * (three-new-ssr-rt with an external temporal filter). May be assigned after construction, before the first
+     * render.
+     *
+     * @type {?Node}
+     */
+    this.radianceHistoryNode = radianceHistoryNode;
 
     /**
      * Optional depth of the nearest back faces (a BackSide depth pre-pass). When set, a depth crossing is
@@ -548,8 +620,98 @@ class NewSSRNode extends Node {
      * @private
      * @type {RenderTarget}
      */
-    this._ssrRenderTarget = new RenderTarget(1, 1, { depthBuffer: false, type: HalfFloatType });
+    /**
+     * Real-time temporal filter (three-new-ssr-rt 'sssr', see SSR_TEMPORAL.md): instead of the running mean, each
+     * frame's ratio-estimator terms go through a spatial ratio-estimator resolve over neighbouring pixels and a
+     * temporal accumulation with surface and virtual-point (hit parallax) reprojection, variance clipping and a
+     * roughness-dependent history length. Needs `stochastic`, `outputRadiance`, `hitMaterialNode` and `velocityNode`.
+     *
+     * @type {boolean}
+     */
+    this.temporalFilter = temporalFilter && stochastic && outputRadiance && !accumulate;
+
+    /**
+     * perf(three-new-ssr-rt): cap the dense march at this many steps per ray (compile-time constant). Rays longer
+     * than that march with steps growing as `(i/n)^stepExponent` (never under one texel), so near contacts stay dense
+     * and far hits rely on binary refinement plus the per-frame jitter. `null` keeps the uncapped dense march.
+     *
+     * @type {?number}
+     */
+    this._maxMarchSteps = maxMarchSteps;
+
+    /**
+     * perf(three-new-ssr-rt): hierarchical (Hi-Z) traversal instead of the dense march, radiance + stochastic mode
+     * only (compile-time constant). A min-depth pyramid of the depth buffer at the trace resolution lets the ray skip
+     * whole cells it passes in front of; at the finest level the dense march's hit test runs per texel. The pyramid
+     * ping-pongs between two mip-chained targets (even levels in one, odd in the other), since a pass cannot sample
+     * the texture it renders into.
+     *
+     * @type {boolean}
+     */
+    this._hiZ = hiZ && stochastic && outputRadiance;
+    if (this._hiZ) {
+      this._hiZTargets = [0, 1].map((i) => {
+        const t = new RenderTarget(1, 1, {
+          depthBuffer: false,
+          type: FloatType,
+          format: RedFormat,
+          minFilter: NearestFilter,
+          magFilter: NearestFilter,
+        });
+        t.texture.name = `NewSSRNode.HiZ${i}`;
+        for (let level = 0; level < HIZ_LEVELS; level++) t.texture.mipmaps.push({});
+        return t;
+      });
+      // one material per level (the source level is a constant): level 0 from the depth buffer, odd levels from
+      // target 0, even levels from target 1
+      this._hiZMaterials = Array.from({ length: HIZ_LEVELS }, () => new NodeMaterial());
+      /** Traversal iteration budget per ray. */
+      this.hiZIterations = 96;
+    }
+    this.velocityNode = velocityNode;
+
+    this._ssrRenderTarget = new RenderTarget(1, 1, {
+      depthBuffer: false,
+      type: HalfFloatType,
+      count: this.temporalFilter ? 2 : 1,
+    });
     this._ssrRenderTarget.texture.name = 'NewSSRNode.SSR';
+    if (this.temporalFilter) {
+      // hit distance of this frame's ray (ENV_RAY_LENGTH on a miss), for the virtual-point reprojection, and the hit
+      // object's own screen motion in pixels (beyond what the camera motion explains), to reject its stale history
+      this._ssrRenderTarget.textures[1].name = 'NewSSRNode.Hit';
+      this._ssrRenderTarget.textures[1].format = RGFormat;
+      this._ratioField = property('vec4');
+      this._hitDistanceField = property('vec2');
+      this._spatialTarget = halfFloatTarget('NewSSRNode.Spatial');
+      this._temporalTarget = halfFloatTarget('NewSSRNode.Temporal');
+      this._historyTarget = halfFloatTarget('NewSSRNode.History');
+      this._geometryTarget = halfFloatTarget('NewSSRNode.PreviousGeometry');
+      // with resolutionScale < 1: the filtered result upsampled to full resolution, depth/normal aware
+      this._upsampleTarget = halfFloatTarget('NewSSRNode.Upsample');
+      this._upsampleMaterial = new NodeMaterial();
+      this._spatialMaterial = new NodeMaterial();
+      this._temporalMaterial = new NodeMaterial();
+      this._historyCopyMaterial = new NodeMaterial();
+      this._geometryMaterial = new NodeMaterial();
+      this._previousViewProjection = uniform(new Matrix4());
+      this._currentViewProjection = uniform(new Matrix4());
+      this._previousCameraPosition = uniform(new Vector3());
+      this._historyValid = uniform(0);
+      this._unjitteredCamera = new PerspectiveCamera();
+      /** Spatial resolve radius in pixels per unit GGX alpha (roughness²), capped at `spatialMaxRadius`. */
+      this.spatialRadius = uniform(40);
+      this.spatialMaxRadius = uniform(12);
+      /** History length cap for mirrors and for roughness >= `historyRoughness`. */
+      this.historyMin = uniform(4);
+      this.historyMax = uniform(32);
+      this.historyRoughness = uniform(0.4);
+      /** Variance-clip box half-size in standard deviations, and where reflected objects move (`dynamicClipGamma`). */
+      this.clipGamma = uniform(3);
+      this.dynamicClipGamma = uniform(0.5);
+      /** History length cap where reflected objects move. */
+      this.dynamicHistory = uniform(2);
+    }
 
     if (stochastic === false && roughnessNode !== null) {
       // The blur reads prefiltered mips of the SSR texture, so its taps don't skip texels.
@@ -649,7 +811,11 @@ class NewSSRNode extends Node {
      */
     this._textureNode = passTexture(
       this,
-      this.accumulate ? this._resolveTarget.texture : this._ssrRenderTarget.texture,
+      this.accumulate
+        ? this._resolveTarget.texture
+        : this.temporalFilter
+          ? this._upsampleTarget.texture
+          : this._ssrRenderTarget.texture,
     );
 
     let blurredTextureNode = null;
@@ -788,7 +954,16 @@ class NewSSRNode extends Node {
     if (this._ssrFn === null) return;
 
     this._ssrMaterial.contextNode = context(this._sharedContext);
-    this._ssrMaterial.fragmentNode = this._ssrFn();
+    if (this.temporalFilter) {
+      // MRT: ratio-estimator terms and hit distance
+      this._ssrMaterial.colorNode = Fn(() => {
+        this._ratioField.assign(this._ssrFn());
+        return vec4(0);
+      })();
+      this._ssrMaterial.outputNode = outputStruct(this._ratioField, this._hitDistanceField);
+    } else {
+      this._ssrMaterial.fragmentNode = this._ssrFn();
+    }
     this._ssrMaterial.needsUpdate = true;
   }
 
@@ -808,15 +983,30 @@ class NewSSRNode extends Node {
    * @param {number} height - The height of the effect.
    */
   setSize(width, height) {
+    if (this.temporalFilter) {
+      // the upsample only runs at resolutionScale < 1; at full resolution the temporal result is used directly
+      this._upsample = this.resolutionScale < 1;
+      if (this._upsample) this._upsampleTarget.setSize(width, height);
+      if (!this.accumulate) {
+        this._textureNode.value = (this._upsample ? this._upsampleTarget : this._temporalTarget).texture;
+      }
+    }
     width = Math.round(this.resolutionScale * width);
     height = Math.round(this.resolutionScale * height);
 
     this._resolution.value.set(width, height);
+    if (this._hiZ) for (const t of this._hiZTargets) t.setSize(width, height);
     this._ssrRenderTarget.setSize(width, height);
     this._blurRenderTarget.setSize(width, height);
     if (this.accumulate) {
       for (const target of this._accumTargets) target.setSize(width, height);
       this._resolveTarget.setSize(width, height);
+    }
+    if (this.temporalFilter) {
+      if (this._spatialTarget.width !== width || this._spatialTarget.height !== height) this._historyValid.value = 0;
+      for (const t of [this._spatialTarget, this._temporalTarget, this._historyTarget, this._geometryTarget]) {
+        t.setSize(width, height);
+      }
     }
   }
 
@@ -914,6 +1104,16 @@ class NewSSRNode extends Node {
 
     // ssr
 
+    if (this._hiZ) {
+      for (let level = 0; level < HIZ_LEVELS; level++) {
+        _quadMesh.material = this._hiZMaterials[level];
+        renderer.setRenderTarget(this._hiZTargets[level % 2], 0, level);
+        _quadMesh.name = `SSR [ Hi-Z ${level} ]`;
+        _quadMesh.render(renderer);
+      }
+      _quadMesh.material = this._ssrMaterial;
+    }
+
     renderer.setRenderTarget(ssrRenderTarget);
     _quadMesh.name = 'SSR [ Reflections ]';
     _quadMesh.render(renderer);
@@ -944,6 +1144,30 @@ class NewSSRNode extends Node {
       _quadMesh.name = 'SSR [ Resolve ]';
       _quadMesh.render(renderer);
       this._accumIndex = 1 - this._accumIndex;
+    }
+
+    if (this.temporalFilter) {
+      // this frame's camera without TRAA's sub-pixel jitter (like the velocity buffer)
+      const unjittered = this._unjitteredCamera.copy(this.camera);
+      if (unjittered.view !== null && unjittered.view.enabled) unjittered.clearViewOffset();
+      unjittered.updateMatrixWorld();
+      this._currentViewProjection.value.multiplyMatrices(unjittered.projectionMatrix, unjittered.matrixWorldInverse);
+      const passes = [
+        [this._spatialMaterial, this._spatialTarget, 'SSR [ Spatial Resolve ]'],
+        [this._temporalMaterial, this._temporalTarget, 'SSR [ Temporal ]'],
+        [this._historyCopyMaterial, this._historyTarget, 'SSR [ History ]'],
+        [this._geometryMaterial, this._geometryTarget, 'SSR [ Previous Geometry ]'],
+        ...(this._upsample ? [[this._upsampleMaterial, this._upsampleTarget, 'SSR [ Upsample ]']] : []),
+      ];
+      for (const [material, target, name] of passes) {
+        _quadMesh.material = material;
+        _quadMesh.name = name;
+        renderer.setRenderTarget(target);
+        _quadMesh.render(renderer);
+      }
+      this._previousViewProjection.value.copy(this._currentViewProjection.value);
+      this._previousCameraPosition.value.setFromMatrixPosition(unjittered.matrixWorld);
+      this._historyValid.value = 1;
     }
 
     // blur (optional)
@@ -1179,6 +1403,8 @@ class NewSSRNode extends Node {
 
       // Radiance mode: how much the hit replaces the environment, so fades blend toward it instead of black.
       const hitWeight = float(0).toVar();
+      const hitDistance = float(ENV_RAY_LENGTH).toVar();
+      const hitMotion = float(0).toVar();
 
       // Multi-bounce: fold in the previous frame's reflection at the hit point, reprojected by its
       // own motion. The (1 - history.a) decay damps the feedback. No-op until both textures are set.
@@ -1216,7 +1442,17 @@ class NewSSRNode extends Node {
       // split-sum indirect specular for the camera direction (the radiance the scene pass used, i.e. the previous SSR
       // result at the hit pixel, times the DFG term at N·V_camera) for one evaluated for -R by a second screen-space
       // bounce. The view-independent part (emissive, diffuse) is kept.
-      const previousRadianceTexture = this.accumulate ? texture(this._resolveTarget.texture) : null;
+      const previousRadianceTexture = this.accumulate
+        ? texture(this._resolveTarget.texture)
+        : this.temporalFilter
+          ? (() => {
+              // last frame's filtered output, reprojected to this frame by the surface motion
+              const previous = texture(this._temporalTarget.texture);
+              return {
+                sample: (coord) => previous.sample(coord.sub(this.velocityNode.sample(coord).xy.mul(vec2(0.5, -0.5)))),
+              };
+            })()
+          : this.radianceHistoryNode;
       const redirectHitSpecular = (uvHit, vPHit, color) => {
         const hitMaterial = this.hitMaterialNode.sample(uvHit);
         const hitSpecular = this.hitSpecularNode.sample(uvHit);
@@ -1277,8 +1513,18 @@ class NewSSRNode extends Node {
       // Marches a view-space ray from a surface point against the depth buffer. Returns whether it hit and the hit's
       // UV and depth (refined when `binaryRefine`). `incidentDir` is the direction the point was viewed along.
       // The parameters deliberately shadow the primary ray's names, which the march body was written against.
-      // oxlint-disable-next-line no-shadow
-      const trace = (viewPosition, viewNormal, viewReflectDir, incidentDir, uvPos, jitter, qualityOverride = null) => {
+      /* oxlint-disable no-shadow */
+      const trace = (
+        viewPosition,
+        viewNormal,
+        viewReflectDir,
+        incidentDir,
+        uvPos,
+        jitter,
+        qualityOverride = null,
+        hiZ = this._hiZ,
+      ) => {
+        /* oxlint-enable no-shadow */
         // perf(three-new-ssr-fast): the second bounce can march at a different (lower) step density than
         // the primary ray via `qualityOverride` (SSRFastOptions.secondBounceQuality); `null` uses `quality`.
         const marchQuality = qualityOverride === null ? this.quality.clamp() : float(qualityOverride).clamp();
@@ -1315,9 +1561,14 @@ class NewSSRNode extends Node {
         // coherent stochastic sampling; each step then spans the whole ray as rayVec / totalStep.
         // Radiance mode marches every ray (mirror or stochastic) densely: one step per 1/quality texels.
         const denseMarch = this.stochastic === false || this.outputRadiance;
+        const cappedMarch = denseMarch && this._maxMarchSteps !== null;
         const totalStep = int(
           denseMarch
-            ? trunc(max(abs(xLen), abs(yLen)).mul(marchQuality).min(65536))
+            ? trunc(
+                max(abs(xLen), abs(yLen))
+                  .mul(marchQuality)
+                  .min(cappedMarch ? this._maxMarchSteps : 65536),
+              )
                 .max(int(1))
                 .toConst()
             : marchQuality.mul(MAX_STEPS).max(float(1)),
@@ -1359,9 +1610,21 @@ class NewSSRNode extends Node {
         // Ray parameter s ∈ [0,1] for step `idx`. Blur marches uniformly (one step per 1/quality texels),
         // jittered per pixel so the hits don't snap to the steps, which showed as bands. Scatter uses an exponential remap `(idx/steps)^stepExponent`
         // that concentrates samples near the origin, floored to ≥1 texel/step; `jitter` dissolves banding.
-        const sampleFraction = denseMarch
-          ? (idx) => idx.add(jitter.sub(0.5)).div(totalStep).max(0)
-          : (idx) => max(idx.add(jitter.sub(0.5)).div(totalStep).pow(this.stepExponent), idx.div(rayLen));
+        const sampleFraction = cappedMarch
+          ? (idx) => max(idx.add(jitter.sub(0.5)).div(totalStep).max(0).pow(this.stepExponent), idx.div(rayLen))
+          : denseMarch
+            ? (idx) => idx.add(jitter.sub(0.5)).div(totalStep).max(0)
+            : (idx) => max(idx.add(jitter.sub(0.5)).div(totalStep).pow(this.stepExponent), idx.div(rayLen));
+
+        // How far behind the depth buffer at (uvS, depth d, view z vZ) a crossing still counts as a hit: at least three
+        // texels' width, and depth-proportional (McGuire & Mara / Unreal HZB SSR): a surface farther from the camera is
+        // assumed thicker in world units for the same screen footprint, so solid occluders (the camera body, a box
+        // hiding another box) don't get leaked through as the ray recedes.
+        const hitThickness = (uvS, d, vZ) => {
+          const vP = getViewPosition(uvS, d, this._cameraProjectionMatrixInverse);
+          const vPNeighbor = getViewPosition(uvS.add(uvPixelStepX), d, this._cameraProjectionMatrixInverse);
+          return max(vPNeighbor.x.sub(vP.x).mul(3), max(this.thickness, abs(vZ).mul(0.02)));
+        };
 
         // Carry the hit out of the loop so refinement runs after the march, not nested inside it (a
         // loop-inside-a-loop tripped shader-compiler bugs on some drivers). hitSLo/hitSHi bracket s.
@@ -1372,105 +1635,188 @@ class NewSSRNode extends Node {
         // Carry the coarse hit's UV/depth to skip a redundant fetch when refinement is off.
         const hitUvS = vec2(0).toVar();
         const hitD = float(0).toVar();
+        // where the march stopped (debugView): the ray parameter reached, and whether the Hi-Z loop ran out
+        const endS = float(0).toVar();
+        const exhausted = bool(false).toVar();
 
-        // March from d0 toward d1 (inclusive), looking for an intersection with the depth buffer.
-        Loop({ start: int(1), end: totalStep, condition: '<=' }, ({ i }) => {
-          // Exponentially-distributed ray parameter, shared by the sample position and ray depth.
-          // The jitter can push the last step past d1, so clamp it to the ray's end.
-          const s = sampleFraction(float(i)).min(1).toVar();
-
-          const xy = screenPosAt(s).toVar();
-
-          If(
-            this._clipRaysToScreen
-              ? s.greaterThan(sExit)
-              : xy.x
-                  .lessThan(0)
-                  .or(xy.x.greaterThan(this._resolution.x))
-                  .or(xy.y.lessThan(0))
-                  .or(xy.y.greaterThan(this._resolution.y)),
-            () => {
-              Break();
-            },
-          );
-
-          const uvS = xy.mul(invResolution).toVar();
-          const d = sampleDepth(uvS).toVar();
-          const vZ = getViewZ(d).toVar();
-
-          const viewReflectRayZ = reflectRayZAt(s).toVar();
-
-          If(viewReflectRayZ.lessThanEqual(vZ), () => {
-            // Depth crossing: ray went behind the depth buffer. Gate by thickness before stopping
-            // so an occluder gap doesn't end the march prematurely.
-            const vP = getViewPosition(uvS, d, this._cameraProjectionMatrixInverse).toVar();
-            const away = pointToLineDistance(vP, rayOrigin, d1viewPosition).toVar();
-
-            const uvNeighbor = uvS.add(uvPixelStepX).toVar();
-            const vPNeighbor = getViewPosition(uvNeighbor, d, this._cameraProjectionMatrixInverse).toVar();
-            const minThickness = vPNeighbor.x.sub(vP.x).mul(3).toVar();
-            // Depth-proportional thickness (McGuire & Mara / Unreal HZB SSR): a surface farther from the
-            // camera is assumed thicker in world units for the same screen footprint, so solid occluders
-            // (the camera body, a box hiding another box) don't get leaked through as the ray recedes.
-            const depthProportionalThickness = abs(vZ).mul(0.02).toVar();
-            const tk = max(minThickness, max(this.thickness, depthProportionalThickness)).toVar();
-
-            // Dual-layer depth: inside the solid (behind its front surface, in front of its back surface).
-            const insideSolid =
-              this.backDepthNode !== null
-                ? viewReflectRayZ.greaterThanEqual(getViewZ(this.backDepthNode.sample(uvS).r).sub(tk))
-                : bool(false);
-
-            If(away.lessThanEqual(tk).or(insideSolid), () => {
-              // Background (cleared far-plane depth) is not geometry: a ray running past the far plane must not
-              // "hit" the screen-space backdrop, it continues and falls back to the environment.
-              If(d.greaterThanEqual(1.0), () => {
-                Continue();
-              });
-
-              const vN = this.normalNode.sample(uvS).rgb.normalize().toVar();
-
-              // the reflected ray is pointing towards the same side as the fragment's normal (current ray position),
-              // which means it wouldn't reflect off the surface. The loop continues to the next step for the next ray sample.
-              // Radiance mode keeps such hits: the ray is inside a solid whose (hidden) back side it would hit, and the
-              // visible side's radiance is a better proxy than continuing past the solid to the environment (a mirror
-              // facing the camera shows the far sides of the objects in front of it).
-              if (this.stochastic === false && !this.outputRadiance) {
-                If(dot(viewReflectDir, vN).greaterThanEqual(0), () => {
-                  Continue();
-                });
-              }
-
-              if (this.stochastic === false) {
-                // Distance exceeding limit: The reflection is potentially too far away and might not
-                // contribute significantly to the final color. In radiance mode there is no artistic
-                // cutoff to honor (maxDistance there is only a ray-length budget, not a hit-rejection
-                // radius): the ray already stops at the frustum/near-plane bound computed above, so a
-                // real hit here should always be shaded rather than dropped back to the environment.
-                if (!this.outputRadiance) {
-                  // this distance represents the depth of the intersection point between the reflected ray and the scene.
-                  const distance = pointPlaneDistance(vP, viewPosition, viewNormal).toVar();
-
-                  If(distance.greaterThan(this.maxDistance), () => {
-                    Break();
-                  });
-                }
-              }
-
-              foundHit.assign(true);
-              hitInside.assign(away.greaterThan(tk));
-              hitUvS.assign(uvS);
-              hitD.assign(d);
-
-              if (this.binaryRefine) {
-                hitSLo.assign(sampleFraction(float(i).sub(1)));
-                hitSHi.assign(s);
-              }
-
+        if (hiZ) {
+          // Hi-Z traversal: at each step the ray's current cell at `level`; if the ray stays in front of the nearest
+          // surface in the cell over the whole cell, skip it and go one level coarser, otherwise go one level finer.
+          // At level 0 (one trace texel) run the dense march's hit test at the texel's exit.
+          const dir = vec2(xLen, yLen);
+          const level = int(0).toVar();
+          // start where the dense march takes its first sample (jittered, ~1/quality texels out): testing every texel
+          // from the origin re-hits curved surfaces' own neighbouring texels
+          const sCur = jitter.add(0.5).div(rayLen.mul(marchQuality)).toVar();
+          const epsilon = float(0.01).div(rayLen);
+          Loop({ start: int(0), end: int(this.hiZIterations), condition: '<' }, () => {
+            If(sCur.greaterThanEqual(1).or(this._clipRaysToScreen ? sCur.greaterThan(sExit) : bool(false)), () => {
               Break();
             });
+            const pos = d0.add(dir.mul(sCur)).toVar();
+            const cellSize = exp2(float(level)).toVar();
+            const cell = pos.div(cellSize).floor().toVar();
+            const boundary = vec2(
+              xLen.greaterThan(0).select(cell.x.add(1), cell.x),
+              yLen.greaterThan(0).select(cell.y.add(1), cell.y),
+            ).mul(cellSize);
+            const sx = abs(xLen).greaterThan(1e-5).select(boundary.x.sub(d0.x).div(xLen), float(1e9));
+            const sy = abs(yLen).greaterThan(1e-5).select(boundary.y.sub(d0.y).div(yLen), float(1e9));
+            const sNext = min(sx, sy).add(epsilon).toVar();
+            // mip sizes round down: a cell past the last full one isn't in the pyramid, so it is never skipped
+            const levelSize = this._resolution.div(cellSize).floor().max(1);
+            const covered = cell.x.lessThan(levelSize.x).and(cell.y.lessThan(levelSize.y));
+            const coord = ivec2(cell.clamp(vec2(0), levelSize.sub(1)));
+            const nearest = float(0).toVar();
+            If(covered.not(), () => {
+              nearest.assign(0);
+            })
+              .ElseIf(level.bitAnd(1).equal(0), () => {
+                nearest.assign(textureLoad(this._hiZTargets[0].texture, coord, level).r);
+              })
+              .Else(() => {
+                nearest.assign(textureLoad(this._hiZTargets[1].texture, coord, level).r);
+              });
+            const nearestZ = getViewZ(nearest);
+            const inFront = min(reflectRayZAt(sCur), reflectRayZAt(sNext.min(1))).greaterThan(nearestZ);
+            If(inFront, () => {
+              sCur.assign(sNext);
+              level.assign(level.add(1).min(HIZ_LEVELS - 1));
+            })
+              .ElseIf(level.greaterThan(0), () => {
+                level.subAssign(1);
+              })
+              .Else(() => {
+                // the dense march's crossing test at the middle of the ray's span inside this texel (depth and ray
+                // depth at the same point; the texel's far end would sample the next texel)
+                const sTest = sCur.add(sNext.min(1)).mul(0.5).toVar();
+                const uvS = screenPosAt(sTest).mul(invResolution).toVar();
+                const d = sampleDepth(uvS).toVar();
+                const vZ = getViewZ(d).toVar();
+                const viewReflectRayZ = reflectRayZAt(sTest).toVar();
+                If(viewReflectRayZ.lessThanEqual(vZ).and(d.lessThan(1.0)), () => {
+                  // the dense march's acceptance (radiance mode): within the thickness, or inside the solid
+                  const vP = getViewPosition(uvS, d, this._cameraProjectionMatrixInverse).toVar();
+                  const away = pointToLineDistance(vP, rayOrigin, d1viewPosition).toVar();
+                  const tk = hitThickness(uvS, d, vZ).toVar();
+                  const insideSolid =
+                    this.backDepthNode !== null
+                      ? viewReflectRayZ.greaterThanEqual(getViewZ(this.backDepthNode.sample(uvS).r).sub(tk))
+                      : bool(false);
+                  If(away.lessThanEqual(tk).or(insideSolid), () => {
+                    foundHit.assign(true);
+                    hitInside.assign(away.greaterThan(tk));
+                    hitUvS.assign(uvS);
+                    hitD.assign(d);
+                    hitSLo.assign(sCur);
+                    hitSHi.assign(sTest);
+                    Break();
+                  });
+                });
+                sCur.assign(sNext);
+              });
           });
-        });
+          endS.assign(sCur);
+          exhausted.assign(
+            foundHit
+              .not()
+              .and(sCur.lessThan(1))
+              .and(this._clipRaysToScreen ? sCur.lessThanEqual(sExit) : bool(true)),
+          );
+        } else {
+          // March from d0 toward d1 (inclusive), looking for an intersection with the depth buffer.
+          Loop({ start: int(1), end: totalStep, condition: '<=' }, ({ i }) => {
+            // Exponentially-distributed ray parameter, shared by the sample position and ray depth.
+            // The jitter can push the last step past d1, so clamp it to the ray's end.
+            const s = sampleFraction(float(i)).min(1).toVar();
+            endS.assign(s);
+
+            const xy = screenPosAt(s).toVar();
+
+            If(
+              this._clipRaysToScreen
+                ? s.greaterThan(sExit)
+                : xy.x
+                    .lessThan(0)
+                    .or(xy.x.greaterThan(this._resolution.x))
+                    .or(xy.y.lessThan(0))
+                    .or(xy.y.greaterThan(this._resolution.y)),
+              () => {
+                Break();
+              },
+            );
+
+            const uvS = xy.mul(invResolution).toVar();
+            const d = sampleDepth(uvS).toVar();
+            const vZ = getViewZ(d).toVar();
+
+            const viewReflectRayZ = reflectRayZAt(s).toVar();
+
+            If(viewReflectRayZ.lessThanEqual(vZ), () => {
+              // Depth crossing: ray went behind the depth buffer. Gate by thickness before stopping
+              // so an occluder gap doesn't end the march prematurely.
+              const vP = getViewPosition(uvS, d, this._cameraProjectionMatrixInverse).toVar();
+              const away = pointToLineDistance(vP, rayOrigin, d1viewPosition).toVar();
+
+              const tk = hitThickness(uvS, d, vZ).toVar();
+
+              // Dual-layer depth: inside the solid (behind its front surface, in front of its back surface).
+              const insideSolid =
+                this.backDepthNode !== null
+                  ? viewReflectRayZ.greaterThanEqual(getViewZ(this.backDepthNode.sample(uvS).r).sub(tk))
+                  : bool(false);
+
+              If(away.lessThanEqual(tk).or(insideSolid), () => {
+                // Background (cleared far-plane depth) is not geometry: a ray running past the far plane must not
+                // "hit" the screen-space backdrop, it continues and falls back to the environment.
+                If(d.greaterThanEqual(1.0), () => {
+                  Continue();
+                });
+
+                const vN = this.normalNode.sample(uvS).rgb.normalize().toVar();
+
+                // the reflected ray is pointing towards the same side as the fragment's normal (current ray position),
+                // which means it wouldn't reflect off the surface. The loop continues to the next step for the next ray sample.
+                // Radiance mode keeps such hits: the ray is inside a solid whose (hidden) back side it would hit, and the
+                // visible side's radiance is a better proxy than continuing past the solid to the environment (a mirror
+                // facing the camera shows the far sides of the objects in front of it).
+                if (this.stochastic === false && !this.outputRadiance) {
+                  If(dot(viewReflectDir, vN).greaterThanEqual(0), () => {
+                    Continue();
+                  });
+                }
+
+                if (this.stochastic === false) {
+                  // Distance exceeding limit: The reflection is potentially too far away and might not
+                  // contribute significantly to the final color. In radiance mode there is no artistic
+                  // cutoff to honor (maxDistance there is only a ray-length budget, not a hit-rejection
+                  // radius): the ray already stops at the frustum/near-plane bound computed above, so a
+                  // real hit here should always be shaded rather than dropped back to the environment.
+                  if (!this.outputRadiance) {
+                    // this distance represents the depth of the intersection point between the reflected ray and the scene.
+                    const distance = pointPlaneDistance(vP, viewPosition, viewNormal).toVar();
+
+                    If(distance.greaterThan(this.maxDistance), () => {
+                      Break();
+                    });
+                  }
+                }
+
+                foundHit.assign(true);
+                hitInside.assign(away.greaterThan(tk));
+                hitUvS.assign(uvS);
+                hitD.assign(d);
+
+                if (this.binaryRefine) {
+                  hitSLo.assign(sampleFraction(float(i).sub(1)));
+                  hitSHi.assign(s);
+                }
+
+                Break();
+              });
+            });
+          });
+        }
 
         If(foundHit, () => {
           // Bisect the bracketed crossing toward the exact intersection. Run after the march, not
@@ -1493,12 +1839,46 @@ class NewSSRNode extends Node {
           }
         });
 
-        return { foundHit, hitUvS, hitD, hitInside };
+        if (this._silhouetteFetch) {
+          // A ray that enters an object's screen footprint behind its visible surface (reflecting its hidden
+          // underside, say) is accepted on the footprint's first texel: the silhouette, which the anti-aliased color
+          // buffer blends with the surface behind it. The rays reflecting the underside of a solid all land there, so
+          // that whole reflection darkened. Read the color one or two texels further along the ray instead, while the
+          // ray is still inside the solid there (between its front and back depth). Only for hits whose radiance
+          // doesn't depend on the view (non-metals): a mirror's silhouette texel, whose normal is the closest to the
+          // hidden side's, is the better proxy there.
+          If(foundHit, () => {
+            const hitZ = getViewZ(hitD).toVar();
+            const tk = hitThickness(hitUvS, hitD, hitZ).toVar();
+            const sameSurface = (coord) => abs(getViewZ(sampleDepth(coord)).sub(hitZ)).lessThanEqual(tk);
+            const behindSilhouette = sameSurface(hitUvS.sub(vec2(xLen, yLen).normalize().mul(invResolution))).not();
+            const viewIndependent = this.hitMaterialNode.sample(hitUvS).r.lessThan(0.5);
+            If(behindSilhouette.and(viewIndependent), () => {
+              const texelCenter = (coord) => coord.mul(this._resolution).floor().add(0.5).mul(invResolution);
+              for (const k of [1, 2]) {
+                const sK = hitSHi
+                  .add(float(k).div(vec2(xLen, yLen).length()))
+                  .min(1)
+                  .toVar();
+                const candidate = texelCenter(screenPosAt(sK).mul(invResolution)).toVar();
+                const rayZ = reflectRayZAt(sK);
+                const inside = rayZ
+                  .lessThanEqual(getViewZ(sampleDepth(candidate)))
+                  .and(rayZ.greaterThanEqual(getViewZ(this.backDepthNode.sample(candidate).r)));
+                If(inside.and(sameSurface(candidate)), () => {
+                  hitUvS.assign(candidate);
+                  hitD.assign(sampleDepth(candidate));
+                });
+              }
+            });
+          });
+        }
+        return { foundHit, hitUvS, hitD, hitInside, endS, exhausted, sExit };
       };
 
       const output = vec4(0).toVar();
       const hit = float(0).toVar();
-      const { foundHit, hitUvS, hitD, hitInside } = trace(
+      const { foundHit, hitUvS, hitD, hitInside, endS, exhausted, sExit } = trace(
         viewPosition,
         viewNormal,
         viewReflectDir,
@@ -1524,6 +1904,16 @@ class NewSSRNode extends Node {
 
         If(withinRange, () => {
           const hitWorldPosition = this._cameraWorldMatrix.mul(vec4(vP, 1.0)).xyz.toVar();
+          hitDistance.assign(distance(worldPosition, hitWorldPosition));
+          if (this.temporalFilter) {
+            // the velocity buffer at the hit minus the motion the camera alone gives the hit point: the hit
+            // object's own motion, which neither reprojection accounts for
+            const cameraOffset = projectToUV(hitWorldPosition, this._currentViewProjection).sub(
+              projectToUV(hitWorldPosition, this._previousViewProjection),
+            );
+            const velocityOffset = this.velocityNode.sample(uvS).xy.mul(vec2(0.5, -0.5));
+            hitMotion.assign(velocityOffset.sub(cameraOffset).mul(this._resolution).length());
+          }
           const worldDistance = distance(worldPosition, hitWorldPosition).mul(specDominantFactor).toVar();
 
           const reflectColor = this.colorNode.sample(uvS).toVar();
@@ -1531,7 +1921,7 @@ class NewSSRNode extends Node {
           // Multi-bounce: add the reprojected previous-frame reflection at the hit point.
           reflectColor.rgb.assign(reprojectHitPointHistory(uvS, reflectColor.rgb));
 
-          if (this.accumulate && this.hitSpecularNode !== null && this.hitMaterialNode !== null) {
+          if (previousRadianceTexture !== null && this.hitSpecularNode !== null && this.hitMaterialNode !== null) {
             reflectColor.rgb.assign(redirectHitSpecular(uvS, vP, reflectColor.rgb));
           }
 
@@ -1586,13 +1976,35 @@ class NewSSRNode extends Node {
 
       // Radiance mode: blend toward the environment on misses and fades, after the luminance cap so the
       // environment matches the materials. Misses report the environment ray length to the denoisers.
-      if (this.accumulate) {
+      if (this.temporalFilter) this._hitDistanceField.assign(vec2(hitDistance, hitMotion));
+      if (this.accumulate || this.temporalFilter) {
         // ratio-estimator terms, resolved as Σ L·w / Σ w by the accumulation
         output.assign(vec4(mix(sampleEnvRadiance(), output.rgb, hitWeight).mul(sampleRatioWeight), sampleRatioWeight));
       } else if (this.outputRadiance) {
         output.assign(
           vec4(mix(sampleEnvRadiance(), output.rgb, hitWeight), hit.equal(1).select(output.a, float(ENV_RAY_LENGTH))),
         );
+      }
+
+      if (this.debugView === 'hits') {
+        // green: hit within the thickness, yellow: hit inside a solid (back-face depth), red: Hi-Z ran out of
+        // iterations, blue: left the screen, grey: reached the ray's end; the brightness of a hit is its distance
+        // falloff (1 at the origin) so hits on different objects stay distinguishable
+        const falloff = float(1).div(hitDistance.add(1));
+        const color = vec3(0.3).toVar();
+        If(foundHit, () => {
+          color.assign(hitInside.select(vec3(1, 0.8, 0), vec3(0, 1, 0)).mul(falloff.mul(0.7).add(0.3)));
+        })
+          .ElseIf(exhausted, () => {
+            color.assign(vec3(1, 0, 0));
+          })
+          .ElseIf(sExit !== null ? endS.greaterThanEqual(sExit.min(1)).and(sExit.lessThan(1)) : bool(false), () => {
+            color.assign(vec3(0, 0.3, 1));
+          });
+        output.assign(vec4(color, 1));
+      } else if (this.debugView === 'hitcolor') {
+        // the scene color the primary hit samples (black on a miss), before any weighting
+        output.assign(vec4(foundHit.select(this.colorNode.sample(hitUvS).rgb, vec3(0)), 1));
       }
 
       return output.max(0);
@@ -1633,9 +2045,260 @@ class NewSSRNode extends Node {
       this._resolveMaterial.needsUpdate = true;
     }
 
+    if (this.temporalFilter) this._setupTemporalFilter(uvNode, sampleDepth);
+
+    if (this._hiZ) {
+      // level 0: the nearest of the depth samples covering the trace texel (2x2 at half resolution)
+      const quarter = vec2(0.25).div(this._resolution);
+      this._hiZMaterials[0].fragmentNode = vec4(
+        min(
+          min(sampleDepth(uvNode.add(quarter.mul(vec2(-1, -1)))), sampleDepth(uvNode.add(quarter.mul(vec2(1, -1))))),
+          min(sampleDepth(uvNode.add(quarter.mul(vec2(-1, 1)))), sampleDepth(uvNode.add(quarter))),
+        ),
+      );
+      // level L: the nearest of the 2x2 texels of level L - 1, plus the leftover row/column of an odd-sized source
+      // (a 3x3 footprint, clamped), so every source texel is covered
+      const downsample = (source, sourceLevel) =>
+        Fn(() => {
+          const sourceSize = ivec2(textureSize(textureLoad(source), int(sourceLevel)));
+          const size = sourceSize.div(2).max(1);
+          const base = ivec2(uvNode.mul(vec2(size)).floor()).mul(2);
+          const last = sourceSize.sub(1);
+          const tap = (x, y) => textureLoad(source, base.add(ivec2(x, y)).min(last), int(sourceLevel)).r;
+          const nearest = min(min(tap(0, 0), tap(1, 0)), min(tap(0, 1), tap(1, 1))).toVar();
+          for (const [x, y] of [
+            [2, 0],
+            [2, 1],
+            [2, 2],
+            [0, 2],
+            [1, 2],
+          ]) {
+            nearest.assign(min(nearest, tap(x, y)));
+          }
+          return vec4(nearest);
+        })();
+      for (let level = 1; level < HIZ_LEVELS; level++) {
+        this._hiZMaterials[level].fragmentNode = downsample(this._hiZTargets[(level - 1) % 2].texture, level - 1);
+      }
+      for (const m of this._hiZMaterials) m.needsUpdate = true;
+    }
+
     //
 
     return this.getTextureNode();
+  }
+
+  /**
+   * Builds the real-time filter passes (see `temporalFilter`): spatial ratio-estimator resolve, temporal
+   * accumulation, history copy and the previous-frame geometry used to validate reprojected history.
+   *
+   * @private
+   */
+  _setupTemporalFilter(uvNode, sampleDepth) {
+    const ratioTexture = texture(this._ssrRenderTarget.textures[0]);
+    const distanceTexture = texture(this._ssrRenderTarget.textures[1]);
+    const spatialTexture = texture(this._spatialTarget.texture);
+    const historyTexture = texture(this._historyTarget.texture);
+    const geometryTexture = texture(this._geometryTarget.texture);
+    const resolution = this._resolution;
+    const texel = vec2(1).div(resolution);
+    // exact texel of a UV (the per-pixel samples must not be blended bilinearly)
+    const snap = (coord) => coord.mul(resolution).floor().add(0.5).mul(texel);
+    const viewPositionAt = (coord, depth) => getViewPosition(coord, depth, this._cameraProjectionMatrixInverse);
+    const normalAt = (coord) => this.normalNode.sample(coord).rgb.normalize();
+    const roughnessAt = (coord) => this.hitMaterialNode.sample(coord).g;
+
+    // Spatial: Σ L·w / Σ w over this pixel's and up to 8 neighbours' rays (Stachowiak 2015), each neighbour weighted by
+    // plane distance, normal and roughness similarity. The radius follows the lobe width (GGX alpha); mirrors keep
+    // their own ray. Also resolves the w-weighted hit distance for the virtual-point reprojection.
+    const spatial = Fn(() => {
+      const depth = sampleDepth(uvNode).toVar();
+      depth.greaterThanEqual(1.0).discard();
+      const P = viewPositionAt(uvNode, depth).toVar();
+      const N = normalAt(uvNode).toVar();
+      const roughness = roughnessAt(uvNode).toVar();
+      const center = ratioTexture.sample(uvNode).toVar();
+      center.assign(isFiniteSample(center).select(center, vec4(0)));
+      const numerator = center.rgb.toVar();
+      const denominator = center.a.toVar();
+      const distanceSum = center.a.mul(distanceTexture.sample(uvNode).r).toVar();
+      const radius = roughness.mul(roughness).mul(this.spatialRadius).min(this.spatialMaxRadius).toVar();
+      If(radius.greaterThan(0.5), () => {
+        const pixel = uvNode.mul(resolution).floor();
+        const seed = pixel.x.add(pixel.y.mul(resolution.x));
+        const rotation = fract(hash(seed.mul(3).add(1)).add(float(this._frameIndex).mul(0.618034))).mul(Math.PI * 2);
+        const TAPS = 8;
+        for (let i = 0; i < TAPS; i++) {
+          const angle = rotation.add(i * 2.399963);
+          const uvTap = snap(
+            uvNode.add(
+              vec2(cos(angle), sin(angle))
+                .mul(radius.mul(Math.sqrt((i + 0.5) / TAPS)))
+                .mul(texel),
+            ),
+          );
+          const inside = uvTap.x
+            .greaterThan(0)
+            .and(uvTap.x.lessThan(1))
+            .and(uvTap.y.greaterThan(0))
+            .and(uvTap.y.lessThan(1));
+          const tapDepth = sampleDepth(uvTap);
+          const planeDistance = abs(dot(N, viewPositionAt(uvTap, tapDepth).sub(P))).div(abs(P.z).mul(0.01).add(1e-4));
+          const weight = float(1)
+            .sub(planeDistance)
+            .max(0)
+            .mul(dot(N, normalAt(uvTap)).max(0).pow(16))
+            .mul(
+              abs(roughness.sub(roughnessAt(uvTap)))
+                .mul(-20)
+                .exp(),
+            )
+            .mul(inside.and(tapDepth.lessThan(1)).select(float(1), float(0)))
+            .toVar();
+          const tap = ratioTexture.sample(uvTap).toVar();
+          weight.mulAssign(isFiniteSample(tap).select(float(1), float(0)));
+          numerator.addAssign(tap.rgb.mul(weight));
+          denominator.addAssign(tap.a.mul(weight));
+          distanceSum.addAssign(tap.a.mul(weight).mul(distanceTexture.sample(uvTap).r));
+        }
+      });
+      const inverse = float(1).div(denominator.max(1e-8));
+      return vec4(numerator.mul(inverse), distanceSum.mul(inverse));
+    });
+    this._spatialMaterial.fragmentNode = spatial();
+    this._spatialMaterial.needsUpdate = true;
+
+    // Temporal: reproject the history along the surface motion and to the reflection's virtual point (the hit seen
+    // through the mirror, which is what moves on screen for sharp reflections), keep whichever valid one is closer to
+    // this frame's neighbourhood, variance-clip it and blend with 1/n, n capped by a roughness-dependent history length.
+    const temporal = Fn(() => {
+      const depth = sampleDepth(uvNode).toVar();
+      depth.greaterThanEqual(1.0).discard();
+      const P = viewPositionAt(uvNode, depth).toVar();
+      const worldPosition = this._cameraWorldMatrix.mul(vec4(P, 1)).xyz.toVar();
+      const worldNormal = this._cameraWorldMatrix
+        .mul(vec4(normalAt(uvNode), 0))
+        .xyz.normalize()
+        .toVar();
+      const roughness = roughnessAt(uvNode).toVar();
+      const current = spatialTexture.sample(uvNode).toVar();
+
+      const m1 = vec3(0).toVar();
+      const m2 = vec3(0).toVar();
+      for (let y = -1; y <= 1; y++) {
+        for (let x = -1; x <= 1; x++) {
+          const c = toYCoCg(spatialTexture.sample(uvNode.add(vec2(x, y).mul(texel))).rgb).toVar();
+          m1.addAssign(c);
+          m2.addAssign(c.mul(c));
+        }
+      }
+      const mean = m1.div(9).toVar();
+      // dilated: the largest hit-object motion around this pixel
+      const motion = float(0).toVar();
+      for (let y = -1; y <= 1; y++) {
+        for (let x = -1; x <= 1; x++) {
+          motion.assign(max(motion, distanceTexture.sample(uvNode.add(vec2(x, y).mul(texel))).g));
+        }
+      }
+      const dynamic = motion.smoothstep(0.1, 1).toVar();
+      const sigma = sqrt(m2.div(9).sub(mean.mul(mean)).max(0)).toVar();
+
+      const project = projectToUV;
+      const cameraPosition = this._cameraWorldPosition;
+      const previousDistance = distance(this._previousCameraPosition, worldPosition).toVar();
+
+      const uvSurface = uvNode.sub(this.velocityNode.sample(uvNode).xy.mul(vec2(0.5, -0.5))).toVar();
+      const geometrySurface = geometryTexture.sample(uvSurface).toVar();
+      const validSurface = insideScreen(uvSurface)
+        .and(dot(geometrySurface.xyz, worldNormal).greaterThan(0.9))
+        .and(abs(geometrySurface.w.sub(previousDistance)).lessThan(previousDistance.mul(0.05)));
+
+      const viewDirection = worldPosition.sub(cameraPosition).normalize();
+      const virtualPoint = cameraPosition.add(
+        viewDirection.mul(distance(cameraPosition, worldPosition).add(current.a)),
+      );
+      // like the velocity buffer: the virtual point's motion between the two unjittered cameras, applied to this pixel,
+      // so TRAA's sub-pixel jitter doesn't resample (blur) the history every frame
+      const uvVirtual = uvNode
+        .add(project(virtualPoint, this._previousViewProjection))
+        .sub(project(virtualPoint, this._currentViewProjection))
+        .toVar();
+      const geometryVirtual = geometryTexture.sample(uvVirtual).toVar();
+      const validVirtual = insideScreen(uvVirtual).and(dot(geometryVirtual.xyz, worldNormal).greaterThan(0.9));
+
+      const historySurface = historyTexture.sample(uvSurface).toVar();
+      const historyVirtual = historyTexture.sample(uvVirtual).toVar();
+      const score = (h) => abs(toYCoCg(h.rgb).x.sub(mean.x)).div(sigma.x.add(1e-4));
+      const useVirtual = validVirtual.and(validSurface.not().or(score(historyVirtual).lessThan(score(historySurface))));
+      const history = useVirtual.select(historyVirtual, historySurface).toVar();
+      const valid = validVirtual.or(validSurface).and(this._historyValid.greaterThan(0));
+
+      const maxFrames = mix(
+        mix(this.historyMin, this.historyMax, roughness.div(this.historyRoughness).clamp()),
+        this.dynamicHistory,
+        dynamic,
+      );
+      const frames = valid.select(history.a.add(1), float(1)).min(maxFrames).toVar();
+      const box = sigma.mul(mix(this.clipGamma, this.dynamicClipGamma, dynamic));
+      const clipped = fromYCoCg(toYCoCg(history.rgb).clamp(mean.sub(box), mean.add(box)));
+      return vec4(mix(clipped, current.rgb, float(1).div(frames)), frames);
+    });
+    this._temporalMaterial.fragmentNode = temporal();
+    this._temporalMaterial.needsUpdate = true;
+
+    this._historyCopyMaterial.fragmentNode = texture(this._temporalTarget.texture).sample(uvNode);
+    this._historyCopyMaterial.needsUpdate = true;
+
+    // this frame's geometry for next frame's validation: world normal and distance to the (unjittered) camera
+    this._geometryMaterial.fragmentNode = Fn(() => {
+      const depth = sampleDepth(uvNode).toVar();
+      depth.greaterThanEqual(1.0).discard();
+      const worldPosition = this._cameraWorldMatrix.mul(vec4(viewPositionAt(uvNode, depth), 1)).xyz;
+      const worldNormal = this._cameraWorldMatrix.mul(vec4(normalAt(uvNode), 0)).xyz.normalize();
+      return vec4(worldNormal, distance(this._cameraWorldPosition, worldPosition));
+    })();
+    this._geometryMaterial.needsUpdate = true;
+
+    // Joint bilateral upsample (identity at full resolution): the 4 nearest filtered texels, bilinear weights times
+    // plane-distance and normal similarity to this full-resolution pixel, so reflections don't bleed across edges.
+    const temporalTexture = texture(this._temporalTarget.texture);
+    this._upsampleMaterial.fragmentNode = Fn(() => {
+      const depth = sampleDepth(uvNode).toVar();
+      depth.greaterThanEqual(1.0).discard();
+      const P = viewPositionAt(uvNode, depth).toVar();
+      const N = normalAt(uvNode).toVar();
+      const coord = uvNode.mul(resolution).sub(0.5).toVar();
+      const base = coord.floor().toVar();
+      const f = coord.sub(base).toVar();
+      const sum = vec3(0).toVar();
+      const weightSum = float(0).toVar();
+      for (const [x, y] of [
+        [0, 0],
+        [1, 0],
+        [0, 1],
+        [1, 1],
+      ]) {
+        const uvTap = base
+          .add(vec2(x, y))
+          .add(0.5)
+          .mul(texel)
+          .clamp(texel.mul(0.5), vec2(1).sub(texel.mul(0.5)));
+        const tapDepth = sampleDepth(uvTap);
+        const bilinear = (x ? f.x : f.x.oneMinus()).mul(y ? f.y : f.y.oneMinus());
+        const plane = abs(dot(N, viewPositionAt(uvTap, tapDepth).sub(P))).div(abs(P.z).mul(0.01).add(1e-4));
+        const weight = bilinear
+          .add(1e-3)
+          .mul(float(1).sub(plane).max(0))
+          .mul(dot(N, normalAt(uvTap)).max(0).pow(8))
+          .mul(tapDepth.lessThan(1).select(float(1), float(0)))
+          .toVar();
+        sum.addAssign(temporalTexture.sample(uvTap).rgb.mul(weight));
+        weightSum.addAssign(weight);
+      }
+      // no compatible texel (thin feature): nearest
+      return vec4(weightSum.greaterThan(1e-4).select(sum.div(weightSum), temporalTexture.sample(uvNode).rgb), 1);
+    })();
+    this._upsampleMaterial.needsUpdate = true;
   }
 
   getRenderTarget() {
@@ -1661,6 +2324,25 @@ class NewSSRNode extends Node {
       this._resolveMaterial.dispose();
     }
     this._copyMaterial.dispose();
+    if (this._hiZ) {
+      for (const t of this._hiZTargets) t.dispose();
+      for (const m of this._hiZMaterials) m.dispose();
+    }
+    if (this.temporalFilter) {
+      for (const t of [this._spatialTarget, this._temporalTarget, this._historyTarget, this._geometryTarget]) {
+        t.dispose();
+      }
+      this._upsampleTarget.dispose();
+      this._upsampleMaterial.dispose();
+      for (const m of [
+        this._spatialMaterial,
+        this._temporalMaterial,
+        this._historyCopyMaterial,
+        this._geometryMaterial,
+      ]) {
+        m.dispose();
+      }
+    }
 
     if (this._importanceEnvironment !== null) {
       this._importanceEnvironment.dispose();

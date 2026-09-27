@@ -1,4 +1,11 @@
-export const RENDERERS = ['three-new-ssgi', 'three-ss-legacy', 'three-new-ssr', 'three-gpu-pathtracer'] as const;
+export const RENDERERS = [
+  'three-new-ssgi',
+  'three-ss-legacy',
+  'three-new-ssr',
+  'three-new-ssr-fast',
+  'three-new-ssr-rt',
+  'three-gpu-pathtracer',
+] as const;
 export type RendererName = (typeof RENDERERS)[number];
 
 /** Every screen-space renderer: everything but the path-traced reference. */

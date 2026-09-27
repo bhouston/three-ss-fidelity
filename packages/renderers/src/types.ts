@@ -7,6 +7,7 @@ export const rendererNames = [
   'three-new-ssr',
   'three-new-ssr-fast',
   'three-new-ssgi-fast',
+  'three-new-ssr-rt',
   'three-gpu-pathtracer',
 ] as const;
 export type RendererName = (typeof rendererNames)[number];
@@ -46,6 +47,24 @@ export interface SSRFastOptions {
   backDepthResolutionScale?: number;
   /** March step density, 0..1, for the second (hit-specular) bounce only; defaults to `quality`. */
   secondBounceQuality?: number;
+  /**
+   * three-new-ssr-rt: one pipeline frame per rendered frame (no sub-frame accumulation loop). How the stochastic
+   * reflections converge over time: `'reset'` keeps the running mean that restarts on every camera change, `'fork'`
+   * uses the three.js fork's temporal reprojection + recurrent denoiser chain (the one three-new-ssgi uses for its SSR),
+   * `'sssr'` NewSSRNode's own stochastic-SSR-style spatial ratio-estimator resolve + temporal filter. See SSR_TEMPORAL.md.
+   */
+  realtime?: 'reset' | 'fork' | 'sssr';
+  /** Cap on the dense march's steps per ray (steps then grow away from the origin); unset marches uncapped. */
+  maxMarchSteps?: number;
+  /** Resolution of the SSR trace and its filter relative to the effects' resolution (three-new-ssr uses 1). */
+  traceResolutionScale?: number;
+  /** Hierarchical (Hi-Z min-depth pyramid) traversal instead of the dense march. */
+  hiZ?: boolean;
+  /**
+   * Read a non-metal hit's color from inside the hit object's screen footprint instead of its anti-aliased silhouette
+   * texel when the ray entered the footprint behind the visible surface (e.g. reflecting a solid's hidden underside).
+   */
+  silhouetteFetch?: boolean;
 }
 
 /**
@@ -89,6 +108,14 @@ export interface RendererOptions {
   ssrFast?: SSRFastOptions;
   /** three-new-ssgi-fast speed options for direct createSSGIRenderer callers; the registry selects it by name. */
   ssgiFast?: SSGIFastOptions;
+  /** Screen-space renderers: record WebGPU timestamp queries (renderer.resolveTimestampsAsync) for GPU timing. */
+  trackTimestamp?: boolean;
+  /**
+   * Diagnostic (three-new-ssr*): output NewSSRNode's trace pass instead of the image. 'hits' colors the primary ray's
+   * outcome (green: hit, yellow: hit inside a solid, red: Hi-Z out of iterations, blue: left the screen, grey: missed),
+   * 'hitcolor' shows the scene color the hit read.
+   */
+  ssrDebug?: 'hits' | 'hitcolor';
   /** Diagnostic GI reconstruction in three-new-ssgi beauty passes; defaults to the existing denoised pipeline. */
   ssgiReconstruction?: 'raw' | 'temporal' | 'denoised';
   /**

@@ -62,6 +62,23 @@ const screenSpaceOptions: Record<
       secondBounceQuality: 0.4,
     },
   },
+  // three-new-ssr-rt: three-new-ssr-fast's tracing at one pipeline frame per rendered frame, converging with a
+  // temporal filter instead of the sub-frame loop (see SSR_TEMPORAL.md).
+  'three-new-ssr-rt': {
+    ssgiWeighting: 'solid-angle',
+    ssrMethod: 'new',
+    ssrFast: {
+      clipRaysToScreen: true,
+      secondBounceRoughnessCutoff: 0.8,
+      quality: 0.6,
+      secondBounceQuality: 0.4,
+      realtime: 'sssr',
+      hiZ: true,
+      // read hits of hidden surfaces from inside the object instead of its anti-aliased silhouette (the dark band
+      // under the sphere in ssr-diag-dielectric-0)
+      silhouetteFetch: true,
+    },
+  },
   // three-new-ssgi-fast: built on three-new-ssr-fast (same ssgiWeighting/ssrMethod/ssrFast) plus SSGI-side speed
   // flags on the vendored SSGINode (packages/renderers/src/ssgi-fast/), each an explicit, togglable optimization
   // measured and logged in SSGI_FAST.md. Every field starts at its three-new-ssr-fast-reproducing default; each

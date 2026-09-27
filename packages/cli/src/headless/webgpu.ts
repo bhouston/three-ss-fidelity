@@ -157,7 +157,14 @@ function patchCopyExternalImageToTexture(): void {
 export function install(): void {
   const scope = globalThis as Record<string, unknown>;
   Object.assign(scope, globals);
-  Object.defineProperty(globalThis.navigator, 'gpu', { value: create([]), configurable: true });
+  // disable_timestamp_quantization: dawn rounds GPUQuerySet timestamp results to a coarse granularity by
+  // default (a WebGPU spec mitigation against timing side-channels), which inflates `cli bench --gpu`'s
+  // per-pass GPU timings well past wall-clock time when many short passes each round up. Safe in this
+  // headless benchmark process (no browser sandbox to protect). allow_unsafe_apis is required to unlock it.
+  Object.defineProperty(globalThis.navigator, 'gpu', {
+    value: create(['enable-dawn-features=allow_unsafe_apis,disable_timestamp_quantization']),
+    configurable: true,
+  });
   scope.self ??= globalThis;
   scope.requestAnimationFrame ??= (callback: (time: number) => void) =>
     setTimeout(() => callback(performance.now()), 0);

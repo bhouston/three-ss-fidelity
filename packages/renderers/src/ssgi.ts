@@ -167,6 +167,7 @@ function createPipeline(
   ssrMethod: NonNullable<RendererOptions['ssrMethod']>,
   ssrFast: SSRFastOptions,
   ssgiFast: SSGIFastOptions | undefined,
+  ssrDebug: RendererOptions['ssrDebug'],
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const tsl = {
@@ -213,7 +214,15 @@ function createPipeline(
 
   // scene pass, anti-aliased; the effects sample its previous (anti-aliased) frame reprojected to the current one
   const scenePass = pass(scene, camera);
-  const aaPass: AnyNode = ssgiExample ? traa(scenePass, prePassDepth, prePassVelocity, camera) : smaa(scenePass);
+  // three-new-ssr-rt always uses TRAA: its reflections converge over time, and TRAA integrates them with the rest
+  const useTRAA = ssgiExample || ssrFast.realtime !== undefined;
+  const aaPass: AnyNode = useTRAA ? traa(scenePass, prePassDepth, prePassVelocity, camera) : smaa(scenePass);
+  // three-new-ssr-rt: once the view is still, TRAA's history becomes an exact running mean (render() below restarts
+  // it when an object moves)
+  if (ssrFast.realtime !== undefined) {
+    aaPass.progressive = true;
+    (renderPipeline as AnyNode).progressiveTRAA = aaPass;
+  }
   const previousFrame = texture(aaPass.getTextureNode().value);
   const previousRadiance = sample((uv: AnyNode) =>
     previousFrame.sample(uv.sub(prePassVelocity.sample(uv).xy.mul(vec2(0.5, -0.5)))),
@@ -306,6 +315,7 @@ function createPipeline(
   };
 
   let reflections: AnyNode = null;
+  let debugOutput: AnyNode = null;
   if (effects.ssr) {
     const params = effects.ssr;
     const ssrPass = tsl.ssr(previousRadiance, prePassDepth, sceneNormal, {
@@ -320,7 +330,15 @@ function createPipeline(
         ? {
             reflectNonMetals: true,
             stochastic: true,
-            accumulate: true,
+            // three-new-ssr-rt 'fork': per-frame vec4(L, hit distance) for the fork's temporal chain below
+            accumulate: ssrFast.realtime === undefined || ssrFast.realtime === 'reset',
+            // three-new-ssr-rt 'sssr': NewSSRNode's own spatial + temporal filter
+            temporalFilter: ssrFast.realtime === 'sssr',
+            velocityNode: prePassVelocity,
+            maxMarchSteps: ssrFast.maxMarchSteps ?? null,
+            hiZ: ssrFast.hiZ ?? false,
+            silhouetteFetch: ssrFast.silhouetteFetch ?? false,
+            debugView: ssrDebug ?? null,
             backDepthNode: backDepth(ssrFast.backDepthResolutionScale ?? 1),
             hitMaterialNode: prePass.getTextureNode('metalRoughness'),
             hitSpecularNode: prePass.getTextureNode('specular'),
@@ -348,7 +366,7 @@ function createPipeline(
     if (params.thickness !== undefined) ssrPass.thickness.value = params.thickness;
     ssrPass.binaryRefine = ssrMethod === 'new' ? true : (params.binaryRefine ?? ssrPass.binaryRefine);
     ssrPass.useTemporalFiltering = temporal; // without temporal accumulation the march jitter is kept fixed
-    ssrPass.resolutionScale = resolutionScale;
+    ssrPass.resolutionScale = resolutionScale * (ssrFast.traceResolutionScale ?? 1);
     if (ssrMethod === 'new') {
       // unbiased reference: full VNDF lobe, no luminance clamp, no screen-edge fade (a hit is a hit;
       // rays leaving the screen fall back to the environment), fresh samples every frame
@@ -358,9 +376,48 @@ function createPipeline(
       ssrPass.useTemporalFiltering = true;
     }
 
-    if (ssrMethod === 'new') {
+    if (ssrFast.realtime === 'fork') {
+      // three-new-ssr-rt: the fork's specular reprojection + recurrent denoiser, wired like three-new-ssgi's below,
+      // and its output (reprojected to the current frame) is the radiance the hit-specular redirection subtracts
+      const ssrReprojected = tsl.temporalReproject(ssrPass, prePassDepth, prePassNormal, prePassVelocity, camera, {
+        mode: 'specular',
+        previousFrameGeometry: sharedPreviousFrame ?? previousFrameGeometry(prePassDepth, prePassNormal),
+      });
+      ssrReprojected.maxFrames.value = 16;
+      ssrReprojected.clampIntensity.value = 0.25;
+      const ssrDenoised = tsl.recurrentDenoise(ssrReprojected, camera, {
+        depth: prePassDepth,
+        normal: prePassNormal,
+        raw: ssrPass,
+        metalRoughness: prePassMetalRoughness,
+        mode: 'specular',
+      });
+      ssrDenoised.alphaSource = 'raylength';
+      ssrDenoised.lumaPhi.value = 0.75;
+      ssrDenoised.depthPhi.value = 20;
+      ssrDenoised.normalPhi.value = 0.3;
+      ssrDenoised.radius.value = 1.5;
+      ssrDenoised.alphaPhi.value = 5;
+      ssrDenoised.strength.value = 0.725;
+      ssrDenoised.adaptiveTrust.value = 1;
+      ssrDenoised.useTemporalFiltering = true;
+      ssrReprojected.setHistoryTexture(ssrDenoised);
+      ssrReprojected.resolutionScale = ssrDenoised.resolutionScale = resolutionScale;
+      const filtered = texture(ssrDenoised.getTextureNode().value);
+      ssrPass.radianceHistoryNode = sample((uv: AnyNode) =>
+        filtered.sample(uv.sub(prePassVelocity.sample(uv).xy.mul(vec2(0.5, -0.5)))),
+      );
+      reflections = ssrDenoised.getTextureNode().sample(screenUV).rgb;
+    } else if (ssrMethod === 'new') {
       // NewSSRNode accumulates internally (see `accumulate`); the clamping reprojection/denoise chain would bias it
       reflections = ssrPass.getTextureNode().sample(screenUV).rgb;
+      if (ssrDebug) {
+        // the trace pass's own target (the debug view), while the reflections and the scene pass still run so the
+        // next frame's hits read a real scene color
+        debugOutput = vec4(texture(ssrPass._ssrRenderTarget.textures[0]).sample(screenUV).rgb, 1)
+          .add(reflections.mul(0))
+          .add(aaPass.mul(0));
+      }
     } else if (temporal) {
       // reflections are reprojected with their hit points (specular mode)
       const ssrReprojected = tsl.temporalReproject(ssrPass, prePassDepth, prePassNormal, prePassVelocity, camera, {
@@ -431,7 +488,7 @@ function createPipeline(
     scenePass.contextNode = radiance;
   }
 
-  renderPipeline.outputNode = aaPass;
+  renderPipeline.outputNode = debugOutput ?? aaPass;
   return renderPipeline;
 }
 
@@ -447,11 +504,13 @@ export async function createSSGIRenderer(
     ssrMethod = 'fork',
     ssrFast,
     ssgiFast,
+    trackTimestamp = false,
+    ssrDebug,
   }: RendererOptions,
 ): Promise<LiveRenderer> {
   const setup = { ...sceneSetup, effects: passEffects(sceneSetup, renderPass) };
   const { scene, camera, effects } = setup;
-  const renderer = new WebGPURenderer({ canvas, antialias: false });
+  const renderer = new WebGPURenderer({ canvas, antialias: false, trackTimestamp });
   renderer.shadowMap.enabled = true;
   if (renderPass === 'ao') renderer.outputColorSpace = LinearSRGBColorSpace;
   renderer.toneMapping = effects.toneMapping;
@@ -477,13 +536,16 @@ export async function createSSGIRenderer(
     ssrMethod,
     ssrFast ?? {},
     ssgiFast,
+    ssrDebug,
   );
   let frames = 0;
+  let sceneSignature = 0;
   // three-new-ssr accumulates stochastic reflections over at least ACCUM_FRAMES pipeline frames per output frame
   // budget: each render() runs several pipeline frames (scenes without SSR are left unchanged). three-new-ssr-fast
   // can lower this budget via ssrFast.accumFrames (time-to-image: fewer frames at the same per-frame cost).
   const accumFrames = ssrFast?.accumFrames ?? SSR_ACCUM_FRAMES;
-  const subFrames = ssrMethod === 'new' && effects.ssr ? Math.max(1, Math.ceil(accumFrames / effects.frames)) : 1;
+  const subFrames =
+    ssrMethod === 'new' && effects.ssr && !ssrFast?.realtime ? Math.max(1, Math.ceil(accumFrames / effects.frames)) : 1;
 
   const handle: LiveRenderer = {
     name:
@@ -492,15 +554,25 @@ export async function createSSGIRenderer(
         : ssrMethod === 'new'
           ? ssgiFast !== undefined
             ? 'three-new-ssgi-fast'
-            : ssrFast !== undefined
-              ? 'three-new-ssr-fast'
-              : 'three-new-ssr'
+            : ssrFast?.realtime
+              ? 'three-new-ssr-rt'
+              : ssrFast !== undefined
+                ? 'three-new-ssr-fast'
+                : 'three-new-ssr'
           : 'three-new-ssgi',
     renderer,
     get frames() {
       return frames;
     },
     render() {
+      const progressive = (renderPipeline as AnyNode).progressiveTRAA;
+      if (progressive) {
+        // ponytail: sums every world matrix per frame, O(objects); a scene version counter if scenes get big
+        let signature = 0;
+        setup.scene.traverse((o) => o.matrixWorld.elements.forEach((e, i) => (signature += e * (i + 1))));
+        if (signature !== sceneSignature) progressive.resetAccumulation();
+        sceneSignature = signature;
+      }
       for (let i = 0; i < subFrames; i++) {
         // effect passes only advance with the node frame, which the animation loop updates once per display
         // frame: advance it for the extra pipeline frames rendered within this one

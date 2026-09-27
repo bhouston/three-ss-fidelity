@@ -176,6 +176,8 @@ class NewSSRNode extends Node {
       velocityNode = null,
       maxMarchSteps = null,
       hiZ = false,
+      debugView = null,
+      silhouetteFetch = false,
       // three-new-ssr-fast options (see SSRFastOptions in types.ts). Every default below reproduces
       // three-new-ssr's reference behavior exactly, so leaving them unset changes nothing.
       clipRaysToScreen = false,
@@ -191,6 +193,22 @@ class NewSSRNode extends Node {
      * @type {?number}
      */
     this._secondBounceQuality = secondBounceQuality;
+
+    /**
+     * Diagnostic: the trace pass writes the primary ray's outcome ('hits') or the scene color it read ('hitcolor')
+     * instead of radiance (see the `debugView` block at the end of the ssr() shader). Compile-time constant.
+     *
+     * @type {?('hits'|'hitcolor')}
+     */
+    this.debugView = debugView;
+
+    /**
+     * Reads a hit's color from inside the hit object's screen footprint instead of its anti-aliased silhouette texel
+     * (see the trace). Needs `backDepthNode` and `hitMaterialNode`. Compile-time constant.
+     *
+     * @type {boolean}
+     */
+    this._silhouetteFetch = silhouetteFetch && backDepthNode !== null && hitMaterialNode !== null;
 
     /**
      * perf(three-new-ssr-fast): precompute the ray parameter where the march leaves the screen once per
@@ -1598,6 +1616,16 @@ class NewSSRNode extends Node {
             ? (idx) => idx.add(jitter.sub(0.5)).div(totalStep).max(0)
             : (idx) => max(idx.add(jitter.sub(0.5)).div(totalStep).pow(this.stepExponent), idx.div(rayLen));
 
+        // How far behind the depth buffer at (uvS, depth d, view z vZ) a crossing still counts as a hit: at least three
+        // texels' width, and depth-proportional (McGuire & Mara / Unreal HZB SSR): a surface farther from the camera is
+        // assumed thicker in world units for the same screen footprint, so solid occluders (the camera body, a box
+        // hiding another box) don't get leaked through as the ray recedes.
+        const hitThickness = (uvS, d, vZ) => {
+          const vP = getViewPosition(uvS, d, this._cameraProjectionMatrixInverse);
+          const vPNeighbor = getViewPosition(uvS.add(uvPixelStepX), d, this._cameraProjectionMatrixInverse);
+          return max(vPNeighbor.x.sub(vP.x).mul(3), max(this.thickness, abs(vZ).mul(0.02)));
+        };
+
         // Carry the hit out of the loop so refinement runs after the march, not nested inside it (a
         // loop-inside-a-loop tripped shader-compiler bugs on some drivers). hitSLo/hitSHi bracket s.
         const foundHit = bool(false).toVar();
@@ -1607,6 +1635,9 @@ class NewSSRNode extends Node {
         // Carry the coarse hit's UV/depth to skip a redundant fetch when refinement is off.
         const hitUvS = vec2(0).toVar();
         const hitD = float(0).toVar();
+        // where the march stopped (debugView): the ray parameter reached, and whether the Hi-Z loop ran out
+        const endS = float(0).toVar();
+        const exhausted = bool(false).toVar();
 
         if (hiZ) {
           // Hi-Z traversal: at each step the ray's current cell at `level`; if the ray stays in front of the nearest
@@ -1667,8 +1698,7 @@ class NewSSRNode extends Node {
                   // the dense march's acceptance (radiance mode): within the thickness, or inside the solid
                   const vP = getViewPosition(uvS, d, this._cameraProjectionMatrixInverse).toVar();
                   const away = pointToLineDistance(vP, rayOrigin, d1viewPosition).toVar();
-                  const vPNeighbor = getViewPosition(uvS.add(uvPixelStepX), d, this._cameraProjectionMatrixInverse);
-                  const tk = max(vPNeighbor.x.sub(vP.x).mul(3), max(this.thickness, abs(vZ).mul(0.02))).toVar();
+                  const tk = hitThickness(uvS, d, vZ).toVar();
                   const insideSolid =
                     this.backDepthNode !== null
                       ? viewReflectRayZ.greaterThanEqual(getViewZ(this.backDepthNode.sample(uvS).r).sub(tk))
@@ -1686,12 +1716,20 @@ class NewSSRNode extends Node {
                 sCur.assign(sNext);
               });
           });
+          endS.assign(sCur);
+          exhausted.assign(
+            foundHit
+              .not()
+              .and(sCur.lessThan(1))
+              .and(this._clipRaysToScreen ? sCur.lessThanEqual(sExit) : bool(true)),
+          );
         } else {
           // March from d0 toward d1 (inclusive), looking for an intersection with the depth buffer.
           Loop({ start: int(1), end: totalStep, condition: '<=' }, ({ i }) => {
             // Exponentially-distributed ray parameter, shared by the sample position and ray depth.
             // The jitter can push the last step past d1, so clamp it to the ray's end.
             const s = sampleFraction(float(i)).min(1).toVar();
+            endS.assign(s);
 
             const xy = screenPosAt(s).toVar();
 
@@ -1720,14 +1758,7 @@ class NewSSRNode extends Node {
               const vP = getViewPosition(uvS, d, this._cameraProjectionMatrixInverse).toVar();
               const away = pointToLineDistance(vP, rayOrigin, d1viewPosition).toVar();
 
-              const uvNeighbor = uvS.add(uvPixelStepX).toVar();
-              const vPNeighbor = getViewPosition(uvNeighbor, d, this._cameraProjectionMatrixInverse).toVar();
-              const minThickness = vPNeighbor.x.sub(vP.x).mul(3).toVar();
-              // Depth-proportional thickness (McGuire & Mara / Unreal HZB SSR): a surface farther from the
-              // camera is assumed thicker in world units for the same screen footprint, so solid occluders
-              // (the camera body, a box hiding another box) don't get leaked through as the ray recedes.
-              const depthProportionalThickness = abs(vZ).mul(0.02).toVar();
-              const tk = max(minThickness, max(this.thickness, depthProportionalThickness)).toVar();
+              const tk = hitThickness(uvS, d, vZ).toVar();
 
               // Dual-layer depth: inside the solid (behind its front surface, in front of its back surface).
               const insideSolid =
@@ -1808,12 +1839,46 @@ class NewSSRNode extends Node {
           }
         });
 
-        return { foundHit, hitUvS, hitD, hitInside };
+        if (this._silhouetteFetch) {
+          // A ray that enters an object's screen footprint behind its visible surface (reflecting its hidden
+          // underside, say) is accepted on the footprint's first texel: the silhouette, which the anti-aliased color
+          // buffer blends with the surface behind it. The rays reflecting the underside of a solid all land there, so
+          // that whole reflection darkened. Read the color one or two texels further along the ray instead, while the
+          // ray is still inside the solid there (between its front and back depth). Only for hits whose radiance
+          // doesn't depend on the view (non-metals): a mirror's silhouette texel, whose normal is the closest to the
+          // hidden side's, is the better proxy there.
+          If(foundHit, () => {
+            const hitZ = getViewZ(hitD).toVar();
+            const tk = hitThickness(hitUvS, hitD, hitZ).toVar();
+            const sameSurface = (coord) => abs(getViewZ(sampleDepth(coord)).sub(hitZ)).lessThanEqual(tk);
+            const behindSilhouette = sameSurface(hitUvS.sub(vec2(xLen, yLen).normalize().mul(invResolution))).not();
+            const viewIndependent = this.hitMaterialNode.sample(hitUvS).r.lessThan(0.5);
+            If(behindSilhouette.and(viewIndependent), () => {
+              const texelCenter = (coord) => coord.mul(this._resolution).floor().add(0.5).mul(invResolution);
+              for (const k of [1, 2]) {
+                const sK = hitSHi
+                  .add(float(k).div(vec2(xLen, yLen).length()))
+                  .min(1)
+                  .toVar();
+                const candidate = texelCenter(screenPosAt(sK).mul(invResolution)).toVar();
+                const rayZ = reflectRayZAt(sK);
+                const inside = rayZ
+                  .lessThanEqual(getViewZ(sampleDepth(candidate)))
+                  .and(rayZ.greaterThanEqual(getViewZ(this.backDepthNode.sample(candidate).r)));
+                If(inside.and(sameSurface(candidate)), () => {
+                  hitUvS.assign(candidate);
+                  hitD.assign(sampleDepth(candidate));
+                });
+              }
+            });
+          });
+        }
+        return { foundHit, hitUvS, hitD, hitInside, endS, exhausted, sExit };
       };
 
       const output = vec4(0).toVar();
       const hit = float(0).toVar();
-      const { foundHit, hitUvS, hitD, hitInside } = trace(
+      const { foundHit, hitUvS, hitD, hitInside, endS, exhausted, sExit } = trace(
         viewPosition,
         viewNormal,
         viewReflectDir,
@@ -1919,6 +1984,27 @@ class NewSSRNode extends Node {
         output.assign(
           vec4(mix(sampleEnvRadiance(), output.rgb, hitWeight), hit.equal(1).select(output.a, float(ENV_RAY_LENGTH))),
         );
+      }
+
+      if (this.debugView === 'hits') {
+        // green: hit within the thickness, yellow: hit inside a solid (back-face depth), red: Hi-Z ran out of
+        // iterations, blue: left the screen, grey: reached the ray's end; the brightness of a hit is its distance
+        // falloff (1 at the origin) so hits on different objects stay distinguishable
+        const falloff = float(1).div(hitDistance.add(1));
+        const color = vec3(0.3).toVar();
+        If(foundHit, () => {
+          color.assign(hitInside.select(vec3(1, 0.8, 0), vec3(0, 1, 0)).mul(falloff.mul(0.7).add(0.3)));
+        })
+          .ElseIf(exhausted, () => {
+            color.assign(vec3(1, 0, 0));
+          })
+          .ElseIf(sExit !== null ? endS.greaterThanEqual(sExit.min(1)).and(sExit.lessThan(1)) : bool(false), () => {
+            color.assign(vec3(0, 0.3, 1));
+          });
+        output.assign(vec4(color, 1));
+      } else if (this.debugView === 'hitcolor') {
+        // the scene color the primary hit samples (black on a miss), before any weighting
+        output.assign(vec4(foundHit.select(this.colorNode.sample(hitUvS).rgb, vec3(0)), 1));
       }
 
       return output.max(0);

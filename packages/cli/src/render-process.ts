@@ -19,6 +19,8 @@ export interface RenderJob {
    * `moveFrames` rendered frames, then stays still. One image per entry of `captures` (frames at rest after arriving;
    * 0 = the arrival frame) is written as `<renderer>@m<frames>.avif`. Replaces the usual single image.
    */
+  /** Screen-space renderers: NewSSRNode's debug view instead of the image, written as `<renderer>@<ssrDebug>.avif`. */
+  ssrDebug?: 'hits' | 'hitcolor';
   motion?: { degrees: number; moveFrames: number; captures: number[]; object?: { name: string; dx: number } };
 }
 
@@ -46,7 +48,7 @@ async function main(job: RenderJob): Promise<void> {
     const start = performance.now();
     const setup = await create(ctx);
     const canvas = headless.createCanvas(width, height);
-    const renderer = await createRenderer(job.renderer, canvas, setup, { width, height, pass });
+    const renderer = await createRenderer(job.renderer, canvas, setup, { width, height, pass, ssrDebug: job.ssrDebug });
     await headless.ready();
     if (job.motion) return renderMotion(name, pass, setup, renderer, canvas, job.outDir, job.motion);
     const target = screenSpace ? (job.frames ?? passEffects(setup, pass).frames) : job.samples;
@@ -57,7 +59,7 @@ async function main(job: RenderJob): Promise<void> {
     }
     const pixels = await headless.readPixels(canvas);
     const renderMs = performance.now() - renderStart;
-    const file = renderPath(name, pass, job.renderer, job.outDir);
+    const file = renderPath(name, pass, job.ssrDebug ? `${job.renderer}@${job.ssrDebug}` : job.renderer, job.outDir);
     await mkdir(path.dirname(file), { recursive: true });
     await sharp(pixels, { raw: { width, height, channels: 4 } })
       .removeAlpha()

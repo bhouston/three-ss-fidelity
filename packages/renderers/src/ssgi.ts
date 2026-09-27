@@ -167,6 +167,7 @@ function createPipeline(
   ssrMethod: NonNullable<RendererOptions['ssrMethod']>,
   ssrFast: SSRFastOptions,
   ssgiFast: SSGIFastOptions | undefined,
+  ssrDebug: RendererOptions['ssrDebug'],
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const tsl = {
@@ -314,6 +315,7 @@ function createPipeline(
   };
 
   let reflections: AnyNode = null;
+  let debugOutput: AnyNode = null;
   if (effects.ssr) {
     const params = effects.ssr;
     const ssrPass = tsl.ssr(previousRadiance, prePassDepth, sceneNormal, {
@@ -335,6 +337,8 @@ function createPipeline(
             velocityNode: prePassVelocity,
             maxMarchSteps: ssrFast.maxMarchSteps ?? null,
             hiZ: ssrFast.hiZ ?? false,
+            silhouetteFetch: ssrFast.silhouetteFetch ?? false,
+            debugView: ssrDebug ?? null,
             backDepthNode: backDepth(ssrFast.backDepthResolutionScale ?? 1),
             hitMaterialNode: prePass.getTextureNode('metalRoughness'),
             hitSpecularNode: prePass.getTextureNode('specular'),
@@ -407,6 +411,13 @@ function createPipeline(
     } else if (ssrMethod === 'new') {
       // NewSSRNode accumulates internally (see `accumulate`); the clamping reprojection/denoise chain would bias it
       reflections = ssrPass.getTextureNode().sample(screenUV).rgb;
+      if (ssrDebug) {
+        // the trace pass's own target (the debug view), while the reflections and the scene pass still run so the
+        // next frame's hits read a real scene color
+        debugOutput = vec4(texture(ssrPass._ssrRenderTarget.textures[0]).sample(screenUV).rgb, 1)
+          .add(reflections.mul(0))
+          .add(aaPass.mul(0));
+      }
     } else if (temporal) {
       // reflections are reprojected with their hit points (specular mode)
       const ssrReprojected = tsl.temporalReproject(ssrPass, prePassDepth, prePassNormal, prePassVelocity, camera, {
@@ -477,7 +488,7 @@ function createPipeline(
     scenePass.contextNode = radiance;
   }
 
-  renderPipeline.outputNode = aaPass;
+  renderPipeline.outputNode = debugOutput ?? aaPass;
   return renderPipeline;
 }
 
@@ -494,6 +505,7 @@ export async function createSSGIRenderer(
     ssrFast,
     ssgiFast,
     trackTimestamp = false,
+    ssrDebug,
   }: RendererOptions,
 ): Promise<LiveRenderer> {
   const setup = { ...sceneSetup, effects: passEffects(sceneSetup, renderPass) };
@@ -524,6 +536,7 @@ export async function createSSGIRenderer(
     ssrMethod,
     ssrFast ?? {},
     ssgiFast,
+    ssrDebug,
   );
   let frames = 0;
   let sceneSignature = 0;

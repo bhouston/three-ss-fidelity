@@ -60,6 +60,11 @@ export interface SSRFastOptions {
   traceResolutionScale?: number;
   /** Hierarchical (Hi-Z min-depth pyramid) traversal instead of the dense march. */
   hiZ?: boolean;
+  /**
+   * Read a non-metal hit's color from inside the hit object's screen footprint instead of its anti-aliased silhouette
+   * texel when the ray entered the footprint behind the visible surface (e.g. reflecting a solid's hidden underside).
+   */
+  silhouetteFetch?: boolean;
 }
 
 /**
@@ -105,6 +110,12 @@ export interface RendererOptions {
   ssgiFast?: SSGIFastOptions;
   /** Screen-space renderers: record WebGPU timestamp queries (renderer.resolveTimestampsAsync) for GPU timing. */
   trackTimestamp?: boolean;
+  /**
+   * Diagnostic (three-new-ssr*): output NewSSRNode's trace pass instead of the image. 'hits' colors the primary ray's
+   * outcome (green: hit, yellow: hit inside a solid, red: Hi-Z out of iterations, blue: left the screen, grey: missed),
+   * 'hitcolor' shows the scene color the hit read.
+   */
+  ssrDebug?: 'hits' | 'hitcolor';
   /** Diagnostic GI reconstruction in three-new-ssgi beauty passes; defaults to the existing denoised pipeline. */
   ssgiReconstruction?: 'raw' | 'temporal' | 'denoised';
   /**

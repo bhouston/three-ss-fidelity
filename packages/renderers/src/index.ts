@@ -74,6 +74,9 @@ const screenSpaceOptions: Record<
       secondBounceQuality: 0.4,
       realtime: 'sssr',
       hiZ: true,
+      // read hits of hidden surfaces from inside the object instead of its anti-aliased silhouette (the dark band
+      // under the sphere in ssr-diag-dielectric-0)
+      silhouetteFetch: true,
     },
   },
   // three-new-ssgi-fast: built on three-new-ssr-fast (same ssgiWeighting/ssrMethod/ssrFast) plus SSGI-side speed

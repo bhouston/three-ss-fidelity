@@ -53,6 +53,11 @@ export const command = defineCommand({
         type: 'string',
         describe: 'With --motion, "name:dx": that object also slides back to its position from dx along world x',
       })
+      .option('ssr-debug', {
+        type: 'string',
+        choices: ['hits', 'hitcolor'] as const,
+        describe: 'three-new-ssr*: write the SSR trace debug view as <renderer>@<view>.avif instead of the image',
+      })
       .option('output', { type: 'string', default: resultsDir, describe: 'Results directory' }),
   handler: async (argv) => {
     const scenes = selectNames(listSceneNames(), argv.scenes, 'scene');
@@ -69,6 +74,7 @@ export const command = defineCommand({
         frames: argv.frames,
         samples: argv.samples,
         motion: parseMotion(argv.motion, argv.motionObject),
+        ssrDebug: argv.ssrDebug,
       });
       if (code !== 0) {
         console.error(`${renderer} failed (exit code ${code})`);

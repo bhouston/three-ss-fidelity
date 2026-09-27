@@ -64,6 +64,13 @@ function Live() {
                 {other}
               </Link>
             ))}
+            <button
+              className={buttonClassName}
+              onClick={() => void canvasRef.current?.requestFullscreen()}
+              type="button"
+            >
+              Full screen
+            </button>
             <Link className={buttonClassName} params={{ name }} search={{ pass: passSearch(pass) }} to="/scenes/$name">
               Back to results
             </Link>

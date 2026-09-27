@@ -39,6 +39,16 @@ export async function startLiveRender({
     pass,
   });
 
+  // Render every displayed pixel (the CLI renders the tests at the scene size): the canvas keeps the scene's aspect in
+  // the page and takes the screen's in full screen.
+  canvas.style.aspectRatio = `${definition.width} / ${definition.height}`;
+  const resizeObserver = new ResizeObserver(() => {
+    const width = Math.round(canvas.clientWidth * devicePixelRatio);
+    const height = Math.round(canvas.clientHeight * devicePixelRatio);
+    if (width > 0 && height > 0) live.setSize(width, height);
+  });
+  resizeObserver.observe(canvas);
+
   const controls = new OrbitControls(setup.camera, canvas);
   controls.target.copy(setup.target);
   controls.update();
@@ -56,6 +66,7 @@ export async function startLiveRender({
   return {
     dispose() {
       cancelAnimationFrame(frame);
+      resizeObserver.disconnect();
       controls.dispose();
       live.dispose();
     },

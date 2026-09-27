@@ -321,6 +321,39 @@ still 10–15 ms of the frame.
   0.0606 → 0.0593, steampunk 0.0778 → 0.0767. At 64 iterations `ssgi-metallic` loses a little (0.0521 against 0.0507;
   the Cornell box's long rays run out of budget), and 96 recovers it (0.0509).
 
+### E10. Silhouette color fetch (`silhouetteFetch`), kept
+
+`ssr-diag-dielectric-0` showed a dark, vertically streaked band at the top of the green sphere's floor reflection
+(directly under the sphere). It was not the Hi-Z or the trace resolution: the band is identical at half and full
+resolution and in `three-new-ssr-fast` (dense march, no Hi-Z).
+
+- **Diagnosis** (`cli render --ssr-debug hits|hitcolor`, the trace pass's own output). The rays there do hit the
+  sphere, partly as dual-layer (inside-solid) hits. They reflect its hidden underside, which projects onto the
+  sphere's bottom silhouette: about ten floor rows all land on the same one or two texels. In the TRAA color buffer
+  that silhouette texel is a coverage blend with the dark floor behind it. The hits read 57 % of the sphere's
+  radiance.
+- **Change.** When the texel before the hit (along the ray) is another surface, i.e. the ray entered the footprint at
+  its silhouette, read the color one or two texels further along the ray, as long as the ray is still strictly
+  between that texel's front and back-face depth. Only for non-metal hits: for a mirror-like hit the silhouette
+  texel, whose normal is the closest to the hidden side's, is the better proxy for view-dependent radiance.
+- **Variants rejected** (all 17 `ssr-*` scenes, beauty RMSE against the path tracer; renders are deterministic, a
+  rerun differs by ≤ 0.01 %):
+
+  | variant                                                        | mean    | worst scene                 |
+  | -------------------------------------------------------------- | ------- | --------------------------- |
+  | always read 1–2 texels further on (depth within the thickness) | +0.09 % | `metal-hit` +9.2 %          |
+  | only for inside-solid hits                                     | −0.66 % | +0.02 % (band mostly stays) |
+  | plus a normal-similarity test                                  | −0.38 % | +0.11 % (band stays)        |
+  | ray still inside the solid, back-face slack of the thickness   | −0.64 % | `grazing` +1.8 %            |
+  | **ray strictly inside the solid, non-metal hits only (kept)**  | −0.56 % | +0.02 %                     |
+
+  Grazing rays passing _beside_ the sphere are thickness hits on its side silhouette. The blend used to hide them,
+  and reading an interior texel bloated the reflection (`grazing`). A strict inside test rejects them.
+
+- **Result.** 14 of 17 scenes improve, and the other three are within noise: `dielectric-0` −3.5 %,
+  `dielectric-30` −2.8 %, `mirror` −4.0 %, `rough-10` −5.4 %, `rough-30` −3.3 %, `offscreen` −2.8 %,
+  `grazing` −0.8 %. `three-new-ssr-fast` is pixel-identical (the option is off there).
+
 ## TRAA test scenes
 
 Written up in full in `TRAA_TESTS.md`. New asset-free, fully emissive scenes (`packages/scenes/src/traa-diagnostics.ts`):

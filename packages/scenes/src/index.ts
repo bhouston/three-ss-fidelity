@@ -1,7 +1,10 @@
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+import { gltfExampleScenes } from './gltf-examples.js';
 import { higharcScenes } from './higharc.js';
+import { RGBAKTX2Loader } from './ktx2.js';
 import { giDiagnosticScenes } from './gi-diagnostics.js';
 import { visibleWallScenes } from './gi-visible-walls.js';
 import { ssgiScenes } from './ssgi.js';
@@ -18,6 +21,7 @@ const scenes = new Map<string, SceneDefinition>(
     ...ssgiScenes,
     ...ssrScenes,
     ...higharcScenes,
+    ...gltfExampleScenes,
     ...giDiagnosticScenes,
     ...visibleWallScenes,
     ...ssrDiagnosticScenes,
@@ -39,7 +43,10 @@ export function getScene(name: string): SceneDefinition {
 export function createBrowserSceneContext(baseUrl: string): SceneContext {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   const dracoLoader = new DRACOLoader().setDecoderPath(`${base}jsm/libs/draco/`);
-  const loader = new GLTFLoader().setDRACOLoader(dracoLoader);
+  const loader = new GLTFLoader()
+    .setDRACOLoader(dracoLoader)
+    .setKTX2Loader(new RGBAKTX2Loader().setTranscoderPath(`${base}jsm/libs/basis/`))
+    .setMeshoptDecoder(MeshoptDecoder);
   return {
     loadGLTF: (path) => loader.loadAsync(base + path),
     loadHDR: (path) => new HDRLoader().loadAsync(base + path),

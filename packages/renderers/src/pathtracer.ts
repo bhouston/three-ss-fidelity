@@ -1,5 +1,6 @@
 // three-gpu-pathtracer: WebGLRenderer + WebGLPathTracer ground truth of the same scene objects.
 import {
+  BufferAttribute,
   Color,
   CubeCamera,
   FloatType,
@@ -14,7 +15,7 @@ import {
   WebGLRenderTarget,
   WebGLRenderer,
 } from 'three';
-import type { Material } from 'three';
+import type { BufferGeometry, Material, Object3D } from 'three';
 import { FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
 import { AmbientOcclusionMaterial, PathTracingSceneGenerator, WebGLPathTracer } from 'three-gpu-pathtracer';
 import type { SceneSetup } from '@ss-fidelity/scenes';
@@ -74,6 +75,23 @@ export function traceDirectOnly(material: { fragmentShader: string; needsUpdate:
   if (parts.length !== 2) throw new Error('three-gpu-pathtracer shader changed: cannot patch direct-only tracing');
   material.fragmentShader = parts.join(`${STOP_AT_SECOND_HIT}\n${SECOND_HIT_ANCHOR}`);
   material.needsUpdate = true;
+}
+
+/** three-gpu-pathtracer merges the scene into float geometry: expand quantized / interleaved (gltfpack) attributes. */
+function dequantizeAttributes(scene: Object3D): void {
+  scene.traverse((object) => {
+    const geometry = (object as Mesh).geometry as BufferGeometry | undefined;
+    if (!geometry) return;
+    for (const [name, attribute] of Object.entries(geometry.attributes)) {
+      if (!('isInterleavedBufferAttribute' in attribute) && attribute.array instanceof Float32Array) continue;
+      const { count, itemSize } = attribute;
+      const array = new Float32Array(count * itemSize);
+      for (let i = 0; i < count; i++) {
+        for (let c = 0; c < itemSize; c++) array[i * itemSize + c] = attribute.getComponent(i, c);
+      }
+      geometry.setAttribute(name, new BufferAttribute(array, itemSize));
+    }
+  });
 }
 
 // ao: three-gpu-pathtracer's AmbientOcclusionMaterial (cosine-weighted hemisphere rays against the scene BVH; a ray
@@ -159,6 +177,7 @@ export async function createPathTracerRenderer(
   setup: SceneSetup,
   { width, height, pass }: RendererOptions,
 ): Promise<LiveRenderer> {
+  dequantizeAttributes(setup.scene);
   if (pass === 'ao') return createAORenderer(canvas, setup, width, height);
   const { scene, camera, effects } = setup;
   const renderer = new WebGLRenderer({ canvas, antialias: false, preserveDrawingBuffer: true });

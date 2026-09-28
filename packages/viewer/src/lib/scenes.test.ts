@@ -4,7 +4,7 @@ import { filterScenes, parseSort, sortScenes, type SceneMetrics, type SceneSumma
 const scene = (name: string, psnr?: number | null, description?: string): SceneSummary => ({
   name,
   description,
-  renderers: psnr === undefined ? {} : { 'three-new-ssgi': { metrics: { psnr } as SceneMetrics } },
+  renderers: psnr === undefined ? {} : { 'three-new': { metrics: { psnr } as SceneMetrics } },
 });
 
 const names = (scenes: SceneSummary[]) => scenes.map((s) => s.name);

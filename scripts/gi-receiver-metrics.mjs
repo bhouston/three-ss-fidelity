@@ -26,7 +26,7 @@ for (const name of listSceneNames().filter(
   const top = Math.floor((-center.y * 0.5 + 0.5) * definition.height) - 8;
   const row = { scene: name, patch: { left, top, width: 16, height: 16 } };
   for (const pass of ['beauty', 'direct'])
-    for (const renderer of ['three-new-ssgi', 'three-gpu-pathtracer']) {
+    for (const renderer of ['three-new', 'three-gpu-pathtracer']) {
       const pixels = await sharp(path.join(root, 'results', name, pass, `${renderer}.avif`))
         .extract(row.patch)
         .removeAlpha()
@@ -41,9 +41,9 @@ for (const name of listSceneNames().filter(
       }
       row[`${pass}/${renderer}`] = luminance / (pixels.length / 3);
     }
-  row.ssgiIncrement = row['beauty/three-new-ssgi'] - row['direct/three-new-ssgi'];
+  row.ssgiIncrement = row['beauty/three-new'] - row['direct/three-new'];
   row.pathTracerIncrement = row['beauty/three-gpu-pathtracer'] - row['direct/three-gpu-pathtracer'];
-  row.beautyRatio = row['beauty/three-new-ssgi'] / row['beauty/three-gpu-pathtracer'];
+  row.beautyRatio = row['beauty/three-new'] / row['beauty/three-gpu-pathtracer'];
   rows.push(row);
 }
 console.log(JSON.stringify(rows, null, 2));

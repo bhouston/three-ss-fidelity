@@ -70,7 +70,6 @@ async function main(job: RenderJob): Promise<void> {
     const setup = await create(ctx);
     const canvas = headless.createCanvas(width, height);
     const renderer = await createRenderer(job.renderer, canvas, setup, { width, height, pass, ssrDebug: job.ssrDebug });
-    await headless.ready();
     if (job.motion) return renderMotion(name, pass, setup, renderer, canvas, job.outDir, job.motion);
     const target = screenSpace ? (job.frames ?? passEffects(setup, pass).frames) : job.samples;
     const renderStart = performance.now();

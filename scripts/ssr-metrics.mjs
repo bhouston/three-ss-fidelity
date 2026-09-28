@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const resultsDir = path.join(repoRoot, 'results');
 
-const renderers = (process.argv[2] ?? 'three-new-ssgi,three-new-ssr').split(',');
+const renderers = (process.argv[2] ?? 'three-new,three-current').split(',');
 
 const scenes = readdirSync(resultsDir)
   .filter((name) => name.startsWith('ssr-'))

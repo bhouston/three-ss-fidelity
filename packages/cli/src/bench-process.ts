@@ -129,7 +129,6 @@ async function main(job: BenchJob): Promise<void> {
       pass: job.pass,
       trackTimestamp,
     });
-    await headless.ready();
     const gpuRenderer = live.renderer as unknown as TimestampRenderer;
     const gpuSupported = trackTimestamp && gpuRenderer.hasFeature('timestamp-query');
     if (trackTimestamp && !gpuSupported && !warnedUnsupported) {

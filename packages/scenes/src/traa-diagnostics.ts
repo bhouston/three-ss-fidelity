@@ -1,7 +1,7 @@
 // Asset-free TRAA diagnostics: high-frequency, unlit/emissive content so the only thing that differs between
 // renderers/frame-counts is antialiasing quality, not lighting or GI. Used to numerically measure the audited
 // TRAANode.js gaps (bilinear history -> blur under motion, single-tap current sample -> residual jitter
-// shimmer, RGB clip, no sharpening) against a static-camera SMAA control and the path-traced reference.
+// shimmer, RGB clip, no sharpening) against the path-traced reference.
 import {
   BoxGeometry,
   Color,
@@ -22,15 +22,12 @@ import type { SceneDefinition, SceneEffects, SceneSetup } from './types.js';
 const WIDTH = 480;
 const HEIGHT = 360;
 
-function effects(antialias: SceneEffects['antialias']): SceneEffects {
-  return {
-    antialias,
-    temporalDenoise: false,
-    toneMapping: NoToneMapping,
-    toneMappingExposure: 1,
-    frames: 64,
-  };
-}
+const effects: SceneEffects = {
+  temporalDenoise: false,
+  toneMapping: NoToneMapping,
+  toneMappingExposure: 1,
+  frames: 64,
+};
 
 /**
  * A 2x2 black/white texture repeated at high frequency with nearest filtering and no mipmaps: worst-case
@@ -88,12 +85,12 @@ function checkerScene(): Scene {
   return scene;
 }
 
-function checkerSetup(antialias: SceneEffects['antialias']): SceneSetup {
+function checkerSetup(): SceneSetup {
   const camera = new PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 100);
   camera.position.set(0, 1.1, 2.6);
   const target = new Vector3(0, 0.4, -1.8);
   camera.lookAt(target);
-  return { scene: checkerScene(), camera, target, effects: effects(antialias), aoRadius: 1 };
+  return { scene: checkerScene(), camera, target, effects, aoRadius: 1 };
 }
 
 /** A static background checker plane plus an opaque foreground slab that CLI `--motion-object` slides across it. */
@@ -117,7 +114,7 @@ function disocclusionSetup(): SceneSetup {
   camera.position.set(0, 0.9, 2.6);
   const target = new Vector3(0, 0.8, -2.2);
   camera.lookAt(target);
-  return { scene, camera, target, effects: effects('traa'), aoRadius: 1 };
+  return { scene, camera, target, effects, aoRadius: 1 };
 }
 
 function diagnostic(name: string, description: string, create: () => SceneSetup): SceneDefinition {
@@ -128,12 +125,7 @@ export const traaDiagnosticScenes: SceneDefinition[] = [
   diagnostic(
     'traa-checker',
     'Oblique high-frequency checker floor (no mipmaps) plus sub-pixel-width bright lines, TRAA: static convergence and pan/orbit blur test.',
-    () => checkerSetup('traa'),
-  ),
-  diagnostic(
-    'traa-checker-smaa',
-    'Same layout as traa-checker with SMAA instead of TRAA: a non-temporal control for the same static/motion tests.',
-    () => checkerSetup('smaa'),
+    checkerSetup,
   ),
   diagnostic(
     'traa-disocclusion',

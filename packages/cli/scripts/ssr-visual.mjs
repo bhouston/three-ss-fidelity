@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Writes side-by-side PNGs (reference | three-new-ssr | abs-diff x4) into the scratchpad dir for visual
+// Writes side-by-side PNGs (reference | three-new | abs-diff x4) into the scratchpad dir for visual
 // inspection with the Read tool.
 // Usage: node scripts/ssr-visual.mjs <scratchpad-dir> [scene1,scene2,...] [renderer]
 import { readdirSync } from 'node:fs';
@@ -12,7 +12,7 @@ const resultsDir = path.join(repoRoot, 'results');
 
 const outDir = process.argv[2];
 if (!outDir) throw new Error('usage: ssr-visual.mjs <out-dir> [scenes] [renderer]');
-const renderer = process.argv[4] ?? 'three-new-ssr';
+const renderer = process.argv[4] ?? 'three-new';
 const scenes = process.argv[3]
   ? process.argv[3].split(',')
   : readdirSync(resultsDir)

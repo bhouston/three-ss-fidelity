@@ -621,7 +621,7 @@ class NewSSRNode extends Node {
      * @type {RenderTarget}
      */
     /**
-     * Real-time temporal filter (three-new-ssr-rt 'sssr', see SSR_TEMPORAL.md): instead of the running mean, each
+     * Real-time temporal filter (three-new-ssr-rt 'sssr', see docs/history/SSR_TEMPORAL.md): instead of the running mean, each
      * frame's ratio-estimator terms go through a spatial ratio-estimator resolve over neighbouring pixels and a
      * temporal accumulation with surface and virtual-point (hit parallax) reprojection, variance clipping and a
      * roughness-dependent history length. Needs `stochastic`, `outputRadiance`, `hitMaterialNode` and `velocityNode`.

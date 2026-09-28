@@ -137,16 +137,14 @@ function Index() {
 function SceneRow({ scene, pass }: { scene: SceneSummary; pass: PassName }) {
   const search = { pass: passSearch(pass) };
   const { reference, renderers } = scene;
+  // column-major 3x2: the reference above an empty cell, then each renderer above its delta
   const cells = [
     { label: 'three-gpu-pathtracer (reference)', src: reference },
-    ...SCREEN_SPACE_RENDERERS.flatMap((renderer) => {
-      const result = renderers[renderer];
-      if (!result) return [];
-      return [
-        { label: renderer, src: result.image },
-        { label: `${renderer} delta`, src: result.delta },
-      ];
-    }),
+    null,
+    ...SCREEN_SPACE_RENDERERS.flatMap((renderer) => [
+      { label: renderer, src: renderers[renderer]?.image },
+      { label: `${renderer} delta`, src: renderers[renderer]?.delta },
+    ]),
   ];
   return (
     <article className="border-b border-border py-4 last:border-b-0">
@@ -176,17 +174,21 @@ function SceneRow({ scene, pass }: { scene: SceneSummary; pass: PassName }) {
       </div>
       <div className="mt-3 flex flex-wrap items-start gap-3">
         <Link
-          className="flex min-w-0 flex-1 flex-wrap gap-px"
+          className="grid min-w-0 flex-1 auto-cols-max grid-flow-col grid-rows-2 gap-px"
           params={{ name: scene.name }}
           search={search}
           to="/scenes/$name"
         >
-          {cells.map((cell) => (
-            <figure className="flex w-24 min-w-0 flex-col gap-1" key={cell.label}>
-              <ResultImage alt={`${scene.name}: ${cell.label}`} src={cell.src} />
-              <figcaption className="truncate text-center text-xs text-muted-foreground">{cell.label}</figcaption>
-            </figure>
-          ))}
+          {cells.map((cell, index) =>
+            cell ? (
+              <figure className="flex w-24 min-w-0 flex-col gap-1" key={cell.label}>
+                <ResultImage alt={`${scene.name}: ${cell.label}`} src={cell.src} />
+                <figcaption className="truncate text-center text-xs text-muted-foreground">{cell.label}</figcaption>
+              </figure>
+            ) : (
+              <div key={index} />
+            ),
+          )}
         </Link>
         <div className="flex flex-wrap gap-2">
           {SCREEN_SPACE_RENDERERS.map((renderer) => (

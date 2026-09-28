@@ -92,7 +92,6 @@ async function createDogwood(ctx: SceneContext): Promise<SceneSetup> {
         useScreenSpaceSampling: false,
         fade: { start: 6000 * INCH, end: 14000 * INCH },
       },
-      antialias: 'traa',
       temporalDenoise: true,
       resolutionScale: 1 / 2,
       toneMapping: ACESFilmicToneMapping,

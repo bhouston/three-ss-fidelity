@@ -15,15 +15,16 @@ Workflow rules (issues, branches, Conventional Commits, PRs, required checks) ar
 ## How the work is done
 
 1. Change an effect in `submodules/three.js`, or in a vendored node under `packages/renderers/src/` (see below).
-2. Render the affected scenes: `pnpm cli render --scenes 'ssr-*' --renderers three-new-ssr-rt`.
-3. Score them against the path tracer: `pnpm cli compare --scenes 'ssr-*' --renderers three-new-ssr-rt`.
-4. Check for regressions: `pnpm cli quality-gate <baseline> <candidate>` (mean-RMSE threshold, default 1 %).
+2. Render the affected scenes: `pnpm cli render --scenes 'ssr-*' --renderers three-new`.
+3. Score them against the path tracer: `pnpm cli compare --scenes 'ssr-*' --renderers three-new`.
+4. Check for regressions: `pnpm cli quality-gate <baseline> <candidate>` (mean-RMSE threshold, default 1 %), e.g.
+   against results rendered before the change into another `--output`.
 5. For temporal and real-time work, also run `pnpm cli converge` (image quality after a camera move) and
    `pnpm cli bench` (frame time).
 6. Commit the updated `results/` and record the findings in the matching doc (see [Documentation](#documentation)).
 
-A new approach is added as a **new renderer name**, and the existing renderers stay unchanged, so every change can be
-A/B compared against the renderer it builds on.
+Improvements go into `three-new`; `three-current` (stock three.js) stays fixed as the baseline. What `three-new` does
+and why is in [docs/THREE-NEW.md](docs/THREE-NEW.md).
 
 ## Repository layout
 
@@ -35,9 +36,8 @@ packages/renderers  @ss-fidelity/renderers  screen-space pipeline and path-trace
 packages/cli        @ss-fidelity/cli        headless render / compare / converge / bench / quality-gate
 packages/viewer     @ss-fidelity/viewer     TanStack Start site: results grid, scene detail, live renderers
 results/<scene>/<pass>/                     committed render output and metrics (~935 files, ~27 MB)
-docs/                                       investigation reports, plans and benchmark write-ups
+docs/                                       THREE-NEW.md, plans, benchmark write-ups; docs/history/ holds the experiment logs
 scripts/                                    one-off metric and experiment scripts (gi-*, ssr-*, traa-*) + check-pr.mjs
-*.md (root)                                 per-effort logs: SSR_IMPROVEMENTS, SSR_TEMPORAL, SSGI_FAST, TRAA_TESTS
 ```
 
 The workspace overrides `three` with `workspace:*`, so every package, and three-gpu-pathtracer itself, uses the fork
@@ -47,7 +47,7 @@ in `submodules/three.js`. There is only ever one copy of three.
 
 - `src/types.ts` holds the contract. A `SceneDefinition` has a `name`, `description`, `width`/`height` and an async
   `create(ctx)`, which returns a `SceneSetup`: the scene, camera, orbit `target`, `effects` (SSGI/SSR parameters,
-  `antialias: 'traa' | 'smaa'`, `temporalDenoise`, tone mapping, `frames` to render before capture) and `aoRadius`.
+  `temporalDenoise`, tone mapping, `frames` to render before capture) and `aoRadius`.
 - `src/index.ts` is the registry (`listSceneNames`, `getScene`). Scene families each live in their own file:
   `ssgi.ts`, `ssr.ts` (steampunk), `ssr-diagnostics.ts` (`ssr-diag-*`), `gi-diagnostics.ts` and
   `gi-visible-walls.ts` (`gi-*`), `traa-diagnostics.ts` (`traa-*`), `gltf-examples.ts` (`gltf-*`), `higharc.ts`.
@@ -58,25 +58,19 @@ in `submodules/three.js`. There is only ever one copy of three.
 
 ### `packages/renderers`
 
-- `src/types.ts` defines `rendererNames`, `passNames` (`beauty`, `direct`, `ao`), `RendererOptions`, the per-renderer
-  speed flags (`SSRFastOptions`, `SSGIFastOptions`) and the `LiveRenderer` interface
-  (`render`/`setSize`/`setCamera`/`dispose`).
-- `src/index.ts` has `createRenderer`, plus a **table** that maps each screen-space renderer name to its pipeline
-  options. A new variant is one more row in it.
-- `src/ssgi.ts` is the screen-space pipeline (WebGPURenderer + SSGI/SSR/TRAA/SMAA/denoise), and it serves every
-  `three-*` renderer. `src/pathtracer.ts` adapts three-gpu-pathtracer.
+- `src/types.ts` defines `rendererNames`, `passNames` (`beauty`, `direct`, `ao`), `RendererOptions` and the
+  `LiveRenderer` interface (`render`/`setSize`/`setCamera`/`dispose`).
+- `src/index.ts` has `createRenderer`, which dispatches a renderer name to its adapter.
+- `src/three-new.ts` is the improved pipeline (WebGPURenderer + SSGI/SSR/TRAA/denoise), `src/three-current.ts` the
+  stock r186 one, and `src/pathtracer.ts` adapts three-gpu-pathtracer.
 - `src/ssr/NewSSRNode.js` and `src/ssgi-fast/SSGINode.js` are vendored nodes. They are developed here instead of in
   the submodule.
 
-| Renderer               | What it is                                                                                                         |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `three-gpu-pathtracer` | Ground truth (default 4096 spp, seeded).                                                                           |
-| `three-current`        | Unmodified three.js r186 from npm (`three@0.186.1`) with its stock SSGI/SSR example pipelines.                     |
-| `three-new-ssgi`       | Solid-angle-corrected SSGI + the fork's SSR ([docs/RENDERER-METHODS.md](docs/RENDERER-METHODS.md)).                |
-| `three-new-ssr`        | `three-new-ssgi` + vendored `NewSSRNode` ([SSR_IMPROVEMENTS.md](SSR_IMPROVEMENTS.md)).                             |
-| `three-new-ssr-fast`   | `three-new-ssr` + quality-gated speed flags (same doc).                                                            |
-| `three-new-ssgi-fast`  | `three-new-ssr-fast` + SSGI speed flags on the vendored `SSGINode` ([SSGI_FAST.md](SSGI_FAST.md)).                 |
-| `three-new-ssr-rt`     | Real-time SSR: 1 frame per displayed frame, SSSR-style temporal filter, Hi-Z ([SSR_TEMPORAL.md](SSR_TEMPORAL.md)). |
+| Renderer               | What it is                                                                                     |
+| ---------------------- | ---------------------------------------------------------------------------------------------- |
+| `three-gpu-pathtracer` | Ground truth (default 4096 spp, seeded).                                                       |
+| `three-current`        | Unmodified three.js r186 from npm (`three@0.186.1`) with its stock SSGI/SSR example pipelines. |
+| `three-new`            | The fork + vendored SSGI/SSR nodes, real-time, TRAA ([docs/THREE-NEW.md](docs/THREE-NEW.md)).  |
 
 ### `packages/cli`
 
@@ -144,17 +138,12 @@ pnpm exec oxfmt <changed files>
 
 ## Documentation
 
-| Doc                                                            | Topic                                                             |
-| -------------------------------------------------------------- | ----------------------------------------------------------------- |
-| [docs/PLAN.md](docs/PLAN.md)                                   | Original design: layout, scene contract, renderer and CLI plan.   |
-| [docs/RENDERER-METHODS.md](docs/RENDERER-METHODS.md)           | SSGI integration methods and how to select them.                  |
-| [docs/GI-INVESTIGATION.md](docs/GI-INVESTIGATION.md)           | Indoor SSGI energy loss investigation (issue #9).                 |
-| [docs/GI-ESTIMATOR-FOLLOWUP.md](docs/GI-ESTIMATOR-FOLLOWUP.md) | The missing solid-angle factor: Cornell RMSE 0.165 → 0.049.       |
-| [SSR_IMPROVEMENTS.md](SSR_IMPROVEMENTS.md)                     | `three-new-ssr` correctness work and `-fast` optimization rounds. |
-| [SSR_TEMPORAL.md](SSR_TEMPORAL.md)                             | `three-new-ssr-rt`: real-time temporal SSR experiments (E1–E9).   |
-| [SSGI_FAST.md](SSGI_FAST.md)                                   | `three-new-ssgi-fast` optimization rounds and quality gate.       |
-| [TRAA_TESTS.md](TRAA_TESTS.md)                                 | Numeric verification of the fork's TRAANode.                      |
-| [docs/CONVERGENCE.md](docs/CONVERGENCE.md)                     | Move-then-stop convergence benchmark method and findings.         |
-| [docs/PERF.md](docs/PERF.md)                                   | `cli bench` and GPU timing.                                       |
+| Doc                                        | Topic                                                                                                                    |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| [docs/THREE-NEW.md](docs/THREE-NEW.md)     | What `three-new` does now, its cost, and where each part came from.                                                      |
+| [docs/PLAN.md](docs/PLAN.md)               | Original design: layout, scene contract, renderer and CLI plan.                                                          |
+| [docs/CONVERGENCE.md](docs/CONVERGENCE.md) | Move-then-stop convergence benchmark method and findings.                                                                |
+| [docs/PERF.md](docs/PERF.md)               | `cli bench` and GPU timing.                                                                                              |
+| [docs/history/](docs/history/)             | Experiment logs (SSGI estimator, SSR correctness/speed/real-time, SSGI speed, TRAA tests), under the old renderer names. |
 
-The JSON and PNG files in `docs/` are the data behind these reports. Most were produced by the scripts in `scripts/`.
+The JSON and PNG files in `docs/history/` are the data behind those logs. Most were produced by the scripts in `scripts/`.

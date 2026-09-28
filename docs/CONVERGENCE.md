@@ -24,8 +24,8 @@ load. `cli converge` measures the case that matters.
 | `finalBias` | mean signed error relative to the reference's mean (−0.05 = 5 % too dark) |
 | `flicker`   | RMSE between frames 255 and 256: residual temporal instability            |
 
-The defaults cover the real-time renderers (`three-new-ssr-rt`, `three-new-ssgi`): the accumulating renderers run up
-to 256 pipeline frames per displayed frame, which makes a 346-frame run impractical and isn't the real-time target.
+The default covers every screen-space renderer (all are real-time now). The findings below were measured before the
+consolidation: `three-new-ssr-rt` is now `three-new`, and `three-new-ssgi` (the fork's SSR) was removed.
 
 ## Reproducibility
 

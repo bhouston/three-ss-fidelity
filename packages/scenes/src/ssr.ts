@@ -19,7 +19,6 @@ const HEIGHT = 480;
 
 const effects: SceneEffects = {
   ssr: { quality: 0.5, blurQuality: 1, maxDistance: 1, intensity: 1, thickness: 0.03, binaryRefine: false },
-  antialias: 'smaa',
   temporalDenoise: false,
   toneMapping: ACESFilmicToneMapping,
   toneMappingExposure: 1,

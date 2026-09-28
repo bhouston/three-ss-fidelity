@@ -21,7 +21,7 @@ import { AmbientOcclusionMaterial, PathTracingSceneGenerator, WebGLPathTracer } 
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import type { LiveRenderer, RendererOptions } from './types.js';
 
-/** Path tracing bounces (three-new-ssgi accumulates bounces over frames, so give the ground truth plenty). */
+/** Path tracing bounces (three-new accumulates bounces over frames, so give the ground truth plenty). */
 export const PATHTRACER_BOUNCES = 8;
 
 // Final blit, replacing the pathtracer's own: composites the scene's screen-space gradient background under the
@@ -96,14 +96,14 @@ export function dequantizeAttributes(scene: Object3D): void {
 
 // ao: three-gpu-pathtracer's AmbientOcclusionMaterial (cosine-weighted hemisphere rays against the scene BVH; a ray
 // hitting within `radius` occludes) rasterized over the baked scene geometry, one ray per pixel per frame, averaged.
-// Pixel centres, no jitter, like three-new-ssgi's AO output.
+// Pixel centres, no jitter, like three-new's AO output.
 function createAORenderer(canvas: HTMLCanvasElement, setup: SceneSetup, width: number, height: number): LiveRenderer {
   const { scene, camera } = setup;
   const renderer = new WebGLRenderer({ canvas, antialias: false, preserveDrawingBuffer: true });
   renderer.outputColorSpace = LinearSRGBColorSpace;
   renderer.setClearColor(0xffffff, 1); // background: unoccluded
 
-  // three-new-ssgi's pre-pass (the AO depth/normals) skips transparent objects, so they don't occlude here either
+  // three-new's pre-pass (the AO depth/normals) skips transparent objects, so they don't occlude here either
   scene.traverse((object) => {
     const material = (object as Mesh).material as Material | Material[] | undefined;
     if ([material ?? []].flat().some((m) => m.transparent)) object.visible = false;

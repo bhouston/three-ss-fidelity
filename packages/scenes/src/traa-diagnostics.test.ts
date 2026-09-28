@@ -12,7 +12,7 @@ const noAssets: SceneContext = {
   },
 };
 
-const sceneNames = ['traa-checker', 'traa-checker-smaa', 'traa-disocclusion'];
+const sceneNames = ['traa-checker', 'traa-disocclusion'];
 
 describe('TRAA diagnostic scenes', () => {
   it('registers each scene once, at 480x360, with a unique name', () => {
@@ -33,12 +33,6 @@ describe('TRAA diagnostic scenes', () => {
       expect(setup.effects.temporalDenoise).toBe(false);
       expect(setup.effects.toneMapping).toBe(0); // NoToneMapping
     }
-  });
-
-  it('uses traa on traa-checker/traa-disocclusion and smaa on the traa-checker-smaa control', async () => {
-    expect((await getScene('traa-checker').create(noAssets)).effects.antialias).toBe('traa');
-    expect((await getScene('traa-disocclusion').create(noAssets)).effects.antialias).toBe('traa');
-    expect((await getScene('traa-checker-smaa').create(noAssets)).effects.antialias).toBe('smaa');
   });
 
   it('is fully emissive: every mesh has a black-base, roughness-1 material with no diffuse contribution', async () => {

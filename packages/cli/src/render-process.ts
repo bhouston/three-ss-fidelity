@@ -36,9 +36,19 @@ function seedRandom(seed = 1): void {
   };
 }
 
+/** The only WebGL renderer left: everything else, including both path tracers, runs on WebGPURenderer. */
+function usesWebGL(renderer: RendererName): boolean {
+  return renderer === 'three-gpu-pathtracer';
+}
+
+/** Path tracers report accumulated samples (job.samples); screen-space renderers report accumulated frames. */
+function usesSamples(renderer: RendererName): boolean {
+  return renderer === 'three-gpu-pathtracer' || renderer === 'three-gpu-pathtracer-webgpu';
+}
+
 async function main(job: RenderJob): Promise<void> {
-  const screenSpace = job.renderer !== 'three-gpu-pathtracer';
-  const headless = screenSpace ? await import('./headless/webgpu.js') : await import('./headless/webgl.js');
+  const screenSpace = !usesSamples(job.renderer);
+  const headless = usesWebGL(job.renderer) ? await import('./headless/webgl.js') : await import('./headless/webgpu.js');
   headless.install();
   const { createRenderer, passEffects } = await import('@ss-fidelity/renderers');
   const { getScene } = await import('@ss-fidelity/scenes');

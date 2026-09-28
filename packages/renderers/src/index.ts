@@ -1,5 +1,6 @@
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import { createPathTracerRenderer } from './pathtracer.js';
+import { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
 import { createSSGIRenderer } from './ssgi.js';
 import type {
   LiveRenderer,
@@ -13,6 +14,7 @@ import type {
 
 export * from './types.js';
 export { createPathTracerRenderer, PATHTRACER_BOUNCES } from './pathtracer.js';
+export { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
 export { createSSGIRenderer, passEffects } from './ssgi.js';
 
 /**
@@ -23,7 +25,7 @@ export { createSSGIRenderer, passEffects } from './ssgi.js';
  * see SSR_IMPROVEMENTS.md's "Optimization rounds (three-new-ssr-fast)" section for what each one does and costs.
  */
 const screenSpaceOptions: Record<
-  Exclude<RendererName, 'three-gpu-pathtracer'>,
+  Exclude<RendererName, 'three-gpu-pathtracer' | 'three-gpu-pathtracer-webgpu'>,
   { ssgiWeighting: SSGIWeighting; ssrMethod: SSRMethod; ssrFast?: SSRFastOptions; ssgiFast?: SSGIFastOptions }
 > = {
   'three-new-ssgi': { ssgiWeighting: 'solid-angle', ssrMethod: 'fork' },
@@ -120,6 +122,7 @@ export function createRenderer(
   options: RendererOptions,
 ): Promise<LiveRenderer> {
   if (name === 'three-gpu-pathtracer') return createPathTracerRenderer(canvas, setup, options);
+  if (name === 'three-gpu-pathtracer-webgpu') return createWebGPUPathTracerRenderer(canvas, setup, options);
   const screenSpace = screenSpaceOptions[name];
   if (!screenSpace) throw new Error(`Unknown renderer "${name}"`);
   return createSSGIRenderer(canvas, setup, { ...options, ...screenSpace });

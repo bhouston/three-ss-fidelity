@@ -78,7 +78,7 @@ export function traceDirectOnly(material: { fragmentShader: string; needsUpdate:
 }
 
 /** three-gpu-pathtracer merges the scene into float geometry: expand quantized / interleaved (gltfpack) attributes. */
-function dequantizeAttributes(scene: Object3D): void {
+export function dequantizeAttributes(scene: Object3D): void {
   scene.traverse((object) => {
     const geometry = (object as Mesh).geometry as BufferGeometry | undefined;
     if (!geometry) return;

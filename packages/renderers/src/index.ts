@@ -1,5 +1,6 @@
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import { createPathTracerRenderer } from './pathtracer.js';
+import { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
 import { createCurrentRenderer } from './three-current.js';
 import { createSSGIRenderer } from './ssgi.js';
 import type {
@@ -14,6 +15,7 @@ import type {
 
 export * from './types.js';
 export { createPathTracerRenderer, PATHTRACER_BOUNCES } from './pathtracer.js';
+export { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
 export { createSSGIRenderer, passEffects } from './ssgi.js';
 export { createCurrentRenderer } from './three-current.js';
 
@@ -25,7 +27,7 @@ export { createCurrentRenderer } from './three-current.js';
  * see SSR_IMPROVEMENTS.md's "Optimization rounds (three-new-ssr-fast)" section for what each one does and costs.
  */
 const screenSpaceOptions: Record<
-  Exclude<RendererName, 'three-gpu-pathtracer' | 'three-current'>,
+  Exclude<RendererName, 'three-gpu-pathtracer' | 'three-gpu-pathtracer-webgpu' | 'three-current'>,
   { ssgiWeighting: SSGIWeighting; ssrMethod: SSRMethod; ssrFast?: SSRFastOptions; ssgiFast?: SSGIFastOptions }
 > = {
   'three-new-ssgi': { ssgiWeighting: 'solid-angle', ssrMethod: 'fork' },
@@ -121,6 +123,7 @@ export function createRenderer(
   options: RendererOptions,
 ): Promise<LiveRenderer> {
   if (name === 'three-gpu-pathtracer') return createPathTracerRenderer(canvas, setup, options);
+  if (name === 'three-gpu-pathtracer-webgpu') return createWebGPUPathTracerRenderer(canvas, setup, options);
   // unmodified three.js r186 from npm, not the fork (see three-current.ts)
   if (name === 'three-current') return createCurrentRenderer(canvas, setup, options);
   const screenSpace = screenSpaceOptions[name as keyof typeof screenSpaceOptions];

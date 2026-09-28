@@ -9,6 +9,7 @@ export const rendererNames = [
   'three-new-ssgi-fast',
   'three-new-ssr-rt',
   'three-gpu-pathtracer',
+  'three-gpu-pathtracer-webgpu',
 ] as const;
 export type RendererName = (typeof rendererNames)[number];
 

@@ -1,7 +1,15 @@
-import { Link, createFileRoute, notFound } from '@tanstack/react-router';
+import { Link, createFileRoute, notFound, useNavigate } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import Header, { buttonClassName } from '#/components/Header';
-import { RENDERERS, isRendererName, parsePass, passSearch, type PassName } from '#/lib/scenes';
+import {
+  RENDERERS,
+  formatCamera,
+  isRendererName,
+  parseCamera,
+  parsePass,
+  passSearch,
+  type PassName,
+} from '#/lib/scenes';
 import { MAX_PATHTRACER_SAMPLES, startLiveRender } from '#/live/live-render';
 
 export const Route = createFileRoute('/live/$name/$renderer')({
@@ -12,16 +20,19 @@ export const Route = createFileRoute('/live/$name/$renderer')({
       return { name, renderer };
     },
   },
-  validateSearch: (search: Record<string, unknown>): { pass?: PassName } => ({
-    pass: passSearch(parsePass(search.pass)),
-  }),
+  validateSearch: (search: Record<string, unknown>): { pass?: PassName; camera?: string } => {
+    const camera = parseCamera(search.camera);
+    return { pass: passSearch(parsePass(search.pass)), camera: camera && formatCamera(camera) };
+  },
   head: ({ params }) => ({ meta: [{ title: `${params.name} (${params.renderer}) – three-ss-fidelity` }] }),
   component: Live,
 });
 
 function Live() {
   const { name, renderer } = Route.useParams();
-  const pass = parsePass(Route.useSearch().pass);
+  const search = Route.useSearch();
+  const pass = parsePass(search.pass);
+  const navigate = useNavigate({ from: Route.fullPath });
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [samples, setSamples] = useState(0);
   const [error, setError] = useState<string>();
@@ -33,15 +44,33 @@ function Live() {
     let live: { dispose(): void } | undefined;
     setSamples(0);
     setError(undefined);
-    startLiveRender({ canvas, sceneName: name, renderer, pass, onFrame: setSamples }).then(
+    let cameraTimeout: number | undefined;
+    startLiveRender({
+      canvas,
+      sceneName: name,
+      renderer,
+      pass,
+      // read from the URL once per renderer start: orbiting rewrites the param, which must not restart the renderer
+      camera: parseCamera(new URLSearchParams(window.location.search).get('camera')),
+      // keep the URL's camera current (debounced), so the renderer buttons below and reloads keep the view
+      onCamera: (camera) => {
+        window.clearTimeout(cameraTimeout);
+        cameraTimeout = window.setTimeout(
+          () => void navigate({ replace: true, search: (prev) => ({ ...prev, camera: formatCamera(camera) }) }),
+          200,
+        );
+      },
+      onFrame: setSamples,
+    }).then(
       (handle) => (disposed ? handle.dispose() : (live = handle)),
       (reason: unknown) => !disposed && setError(reason instanceof Error ? reason.message : String(reason)),
     );
     return () => {
       disposed = true;
+      window.clearTimeout(cameraTimeout);
       live?.dispose();
     };
-  }, [name, renderer, pass]);
+  }, [name, renderer, pass, navigate]);
 
   return (
     <>
@@ -58,7 +87,7 @@ function Live() {
                 className={`${buttonClassName} ${other === renderer ? 'border-primary font-semibold' : ''}`}
                 key={other}
                 params={{ name, renderer: other }}
-                search={{ pass: passSearch(pass) }}
+                search={{ pass: passSearch(pass), camera: search.camera }}
                 to="/live/$name/$renderer"
               >
                 {other}

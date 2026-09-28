@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { filterScenes, parseSort, sortScenes, type SceneMetrics, type SceneSummary } from './scenes';
+import {
+  filterScenes,
+  formatCamera,
+  parseCamera,
+  parseSort,
+  sortScenes,
+  type SceneMetrics,
+  type SceneSummary,
+} from './scenes';
 
 const scene = (name: string, psnr?: number | null, description?: string): SceneSummary => ({
   name,
@@ -35,4 +43,19 @@ describe('filterScenes', () => {
 it('parseSort falls back to name', () => {
   expect(parseSort('psnr')).toBe('psnr');
   expect(parseSort('bogus')).toBe('name');
+});
+
+describe('parseCamera', () => {
+  it('round-trips a position + target', () => {
+    const camera = parseCamera('1,2.5,-3,0,0.25,0');
+    expect(camera).toEqual({ position: [1, 2.5, -3], target: [0, 0.25, 0] });
+    expect(formatCamera(camera!)).toBe('1,2.5,-3,0,0.25,0');
+    expect(formatCamera({ position: [1 / 3, 0, 0], target: [0, 0, 0] })).toBe('0.3333,0,0,0,0,0');
+  });
+
+  it('rejects anything but six finite numbers', () => {
+    for (const value of [undefined, 3, '', '1,2,3', '1,2,3,4,5,6,7', '1,2,3,4,5,x', '1,2,3,4,5,Infinity']) {
+      expect(parseCamera(value)).toBeUndefined();
+    }
+  });
 });

@@ -1,7 +1,7 @@
 import { createRenderer } from '@ss-fidelity/renderers';
 import { createBrowserSceneContext, getScene } from '@ss-fidelity/scenes';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import type { PassName, RendererName } from '#/lib/scenes';
+import type { LiveCamera, PassName, RendererName } from '#/lib/scenes';
 
 /** Where `submodules/three.js/examples/` is served (see `routes/three-examples/$.ts`); scenes load glTF / Draco from here. */
 export const THREE_EXAMPLES_BASE_URL = '/three-examples/';
@@ -14,6 +14,10 @@ export interface LiveRenderOptions {
   sceneName: string;
   renderer: RendererName;
   pass: PassName;
+  /** Starting orbit camera instead of the scene's (e.g. carried over from another renderer's live view). */
+  camera?: LiveCamera;
+  /** Called whenever the user orbits, with the new camera. */
+  onCamera?: (camera: LiveCamera) => void;
   /** Called after every rendered frame with the pipeline frame count (screen space) or accumulated samples (pathtracer). */
   onFrame: (frames: number) => void;
 }
@@ -28,6 +32,8 @@ export async function startLiveRender({
   sceneName,
   renderer,
   pass,
+  camera,
+  onCamera,
   onFrame,
 }: LiveRenderOptions): Promise<LiveRender> {
   const definition = getScene(sceneName);
@@ -51,8 +57,19 @@ export async function startLiveRender({
 
   const controls = new OrbitControls(setup.camera, canvas);
   controls.target.copy(setup.target);
+  if (camera) {
+    setup.camera.position.fromArray(camera.position);
+    controls.target.fromArray(camera.target);
+  }
   controls.update();
-  controls.addEventListener('change', () => live.setCamera(setup.camera));
+  live.setCamera(setup.camera);
+  controls.addEventListener('change', () => {
+    live.setCamera(setup.camera);
+    onCamera?.({
+      position: setup.camera.position.toArray(),
+      target: controls.target.toArray(),
+    });
+  });
 
   // Both screen-space methods are temporal (TRAA / denoise); the pathtracer stops once converged enough.
   let frame = requestAnimationFrame(function tick() {

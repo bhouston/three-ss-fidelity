@@ -1,6 +1,6 @@
 export const RENDERERS = [
   'three-new-ssgi',
-  'three-ss-legacy',
+  'three-current',
   'three-new-ssr',
   'three-new-ssr-fast',
   'three-new-ssr-rt',

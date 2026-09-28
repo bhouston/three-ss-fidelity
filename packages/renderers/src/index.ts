@@ -1,6 +1,6 @@
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import { createPathTracerRenderer } from './pathtracer.js';
-import { createLegacyRenderer } from './ss-legacy.js';
+import { createCurrentRenderer } from './three-current.js';
 import { createSSGIRenderer } from './ssgi.js';
 import type {
   LiveRenderer,
@@ -15,7 +15,7 @@ import type {
 export * from './types.js';
 export { createPathTracerRenderer, PATHTRACER_BOUNCES } from './pathtracer.js';
 export { createSSGIRenderer, passEffects } from './ssgi.js';
-export { createLegacyRenderer } from './ss-legacy.js';
+export { createCurrentRenderer } from './three-current.js';
 
 /**
  * Screen-space renderer name -> the ssgi.ts pipeline options that produce it. Keeping this as a table (rather than
@@ -25,7 +25,7 @@ export { createLegacyRenderer } from './ss-legacy.js';
  * see SSR_IMPROVEMENTS.md's "Optimization rounds (three-new-ssr-fast)" section for what each one does and costs.
  */
 const screenSpaceOptions: Record<
-  Exclude<RendererName, 'three-gpu-pathtracer' | 'three-ss-legacy'>,
+  Exclude<RendererName, 'three-gpu-pathtracer' | 'three-current'>,
   { ssgiWeighting: SSGIWeighting; ssrMethod: SSRMethod; ssrFast?: SSRFastOptions; ssgiFast?: SSGIFastOptions }
 > = {
   'three-new-ssgi': { ssgiWeighting: 'solid-angle', ssrMethod: 'fork' },
@@ -121,8 +121,8 @@ export function createRenderer(
   options: RendererOptions,
 ): Promise<LiveRenderer> {
   if (name === 'three-gpu-pathtracer') return createPathTracerRenderer(canvas, setup, options);
-  // unmodified three.js r186 from npm, not the fork (see ss-legacy.ts)
-  if (name === 'three-ss-legacy') return createLegacyRenderer(canvas, setup, options);
+  // unmodified three.js r186 from npm, not the fork (see three-current.ts)
+  if (name === 'three-current') return createCurrentRenderer(canvas, setup, options);
   const screenSpace = screenSpaceOptions[name as keyof typeof screenSpaceOptions];
   if (!screenSpace) throw new Error(`Unknown renderer "${name}"`);
   return createSSGIRenderer(canvas, setup, { ...options, ...screenSpace });

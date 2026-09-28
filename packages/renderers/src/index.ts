@@ -1,5 +1,6 @@
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import { createPathTracerRenderer } from './pathtracer.js';
+import { createLegacyRenderer } from './ss-legacy.js';
 import { createSSGIRenderer } from './ssgi.js';
 import type {
   LiveRenderer,
@@ -14,6 +15,7 @@ import type {
 export * from './types.js';
 export { createPathTracerRenderer, PATHTRACER_BOUNCES } from './pathtracer.js';
 export { createSSGIRenderer, passEffects } from './ssgi.js';
+export { createLegacyRenderer } from './ss-legacy.js';
 
 /**
  * Screen-space renderer name -> the ssgi.ts pipeline options that produce it. Keeping this as a table (rather than
@@ -23,11 +25,10 @@ export { createSSGIRenderer, passEffects } from './ssgi.js';
  * see SSR_IMPROVEMENTS.md's "Optimization rounds (three-new-ssr-fast)" section for what each one does and costs.
  */
 const screenSpaceOptions: Record<
-  Exclude<RendererName, 'three-gpu-pathtracer'>,
+  Exclude<RendererName, 'three-gpu-pathtracer' | 'three-ss-legacy'>,
   { ssgiWeighting: SSGIWeighting; ssrMethod: SSRMethod; ssrFast?: SSRFastOptions; ssgiFast?: SSGIFastOptions }
 > = {
   'three-new-ssgi': { ssgiWeighting: 'solid-angle', ssrMethod: 'fork' },
-  'three-ss-legacy': { ssgiWeighting: 'legacy', ssrMethod: 'fork' },
   'three-new-ssr': { ssgiWeighting: 'solid-angle', ssrMethod: 'new' },
   // Every ssrFast field starts at its three-new-ssr-reproducing default; each optimization round flips one
   // on here after passing its own quality gate (see SSR_IMPROVEMENTS.md).
@@ -120,7 +121,9 @@ export function createRenderer(
   options: RendererOptions,
 ): Promise<LiveRenderer> {
   if (name === 'three-gpu-pathtracer') return createPathTracerRenderer(canvas, setup, options);
-  const screenSpace = screenSpaceOptions[name];
+  // unmodified three.js r186 from npm, not the fork (see ss-legacy.ts)
+  if (name === 'three-ss-legacy') return createLegacyRenderer(canvas, setup, options);
+  const screenSpace = screenSpaceOptions[name as keyof typeof screenSpaceOptions];
   if (!screenSpace) throw new Error(`Unknown renderer "${name}"`);
   return createSSGIRenderer(canvas, setup, { ...options, ...screenSpace });
 }

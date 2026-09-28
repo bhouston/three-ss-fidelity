@@ -14,13 +14,14 @@ await mkdir(output, { recursive: true });
 headless.install();
 installShaderExperiment(process.env.GI_SHADER);
 const { Vector3 } = await import('../submodules/three.js/build/three.module.js');
-const { createRenderer } = await import('../packages/renderers/dist/index.js');
+const { createRenderer, createSSGIRenderer } = await import('../packages/renderers/dist/index.js');
 const { getScene } = await import('../packages/scenes/dist/index.js');
 const { createNodeSceneContext } = await import('../packages/scenes/dist/node.js');
 const { compareImages } = await import('../packages/cli/dist/compare.js');
 const ctx = createNodeSceneContext();
-const rendererName =
-  process.env.GI_RENDERER ?? (process.env.GI_SHADER === 'legacy' ? 'three-ss-legacy' : 'three-new-ssgi');
+const rendererName = process.env.GI_RENDERER ?? 'three-new-ssgi';
+// the fork's equal-angle weighting (three-ss-legacy is now stock npm three.js, a different pipeline)
+const ssgiWeighting = process.env.GI_SHADER === 'legacy' ? 'legacy' : undefined;
 const scenes = process.argv.slice(3);
 if (!scenes.length) scenes.push('gi-emitter-corner', 'gi-room-open-high-albedo', 'ssgi-animated');
 const variants = JSON.parse(process.env.GI_VARIANTS ?? 'null') ?? [
@@ -69,12 +70,10 @@ for (const name of scenes) {
       height: 16,
     };
     const canvas = headless.createCanvas(width, height);
-    const renderer = await createRenderer(rendererName, canvas, setup, {
-      width,
-      height,
-      pass: 'beauty',
-      ssgiReconstruction: variant.reconstruction,
-    });
+    const options = { width, height, pass: 'beauty', ssgiReconstruction: variant.reconstruction };
+    const renderer = ssgiWeighting
+      ? await createSSGIRenderer(canvas, setup, { ...options, ssgiWeighting })
+      : await createRenderer(rendererName, canvas, setup, options);
     await headless.ready();
     const frames = variant.frames ?? 128;
     const start = performance.now();

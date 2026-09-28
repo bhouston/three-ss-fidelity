@@ -11,7 +11,7 @@ const sharp = createRequire(new URL('../packages/cli/package.json', import.meta.
 const output = path.resolve(process.argv[2] ?? path.join(root, '.gi-investigation'));
 await mkdir(output, { recursive: true });
 headless.install();
-const { createRenderer } = await import('../packages/renderers/dist/index.js');
+const { createSSGIRenderer } = await import('../packages/renderers/dist/index.js');
 const { getScene } = await import('../packages/scenes/dist/index.js');
 const { createNodeSceneContext } = await import('../packages/scenes/dist/node.js');
 const { compareImages } = await import('../packages/cli/dist/compare.js');
@@ -37,7 +37,7 @@ for (const variant of variants) {
   if (variant.noSSR) setup.effects.ssr = undefined;
   const { width, height } = definition;
   const canvas = headless.createCanvas(width, height);
-  const renderer = await createRenderer('three-ss-legacy', canvas, setup, { width, height, pass: 'beauty' });
+  const renderer = await createSSGIRenderer(canvas, setup, { width, height, pass: 'beauty', ssgiWeighting: 'legacy' });
   await headless.ready();
   const frames = variant.frames ?? 128;
   const start = performance.now();

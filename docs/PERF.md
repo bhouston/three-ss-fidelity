@@ -9,7 +9,7 @@ Measures median ms/frame per scene for one or more renderers, after a warm-up pe
 own child process (dawn and ANGLE don't share a process reliably), same as `cli render`.
 
 ```sh
-pnpm cli bench --renderers three-new-ssgi,three-ss-legacy --scenes ssgi-basic,ssgi-animated --out bench.json
+pnpm cli bench --renderers three-new-ssgi,three-current --scenes ssgi-basic,ssgi-animated --out bench.json
 ```
 
 Options: `--renderers` (required, comma-separated glob(s) against the renderer names), `--scenes` (default `*`),
@@ -87,8 +87,8 @@ Compares two already-compared renderers' mean RMSE against the `three-gpu-pathtr
 `metrics-<renderer>.json`, produced by `cli compare`, rather than re-decoding images):
 
 ```sh
-pnpm cli compare --renderers three-ss-legacy,three-new-ssgi --scenes ssgi-basic,ssgi-animated
-pnpm cli quality-gate three-ss-legacy three-new-ssgi --scenes ssgi-basic,ssgi-animated
+pnpm cli compare --renderers three-current,three-new-ssgi --scenes ssgi-basic,ssgi-animated
+pnpm cli quality-gate three-current three-new-ssgi --scenes ssgi-basic,ssgi-animated
 ```
 
 Fails (non-zero exit) when the candidate's mean RMSE across the selected scenes/passes is worse than the

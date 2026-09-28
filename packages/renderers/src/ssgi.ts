@@ -1,4 +1,4 @@
-// three-new-ssgi / three-ss-legacy / three-new-ssr: WebGPURenderer + RenderPipeline replicating
+// three-new-ssgi / three-new-ssr: WebGPURenderer + RenderPipeline replicating
 // examples/webgpu_postprocessing_ssgi.html (antialias 'traa') and examples/webgpu_postprocessing_ssr.html
 // (antialias 'smaa') of the three.js fork.
 import { BackSide, LinearSRGBColorSpace, NoToneMapping } from 'three';
@@ -70,7 +70,7 @@ const AO_FRAMES = 128;
 /** three-new-ssr's minimum pipeline frames per rendered result (its stochastic SSR is a running mean over them). */
 const SSR_ACCUM_FRAMES = 256;
 
-/** The three-new-ssgi / three-ss-legacy / three-new-ssr pipeline settings of a pass. */
+/** The screen-space pipeline settings of a pass (shared with three-current's three-current.ts). */
 export function passEffects(setup: SceneSetup, renderPass: PassName): SceneEffects {
   const { effects } = setup;
   switch (renderPass) {
@@ -549,17 +549,15 @@ export async function createSSGIRenderer(
 
   const handle: LiveRenderer = {
     name:
-      ssgiWeighting === 'legacy'
-        ? 'three-ss-legacy'
-        : ssrMethod === 'new'
-          ? ssgiFast !== undefined
-            ? 'three-new-ssgi-fast'
-            : ssrFast?.realtime
-              ? 'three-new-ssr-rt'
-              : ssrFast !== undefined
-                ? 'three-new-ssr-fast'
-                : 'three-new-ssr'
-          : 'three-new-ssgi',
+      ssrMethod === 'new'
+        ? ssgiFast !== undefined
+          ? 'three-new-ssgi-fast'
+          : ssrFast?.realtime
+            ? 'three-new-ssr-rt'
+            : ssrFast !== undefined
+              ? 'three-new-ssr-fast'
+              : 'three-new-ssr'
+        : 'three-new-ssgi',
     renderer,
     get frames() {
       return frames;

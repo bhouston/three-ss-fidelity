@@ -16,10 +16,10 @@ describe('listScenes', () => {
       path.join(dir, 'full', 'beauty', 'metrics-three-new-ssgi.json'),
       JSON.stringify({ scene: 'full', psnr: 31.5 }),
     );
-    await writeFile(path.join(dir, 'full', 'beauty', 'three-ss-legacy.avif'), 'avif');
-    await writeFile(path.join(dir, 'full', 'beauty', 'delta-three-ss-legacy.avif'), 'avif');
+    await writeFile(path.join(dir, 'full', 'beauty', 'three-current.avif'), 'avif');
+    await writeFile(path.join(dir, 'full', 'beauty', 'delta-three-current.avif'), 'avif');
     await writeFile(
-      path.join(dir, 'full', 'beauty', 'metrics-three-ss-legacy.json'),
+      path.join(dir, 'full', 'beauty', 'metrics-three-current.json'),
       JSON.stringify({ scene: 'full', psnr: 24.3 }),
     );
     await mkdir(path.join(dir, 'broken', 'beauty'), { recursive: true });
@@ -42,23 +42,23 @@ describe('listScenes', () => {
       /^\/api\/results\/full\/beauty\/three-new-ssgi\.avif\?v=\d+$/,
     );
     expect(byName.full?.reference).toBeUndefined();
-    expect(byName.full?.renderers['three-ss-legacy']?.image).toMatch(
-      /^\/api\/results\/full\/beauty\/three-ss-legacy\.avif\?v=\d+$/,
+    expect(byName.full?.renderers['three-current']?.image).toMatch(
+      /^\/api\/results\/full\/beauty\/three-current\.avif\?v=\d+$/,
     );
-    expect(byName.full?.renderers['three-ss-legacy']?.delta).toMatch(
-      /^\/api\/results\/full\/beauty\/delta-three-ss-legacy\.avif\?v=\d+$/,
+    expect(byName.full?.renderers['three-current']?.delta).toMatch(
+      /^\/api\/results\/full\/beauty\/delta-three-current\.avif\?v=\d+$/,
     );
-    expect(byName.full?.renderers['three-ss-legacy']?.metrics?.psnr).toBe(24.3);
+    expect(byName.full?.renderers['three-current']?.metrics?.psnr).toBe(24.3);
     expect(byName.broken?.renderers['three-new-ssgi']?.metrics).toBeUndefined();
     expect(byName.older?.renderers['three-new-ssgi']?.image).toBeDefined();
-    expect(byName.older?.renderers['three-ss-legacy']).toBeUndefined();
+    expect(byName.older?.renderers['three-current']).toBeUndefined();
     expect(byName.unrendered?.renderers).toEqual({});
   });
 
   it('only serves the recognized result filenames', () => {
-    expect(RESULT_FILES).toContain('three-ss-legacy.avif');
-    expect(RESULT_FILES).toContain('delta-three-ss-legacy.avif');
-    expect(RESULT_FILES).toContain('metrics-three-ss-legacy.json');
+    expect(RESULT_FILES).toContain('three-current.avif');
+    expect(RESULT_FILES).toContain('delta-three-current.avif');
+    expect(RESULT_FILES).toContain('metrics-three-current.json');
     expect(RESULT_FILES).toContain('three-new-ssgi.avif');
     expect(RESULT_FILES).toContain('three-new-ssr.avif');
     expect(RESULT_FILES).not.toContain('unrelated.avif');

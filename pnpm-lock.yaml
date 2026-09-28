@@ -97,10 +97,16 @@ importers:
       three-gpu-pathtracer:
         specifier: workspace:*
         version: link:../../submodules/three-gpu-pathtracer
+      three-r186:
+        specifier: npm:three@0.186.1
+        version: three@0.186.1
     devDependencies:
       '@types/three':
         specifier: ^0.186.0
         version: 0.186.0
+      '@types/three-r186':
+        specifier: npm:@types/three@0.186.0
+        version: '@types/three@0.186.0'
 
   packages/scenes:
     dependencies:
@@ -4411,6 +4417,9 @@ packages:
     resolution: {integrity: sha512-9xdEDkCzFoT8VPFH9DznwFSdbaIEjMvM106Iqq7TJurrIheUKDcdW4prfJTCxryih4XS/UxWs0H3K4MLMRFyOQ==}
     peerDependencies:
       three: workspace:*
+
+  three@0.186.1:
+    resolution: {integrity: sha512-blFeqb49wRCSGUGj7gtpfnSGHy2lwDk94RhUmS1c/hTby70kvChbWpkJ4Pm1390LqzzvTmzgXKHPEafJwCb8jA==}
 
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
@@ -9036,6 +9045,8 @@ snapshots:
   three-mesh-bvh@0.9.15(three@submodules+three.js):
     dependencies:
       three: link:submodules/three.js
+
+  three@0.186.1: {}
 
   tinybench@2.9.0: {}
 

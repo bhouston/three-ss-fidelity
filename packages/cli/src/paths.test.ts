@@ -7,13 +7,13 @@ describe('comparison output paths', () => {
 
   it('uses the same delta-R/metrics-R naming for every screen-space renderer', () => {
     const ssgi = comparisonPaths('cornell', 'combined', 'three-new-ssgi', root);
-    const legacy = comparisonPaths('cornell', 'combined', 'three-ss-legacy', root);
+    const current = comparisonPaths('cornell', 'combined', 'three-current', root);
     expect(ssgi.delta).toBe(path.join(root, 'cornell', 'combined', 'delta-three-new-ssgi.avif'));
     expect(ssgi.metrics).toBe(path.join(root, 'cornell', 'combined', 'metrics-three-new-ssgi.json'));
-    expect(legacy.delta).toBe(path.join(root, 'cornell', 'combined', 'delta-three-ss-legacy.avif'));
-    expect(legacy.metrics).toBe(path.join(root, 'cornell', 'combined', 'metrics-three-ss-legacy.json'));
-    expect(renderPath('cornell', 'combined', 'three-ss-legacy', root)).toBe(
-      path.join(root, 'cornell', 'combined', 'three-ss-legacy.avif'),
+    expect(current.delta).toBe(path.join(root, 'cornell', 'combined', 'delta-three-current.avif'));
+    expect(current.metrics).toBe(path.join(root, 'cornell', 'combined', 'metrics-three-current.json'));
+    expect(renderPath('cornell', 'combined', 'three-current', root)).toBe(
+      path.join(root, 'cornell', 'combined', 'three-current.avif'),
     );
   });
 });

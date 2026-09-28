@@ -71,7 +71,7 @@ in `submodules/three.js`. There is only ever one copy of three.
 | Renderer               | What it is                                                                                                         |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `three-gpu-pathtracer` | Ground truth (default 4096 spp, seeded).                                                                           |
-| `three-ss-legacy`      | The fork's original equal-angle SSGI weighting.                                                                    |
+| `three-current`        | Unmodified three.js r186 from npm (`three@0.186.1`) with its stock SSGI/SSR example pipelines.                     |
 | `three-new-ssgi`       | Solid-angle-corrected SSGI + the fork's SSR ([docs/RENDERER-METHODS.md](docs/RENDERER-METHODS.md)).                |
 | `three-new-ssr`        | `three-new-ssgi` + vendored `NewSSRNode` ([SSR_IMPROVEMENTS.md](SSR_IMPROVEMENTS.md)).                             |
 | `three-new-ssr-fast`   | `three-new-ssr` + quality-gated speed flags (same doc).                                                            |

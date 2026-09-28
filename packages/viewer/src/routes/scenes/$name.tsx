@@ -1,6 +1,5 @@
 import { Link, createFileRoute, notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import Header, { buttonClassName } from '#/components/Header';
 import { ResultImage } from '#/components/ResultImage';
@@ -8,7 +7,7 @@ import { isSceneName, readSceneResult, sceneRegistry } from '#/lib/results.serve
 import {
   PASSES,
   RENDERERS,
-  SCREEN_SPACE_RENDERERS,
+  COMPARED_RENDERERS,
   formatMetric,
   parsePass,
   passSearch,
@@ -77,24 +76,24 @@ function SceneDetail() {
                 search={{ pass: passSearch(pass) }}
                 to="/live/$name/$renderer"
               >
-                <ExternalLink aria-hidden="true" className="size-3.5" /> Live {renderer}
+                Live {renderer}
               </Link>
             ))}
           </div>
         </div>
 
         <p className="text-sm text-muted-foreground">
-          Every screen-space method uses the same three.js fork and scene settings; each is compared against the same
-          path-traced reference. A method missing from this scene's results is simply left out below.
+          Every renderer uses the same scene settings and is compared against the same path-traced reference. A renderer
+          missing from this scene's results is simply left out below.
         </p>
-        <section className="grid gap-4 md:grid-cols-3">
+        <section className="grid gap-4 md:grid-cols-4">
           <figure>
             <ResultImage alt="three-gpu-pathtracer reference" src={reference} />
             <figcaption className="mt-1 text-center text-sm text-muted-foreground">
               three-gpu-pathtracer (reference)
             </figcaption>
           </figure>
-          {SCREEN_SPACE_RENDERERS.flatMap((renderer) => {
+          {COMPARED_RENDERERS.flatMap((renderer) => {
             const result = renderers[renderer];
             if (!result?.image) return [];
             return [
@@ -105,7 +104,7 @@ function SceneDetail() {
             ];
           })}
         </section>
-        {SCREEN_SPACE_RENDERERS.flatMap((renderer) => {
+        {COMPARED_RENDERERS.flatMap((renderer) => {
           const result = renderers[renderer];
           if (!result) return [];
           return [

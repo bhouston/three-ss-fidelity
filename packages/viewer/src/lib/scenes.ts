@@ -1,11 +1,16 @@
-/** Display order: the reference, the stock baseline, then the improved renderer. */
-export const RENDERERS = ['three-gpu-pathtracer', 'three-current', 'three-new'] as const;
+/** Display order: the reference, the second path tracer, the stock baseline, then the improved renderer. */
+export const RENDERERS = ['three-gpu-pathtracer', 'three-gpu-pathtracer-webgpu', 'three-current', 'three-new'] as const;
 export type RendererName = (typeof RENDERERS)[number];
 
-/** Every screen-space renderer: everything but the path-traced reference. */
-export const SCREEN_SPACE_RENDERERS = RENDERERS.filter(
+/** Every renderer scored against the reference: everything but three-gpu-pathtracer itself. */
+export const COMPARED_RENDERERS = RENDERERS.filter(
   (name): name is Exclude<RendererName, 'three-gpu-pathtracer'> => name !== 'three-gpu-pathtracer',
 );
+
+/** Path tracers accumulate samples up to a cap instead of running forever. */
+export function isPathTracer(name: RendererName): boolean {
+  return name === 'three-gpu-pathtracer' || name === 'three-gpu-pathtracer-webgpu';
+}
 
 export function isRendererName(value: string): value is RendererName {
   return (RENDERERS as readonly string[]).includes(value);
@@ -62,7 +67,7 @@ export interface SceneMetrics {
   generatedAt: string;
 }
 
-/** One screen-space renderer's result images + metrics for a scene/pass; absent fields mean the file doesn't exist. */
+/** One compared renderer's result images + metrics for a scene/pass; absent fields mean the file doesn't exist. */
 export interface RendererResult {
   image?: string;
   delta?: string;
@@ -74,7 +79,7 @@ export interface SceneSummary {
   description?: string;
   /** Path-traced reference image URL; absent when the file does not exist. */
   reference?: string;
-  /** Keyed by screen-space renderer name; a renderer missing from a scene's results is simply absent here. */
+  /** Keyed by compared renderer name; a renderer missing from a scene's results is simply absent here. */
   renderers: Partial<Record<Exclude<RendererName, 'three-gpu-pathtracer'>, RendererResult>>;
 }
 

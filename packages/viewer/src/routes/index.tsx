@@ -1,14 +1,13 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import { ArrowUpDown, ExternalLink } from 'lucide-react';
+import { ArrowUpDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Header, { buttonClassName } from '#/components/Header';
 import { ResultImage } from '#/components/ResultImage';
 import { listScenes, sceneRegistry } from '#/lib/results.server';
 import {
   PASSES,
-  RENDERERS,
-  SCREEN_SPACE_RENDERERS,
+  COMPARED_RENDERERS,
   SORT_OPTIONS,
   filterScenes,
   formatMetric,
@@ -114,9 +113,9 @@ function Index() {
       </Header>
       <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-4 py-6 sm:px-6">
         <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-          Compare each screen-space method (<code>{SCREEN_SPACE_RENDERERS.join(', ')}</code>) against the{' '}
-          <code>three-gpu-pathtracer</code> reference. Each delta and metric set measures one screen-space method
-          against that reference.
+          Compare each renderer (<code>{COMPARED_RENDERERS.join(', ')}</code>) against the{' '}
+          <code>three-gpu-pathtracer</code> reference. Each delta and metric set measures one renderer against that
+          reference.
         </p>
         <section>
           {shown.length > 0 ? (
@@ -137,14 +136,18 @@ function Index() {
 function SceneRow({ scene, pass }: { scene: SceneSummary; pass: PassName }) {
   const search = { pass: passSearch(pass) };
   const { reference, renderers } = scene;
-  // column-major 3x2: the reference above an empty cell, then each renderer above its delta
+  // column-major, two rows: the reference above an empty cell, then each renderer with results above its delta
   const cells = [
     { label: 'three-gpu-pathtracer (reference)', src: reference },
     null,
-    ...SCREEN_SPACE_RENDERERS.flatMap((renderer) => [
-      { label: renderer, src: renderers[renderer]?.image },
-      { label: `${renderer} delta`, src: renderers[renderer]?.delta },
-    ]),
+    ...COMPARED_RENDERERS.flatMap((renderer) => {
+      const result = renderers[renderer];
+      if (!result) return [];
+      return [
+        { label: renderer, src: result.image },
+        { label: `${renderer} delta`, src: result.delta },
+      ];
+    }),
   ];
   return (
     <article className="border-b border-border py-4 last:border-b-0">
@@ -157,19 +160,17 @@ function SceneRow({ scene, pass }: { scene: SceneSummary; pass: PassName }) {
         {scene.description ? <p className="text-sm text-muted-foreground">{scene.description}</p> : null}
         <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
           <Link className={buttonClassName} params={{ name: scene.name }} search={search} to="/scenes/$name">
-            Details
+            Comparison
           </Link>
-          {RENDERERS.map((renderer) => (
-            <Link
-              className={buttonClassName}
-              key={renderer}
-              params={{ name: scene.name, renderer }}
-              search={search}
-              to="/live/$name/$renderer"
-            >
-              <ExternalLink aria-hidden="true" className="size-3.5" /> Live {renderer}
-            </Link>
-          ))}
+          {/* the live page has buttons for every renderer */}
+          <Link
+            className={buttonClassName}
+            params={{ name: scene.name, renderer: 'three-new' }}
+            search={search}
+            to="/live/$name/$renderer"
+          >
+            Live Render
+          </Link>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap items-start gap-3">
@@ -183,7 +184,9 @@ function SceneRow({ scene, pass }: { scene: SceneSummary; pass: PassName }) {
             cell ? (
               <figure className="flex w-24 min-w-0 flex-col gap-1" key={cell.label}>
                 <ResultImage alt={`${scene.name}: ${cell.label}`} src={cell.src} />
-                <figcaption className="truncate text-center text-xs text-muted-foreground">{cell.label}</figcaption>
+                <figcaption className="truncate text-center text-xs text-muted-foreground" title={cell.label}>
+                  {cell.label}
+                </figcaption>
               </figure>
             ) : (
               <div key={index} />
@@ -191,7 +194,7 @@ function SceneRow({ scene, pass }: { scene: SceneSummary; pass: PassName }) {
           )}
         </Link>
         <div className="flex flex-wrap gap-2">
-          {SCREEN_SPACE_RENDERERS.map((renderer) => (
+          {COMPARED_RENDERERS.filter((renderer) => renderers[renderer]).map((renderer) => (
             <MetricSummary key={renderer} label={renderer} metrics={renderers[renderer]?.metrics} />
           ))}
         </div>

@@ -2,18 +2,18 @@ import { existsSync } from 'node:fs';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { getScene, listSceneNames } from '@ss-fidelity/scenes';
-import { SCREEN_SPACE_RENDERERS, type PassName, type SceneMetrics, type SceneSummary } from '#/lib/scenes';
+import { COMPARED_RENDERERS, type PassName, type SceneMetrics, type SceneSummary } from '#/lib/scenes';
 
 export const REFERENCE_FILE = 'three-gpu-pathtracer.avif';
 
-/** results/<scene>/<pass>/ filenames for one screen-space renderer: R.avif, delta-R.avif, metrics-R.json. */
+/** results/<scene>/<pass>/ filenames for one compared renderer: R.avif, delta-R.avif, metrics-R.json. */
 export function rendererFiles(renderer: string) {
   return { image: `${renderer}.avif`, delta: `delta-${renderer}.avif`, metrics: `metrics-${renderer}.json` };
 }
 
 export const RESULT_FILES = [
   REFERENCE_FILE,
-  ...SCREEN_SPACE_RENDERERS.flatMap((renderer) => Object.values(rendererFiles(renderer))),
+  ...COMPARED_RENDERERS.flatMap((renderer) => Object.values(rendererFiles(renderer))),
 ];
 
 const SCENE_NAME = /^[a-z0-9][a-z0-9._-]*$/;
@@ -64,7 +64,7 @@ export async function readSceneResult(name: string, pass: PassName, dir = result
   const [reference, rendererResults] = await Promise.all([
     imageUrl(dir, name, pass, REFERENCE_FILE),
     Promise.all(
-      SCREEN_SPACE_RENDERERS.map(async (renderer) => {
+      COMPARED_RENDERERS.map(async (renderer) => {
         const files = rendererFiles(renderer);
         const [image, delta, metrics] = await Promise.all([
           imageUrl(dir, name, pass, files.image),

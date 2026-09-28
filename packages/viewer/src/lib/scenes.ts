@@ -1,4 +1,5 @@
-export const RENDERERS = ['three-new', 'three-current', 'three-gpu-pathtracer'] as const;
+/** Display order: the reference, the stock baseline, then the improved renderer. */
+export const RENDERERS = ['three-gpu-pathtracer', 'three-current', 'three-new'] as const;
 export type RendererName = (typeof RENDERERS)[number];
 
 /** Every screen-space renderer: everything but the path-traced reference. */
@@ -70,9 +71,9 @@ export function parseSort(value: unknown): SortValue {
   return SORT_OPTIONS.some((option) => option.value === value) ? (value as SortValue) : 'name';
 }
 
-/** Sorts by the primary renderer's PSNR. Identical images (`psnr: null`) rank as best; scenes without it rank last. */
+/** Sorts by three-new's PSNR (the renderer being improved). Identical images (`psnr: null`) rank as best; scenes without it rank last. */
 function psnrRank(scene: SceneSummary): number | undefined {
-  const psnr = scene.renderers[SCREEN_SPACE_RENDERERS[0]]?.metrics?.psnr;
+  const psnr = scene.renderers['three-new']?.metrics?.psnr;
   if (psnr === undefined) return undefined;
   return psnr ?? Number.POSITIVE_INFINITY;
 }

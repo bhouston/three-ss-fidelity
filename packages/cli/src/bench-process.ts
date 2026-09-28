@@ -147,6 +147,7 @@ async function main(job: BenchJob): Promise<void> {
       : () => headless.readPixels(canvas);
 
     for (let i = 0; i < job.warmup; i++) {
+      headless.animationFrame();
       live.render();
       await sync();
       await new Promise((resolve) => setImmediate(resolve)); // async shader compilation
@@ -158,9 +159,9 @@ async function main(job: BenchJob): Promise<void> {
       await gpuRenderer.resolveTimestampsAsync('compute');
     }
 
-    // The node frame (and with it every effect pass) only advances in the renderer's animation loop, which the
-    // headless requestAnimationFrame runs from a timer, so each frame must yield to it: back-to-back render()
-    // calls without yielding would re-run only the final output pass. See live.frames check below.
+    // The node frame (and with it every effect pass) only advances in the renderer's animation loop, which
+    // headless.animationFrame() runs: without it, back-to-back render() calls would re-run only the final output
+    // pass. See live.frames check below.
     const cpu: number[] = [];
     const total: number[] = [];
     const gpuTotals: number[] = [];
@@ -171,6 +172,7 @@ async function main(job: BenchJob): Promise<void> {
       let cpuTime = 0;
       for (let i = 0; i < BATCH; i++) {
         await new Promise((resolve) => setTimeout(resolve, 0));
+        headless.animationFrame();
         const usage = process.cpuUsage();
         live.render();
         const { user, system } = process.cpuUsage(usage);

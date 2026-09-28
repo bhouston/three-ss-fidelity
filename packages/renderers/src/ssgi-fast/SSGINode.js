@@ -50,7 +50,7 @@ import {
   sqrt,
   HALF_PI,
   div,
-  ceil,
+  round,
   shiftRight,
   convertToTexture,
   bool,
@@ -627,8 +627,12 @@ class SSGINode extends Node {
           const minHorizon = frontBackHorizon.x.toConst();
           const maxHorizon = frontBackHorizon.y.toConst();
 
-          const startHorizonInt = uint(frontBackHorizon.mul(float(MAX_RAY))).toConst();
-          const angleHorizonInt = uint(ceil(maxHorizon.sub(minHorizon).mul(float(MAX_RAY)))).toConst();
+          // a sector is occluded when its center lies between the horizons. Rounding both ends (instead of flooring the
+          // start and taking the ceiling of the width) keeps a sample lying on the shading point's tangent plane, whose
+          // horizon interval is zero up to depth/normal precision, from occluding a whole sector
+          const startHorizon = round(minHorizon.mul(float(MAX_RAY))).toConst();
+          const startHorizonInt = uint(startHorizon).toConst();
+          const angleHorizonInt = uint(max(round(maxHorizon.mul(float(MAX_RAY))).sub(startHorizon), 0)).toConst();
           const angleHorizonBitfield = angleHorizonInt
             .greaterThan(uint(0))
             .select(

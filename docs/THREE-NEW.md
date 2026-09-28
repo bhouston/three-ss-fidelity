@@ -31,6 +31,11 @@ time through TRAA and the temporal filters.
    - The initial ray step is loop-invariant.
    - The two speedups are rounds 1–3 of [history/SSGI_FAST.md](history/SSGI_FAST.md): 1.44× on SSGI, +0.17 % RMSE.
    - AO and GI are denoised by the fork's temporal reprojection and recurrent denoiser.
+   - Visibility-bitmask sectors are rounded at both horizons (stock three.js floors the start and takes the ceiling
+     of the width). A flat surface's own samples no longer occlude a sector through precision noise, so
+     camera-facing flat surfaces reach AO 1 (stock stays at about 0.93). AO RMSE falls 10–16 % in most scenes. Oblique
+     flat surfaces still sit about 0.1 low from another cause. SSGI beauty RMSE rises about 6 %, because the
+     GI shares the sector counts and the over-count had been adding energy to an estimate that was already dark.
 4. **SSR** (`ssr/NewSSRNode.js`):
    - Stochastic VNDF rays over the full GGX lobe, for metals and dielectrics alike.
    - Hits read the previous anti-aliased frame. Their specular is re-evaluated for the reflected direction, and

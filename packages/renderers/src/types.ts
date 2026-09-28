@@ -3,7 +3,7 @@ import type { WebGPURenderer } from 'three/webgpu';
 
 export const rendererNames = [
   'three-new-ssgi',
-  'three-ss-legacy',
+  'three-current',
   'three-new-ssr',
   'three-new-ssr-fast',
   'three-new-ssgi-fast',

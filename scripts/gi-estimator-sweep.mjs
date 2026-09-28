@@ -20,7 +20,7 @@ const { createNodeSceneContext } = await import('../packages/scenes/dist/node.js
 const { compareImages } = await import('../packages/cli/dist/compare.js');
 const ctx = createNodeSceneContext();
 const rendererName = process.env.GI_RENDERER ?? 'three-new-ssgi';
-// the fork's equal-angle weighting (three-ss-legacy is now stock npm three.js, a different pipeline)
+// the fork's equal-angle weighting (three-current is now stock npm three.js, a different pipeline)
 const ssgiWeighting = process.env.GI_SHADER === 'legacy' ? 'legacy' : undefined;
 const scenes = process.argv.slice(3);
 if (!scenes.length) scenes.push('gi-emitter-corner', 'gi-room-open-high-albedo', 'ssgi-animated');

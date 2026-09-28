@@ -70,7 +70,7 @@ const AO_FRAMES = 128;
 /** three-new-ssr's minimum pipeline frames per rendered result (its stochastic SSR is a running mean over them). */
 const SSR_ACCUM_FRAMES = 256;
 
-/** The screen-space pipeline settings of a pass (shared with three-ss-legacy's ss-legacy.ts). */
+/** The screen-space pipeline settings of a pass (shared with three-current's three-current.ts). */
 export function passEffects(setup: SceneSetup, renderPass: PassName): SceneEffects {
   const { effects } = setup;
   switch (renderPass) {

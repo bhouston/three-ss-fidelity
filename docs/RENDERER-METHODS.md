@@ -1,18 +1,18 @@
 # Comparing SSGI methods
 
-All screen-space methods except `three-ss-legacy` use the same `bhouston/three.js` fork, the same SSGINode, and the same scene setup. `three-ss-legacy` is the fixed baseline: unmodified three.js r186 from npm. Select the method by renderer name:
+All screen-space methods except `three-current` use the same `bhouston/three.js` fork, the same SSGINode, and the same scene setup. `three-current` is the fixed baseline: unmodified three.js r186 from npm. Select the method by renderer name:
 
 | Renderer               | Method                                                                                                                                                                                                                                                                                                                                        |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `three-new-ssgi`       | Corrected sample-direction solid-angle weighting (default).                                                                                                                                                                                                                                                                                   |
-| `three-ss-legacy`      | Unmodified three.js r186 (`three@0.186.1` from npm, aliased as `three-legacy`) wired like its stock `webgpu_postprocessing_ssgi` (color·AO + diffuse·GI, TRAA) and `webgpu_postprocessing_ssr` (color + SSR, SMAA) examples. See `packages/renderers/src/ss-legacy.ts`.                                                                       |
+| `three-current`        | Unmodified three.js r186 (`three@0.186.1` from npm, aliased as `three-r186`) wired like its stock `webgpu_postprocessing_ssgi` (color·AO + diffuse·GI, TRAA) and `webgpu_postprocessing_ssr` (color + SSR, SMAA) examples. See `packages/renderers/src/three-current.ts`.                                                                     |
 | `three-new-ssr`        | `three-new-ssgi` plus reference-quality SSR (vendored node in `packages/renderers/src/ssr/`): stochastic GGX VNDF rays, ratio estimator, dense march, dual-layer depth, re-shaded hit specular with a second bounce, 256-frame running mean. See `SSR_IMPROVEMENTS.md`.                                                                       |
 | `three-new-ssr-fast`   | `three-new-ssr` with five optimization rounds (≈2× faster, +0.61% RMSE).                                                                                                                                                                                                                                                                      |
 | `three-new-ssgi-fast`  | `three-new-ssr-fast` with three SSGI-side optimization rounds ported from `perf/ss-optimize` by default (≈1.4× faster on top of `three-new-ssr-fast`, up to 1.85× on SSGI-heavy scenes; +0.17% mean RMSE); a fourth round is implemented and quality-gated but shipped off (no benefit on light-SSGI scenes). See `SSGI_FAST.md`.             |
 | `three-new-ssr-rt`     | `three-new-ssr-fast`'s tracing at one pipeline frame per displayed frame: TRAA, half-resolution Hi-Z trace, and an SSSR-style spatial + temporal filter instead of the resetting running mean (arrival-after-motion RMSE ≈ `three-new-ssr-fast` converged; ~17–21 ms at 1080p; +0.75% static RMSE at 1/12 the frames). See `SSR_TEMPORAL.md`. |
 | `three-gpu-pathtracer` | Path-traced reference with scene-space visibility.                                                                                                                                                                                                                                                                                            |
 
-`three-ss-legacy` uses the scene's SSGI/SSR settings but only what stock r186 ships: no GI-lit pre-pass, radiance context, recurrent temporal denoiser or SSGI `resolutionScale`. Fork changes cannot move it, so it measures how far the fork has come from upstream. The fork's old equal-angle weighting is still available to experiments as `createSSGIRenderer(..., { ssgiWeighting: 'legacy' })`.
+`three-current` uses the scene's SSGI/SSR settings but only what stock r186 ships: no GI-lit pre-pass, radiance context, recurrent temporal denoiser or SSGI `resolutionScale`. Fork changes cannot move it, so it measures how far the fork has come from upstream. The fork's old equal-angle weighting is still available to experiments as `createSSGIRenderer(..., { ssgiWeighting: 'legacy' })`.
 
 Cornell scenes (`ssgi-basic`, `ssgi-rounded`, `ssgi-metallic`, `ssgi-animated`, and the clipped-wall control) now use **8 slices, 32 steps, screen radius 32 and thickness 4**, with the existing GI intensity π²/2 and 128 frames. This takes sixteen times as many depth samples as the original 2/8 preset; actual frame cost also depends on early exits and other passes. Asset-free `gi-*` controls retain their deliberately varied settings. The exterior Dogwood scene retains its world-space radius and thickness.
 
@@ -20,22 +20,22 @@ Cornell scenes (`ssgi-basic`, `ssgi-rounded`, `ssgi-metallic`, `ssgi-animated`, 
 
 ```sh
 pnpm build
-pnpm cli render --scenes 'ssgi-*' --passes beauty --renderers 'three-new-ssgi,three-ss-legacy'
+pnpm cli render --scenes 'ssgi-*' --passes beauty --renderers 'three-new-ssgi,three-current'
 pnpm cli compare --scenes 'ssgi-*' --passes beauty
 ```
 
-Render path-tracer references when missing using `--renderers three-gpu-pathtracer --samples 1024`. Both CLI commands accept `--output <directory>` for isolated experiment results. A single method can be selected with `--renderers three-ss-legacy`. The viewer displays both results and each method's error against the same path-traced reference; old folders with only one method still load.
+Render path-tracer references when missing using `--renderers three-gpu-pathtracer --samples 1024`. Both CLI commands accept `--output <directory>` for isolated experiment results. A single method can be selected with `--renderers three-current`. The viewer displays both results and each method's error against the same path-traced reference; old folders with only one method still load.
 
 The files in each `results/<scene>/<pass>/` directory are:
 
 Every screen-space renderer `R` uses the same `R.avif`, `delta-R.avif`, `metrics-R.json` naming, for example:
 
 - `three-new-ssgi.avif`, `delta-three-new-ssgi.avif`, `metrics-three-new-ssgi.json`
-- `three-ss-legacy.avif`, `delta-three-ss-legacy.avif`, `metrics-three-ss-legacy.json`
+- `three-current.avif`, `delta-three-current.avif`, `metrics-three-current.json`
 - `three-new-ssr.avif`, `delta-three-new-ssr.avif`, `metrics-three-new-ssr.json`
 - `three-gpu-pathtracer.avif` for the reference (never compared against itself).
 
-Live routes use the same names, for example `/live/ssgi-animated/three-ss-legacy`. Both screen-space renderers keep accumulating frames; neither uses the path tracer's sample limit.
+Live routes use the same names, for example `/live/ssgi-animated/three-current`. Both screen-space renderers keep accumulating frames; neither uses the path tracer's sample limit.
 
 ## Using the node directly
 
@@ -52,7 +52,7 @@ gi.useSolidAngleWeighting.value = true; // corrected, default
 ```ts
 const corrected = await createRenderer('three-new-ssgi', canvasA, setupA, options);
 const equalAngle = await createSSGIRenderer(canvasB, setupB, { ...options, ssgiWeighting: 'legacy' });
-const stock = await createRenderer('three-ss-legacy', canvasC, setupC, options); // npm three r186
+const stock = await createRenderer('three-current', canvasC, setupC, options); // npm three r186
 ```
 
 Use independent equivalent scene setups/canvases for the two pipelines. No source loader is involved in these normal renderer paths. When toggling the node parameter interactively, allow its temporal/beauty feedback history to converge; creating a fresh renderer gives a clean measurement.
@@ -61,7 +61,7 @@ The existing per-sector shader prototype remains an investigation tool, not anot
 
 ## Historical measurements
 
-[The investigation](GI-ESTIMATOR-FOLLOWUP.md) records both low- and high-quality experiments. Its old `baseline` label refers to the original weighting and original quality, not the current default. The investigation scripts explicitly restore the original Cornell sampling settings before applying their recorded overrides; the normal CLI uses the new high-quality scene preset. Use `GI_SHADER=legacy` with `gi-estimator-sweep.mjs` for the old weighting (`three-ss-legacy` is now stock r186, not that weighting). `gi-sweep.mjs` reproduces the original legacy sensitivity experiment.
+[The investigation](GI-ESTIMATOR-FOLLOWUP.md) records both low- and high-quality experiments. Its old `baseline` label refers to the original weighting and original quality, not the current default. The investigation scripts explicitly restore the original Cornell sampling settings before applying their recorded overrides; the normal CLI uses the new high-quality scene preset. Use `GI_SHADER=legacy` with `gi-estimator-sweep.mjs` for the old weighting (`three-current` is now stock r186, not that weighting). `gi-sweep.mjs` reproduces the original legacy sensitivity experiment.
 
 Saved beauty comparisons are regenerated for the current renderer choices. Historical JSON data and the investigation comparison figure retain the original measurements and settings. Git records earlier snapshots, so future changes can be compared without relabelling old results as current.
 

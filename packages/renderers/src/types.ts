@@ -16,6 +16,7 @@ export type RendererName = (typeof rendererNames)[number];
 export const passNames = ['beauty', 'direct', 'ao'] as const;
 export type PassName = (typeof passNames)[number];
 
+/** The fork's SSGINode weighting ('legacy': its equal-angle estimator, for direct createSSGIRenderer experiments). */
 export type SSGIWeighting = 'solid-angle' | 'legacy';
 
 /** Which SSR node implementation the pipeline uses: the three.js fork's or the vendored copy in src/ssr. */

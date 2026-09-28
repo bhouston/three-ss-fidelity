@@ -2,10 +2,12 @@ import { beforeEach, expect, it, vi } from 'vitest';
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import { createRenderer } from './index.js';
 import { createSSGIRenderer } from './ssgi.js';
+import { createLegacyRenderer } from './ss-legacy.js';
 import { createPathTracerRenderer } from './pathtracer.js';
 import type { RendererName } from './types.js';
 
 vi.mock('./ssgi.js', () => ({ createSSGIRenderer: vi.fn(), passEffects: vi.fn() }));
+vi.mock('./ss-legacy.js', () => ({ createLegacyRenderer: vi.fn() }));
 vi.mock('./pathtracer.js', () => ({ createPathTracerRenderer: vi.fn(), PATHTRACER_BOUNCES: 8 }));
 beforeEach(() => vi.clearAllMocks());
 
@@ -22,12 +24,9 @@ it('selects screen-space methods without changing shared scene quality or using 
     ssgiWeighting: 'solid-angle',
     ssrMethod: 'fork',
   });
+  // three-ss-legacy is stock npm three.js r186, not a mode of the fork pipeline
+  expect(createLegacyRenderer).toHaveBeenCalledWith(canvas, setup, options);
   expect(createSSGIRenderer).toHaveBeenNthCalledWith(2, canvas, setup, {
-    ...options,
-    ssgiWeighting: 'legacy',
-    ssrMethod: 'fork',
-  });
-  expect(createSSGIRenderer).toHaveBeenNthCalledWith(3, canvas, setup, {
     ...options,
     ssgiWeighting: 'solid-angle',
     ssrMethod: 'new',

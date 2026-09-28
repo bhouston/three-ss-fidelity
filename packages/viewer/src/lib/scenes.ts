@@ -34,6 +34,25 @@ export function passSearch(pass: PassName): PassName | undefined {
   return pass === 'beauty' ? undefined : pass;
 }
 
+/** A live view's orbit camera: position and OrbitControls target, in world units. */
+export interface LiveCamera {
+  position: [number, number, number];
+  target: [number, number, number];
+}
+
+/** The live `camera` search param, "px,py,pz,tx,ty,tz"; anything else means the scene's default camera. */
+export function parseCamera(value: unknown): LiveCamera | undefined {
+  if (typeof value !== 'string') return undefined;
+  const numbers = value.split(',').map(Number);
+  if (numbers.length !== 6 || !numbers.every(Number.isFinite)) return undefined;
+  const [px, py, pz, tx, ty, tz] = numbers;
+  return { position: [px, py, pz], target: [tx, ty, tz] };
+}
+
+export function formatCamera({ position, target }: LiveCamera): string {
+  return [...position, ...target].map((n) => Number(n.toFixed(4))).join(',');
+}
+
 export interface SceneMetrics {
   scene: string;
   pass?: string;

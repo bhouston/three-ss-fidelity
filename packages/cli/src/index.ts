@@ -12,7 +12,7 @@ async function loadCommands() {
 
 /** OpenCLI document of this CLI (clidoc), served by `cli __opencli`. */
 export async function cliDocument() {
-  return fromYargs(await loadCommands(), { title: 'ss-fidelity', binary: 'cli', version: '0.1.0' });
+  return fromYargs(await loadCommands(), { title: 'three-ss-fidelity', binary: 'cli', version: '0.1.0' });
 }
 
 export async function runCli(argv = hideBin(process.argv)): Promise<void> {

@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 import { Github } from 'lucide-react';
 
-export const SITE_NAME = 'Screen-Space Fidelity';
+export const SITE_NAME = 'three-ss-fidelity';
 
 export default function Header({ children }: { children?: React.ReactNode }) {
   return (
@@ -13,9 +13,9 @@ export default function Header({ children }: { children?: React.ReactNode }) {
         <div className="flex items-center gap-2 md:ml-auto">
           {children}
           <a
-            aria-label="ss-fidelity repository"
+            aria-label="three-ss-fidelity repository"
             className="ml-1 inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
-            href="https://github.com/bhouston/ss-fidelity"
+            href="https://github.com/bhouston/three-ss-fidelity"
             rel="noopener noreferrer"
             target="_blank"
           >

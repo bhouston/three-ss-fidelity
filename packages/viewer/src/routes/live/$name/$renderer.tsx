@@ -15,7 +15,7 @@ export const Route = createFileRoute('/live/$name/$renderer')({
   validateSearch: (search: Record<string, unknown>): { pass?: PassName } => ({
     pass: passSearch(parsePass(search.pass)),
   }),
-  head: ({ params }) => ({ meta: [{ title: `${params.name} (${params.renderer}) – Screen-Space Fidelity` }] }),
+  head: ({ params }) => ({ meta: [{ title: `${params.name} (${params.renderer}) – three-ss-fidelity` }] }),
   component: Live,
 });
 

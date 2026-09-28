@@ -1,4 +1,4 @@
-# ss-fidelity plan
+# three-ss-fidelity plan
 
 Goal: measure how close three.js screen-space effects (SSGI, SSR, plus the AO/depth/normal/velocity
 pre-pass they depend on) get to a path-traced ground truth, per programmatic scene, with images,

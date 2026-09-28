@@ -132,7 +132,7 @@ A room-local HDR cubemap is the most established next step for filling missing S
 
 A direct-lit capture provides the light that has left those surfaces after direct illumination; gathering it at another surface produces one surface-to-surface bounce. More bounces require an indirect bake or iterative probe updates. Six cubemap faces can be captured infrequently in a static room or amortized when lighting changes. A single probe still approximates spatial variation and visibility, so placement, doorway leakage and transitions require validation. Use directional probe radiance for unresolved SSGI contributions; adding a full diffuse probe term on top of full SSGI risks double counting.
 
-Probe capture/fallback is tracked separately in [issue #11](https://github.com/bhouston/ss-fidelity/issues/11). No probe integration is implemented in this change. The open/closed and cropped-view scene pairs are intended to measure a future fallback against the current baseline.
+Probe capture/fallback is tracked separately in [issue #11](https://github.com/bhouston/three-ss-fidelity/issues/11). No probe integration is implemented in this change. The open/closed and cropped-view scene pairs are intended to measure a future fallback against the current baseline.
 
 ## Could simple virtual walls fill screen-space misses?
 

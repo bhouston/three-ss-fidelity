@@ -1,5 +1,4 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
-import Footer from '#/components/Footer';
 import Header from '#/components/Header';
 import appCss from '../styles.css?url';
 
@@ -8,7 +7,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'three-ss-fidelity' },
+      { title: 'Three SS Fidelity' },
       {
         name: 'description',
         content: 'three.js screen-space effects (SSGI, SSR, AO) compared against three-gpu-pathtracer ground truth.',
@@ -31,9 +30,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="flex min-h-screen flex-col antialiased">
-        <main className="flex-1">{children}</main>
-        <Footer />
+      <body className="min-h-screen antialiased">
+        <main>{children}</main>
         <Scripts />
       </body>
     </html>

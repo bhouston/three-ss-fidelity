@@ -165,7 +165,7 @@ pnpm cli list                                        # scene names
 
 - `/` grid of scenes for one pass (`?pass=`): thumbnails of both renders + delta, PSNR, sortable.
 - `/scenes/$name` side-by-side / delta, metrics, one tab per pass.
-- `/live/$name/$renderer` renders the scene interactively in the browser (orbit controls) with
+- `/scenes/$name/live/$renderer` renders the scene interactively in the browser (orbit controls) with
   `three-ss` or `three-gpu-pathtracer` (progressive).
 
 ## Risks

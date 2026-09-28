@@ -98,7 +98,7 @@ A TanStack Start + React + Tailwind site on port 3000 (`pnpm viewer`). It serves
 
 - `/` is the results grid.
 - `/scenes/$name` shows a scene's images, delta images and metrics.
-- `/live/$name/$renderer` renders a scene live in the browser.
+- `/scenes/$name/live/$renderer` renders a scene live in the browser.
 
 Merging to `main` deploys it to Cloud Run (`packages/viewer/Dockerfile`).
 

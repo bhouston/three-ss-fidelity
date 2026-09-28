@@ -40,9 +40,9 @@ describe('filterScenes', () => {
   });
 });
 
-it('parseSort falls back to name', () => {
+it('parseSort falls back to best first', () => {
   expect(parseSort('psnr')).toBe('psnr');
-  expect(parseSort('bogus')).toBe('name');
+  expect(parseSort('bogus')).toBe('psnr-desc');
 });
 
 describe('parseCamera', () => {

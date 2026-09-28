@@ -4,6 +4,7 @@ import Header, { buttonClassName } from '#/components/Header';
 import {
   RENDERERS,
   formatCamera,
+  isPathTracer,
   isRendererName,
   parseCamera,
   parsePass,
@@ -110,9 +111,7 @@ function Live() {
           <canvas className="block h-auto w-full touch-none" key={`${renderer}-${pass}`} ref={canvasRef} />
           <div className="absolute top-2 left-2 bg-black/60 px-2 py-1 font-mono text-xs text-white">
             {renderer} ·{' '}
-            {renderer === 'three-gpu-pathtracer'
-              ? `${samples} / ${MAX_PATHTRACER_SAMPLES} samples`
-              : `${samples} frames`}
+            {isPathTracer(renderer) ? `${samples} / ${MAX_PATHTRACER_SAMPLES} samples` : `${samples} frames`}
           </div>
           {error ? (
             <div className="absolute inset-0 flex items-center justify-center p-4 text-center text-sm text-white">

@@ -1,7 +1,7 @@
 import { createRenderer } from '@ss-fidelity/renderers';
 import { createBrowserSceneContext, getScene } from '@ss-fidelity/scenes';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import type { LiveCamera, PassName, RendererName } from '#/lib/scenes';
+import { isPathTracer, type LiveCamera, type PassName, type RendererName } from '#/lib/scenes';
 
 /** Where `submodules/three.js/examples/` is served (see `routes/three-examples/$.ts`); scenes load glTF / Draco from here. */
 export const THREE_EXAMPLES_BASE_URL = '/three-examples/';
@@ -71,9 +71,9 @@ export async function startLiveRender({
     });
   });
 
-  // Both screen-space methods are temporal (TRAA / denoise); the pathtracer stops once converged enough.
+  // Screen-space methods are temporal (TRAA / denoise) and keep rendering; path tracers stop once converged enough.
   let frame = requestAnimationFrame(function tick() {
-    if (renderer !== 'three-gpu-pathtracer' || live.frames < MAX_PATHTRACER_SAMPLES) {
+    if (!isPathTracer(renderer) || live.frames < MAX_PATHTRACER_SAMPLES) {
       live.render();
       onFrame(live.frames);
     }

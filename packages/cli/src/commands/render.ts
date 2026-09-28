@@ -57,7 +57,7 @@ export const command = defineCommand({
       .option('ssr-debug', {
         type: 'string',
         choices: ['hits', 'hitcolor'] as const,
-        describe: 'three-new-ssr*: write the SSR trace debug view as <renderer>@<view>.avif instead of the image',
+        describe: 'three-new: write the SSR trace debug view as <renderer>@<view>.avif instead of the image',
       })
       .option('output', { type: 'string', default: resultsDir, describe: 'Results directory' }),
   handler: async (argv) => {

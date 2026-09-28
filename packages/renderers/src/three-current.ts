@@ -1,6 +1,7 @@
 // three-current: unmodified three.js r186 from npm (the `three-r186` alias of three@0.186.1), wired like its
 // stock examples: webgpu_postprocessing_ssgi.html (color * ao + diffuse * gi, TRAA) and
-// webgpu_postprocessing_ssr.html (color + ssr, SMAA). Scenes with both chain the SSGI composite into the SSR add.
+// webgpu_postprocessing_ssr.html (color + ssr), always resolved with TRAA (the ssr example's SMAA is not used).
+// Scenes with both chain the SSGI composite into the SSR add.
 // It is a fixed baseline: nothing here comes from the fork, so fork edits cannot move it.
 import * as Fork from 'three';
 import {
@@ -40,12 +41,11 @@ import {
   vec4,
   velocity,
 } from 'three-r186/tsl';
-import { smaa } from 'three-r186/addons/tsl/display/SMAANode.js';
 import { ssgi } from 'three-r186/addons/tsl/display/SSGINode.js';
 import { ssr } from 'three-r186/addons/tsl/display/SSRNode.js';
 import { traa } from 'three-r186/addons/tsl/display/TRAANode.js';
 import type { SceneSetup } from '@ss-fidelity/scenes';
-import { passEffects } from './ssgi.js';
+import { passEffects } from './three-new.js';
 import type { LiveRenderer, RendererOptions } from './types.js';
 
 // Scene graphs come from the fork's `three` and are rendered by the npm copy. The renderer is duck-typed (isMesh,
@@ -72,7 +72,6 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: b
   const renderPipeline = new RenderPipeline(renderer);
 
   // only the attachments the stock examples use for this scene's effects
-  const traaAA = effects.antialias === 'traa';
   const scenePass = pass(scene, camera);
   scenePass.setMRT(
     mrt({
@@ -80,7 +79,7 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: b
       normal: packNormalToRGB(normalView),
       ...(effects.ssgi ? { diffuseColor } : {}),
       ...(effects.ssr ? { metalrough: vec2(metalness, roughness) } : {}),
-      ...(traaAA ? { velocity } : {}),
+      velocity,
     }),
   );
   const scenePassColor: AnyNode = scenePass.getTextureNode('output');
@@ -89,7 +88,7 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: b
   scenePass.getTexture('normal').type = UnsignedByteType;
   const sceneNormal = sample((uv: AnyNode) => unpackRGBToNormal(scenePassNormal.sample(uv)));
   const antialias = (node: AnyNode): AnyNode =>
-    traaAA ? traa(node, scenePassDepth, scenePass.getTextureNode('velocity'), camera) : smaa(node);
+    traa(node, scenePassDepth, scenePass.getTextureNode('velocity'), camera);
 
   let composite: AnyNode = scenePassColor;
   if (effects.ssgi) {

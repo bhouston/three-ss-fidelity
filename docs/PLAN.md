@@ -26,7 +26,7 @@ results/<scene>/<pass>/  three-ss.avif, three-gpu-pathtracer.avif, delta.avif, m
   an async `create(ctx)` returning `{ scene, camera, effects }`. `ctx.loadGLTF(path)` / `ctx.loadHDR(path)` resolve
   assets from
   `submodules/three.js/examples/` (fetch in browser, fs in node).
-- `effects` declares what the three-ss pipeline enables and its parameters (ssgi, ssr, ao, traa/smaa,
+- `effects` declares what the three-ss pipeline enables and its parameters (ssgi, ssr, ao,
   tone mapping, frame count to converge). The pathtracer ignores `effects` except tone mapping/exposure.
 - Animated content is frozen at a fixed time so both renderers see the same pose.
 - `listSceneNames()` / `getScene(name)` are the registry API used by the CLI and viewer.
@@ -68,7 +68,7 @@ Point-light scenes match plain `bounces = 1` (50 dB, noise). Measured difference
   (15–17 dB) and higharc (19.6 dB); it is what AO addresses in `beauty`.
 - The `ssgi-*` scenes (≈30 dB): raster shadow maps vs exact shadows, Lambert vs the pathtracer's diffuse, and the
   three-ss-only `AmbientLight`.
-- In `direct`, emissive meshes are visible but do not illuminate other surfaces: rasterization does not gather them, and the direct-only path-tracer patch stops before secondary-surface emission. In `beauty`, SSGI gathers their visible radiance and the path tracer collects emission on BSDF-sampled surface hits (without sampling mesh emitters as explicit lights). See [the GI investigation](GI-INVESTIGATION.md).
+- In `direct`, emissive meshes are visible but do not illuminate other surfaces: rasterization does not gather them, and the direct-only path-tracer patch stops before secondary-surface emission. In `beauty`, SSGI gathers their visible radiance and the path tracer collects emission on BSDF-sampled surface hits (without sampling mesh emitters as explicit lights). See [the GI investigation](history/GI-INVESTIGATION.md).
 
 **ao** compares SSGINode's AO (the SSGI example's "AO" output) with three-gpu-pathtracer's `AmbientOcclusionMaterial`
 (cosine-weighted hemisphere rays against the scene BVH; a hit within the radius occludes, occluders are infinitely
@@ -119,7 +119,7 @@ renderer cannot express. Everything else is the example verbatim.
 - **Animated character**: `Michelle.glb` posed with an `AnimationMixer` frozen at t=1s before either renderer sees it;
   the pathtracer bakes the skinned pose into its static geometry.
 - **Convergence**: three-ss renders `effects.frames` frames (128 for TRAA + temporal denoise scenes, measured converged
-  at ~64; 16 for the deterministic SMAA/SSR scenes). The pathtracer renders 1024 full-frame samples (`--samples`), 8
+  at ~64; 16 for the SSR scenes). The pathtracer renders 1024 full-frame samples (`--samples`), 8
   bounces, no glossy filtering, no fades or low-res preview.
 - **Known model difference**: with GI off on both sides (three-ss without the GI context, pathtracer with 1 bounce) the
   pathtracer's rough dielectric diffuse is ~15–25% darker than three's Lambert (e.g. white floor under the light:
@@ -143,8 +143,7 @@ renderer cannot express. Everything else is the example verbatim.
 ## Headless rendering (CLI)
 
 - three-ss: dawn (`webgpu` npm) globals + a minimal canvas whose texture is `COPY_SRC`, read back through a mapped
-  buffer. An `Image` stand-in decodes data URIs with sharp (SMAANode's lookup textures) and
-  `copyExternalImageToTexture` falls back to `writeTexture` for it.
+  buffer.
 - three-gpu-pathtracer: ANGLE (`@onirenaud/node-webgl`), `preserveDrawingBuffer`, `getImageData()` readback.
 - Each renderer runs in its own child process (`render-process.ts`); dawn keeps the event loop alive, so it exits
   explicitly.

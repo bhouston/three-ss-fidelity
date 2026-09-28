@@ -11,9 +11,9 @@ describe('listScenes', () => {
   beforeAll(async () => {
     dir = await mkdtemp(path.join(tmpdir(), 'ss-fidelity-results-'));
     await mkdir(path.join(dir, 'full', 'beauty'), { recursive: true });
-    await writeFile(path.join(dir, 'full', 'beauty', 'three-new-ssgi.avif'), 'avif');
+    await writeFile(path.join(dir, 'full', 'beauty', 'three-new.avif'), 'avif');
     await writeFile(
-      path.join(dir, 'full', 'beauty', 'metrics-three-new-ssgi.json'),
+      path.join(dir, 'full', 'beauty', 'metrics-three-new.json'),
       JSON.stringify({ scene: 'full', psnr: 31.5 }),
     );
     await writeFile(path.join(dir, 'full', 'beauty', 'three-current.avif'), 'avif');
@@ -23,9 +23,9 @@ describe('listScenes', () => {
       JSON.stringify({ scene: 'full', psnr: 24.3 }),
     );
     await mkdir(path.join(dir, 'broken', 'beauty'), { recursive: true });
-    await writeFile(path.join(dir, 'broken', 'beauty', 'metrics-three-new-ssgi.json'), '{not json');
+    await writeFile(path.join(dir, 'broken', 'beauty', 'metrics-three-new.json'), '{not json');
     await mkdir(path.join(dir, 'older', 'beauty'), { recursive: true });
-    await writeFile(path.join(dir, 'older', 'beauty', 'three-new-ssgi.avif'), 'avif');
+    await writeFile(path.join(dir, 'older', 'beauty', 'three-new.avif'), 'avif');
     await mkdir(path.join(dir, '.hidden'));
     await writeFile(path.join(dir, 'stray.txt'), '');
   });
@@ -37,9 +37,9 @@ describe('listScenes', () => {
     const byName = Object.fromEntries(scenes.map((scene) => [scene.name, scene]));
     expect(Object.keys(byName).toSorted()).toEqual(['broken', 'full', 'older', 'unrendered']);
     expect(byName.full?.description).toBe('d');
-    expect(byName.full?.renderers['three-new-ssgi']?.metrics?.psnr).toBe(31.5);
-    expect(byName.full?.renderers['three-new-ssgi']?.image).toMatch(
-      /^\/api\/results\/full\/beauty\/three-new-ssgi\.avif\?v=\d+$/,
+    expect(byName.full?.renderers['three-new']?.metrics?.psnr).toBe(31.5);
+    expect(byName.full?.renderers['three-new']?.image).toMatch(
+      /^\/api\/results\/full\/beauty\/three-new\.avif\?v=\d+$/,
     );
     expect(byName.full?.reference).toBeUndefined();
     expect(byName.full?.renderers['three-current']?.image).toMatch(
@@ -49,8 +49,8 @@ describe('listScenes', () => {
       /^\/api\/results\/full\/beauty\/delta-three-current\.avif\?v=\d+$/,
     );
     expect(byName.full?.renderers['three-current']?.metrics?.psnr).toBe(24.3);
-    expect(byName.broken?.renderers['three-new-ssgi']?.metrics).toBeUndefined();
-    expect(byName.older?.renderers['three-new-ssgi']?.image).toBeDefined();
+    expect(byName.broken?.renderers['three-new']?.metrics).toBeUndefined();
+    expect(byName.older?.renderers['three-new']?.image).toBeDefined();
     expect(byName.older?.renderers['three-current']).toBeUndefined();
     expect(byName.unrendered?.renderers).toEqual({});
   });
@@ -59,8 +59,8 @@ describe('listScenes', () => {
     expect(RESULT_FILES).toContain('three-current.avif');
     expect(RESULT_FILES).toContain('delta-three-current.avif');
     expect(RESULT_FILES).toContain('metrics-three-current.json');
-    expect(RESULT_FILES).toContain('three-new-ssgi.avif');
-    expect(RESULT_FILES).toContain('three-new-ssr.avif');
+    expect(RESULT_FILES).toContain('three-new.avif');
+    expect(RESULT_FILES).toContain('three-current.avif');
     expect(RESULT_FILES).not.toContain('unrelated.avif');
   });
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Beauty RMSE vs the committed path-traced reference for `cli render --motion` captures (<renderer>@m<k>.avif).
 // Usage: node scripts/ssr-motion-metrics.mjs <captures-dir> <renderer1,renderer2,...> <k1,k2,...> [scene-prefix] [reference]
-// [reference] scores against another committed render instead (e.g. three-new-ssr, the converged SSR estimator).
+// [reference] scores against another committed render instead (e.g. another renderer's committed render).
 import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

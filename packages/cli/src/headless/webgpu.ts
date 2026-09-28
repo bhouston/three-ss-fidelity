@@ -1,5 +1,4 @@
 // Headless WebGPU (dawn `webgpu` package) with a minimal canvas, ported from vitest-environment-webgpu-node.
-import sharp from 'sharp';
 import { create, globals } from 'webgpu';
 
 const COPY_SRC = 0x01;
@@ -110,49 +109,6 @@ class HeadlessCanvas {
   }
 }
 
-/** HTMLImageElement stand-in for data: URIs (SMAANode's lookup textures), decoded to RGBA8 with sharp. */
-class HeadlessImage {
-  width = 0;
-  height = 0;
-  complete = false;
-  data: Uint8Array | undefined;
-  onload: (() => void) | null = null;
-
-  set src(url: string) {
-    const base64 = url.slice(url.indexOf(',') + 1);
-    const decoding = sharp(Buffer.from(base64, 'base64'))
-      .ensureAlpha()
-      .raw()
-      .toBuffer({ resolveWithObject: true })
-      .then(({ data, info }) => {
-        Object.assign(this, { data: new Uint8Array(data), width: info.width, height: info.height, complete: true });
-        this.onload?.();
-      })
-      .finally(() => pendingImages.delete(decoding));
-    pendingImages.add(decoding);
-  }
-}
-
-const pendingImages = new Set<Promise<void>>();
-
-/** Resolves once every HeadlessImage created so far has decoded (SMAANode's textures load asynchronously). */
-export async function ready(): Promise<void> {
-  await Promise.all(pendingImages);
-}
-
-/** Dawn only copies its own external images; upload HeadlessImage pixels directly. */
-function patchCopyExternalImageToTexture(): void {
-  const prototype = (globals as { GPUQueue: { prototype: GPUQueue } }).GPUQueue.prototype;
-  const copy = prototype.copyExternalImageToTexture;
-  prototype.copyExternalImageToTexture = function (source, destination, size) {
-    const image = source.source as unknown;
-    if (!(image instanceof HeadlessImage)) return copy.call(this, source, destination, size);
-    if (source.flipY) throw new Error('HeadlessImage: flipY uploads are not supported');
-    const { width, height, data } = image;
-    this.writeTexture(destination, data!, { bytesPerRow: width * 4, rowsPerImage: height }, [width, height]);
-  };
-}
-
 const frameCallbacks = new Map<number, (time: number) => void>();
 let frameCallbackId = 0;
 
@@ -188,8 +144,6 @@ export function install(): void {
   };
   scope.cancelAnimationFrame = (id: number) => frameCallbacks.delete(id);
   scope.HTMLCanvasElement ??= HeadlessCanvas;
-  scope.Image ??= HeadlessImage;
-  patchCopyExternalImageToTexture();
 }
 
 export function createCanvas(width: number, height: number): HTMLCanvasElement {

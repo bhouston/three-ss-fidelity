@@ -1,7 +1,8 @@
 # Performance benchmarking
 
 Two `cli` commands, both taking renderer names as arguments (never hardcoded), so they keep working as
-screen-space renderers are added (`three-new-ssr-fast`, `three-new-ssgi-fast`, ...).
+renderers change. Sample outputs below were recorded under the pre-consolidation names (`three-new-ssr-rt` is now
+`three-new`).
 
 ## `cli bench`: steady-state frame time
 
@@ -9,7 +10,7 @@ Measures median ms/frame per scene for one or more renderers, after a warm-up pe
 own child process (dawn and ANGLE don't share a process reliably), same as `cli render`.
 
 ```sh
-pnpm cli bench --renderers three-new-ssgi,three-current --scenes ssgi-basic,ssgi-animated --out bench.json
+pnpm cli bench --renderers three-new,three-current --scenes ssgi-basic,ssgi-animated --out bench.json
 ```
 
 Options: `--renderers` (required, comma-separated glob(s) against the renderer names), `--scenes` (default `*`),
@@ -40,7 +41,7 @@ Wall-clock is unreliable on a shared machine. `--gpu` reports actual GPU time in
 renderers only (`three-gpu-pathtracer` is WebGL/ANGLE here and has no timestamp-query API available):
 
 ```sh
-pnpm cli bench --renderers three-new-ssr-rt --scenes ssr-diag-rough-30 --warmup 10 --measure 20 --gpu
+pnpm cli bench --renderers three-new --scenes ssr-diag-rough-30 --warmup 10 --measure 20 --gpu
 ```
 
 ```text
@@ -87,8 +88,8 @@ Compares two already-compared renderers' mean RMSE against the `three-gpu-pathtr
 `metrics-<renderer>.json`, produced by `cli compare`, rather than re-decoding images):
 
 ```sh
-pnpm cli compare --renderers three-current,three-new-ssgi --scenes ssgi-basic,ssgi-animated
-pnpm cli quality-gate three-current three-new-ssgi --scenes ssgi-basic,ssgi-animated
+pnpm cli compare --renderers three-current,three-new --scenes ssgi-basic,ssgi-animated
+pnpm cli quality-gate three-current three-new --scenes ssgi-basic,ssgi-animated
 ```
 
 Fails (non-zero exit) when the candidate's mean RMSE across the selected scenes/passes is worse than the

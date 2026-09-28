@@ -33,7 +33,6 @@ const YELLOW: [number, number, number] = [0.8, 0.75, 0.05];
 function effects(maxDistance: number, thickness: number): SceneEffects {
   return {
     ssr: { quality: 0.5, blurQuality: 1, maxDistance, intensity: 1, thickness, binaryRefine: false },
-    antialias: 'smaa',
     temporalDenoise: false,
     toneMapping: NoToneMapping,
     toneMappingExposure: 1,

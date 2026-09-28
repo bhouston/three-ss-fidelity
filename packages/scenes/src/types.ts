@@ -36,8 +36,6 @@ export interface SSREffect {
 export interface SceneEffects {
   ssgi?: SSGIEffect;
   ssr?: SSREffect;
-  /** traa: the ssgi example's pipeline; smaa: the ssr example's pipeline. */
-  antialias: 'traa' | 'smaa';
   /** Temporal reprojection + recurrent denoising of AO/GI/SSR, with animated noise (ssgi example "temporal"). */
   temporalDenoise: boolean;
   /** SSGINode/SSRNode and temporal denoise chain resolutionScale (default 1). */

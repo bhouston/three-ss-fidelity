@@ -24,8 +24,7 @@ export const command = defineCommand({
       .option('scenes', { type: 'string', default: '*', describe: 'Scene name glob(s), comma separated' })
       .option('renderers', {
         type: 'string',
-        // the real-time renderers: the accumulating ones run up to 256 pipeline frames per displayed frame
-        default: 'three-new-ssr-rt,three-new-ssgi',
+        default: '*',
         describe: 'Screen-space renderer name glob(s), comma separated',
       })
       .option('degrees', { type: 'number', default: 15, describe: 'Camera orbit (about world Y) into the pose' })

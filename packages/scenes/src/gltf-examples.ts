@@ -38,7 +38,6 @@ const effects: SceneEffects = {
     useScreenSpaceSampling: false,
   },
   ssr: { maxDistance: 1, thickness: 0.03 },
-  antialias: 'traa',
   temporalDenoise: true,
   toneMapping: ACESFilmicToneMapping,
   toneMappingExposure: 1,

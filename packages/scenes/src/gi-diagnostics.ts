@@ -18,7 +18,6 @@ const HEIGHT = 360;
 function effects(overrides: Partial<SSGIEffect> = {}): SceneEffects {
   return {
     ssgi: { sliceCount: 2, stepCount: 8, giIntensity: Math.PI ** 2 / 2, ...overrides },
-    antialias: 'traa',
     temporalDenoise: true,
     toneMapping: NoToneMapping,
     toneMappingExposure: 1,

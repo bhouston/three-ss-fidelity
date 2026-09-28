@@ -37,7 +37,6 @@ const effects: SceneEffects = {
     giIntensity: (Math.PI * Math.PI) / 2,
   },
   ssr: { maxDistance: 20 },
-  antialias: 'traa',
   temporalDenoise: true,
   toneMapping: NoToneMapping,
   toneMappingExposure: 1,

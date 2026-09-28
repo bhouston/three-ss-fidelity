@@ -2,11 +2,13 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { ArrowUpDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import Header, { buttonClassName } from '#/components/Header';
+import Header, { PassSelect } from '#/components/Header';
 import { ResultImage } from '#/components/ResultImage';
+import { Button } from '#/components/ui/button';
+import { Input } from '#/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '#/components/ui/select';
 import { listScenes, sceneRegistry } from '#/lib/results.server';
 import {
-  PASSES,
   COMPARED_RENDERERS,
   SORT_OPTIONS,
   filterScenes,
@@ -22,6 +24,9 @@ import {
   type SortValue,
 } from '#/lib/scenes';
 
+/** The `sort` search param: omitted from URLs for the default (best first). */
+const sortSearch = (sort: SortValue) => (sort === 'psnr-desc' ? undefined : sort);
+
 const getScenes = createServerFn({ method: 'GET' })
   .validator((pass: unknown) => parsePass(pass))
   .handler(({ data: pass }) => listScenes(sceneRegistry(), pass));
@@ -29,7 +34,7 @@ const getScenes = createServerFn({ method: 'GET' })
 export const Route = createFileRoute('/')({
   validateSearch: (search: Record<string, unknown>): { filter?: string; sort?: SortValue; pass?: PassName } => ({
     filter: typeof search.filter === 'string' && search.filter.trim() ? search.filter : undefined,
-    sort: parseSort(search.sort) === 'name' ? undefined : parseSort(search.sort),
+    sort: sortSearch(parseSort(search.sort)),
     pass: passSearch(parsePass(search.pass)),
   }),
   loaderDeps: ({ search }) => ({ pass: parsePass(search.pass) }),
@@ -57,56 +62,38 @@ function Index() {
   return (
     <>
       <Header>
-        <input
+        <Input
           aria-label="Filter scenes"
-          className="h-9 w-full min-w-0 rounded-none border border-border bg-background px-3 text-sm text-foreground shadow-xs outline-none transition-colors placeholder:text-muted-foreground focus:border-primary md:w-80"
+          className="md:w-80"
           onChange={(event) => setFilterInput(event.currentTarget.value)}
           placeholder="Scene Filter"
           type="text"
           value={filterInput}
         />
-        <div className="relative shrink-0">
-          <ArrowUpDown className="pointer-events-none absolute top-1/2 left-1/2 size-4 -translate-x-1/2 -translate-y-1/2 text-foreground" />
-          <select
-            aria-label="Sort scenes"
-            className="h-9 w-9 appearance-none rounded-none border border-border bg-muted/40 p-0 text-sm text-transparent shadow-xs outline-none transition-colors hover:border-primary/40 hover:bg-muted/60 focus:border-primary"
-            onChange={(event) =>
-              void navigate({
-                replace: true,
-                search: (prev) => ({
-                  ...prev,
-                  sort: event.target.value === 'name' ? undefined : parseSort(event.target.value),
-                }),
-              })
-            }
-            title={`Sort: ${SORT_OPTIONS.find((option) => option.value === sort)?.label}`}
-            value={sort}
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option className="text-foreground" key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <select
-          aria-label="Pass"
-          className="h-9 shrink-0 rounded-none border border-border bg-muted/40 px-2 text-sm text-foreground shadow-xs outline-none transition-colors hover:border-primary/40 hover:bg-muted/60 focus:border-primary"
-          onChange={(event) =>
-            void navigate({
-              replace: true,
-              search: (prev) => ({ ...prev, pass: passSearch(parsePass(event.target.value)) }),
-            })
+        <Select
+          onValueChange={(value) =>
+            void navigate({ replace: true, search: (prev) => ({ ...prev, sort: sortSearch(parseSort(value)) }) })
           }
-          title="Pass"
-          value={pass}
+          value={sort}
         >
-          {PASSES.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger aria-label="Sort scenes" className="shrink-0" title="Sort">
+            <ArrowUpDown />
+            <SelectValue>{SORT_OPTIONS.find((option) => option.value === sort)?.label}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {SORT_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <PassSelect
+          onValueChange={(next) =>
+            void navigate({ replace: true, search: (prev) => ({ ...prev, pass: passSearch(next) }) })
+          }
+          value={pass}
+        />
         <span className="shrink-0 text-sm text-muted-foreground">
           {shown.length}/{scenes.length}
         </span>
@@ -121,7 +108,7 @@ function Index() {
           {shown.length > 0 ? (
             shown.map((scene) => <SceneRow key={scene.name} pass={pass} scene={scene} />)
           ) : (
-            <div className="rounded-lg border border-border bg-muted/20 px-4 py-8 text-center text-sm text-muted-foreground">
+            <div className="border border-border bg-muted/20 px-4 py-8 text-center text-sm text-muted-foreground">
               {scenes.length === 0
                 ? 'No results yet. Run `pnpm cli render` and `pnpm cli compare`.'
                 : 'No scenes match.'}
@@ -159,18 +146,21 @@ function SceneRow({ scene, pass }: { scene: SceneSummary; pass: PassName }) {
         </h3>
         {scene.description ? <p className="text-sm text-muted-foreground">{scene.description}</p> : null}
         <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-          <Link className={buttonClassName} params={{ name: scene.name }} search={search} to="/scenes/$name">
-            Comparison
-          </Link>
+          <Button asChild size="sm" variant="outline">
+            <Link params={{ name: scene.name }} search={search} to="/scenes/$name">
+              Comparison
+            </Link>
+          </Button>
           {/* the live page has buttons for every renderer */}
-          <Link
-            className={buttonClassName}
-            params={{ name: scene.name, renderer: 'three-new' }}
-            search={search}
-            to="/live/$name/$renderer"
-          >
-            Live Render
-          </Link>
+          <Button asChild size="sm" variant="outline">
+            <Link
+              params={{ name: scene.name, renderer: 'three-new' }}
+              search={search}
+              to="/scenes/$name/live/$renderer"
+            >
+              Live Render
+            </Link>
+          </Button>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap items-start gap-3">

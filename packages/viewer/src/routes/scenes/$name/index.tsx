@@ -1,11 +1,11 @@
-import { Link, createFileRoute, notFound } from '@tanstack/react-router';
+import { Link, createFileRoute, notFound, useNavigate } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { useState } from 'react';
-import Header, { buttonClassName } from '#/components/Header';
+import Header, { PassSelect } from '#/components/Header';
+import { Button } from '#/components/ui/button';
 import { ResultImage } from '#/components/ResultImage';
 import { isSceneName, readSceneResult, sceneRegistry } from '#/lib/results.server';
 import {
-  PASSES,
   RENDERERS,
   COMPARED_RENDERERS,
   formatMetric,
@@ -28,7 +28,7 @@ const getScene = createServerFn({ method: 'GET' })
     return { ...result, description: registered?.description };
   });
 
-export const Route = createFileRoute('/scenes/$name')({
+export const Route = createFileRoute('/scenes/$name/')({
   validateSearch: (search: Record<string, unknown>): { pass?: PassName } => ({
     pass: passSearch(parsePass(search.pass)),
   }),
@@ -42,10 +42,18 @@ function SceneDetail() {
   const scene = Route.useLoaderData();
   const { reference, renderers } = scene;
   const pass = parsePass(Route.useSearch().pass);
+  const navigate = useNavigate({ from: Route.fullPath });
 
   return (
     <>
-      <Header />
+      <Header scene={scene.name}>
+        <PassSelect
+          onValueChange={(next) =>
+            void navigate({ replace: true, search: (prev) => ({ ...prev, pass: passSearch(next) }) })
+          }
+          value={pass}
+        />
+      </Header>
       <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-4 py-6 sm:px-6">
         <div className="flex flex-wrap items-center gap-3">
           <div>
@@ -53,31 +61,16 @@ function SceneDetail() {
             {scene.description ? <p className="text-sm text-muted-foreground">{scene.description}</p> : null}
           </div>
           <div className="ml-auto flex flex-wrap gap-2">
-            {PASSES.map((other) => (
-              <Link
-                aria-current={other === pass ? 'page' : undefined}
-                className={`${buttonClassName} ${other === pass ? 'border-primary font-semibold' : ''}`}
-                key={other}
-                params={{ name: scene.name }}
-                search={{ pass: passSearch(other) }}
-                to="/scenes/$name"
-              >
-                {other}
-              </Link>
-            ))}
-            <Link className={buttonClassName} search={{ pass: passSearch(pass) }} to="/">
-              All scenes
-            </Link>
             {RENDERERS.map((renderer) => (
-              <Link
-                className={buttonClassName}
-                key={renderer}
-                params={{ name: scene.name, renderer }}
-                search={{ pass: passSearch(pass) }}
-                to="/live/$name/$renderer"
-              >
-                Live {renderer}
-              </Link>
+              <Button asChild key={renderer} size="sm" variant="outline">
+                <Link
+                  params={{ name: scene.name, renderer }}
+                  search={{ pass: passSearch(pass) }}
+                  to="/scenes/$name/live/$renderer"
+                >
+                  Live {renderer}
+                </Link>
+              </Button>
             ))}
           </div>
         </div>
@@ -144,10 +137,20 @@ function MethodComparison({
         <figure>
           {reference && image ? (
             <div className="relative select-none">
-              <img alt={label} className="block w-full border border-border" src={image} />
+              <img
+                alt={label}
+                className="block w-full border border-border"
+                decoding="async"
+                fetchPriority="low"
+                loading="lazy"
+                src={image}
+              />
               <img
                 alt="three-gpu-pathtracer reference"
                 className="absolute inset-0 block w-full border border-border"
+                decoding="async"
+                fetchPriority="low"
+                loading="lazy"
                 src={reference}
                 style={{ clipPath: `inset(0 ${100 - split}% 0 0)` }}
               />

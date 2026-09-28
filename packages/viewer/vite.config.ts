@@ -10,8 +10,8 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     tanstackStart(),
-    viteReact(),
     babel({ presets: [reactCompilerPreset()] }),
+    viteReact(),
     nitroV2Plugin({
       preset: 'node-server',
       compatibilityDate: '2025-11-07',

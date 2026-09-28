@@ -1,6 +1,7 @@
 import { Link, createFileRoute, notFound, useNavigate } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
-import Header, { buttonClassName } from '#/components/Header';
+import Header, { PassSelect } from '#/components/Header';
+import { Button } from '#/components/ui/button';
 import {
   RENDERERS,
   formatCamera,
@@ -13,7 +14,7 @@ import {
 } from '#/lib/scenes';
 import { MAX_PATHTRACER_SAMPLES, startLiveRender } from '#/live/live-render';
 
-export const Route = createFileRoute('/live/$name/$renderer')({
+export const Route = createFileRoute('/scenes/$name/live/$renderer')({
   ssr: false,
   params: {
     parse: ({ name, renderer }) => {
@@ -75,7 +76,14 @@ function Live() {
 
   return (
     <>
-      <Header />
+      <Header renderer={renderer} scene={name}>
+        <PassSelect
+          onValueChange={(next) =>
+            void navigate({ replace: true, search: (prev) => ({ ...prev, pass: passSearch(next) }) })
+          }
+          value={pass}
+        />
+      </Header>
       <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-4 px-4 py-6 sm:px-6">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold">
@@ -83,27 +91,17 @@ function Live() {
           </h1>
           <div className="ml-auto flex flex-wrap gap-2">
             {RENDERERS.map((other) => (
-              <Link
-                aria-current={other === renderer ? 'page' : undefined}
-                className={`${buttonClassName} ${other === renderer ? 'border-primary font-semibold' : ''}`}
-                key={other}
-                params={{ name, renderer: other }}
-                search={{ pass: passSearch(pass), camera: search.camera }}
-                to="/live/$name/$renderer"
-              >
-                {other}
-              </Link>
+              <Button asChild key={other} size="sm" variant={other === renderer ? 'default' : 'outline'}>
+                <Link
+                  aria-current={other === renderer ? 'page' : undefined}
+                  params={{ name, renderer: other }}
+                  search={{ pass: passSearch(pass), camera: search.camera }}
+                  to="/scenes/$name/live/$renderer"
+                >
+                  {other}
+                </Link>
+              </Button>
             ))}
-            <button
-              className={buttonClassName}
-              onClick={() => void canvasRef.current?.requestFullscreen()}
-              type="button"
-            >
-              Full screen
-            </button>
-            <Link className={buttonClassName} params={{ name }} search={{ pass: passSearch(pass) }} to="/scenes/$name">
-              Back to results
-            </Link>
           </div>
         </div>
         <div className="relative border border-border bg-black">

@@ -84,15 +84,16 @@ export interface SceneSummary {
 }
 
 export const SORT_OPTIONS = [
-  { value: 'name', label: 'Name' },
-  { value: 'psnr', label: 'PSNR (worst first)' },
   { value: 'psnr-desc', label: 'PSNR (best first)' },
+  { value: 'psnr', label: 'PSNR (worst first)' },
+  { value: 'name', label: 'Name' },
 ] as const;
 
 export type SortValue = (typeof SORT_OPTIONS)[number]['value'];
 
+/** Defaults to best PSNR first. */
 export function parseSort(value: unknown): SortValue {
-  return SORT_OPTIONS.some((option) => option.value === value) ? (value as SortValue) : 'name';
+  return SORT_OPTIONS.some((option) => option.value === value) ? (value as SortValue) : 'psnr-desc';
 }
 
 /** Sorts by three-new's PSNR (the renderer being improved). Identical images (`psnr: null`) rank as best; scenes without it rank last. */

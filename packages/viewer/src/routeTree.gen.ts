@@ -10,19 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ScenesNameRouteImport } from './routes/scenes/$name'
 import { Route as ThreeExamplesSplatRouteImport } from './routes/three-examples/$'
 import { Route as ApiResultsSplatRouteImport } from './routes/api/results/$'
-import { Route as LiveNameRendererRouteImport } from './routes/live/$name/$renderer'
+import { Route as ScenesNameIndexRouteImport } from './routes/scenes/$name/index'
+import { Route as ScenesNameLiveRendererRouteImport } from './routes/scenes/$name/live/$renderer'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ScenesNameRoute = ScenesNameRouteImport.update({
-  id: '/scenes/$name',
-  path: '/scenes/$name',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ThreeExamplesSplatRoute = ThreeExamplesSplatRouteImport.update({
@@ -35,64 +30,69 @@ const ApiResultsSplatRoute = ApiResultsSplatRouteImport.update({
   path: '/api/results/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LiveNameRendererRoute = LiveNameRendererRouteImport.update({
-  id: '/live/$name/$renderer',
-  path: '/live/$name/$renderer',
+const ScenesNameIndexRoute = ScenesNameIndexRouteImport.update({
+  id: '/scenes/$name/',
+  path: '/scenes/$name/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScenesNameLiveRendererRoute = ScenesNameLiveRendererRouteImport.update({
+  id: '/scenes/$name/live/$renderer',
+  path: '/scenes/$name/live/$renderer',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/scenes/$name': typeof ScenesNameRoute
   '/three-examples/$': typeof ThreeExamplesSplatRoute
   '/api/results/$': typeof ApiResultsSplatRoute
-  '/live/$name/$renderer': typeof LiveNameRendererRoute
+  '/scenes/$name/': typeof ScenesNameIndexRoute
+  '/scenes/$name/live/$renderer': typeof ScenesNameLiveRendererRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/scenes/$name': typeof ScenesNameRoute
   '/three-examples/$': typeof ThreeExamplesSplatRoute
   '/api/results/$': typeof ApiResultsSplatRoute
-  '/live/$name/$renderer': typeof LiveNameRendererRoute
+  '/scenes/$name': typeof ScenesNameIndexRoute
+  '/scenes/$name/live/$renderer': typeof ScenesNameLiveRendererRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/scenes/$name': typeof ScenesNameRoute
   '/three-examples/$': typeof ThreeExamplesSplatRoute
   '/api/results/$': typeof ApiResultsSplatRoute
-  '/live/$name/$renderer': typeof LiveNameRendererRoute
+  '/scenes/$name/': typeof ScenesNameIndexRoute
+  '/scenes/$name/live/$renderer': typeof ScenesNameLiveRendererRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/scenes/$name'
     | '/three-examples/$'
     | '/api/results/$'
-    | '/live/$name/$renderer'
+    | '/scenes/$name/'
+    | '/scenes/$name/live/$renderer'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/scenes/$name'
     | '/three-examples/$'
     | '/api/results/$'
-    | '/live/$name/$renderer'
+    | '/scenes/$name'
+    | '/scenes/$name/live/$renderer'
   id:
     | '__root__'
     | '/'
-    | '/scenes/$name'
     | '/three-examples/$'
     | '/api/results/$'
-    | '/live/$name/$renderer'
+    | '/scenes/$name/'
+    | '/scenes/$name/live/$renderer'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ScenesNameRoute: typeof ScenesNameRoute
   ThreeExamplesSplatRoute: typeof ThreeExamplesSplatRoute
   ApiResultsSplatRoute: typeof ApiResultsSplatRoute
-  LiveNameRendererRoute: typeof LiveNameRendererRoute
+  ScenesNameIndexRoute: typeof ScenesNameIndexRoute
+  ScenesNameLiveRendererRoute: typeof ScenesNameLiveRendererRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -102,13 +102,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/scenes/$name': {
-      id: '/scenes/$name'
-      path: '/scenes/$name'
-      fullPath: '/scenes/$name'
-      preLoaderRoute: typeof ScenesNameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/three-examples/$': {
@@ -125,11 +118,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiResultsSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/live/$name/$renderer': {
-      id: '/live/$name/$renderer'
-      path: '/live/$name/$renderer'
-      fullPath: '/live/$name/$renderer'
-      preLoaderRoute: typeof LiveNameRendererRouteImport
+    '/scenes/$name/': {
+      id: '/scenes/$name/'
+      path: '/scenes/$name'
+      fullPath: '/scenes/$name/'
+      preLoaderRoute: typeof ScenesNameIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scenes/$name/live/$renderer': {
+      id: '/scenes/$name/live/$renderer'
+      path: '/scenes/$name/live/$renderer'
+      fullPath: '/scenes/$name/live/$renderer'
+      preLoaderRoute: typeof ScenesNameLiveRendererRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -137,10 +137,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ScenesNameRoute: ScenesNameRoute,
   ThreeExamplesSplatRoute: ThreeExamplesSplatRoute,
   ApiResultsSplatRoute: ApiResultsSplatRoute,
-  LiveNameRendererRoute: LiveNameRendererRoute,
+  ScenesNameIndexRoute: ScenesNameIndexRoute,
+  ScenesNameLiveRendererRoute: ScenesNameLiveRendererRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

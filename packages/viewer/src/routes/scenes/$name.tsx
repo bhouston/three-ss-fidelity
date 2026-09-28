@@ -35,7 +35,7 @@ export const Route = createFileRoute('/scenes/$name')({
   }),
   loaderDeps: ({ search }) => ({ pass: parsePass(search.pass) }),
   loader: ({ params, deps }) => getScene({ data: { name: params.name, pass: deps.pass } }),
-  head: ({ params }) => ({ meta: [{ title: `${params.name} – Screen-Space Fidelity` }] }),
+  head: ({ params }) => ({ meta: [{ title: `${params.name} – three-ss-fidelity` }] }),
   component: SceneDetail,
 });
 

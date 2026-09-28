@@ -1,6 +1,6 @@
 # Indoor SSGI: angular weighting follow-up
 
-September 25, 2026; continuation of [issue #9](https://github.com/bhouston/ss-fidelity/issues/9) and [the initial investigation](GI-INVESTIGATION.md).
+September 25, 2026; continuation of [issue #9](https://github.com/bhouston/three-ss-fidelity/issues/9) and [the initial investigation](GI-INVESTIGATION.md).
 
 We found a substantial, reproducible improvement without changing GI intensity or adding unseen lighting. The local three.js visibility-bitmask estimator counts equal **slice-angle** sectors but does not include the spherical solid-angle Jacobian. A process-local shader experiment adds that directional weight. Together with a larger sampling footprint and more samples, it reduces the original Cornell beauty RMSE from **0.16462 to 0.04931 (70.0%)**. This is display-RGB RMSE, not a percentage of missing physical energy.
 

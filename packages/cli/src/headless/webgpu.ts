@@ -153,6 +153,21 @@ function patchCopyExternalImageToTexture(): void {
   };
 }
 
+const frameCallbacks = new Map<number, (time: number) => void>();
+let frameCallbackId = 0;
+
+/**
+ * One display frame: runs the pending requestAnimationFrame callbacks, as a browser does before the page renders.
+ * Call it before each rendered frame. A timer-driven requestAnimationFrame advanced three's frame counter (velocity
+ * history, per-frame noise) at wall-clock pace instead, so renders weren't reproducible.
+ */
+export function animationFrame(): void {
+  const callbacks = [...frameCallbacks.values()];
+  frameCallbacks.clear();
+  const time = performance.now();
+  for (const callback of callbacks) callback(time);
+}
+
 /** Installs dawn's WebGPU globals; must run before three is imported. */
 export function install(): void {
   const scope = globalThis as Record<string, unknown>;
@@ -166,9 +181,12 @@ export function install(): void {
     configurable: true,
   });
   scope.self ??= globalThis;
-  scope.requestAnimationFrame ??= (callback: (time: number) => void) =>
-    setTimeout(() => callback(performance.now()), 0);
-  scope.cancelAnimationFrame ??= clearTimeout;
+  // frame callbacks (three's renderer loop advances its node frame counter here) run only in animationFrame()
+  scope.requestAnimationFrame = (callback: (time: number) => void) => {
+    frameCallbacks.set(++frameCallbackId, callback);
+    return frameCallbackId;
+  };
+  scope.cancelAnimationFrame = (id: number) => frameCallbacks.delete(id);
   scope.HTMLCanvasElement ??= HeadlessCanvas;
   scope.Image ??= HeadlessImage;
   patchCopyExternalImageToTexture();

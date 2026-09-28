@@ -9,7 +9,8 @@ import { selectNames } from '../select.js';
 
 const renderProcess = fileURLToPath(new URL('../render-process.js', import.meta.url));
 
-function run(job: RenderJob): Promise<number | null> {
+/** Runs one render-process job; resolves with its exit code. */
+export function run(job: RenderJob): Promise<number | null> {
   return new Promise((resolve, reject) => {
     spawn(process.execPath, [renderProcess, JSON.stringify(job)], { stdio: 'inherit' })
       .on('error', reject)
@@ -39,7 +40,7 @@ export const command = defineCommand({
       .option('scenes', { type: 'string', default: '*', describe: 'Scene name glob(s), comma separated' })
       .option('passes', { type: 'string', default: '*', describe: 'Pass name glob(s), comma separated' })
       .option('renderers', { type: 'string', default: '*', describe: 'Renderer name glob(s), comma separated' })
-      .option('samples', { type: 'number', default: 1024, describe: 'three-gpu-pathtracer samples per pixel' })
+      .option('samples', { type: 'number', default: 4096, describe: 'three-gpu-pathtracer samples per pixel' })
       .option('frames', {
         type: 'number',
         describe: 'Screen-space renderer frames (default: each scene’s effects.frames)',
@@ -64,21 +65,27 @@ export const command = defineCommand({
     const passes = selectNames(passNames, argv.passes, 'pass') as RenderJob['passes'];
     const renderers = selectNames(rendererNames, argv.renderers, 'renderer') as RenderJob['renderer'][];
     let failed = false;
-    // one child process per renderer: dawn and ANGLE don't share a process reliably
+    // one child process per renderer, scene and pass: dawn and ANGLE don't share a process reliably, and GPU state leaked
+    // from one scene's renderer into the next scene's (a red cast from ssgi-basic in ssr-steampunk-camera), so no
+    // result may depend on what rendered before it
     for (const renderer of renderers) {
-      const code = await run({
-        renderer,
-        scenes,
-        passes,
-        outDir: argv.output,
-        frames: argv.frames,
-        samples: argv.samples,
-        motion: parseMotion(argv.motion, argv.motionObject),
-        ssrDebug: argv.ssrDebug,
-      });
-      if (code !== 0) {
-        console.error(`${renderer} failed (exit code ${code})`);
-        failed = true;
+      for (const scene of scenes) {
+        for (const pass of passes) {
+          const code = await run({
+            renderer,
+            scenes: [scene],
+            passes: [pass],
+            outDir: argv.output,
+            frames: argv.frames,
+            samples: argv.samples,
+            motion: parseMotion(argv.motion, argv.motionObject),
+            ssrDebug: argv.ssrDebug,
+          });
+          if (code !== 0) {
+            console.error(`${scene} | ${pass} | ${renderer} failed (exit code ${code})`);
+            failed = true;
+          }
+        }
       }
     }
     if (failed) process.exitCode = 1;

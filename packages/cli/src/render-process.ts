@@ -26,6 +26,16 @@ export interface RenderJob {
 
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
 
+/** Replaces Math.random with a fixed-seed generator (mulberry32): every render is reproducible. */
+function seedRandom(seed = 1): void {
+  Math.random = () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 async function main(job: RenderJob): Promise<void> {
   const screenSpace = job.renderer !== 'three-gpu-pathtracer';
   const headless = screenSpace ? await import('./headless/webgpu.js') : await import('./headless/webgl.js');
@@ -46,6 +56,7 @@ async function main(job: RenderJob): Promise<void> {
   async function render(name: string, pass: PassName): Promise<void> {
     const { width, height, create } = getScene(name);
     const start = performance.now();
+    seedRandom(); // before the scene and renderer draw any random numbers
     const setup = await create(ctx);
     const canvas = headless.createCanvas(width, height);
     const renderer = await createRenderer(job.renderer, canvas, setup, { width, height, pass, ssrDebug: job.ssrDebug });
@@ -54,6 +65,7 @@ async function main(job: RenderJob): Promise<void> {
     const target = screenSpace ? (job.frames ?? passEffects(setup, pass).frames) : job.samples;
     const renderStart = performance.now();
     while (renderer.frames < target) {
+      headless.animationFrame();
       renderer.render();
       await new Promise((resolve) => setImmediate(resolve)); // lets async shader compilation progress
     }
@@ -114,6 +126,7 @@ async function renderMotion(
     const t = Math.min(1, Math.max(0, -f / moveFrames));
     const eased = t * t * (3 - 2 * t);
     pose(((degrees * Math.PI) / 180) * eased, eased);
+    headless.animationFrame();
     renderer.render();
     await new Promise((resolve) => setImmediate(resolve));
     if (!captures.includes(f)) continue;

@@ -17,7 +17,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "cli": "pnpm --filter @ss-fidelity/cli start",
-    "viewer": "pnpm --filter @ss-fidelity/viewer dev"
+    "viewer": "pnpm --filter @ss-fidelity/viewer dev",
+    "gcloud": "gcloud auth application-default login && gcloud config set account \"neuralsoft@gmail.com\" && gcloud config set project bhouston-general-hosting && gcloud config set run/region us-central1"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",

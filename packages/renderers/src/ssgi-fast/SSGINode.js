@@ -590,7 +590,12 @@ class SSGINode extends Node {
             .mul(radiusVS)
             .toConst();
           const uvOffset = slideDirTexelSize.mul(max(offset, float(i).add(1))).toConst();
-          const sampleUV = uvNode.add(uvOffset.mul(uvDirection)).toConst();
+          // snapped to a depth texel center: the depth is read from a single texel, so rebuilding the position at a
+          // fractional UV puts the sample off the surface (by up to half a texel's depth slope on oblique surfaces)
+          const sampleUV = floor(uvNode.add(uvOffset.mul(uvDirection)).mul(depthSize))
+            .add(0.5)
+            .div(depthSize)
+            .toConst();
 
           If(
             sampleUV.x

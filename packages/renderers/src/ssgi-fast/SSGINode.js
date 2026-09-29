@@ -39,7 +39,6 @@ import {
   sin,
   uint,
   cross,
-  acos,
   sign,
   pow,
   luminance,
@@ -49,7 +48,6 @@ import {
   Break,
   sqrt,
   HALF_PI,
-  div,
   round,
   shiftRight,
   convertToTexture,
@@ -62,6 +60,7 @@ import {
   context,
   textureSize,
   floor,
+  length,
 } from 'three/tsl';
 
 const _quadMesh = /*@__PURE__*/ new QuadMesh();
@@ -573,7 +572,8 @@ class SSGINode extends Node {
         uvNode,
         viewDir,
         viewNormal,
-        n,
+        sliceTangent,
+        sliceNormal,
       ]) => {
         const STEP_COUNT = this.stepCount.toConst();
         const EXP_FACTOR = this.expFactor.toConst();
@@ -622,9 +622,21 @@ class SSGINode extends Node {
             sampleViewPosition.sub(linearThicknessMultiplier.mul(viewDir).mul(THICKNESS)).sub(viewPosition),
           );
 
-          let frontBackHorizon = vec2(dot(pixelToSample, viewDir), dot(pixelToSampleBackface, viewDir));
-          frontBackHorizon = GTAOFastAcos(clamp(frontBackHorizon, -1, 1));
-          frontBackHorizon = clamp(div(mul(samplingDirection, frontBackHorizon.negate()).sub(n.sub(HALF_PI)), PI)); // Port note: subtract half pi instead of adding it
+          // horizon angle from the slice's tangent (on the shading point's tangent plane), taken from the sample's
+          // elevation above the tangent plane. The angle to the view direction would only be right for samples exactly in
+          // the slice plane, but a sample snapped to a texel center lies up to half a texel off it, and on oblique surfaces
+          // that alone lifts samples on the tangent plane (a flat surface) a sector or more into the hemisphere.
+          // Samples on or below the tangent plane stay on the hemisphere edge.
+          const elevation = vec2(dot(pixelToSample, sliceNormal), dot(pixelToSampleBackface, sliceNormal)).toConst();
+          const along = vec2(dot(pixelToSample, sliceTangent), dot(pixelToSampleBackface, sliceTangent))
+            .mul(samplingDirection)
+            .toConst();
+          let frontBackHorizon = GTAOFastAcos(
+            clamp(along.div(sqrt(along.mul(along).add(elevation.mul(elevation)))), -1, 1),
+          )
+            .mul(sign(elevation).max(0))
+            .div(PI);
+          frontBackHorizon = directionIsRight.select(frontBackHorizon, frontBackHorizon.oneMinus());
           frontBackHorizon = directionIsRight.select(frontBackHorizon.yx, frontBackHorizon.xy); // Front/Back get inverted depending on angle
 
           // inline ComputeOccludedBitfield() for easier debugging
@@ -760,12 +772,13 @@ class SSGINode extends Node {
         const slideDirTexelSize = sliceDir.xy.mul(float(1).div(this._resolution)).toConst();
 
         const planeNormal = normalize(cross(sliceDir, viewDir)).toConst();
-        const tangent = cross(viewDir, planeNormal).toConst();
         const projectedNormal = viewNormal.sub(planeNormal.mul(dot(viewNormal, planeNormal))).toConst();
         const projectedNormalNormalized = normalize(projectedNormal).toConst();
 
-        const cos_n = clamp(dot(projectedNormalNormalized, viewDir), -1, 1).toConst();
-        const n = sign(dot(projectedNormal, tangent)).negate().mul(acos(cos_n)).toConst();
+        // the slice's direction of the tangent plane on the right side, and the normal scaled so that its dot product
+        // with a direction in the slice plane is the sine of that direction's elevation above the tangent
+        const sliceTangent = cross(projectedNormalNormalized, planeNormal).toConst();
+        const sliceNormal = viewNormal.div(length(projectedNormal)).toConst();
 
         globalOccludedBitfield.assign(0);
 
@@ -780,7 +793,8 @@ class SSGINode extends Node {
             uvNode,
             viewDir,
             viewNormal,
-            n,
+            sliceTangent,
+            sliceNormal,
           ),
         );
         color.addAssign(
@@ -794,7 +808,8 @@ class SSGINode extends Node {
             uvNode,
             viewDir,
             viewNormal,
-            n,
+            sliceTangent,
+            sliceNormal,
           ),
         );
 

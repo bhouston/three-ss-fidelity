@@ -98,7 +98,7 @@ function Index() {
           {shown.length}/{scenes.length}
         </span>
       </Header>
-      <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-4 py-6 sm:px-6">
+      <div className="flex w-full flex-col gap-6 px-4 py-6 sm:px-6">
         <p className="text-sm leading-6 text-muted-foreground sm:text-base">
           Compare each renderer (<code>{COMPARED_RENDERERS.join(', ')}</code>) against the{' '}
           <code>three-gpu-pathtracer</code> reference. Each delta and metric set measures one renderer against that
@@ -123,19 +123,7 @@ function Index() {
 function SceneRow({ scene, pass }: { scene: SceneSummary; pass: PassName }) {
   const search = { pass: passSearch(pass) };
   const { reference, renderers } = scene;
-  // column-major, two rows: the reference above an empty cell, then each renderer with results above its delta
-  const cells = [
-    { label: 'three-gpu-pathtracer (reference)', src: reference },
-    null,
-    ...COMPARED_RENDERERS.flatMap((renderer) => {
-      const result = renderers[renderer];
-      if (!result) return [];
-      return [
-        { label: renderer, src: result.image },
-        { label: `${renderer} delta`, src: result.delta },
-      ];
-    }),
-  ];
+  const compared = COMPARED_RENDERERS.filter((renderer) => renderers[renderer]);
   return (
     <article className="border-b border-border py-4 last:border-b-0">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -163,40 +151,48 @@ function SceneRow({ scene, pass }: { scene: SceneSummary; pass: PassName }) {
           </Button>
         </div>
       </div>
-      <div className="mt-3 flex flex-wrap items-start gap-3">
-        <Link
-          className="grid min-w-0 flex-1 auto-cols-max grid-flow-col grid-rows-2 gap-px"
-          params={{ name: scene.name }}
-          search={search}
-          to="/scenes/$name"
-        >
-          {cells.map((cell, index) =>
-            cell ? (
-              <figure className="flex w-24 min-w-0 flex-col gap-1" key={cell.label}>
-                <ResultImage alt={`${scene.name}: ${cell.label}`} src={cell.src} />
-                <figcaption className="truncate text-center text-xs text-muted-foreground" title={cell.label}>
-                  {cell.label}
-                </figcaption>
-              </figure>
-            ) : (
-              <div key={index} />
-            ),
-          )}
-        </Link>
-        <div className="flex flex-wrap gap-2">
-          {COMPARED_RENDERERS.filter((renderer) => renderers[renderer]).map((renderer) => (
-            <MetricSummary key={renderer} label={renderer} metrics={renderers[renderer]?.metrics} />
-          ))}
-        </div>
-      </div>
+      {/* one column per renderer (reference first) under a name header, rows: render, delta, metrics */}
+      <Link
+        className="mt-3 grid items-center gap-x-2 gap-y-1 text-xs text-muted-foreground"
+        params={{ name: scene.name }}
+        search={search}
+        style={{ gridTemplateColumns: `auto repeat(${compared.length + 1}, minmax(0, 1fr))` }}
+        to="/scenes/$name"
+      >
+        <span />
+        <span className="truncate text-center">three-gpu-pathtracer (reference)</span>
+        {compared.map((renderer) => (
+          <span className="truncate text-center" key={renderer}>
+            {renderer}
+          </span>
+        ))}
+        <RowLabel>Render</RowLabel>
+        <ResultImage alt={`${scene.name}: three-gpu-pathtracer`} src={reference} />
+        {compared.map((renderer) => (
+          <ResultImage alt={`${scene.name}: ${renderer}`} key={renderer} src={renderers[renderer]?.image} />
+        ))}
+        <RowLabel>Delta</RowLabel>
+        <span />
+        {compared.map((renderer) => (
+          <ResultImage alt={`${scene.name}: ${renderer} delta`} key={renderer} src={renderers[renderer]?.delta} />
+        ))}
+        <RowLabel>Metrics</RowLabel>
+        <span />
+        {compared.map((renderer) => (
+          <MetricSummary key={renderer} metrics={renderers[renderer]?.metrics} />
+        ))}
+      </Link>
     </article>
   );
 }
 
-function MetricSummary({ label, metrics }: { label: string; metrics?: SceneMetrics }) {
+function RowLabel({ children }: { children: string }) {
+  return <span className="text-right">{children}</span>;
+}
+
+function MetricSummary({ metrics }: { metrics?: SceneMetrics }) {
   return (
-    <dl className={`grid w-36 grid-cols-2 gap-x-2 p-2 font-mono text-xs ${psnrClassName(metrics)}`}>
-      <dt className="col-span-2 mb-1 font-semibold">{label}</dt>
+    <dl className={`grid grid-cols-2 gap-x-2 self-stretch p-2 font-mono text-xs ${psnrClassName(metrics)}`}>
       <dt>PSNR</dt>
       <dd className="text-right">{formatMetric(metrics?.psnr)}</dd>
       <dt>RMSE</dt>

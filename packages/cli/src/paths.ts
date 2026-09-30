@@ -12,22 +12,11 @@ export const passDir = (sceneName: string, passName: string, root = resultsDir) 
 export const renderPath = (sceneName: string, passName: string, rendererName: string, root = resultsDir) =>
   path.join(passDir(sceneName, passName, root), `${rendererName}.avif`);
 
-/**
- * Every renderer R compared against the default reference (three-gpu-pathtracer) uses delta-R.avif / metrics-R.json.
- * Comparisons against a non-default reference (e.g. blender, itself a second ground truth) are suffixed
- * `-vs-<reference>` so they don't collide with the default comparison of the same renderer.
- */
-export function comparisonPaths(
+/** `fidelity-kit process`'s metrics file for one renderer vs one reference. */
+export const metricsPath = (
   sceneName: string,
   passName: string,
   rendererName: string,
+  reference: string,
   root = resultsDir,
-  reference = 'three-gpu-pathtracer',
-) {
-  const dir = passDir(sceneName, passName, root);
-  const suffix = reference === 'three-gpu-pathtracer' ? rendererName : `${rendererName}-vs-${reference}`;
-  return {
-    delta: path.join(dir, `delta-${suffix}.avif`),
-    metrics: path.join(dir, `metrics-${suffix}.json`),
-  };
-}
+) => path.join(passDir(sceneName, passName, root), `${rendererName}.vs-${reference}.metrics.json`);

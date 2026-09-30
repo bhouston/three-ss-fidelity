@@ -3,9 +3,19 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { passNames, rendererNames } from '@ss-fidelity/renderers';
 import { listSceneNames } from '@ss-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
-import type { MetricsFile } from '../compare.js';
-import { comparisonPaths, resultsDir } from '../paths.js';
+import { metricsPath, resultsDir } from '../paths.js';
 import { selectNames } from '../select.js';
+
+/** `fidelity-kit process`'s `<renderer>.vs-<reference>.metrics.json`. */
+interface FidelityMetrics {
+  psnr: number | null;
+  rmse: number;
+  mae: number;
+  maxError: number;
+  width: number;
+  height: number;
+  generatedAt: string;
+}
 
 // Every screen-space renderer (everything but the path-traced reference itself).
 const comparedRenderers = rendererNames.filter((name) => name !== 'three-gpu-pathtracer');
@@ -13,7 +23,7 @@ const comparedRenderers = rendererNames.filter((name) => name !== 'three-gpu-pat
 export const command = defineCommand({
   command: 'quality-gate <baseline> <candidate>',
   describe:
-    'Fail if <candidate> mean RMSE vs three-gpu-pathtracer regresses on <baseline> by more than --threshold. Run `cli compare` for both renderers first.',
+    'Fail if <candidate> mean RMSE vs three-gpu-pathtracer regresses on <baseline> by more than --threshold. Run `fidelity-kit process` for both renderers first.',
   builder: (yargs) =>
     yargs
       .positional('baseline', { type: 'string', choices: comparedRenderers })
@@ -35,18 +45,21 @@ export const command = defineCommand({
     const rows: { scene: string; pass: string; baselineRmse: number; candidateRmse: number }[] = [];
     for (const scene of scenes) {
       for (const pass of passes) {
-        const baselinePath = comparisonPaths(scene, pass, baseline, argv.results).metrics;
-        const candidatePath = comparisonPaths(scene, pass, candidate, argv.results).metrics;
+        const baselinePath = metricsPath(scene, pass, baseline, 'three-gpu-pathtracer', argv.results);
+        const candidatePath = metricsPath(scene, pass, candidate, 'three-gpu-pathtracer', argv.results);
         if (!existsSync(baselinePath) || !existsSync(candidatePath)) {
-          console.warn(`${scene} | ${pass}: skipped, run \`cli compare\` for ${baseline} and ${candidate} first`);
+          console.warn(
+            `${scene} | ${pass}: skipped, run \`fidelity-kit process\` for ${baseline} and ${candidate} first`,
+          );
           continue;
         }
-        const baselineMetrics = JSON.parse(await readFile(baselinePath, 'utf8')) as MetricsFile;
-        const candidateMetrics = JSON.parse(await readFile(candidatePath, 'utf8')) as MetricsFile;
+        const baselineMetrics = JSON.parse(await readFile(baselinePath, 'utf8')) as FidelityMetrics;
+        const candidateMetrics = JSON.parse(await readFile(candidatePath, 'utf8')) as FidelityMetrics;
         rows.push({ scene, pass, baselineRmse: baselineMetrics.rmse, candidateRmse: candidateMetrics.rmse });
       }
     }
-    if (rows.length === 0) throw new Error('No scene/pass had metrics for both renderers; run `cli compare` first.');
+    if (rows.length === 0)
+      throw new Error('No scene/pass had metrics for both renderers; run `fidelity-kit process` first.');
 
     const mean = (key: 'baselineRmse' | 'candidateRmse') => rows.reduce((sum, row) => sum + row[key], 0) / rows.length;
     const baselineMean = mean('baselineRmse');

@@ -85,10 +85,10 @@ not a browser sandbox).
 ## `cli quality-gate`: RMSE regression gate
 
 Compares two already-compared renderers' mean RMSE against the `three-gpu-pathtracer` reference (i.e. it reads
-`metrics-<renderer>.json`, produced by `cli compare`, rather than re-decoding images):
+`<renderer>.vs-three-gpu-pathtracer.metrics.json`, produced by `fidelity-kit process`, rather than re-decoding images):
 
 ```sh
-pnpm cli compare --renderers three-current,three-new --scenes ssgi-basic,ssgi-animated
+pnpm exec fidelity-kit process results
 pnpm cli quality-gate three-current three-new --scenes ssgi-basic,ssgi-animated
 ```
 

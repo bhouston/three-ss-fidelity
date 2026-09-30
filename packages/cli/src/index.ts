@@ -5,7 +5,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { fileCommands } from 'yargs-file-commands';
 
-// Commands are the files in ./commands (list, render, compare, ...).
+// Commands are the files in ./commands (list, render, quality-gate, ...).
 async function loadCommands() {
   const commandsDir = fileURLToPath(new URL('./commands', import.meta.url));
   return fileCommands({ commandDirs: [commandsDir] });

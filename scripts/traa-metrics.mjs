@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// TRAA-specific metrics not covered by cli compare/ssr-motion-metrics: per-pixel temporal flicker std-dev across a
+// TRAA-specific metrics not covered by fidelity-kit process/ssr-motion-metrics: per-pixel temporal flicker std-dev across a
 // run of consecutive static-camera frames, and a mean-gradient-magnitude sharpness ratio (test vs reference).
 // Usage:
 //   node scripts/traa-metrics.mjs flicker <frame1.avif> <frame2.avif> ...   (>= 2 frames, same scene/camera)

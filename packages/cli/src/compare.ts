@@ -14,18 +14,6 @@ export interface ImageMetrics {
   maxError: number;
 }
 
-export interface MetricsFile extends ImageMetrics {
-  scene: string;
-  pass: string;
-  /** The ground-truth renderer compared against: three-gpu-pathtracer by default, or blender, a second reference. */
-  reference: string;
-  /** The renderer name being compared against the reference. */
-  test: string;
-  width: number;
-  height: number;
-  generatedAt: string;
-}
-
 /** Encoding for committed result images: near-lossless (worst render ~40 dB PSNR vs PNG), full-res chroma so noise and false colour survive. */
 export const RESULT_AVIF = { quality: 90, chromaSubsampling: '4:4:4' } as const;
 
@@ -99,17 +87,4 @@ export function compareRgb(reference: RawImage, test: RawImage): { metrics: Imag
     },
     delta: { data: delta, width: reference.width, height: reference.height },
   };
-}
-
-/** Compares two encoded images (paths or buffers); returns metrics and the delta encoded like the renders. */
-export async function compareImages(
-  reference: string | Buffer,
-  test: string | Buffer,
-): Promise<{ metrics: ImageMetrics; width: number; height: number; deltaImage: Buffer }> {
-  const [ref, tst] = await Promise.all([readRgb(reference), readRgb(test)]);
-  const { metrics, delta } = compareRgb(ref, tst);
-  const deltaImage = await sharp(delta.data, { raw: { width: delta.width, height: delta.height, channels: 3 } })
-    .avif(RESULT_AVIF)
-    .toBuffer();
-  return { metrics, width: ref.width, height: ref.height, deltaImage };
 }

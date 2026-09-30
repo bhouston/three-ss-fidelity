@@ -48,6 +48,14 @@ time through TRAA and the temporal filters.
      0.0930), SSGI beauty RMSE 1–19 % (ssgi-basic 0.0719 → 0.0606). Exceptions: gltf-littlest-tokyo AO +2 % (its
      path-traced AO reference is almost black, so any lighter AO scores worse) and higharc_dogwood beauty +2 %.
      The SSGI pass costs roughly 10 % more at 8 slices × 32 steps (timed on a shared, noisy GPU).
+   - GI sectors between samples of one surface are lit (issue #51). Far from the pixel the samples are sparser than
+     the 32 sectors, and each sample only lit the sectors between its own front and back horizons, so the sectors
+     between two samples of a continuous wall stayed dark. The old `ceil` gave each sample at least one sector,
+     which hid this until the rounding fix above (SSGI beauty RMSE rose about 6 %). A sample now also lights the gap
+     back to the previous sample's front horizon when the previous sample lies within `thickness` of its tangent
+     plane (its normal is fetched only when there is such a gap). A sample facing away from the shading point
+     neither fills a gap nor becomes the previous sample. Across depth discontinuities the gap stays open, and the AO
+     bitfield is unchanged. See "GI sector gaps" below.
 4. **SSR** (`ssr/NewSSRNode.js`):
    - Stochastic VNDF rays over the full GGX lobe, for metals and dielectrics alike.
    - Hits read the previous anti-aliased frame. Their specular is re-evaluated for the reflected direction, and
@@ -73,6 +81,76 @@ Fixed settings are in `SSR_OPTIONS` at the top of `three-new.ts`:
 
 Everything else comes from the scene's `effects`: the SSGI slice and step counts, radius, thickness,
 `resolutionScale`, and so on.
+
+## GI sector gaps (issue #51)
+
+In ssgi-basic, beauty minus direct (linear) is 0.47–0.67 of the path tracer's, even though three-new's direct is
+already 13–35 % brighter than the path tracer's (a BRDF mismatch, separate from the GI). The estimator's
+normalization is right: π²/2 × (sectors/32) × 2|sin h| × cos, averaged over slices, is π · Σ (π/32) L cos |sin h|,
+the irradiance integral in view-centred slice coordinates. The loss is the sampling:
+
+| ssgi-basic beauty (8 slices, radius 32, thickness 4) | RMSE   | mean linear |
+| ---------------------------------------------------- | ------ | ----------- |
+| path tracer                                          | –      | 0.241       |
+| 32 steps (before)                                    | 0.0720 | 0.189       |
+| 64 steps                                             | 0.0531 | –           |
+| 128 steps                                            | 0.0480 | –           |
+| 256 steps                                            | 0.0476 | –           |
+| 32 steps, gap fill for every sample (heightfield)    | 0.0608 | 0.220       |
+| 32 steps, gap fill for one surface only              | 0.0562 | 0.220       |
+
+The step count, not the thickness or the normalization, converges the energy, so light is lost between samples.
+With exponent-2 spacing the last samples are about 37 px apart, while a thickness-4 wall sample spans about half a
+sector. Filling every gap overshoots the back wall. Limiting it to one surface (the previous sample within
+`thickness` of the current sample's tangent plane) gets most of the dense result at 32 steps. The remaining floor and
+ceiling shortfall is outside the screen or the radius.
+
+Beauty RMSE vs three-gpu-pathtracer, #51 alone (the AO pass is bit-identical):
+
+| Scene                       | before #50 | after #50 | now    |
+| --------------------------- | ---------- | --------- | ------ |
+| ssgi-basic                  | 0.0677     | 0.0720    | 0.0562 |
+| ssgi-rounded                | 0.0514     | 0.0560    | 0.0415 |
+| ssgi-metallic               | 0.0578     | 0.0611    | 0.0488 |
+| ssgi-animated               | 0.0441     | 0.0467    | 0.0410 |
+| ssgi-animated-visible-walls | –          | 0.0461    | 0.0415 |
+| gi-emitter-corner           | 0.0574     | 0.0606    | 0.0544 |
+| gi-room-high-albedo         | –          | 0.2749    | 0.2694 |
+| gi-room-open-high-albedo    | –          | 0.0327    | 0.0278 |
+| gi-room-open-low-albedo     | –          | 0.0127    | 0.0134 |
+
+The gltf and higharc scenes change by at most 0.0002. gi-room-open-low-albedo was already brighter than the reference
+because of the direct mismatch, so the extra GI adds to that.
+
+### Back-facing gap samples
+
+The first version let any sample fill its gap. Combined with #52 it left a hard horizontal line across the
+ssgi-basic back wall at y ≈ 272 (640×480): G dropped 0.028 (linear) within two rows, where the path tracer is smooth
+(largest row-to-row step 0.002). The line is at a wall height of about 4, the height of the short box, and:
+
+- it doesn't appear without the gap fill, or with `thickness` 1;
+- it doesn't move when the same-surface tolerance is scaled from 1× to 100× `thickness`, so it isn't the
+  same-surface test switching;
+- it comes only from gaps filled by samples with an upward normal (floor or box top), and only in the downward half
+  of the slices.
+
+Below height 4, the wall sees the short box top from beneath: the top faces away, emits nothing towards the wall,
+and yet filled the gap from the wall's tangent plane up to the box edge and then acted as the previous sample. Above
+height 4 the same face points at the wall and lights that gap. A sample facing away from the shading point now
+neither fills a gap nor becomes the previous sample, and its own sectors are claimed as before. The line is gone
+(largest row step 0.003).
+
+| Beauty RMSE (AO pass unchanged) | #51 + #52 before | now    |
+| ------------------------------- | ---------------- | ------ |
+| ssgi-basic                      | 0.0485           | 0.0423 |
+| ssgi-rounded                    | 0.0356           | 0.0341 |
+| ssgi-metallic                   | 0.0430           | 0.0416 |
+| ssgi-animated                   | 0.0397           | 0.0392 |
+| ssgi-animated-visible-walls     | 0.0410           | 0.0408 |
+| gi-room-open-high-albedo        | 0.0259           | 0.0259 |
+
+ssgi-basic's mean linear brightness is now 0.241, the same as the path tracer's. Other scenes change by at most
+0.0001.
 
 ## Cost
 

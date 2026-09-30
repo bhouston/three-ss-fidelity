@@ -61,6 +61,7 @@ import {
   textureSize,
   floor,
   length,
+  min,
 } from 'three/tsl';
 
 const _quadMesh = /*@__PURE__*/ new QuadMesh();
@@ -514,6 +515,20 @@ class SSGINode extends Node {
     const uvNode = floor(uv().mul(depthSize).sub(0.25)).add(0.5).div(depthSize);
     const MAX_RAY = uint(32);
     const globalOccludedBitfield = uint(0);
+    const globalLitBitfield = uint(0);
+
+    // the sectors whose centers lie between two horizons. Rounding both ends (instead of flooring the start and taking
+    // the ceiling of the width) keeps a sample lying on the shading point's tangent plane, whose horizon interval is zero
+    // up to depth/normal precision, from occluding a whole sector
+    const sectorBitfield = (minHorizon, maxHorizon) => {
+      const start = round(minHorizon.mul(float(MAX_RAY)));
+      const width = uint(max(round(maxHorizon.mul(float(MAX_RAY))).sub(start), 0));
+
+      return width
+        .greaterThan(uint(0))
+        .select(uint(shiftRight(uint(0xffffffff), uint(32).sub(width))), uint(0))
+        .shiftLeft(uint(start));
+    };
 
     const sampleDepth = (uv) => {
       const depth = this.depthNode.sample(uv).r;
@@ -585,6 +600,10 @@ class SSGINode extends Node {
 
         const color = vec3(0);
 
+        // the previous sample (initially the shading point itself and its tangent-plane horizon), see the GI sectors below
+        const previousFrontHorizon = directionIsRight.select(float(0), float(1)).toVar();
+        const previousPosition = vec3(viewPosition).toVar();
+
         Loop({ start: uint(0), end: STEP_COUNT, type: 'uint', condition: '<' }, ({ i }) => {
           const offset = pow(abs(mul(stepRadius, float(i).add(initialRayStep)).div(radiusVS)), EXP_FACTOR)
             .mul(radiusVS)
@@ -639,29 +658,56 @@ class SSGINode extends Node {
           frontBackHorizon = directionIsRight.select(frontBackHorizon, frontBackHorizon.oneMinus());
           frontBackHorizon = directionIsRight.select(frontBackHorizon.yx, frontBackHorizon.xy); // Front/Back get inverted depending on angle
 
-          // inline ComputeOccludedBitfield() for easier debugging
-
           const minHorizon = frontBackHorizon.x.toConst();
           const maxHorizon = frontBackHorizon.y.toConst();
 
-          // a sector is occluded when its center lies between the horizons. Rounding both ends (instead of flooring the
-          // start and taking the ceiling of the width) keeps a sample lying on the shading point's tangent plane, whose
-          // horizon interval is zero up to depth/normal precision, from occluding a whole sector
-          const startHorizon = round(minHorizon.mul(float(MAX_RAY))).toConst();
-          const startHorizonInt = uint(startHorizon).toConst();
-          const angleHorizonInt = uint(max(round(maxHorizon.mul(float(MAX_RAY))).sub(startHorizon), 0)).toConst();
-          const angleHorizonBitfield = angleHorizonInt
-            .greaterThan(uint(0))
-            .select(
-              uint(shiftRight(uint(0xffffffff), uint(32).sub(MAX_RAY).add(MAX_RAY.sub(angleHorizonInt)))),
-              uint(0),
-            )
+          const currentOccludedBitfield = sectorBitfield(minHorizon, maxHorizon)
+            .bitAnd(globalOccludedBitfield.bitNot())
             .toConst();
-          let currentOccludedBitfield = angleHorizonBitfield.shiftLeft(startHorizonInt);
-          currentOccludedBitfield = currentOccludedBitfield.bitAnd(globalOccludedBitfield.bitNot());
 
           globalOccludedBitfield.assign(globalOccludedBitfield.bitOr(currentOccludedBitfield));
-          const numOccludedZones = countOneBits(currentOccludedBitfield);
+
+          // GI sectors: a sample lights the sectors between its horizons, and also the gap back to the previous sample's
+          // front horizon when the previous sample lies within the thickness of this sample's tangent plane (one surface).
+          // Far from the pixel the samples are sparser than the sectors, so without this the sectors between two samples
+          // of a continuous wall stay unlit and their light is lost. Across a depth discontinuity the gap stays open, as
+          // for the AO, so light still passes behind thin objects. The normal is only fetched when there is a gap.
+          // A sample whose surface faces away from the shading point can't be what the gap sees: it emits nothing
+          // towards it, so it neither fills the gap nor becomes the previous sample. Otherwise a face seen edge-on
+          // (e.g. a box top level with the shading point) darkens the gap on one side of its plane and lights it on the
+          // other, a hard line across the receiver.
+          const gapLitBitfield = sectorBitfield(
+            min(previousFrontHorizon, minHorizon),
+            max(previousFrontHorizon, maxHorizon),
+          )
+            .bitAnd(globalLitBitfield.bitNot())
+            .toConst();
+          const litBitfield = sectorBitfield(minHorizon, maxHorizon).bitAnd(globalLitBitfield.bitNot()).toVar();
+
+          const facesAway = bool(false).toVar();
+
+          If(gapLitBitfield.notEqual(litBitfield), () => {
+            const gapSampleNormal = sampleLightNormal(sampleUV).toConst();
+            const surfaceThickness = THICKNESS.mul(linearThicknessMultiplier);
+            const sameSurface = abs(dot(gapSampleNormal, previousPosition.sub(sampleViewPosition))).lessThan(
+              surfaceThickness,
+            );
+
+            facesAway.assign(dot(gapSampleNormal, pixelToSample).greaterThanEqual(0));
+
+            If(sameSurface.and(facesAway.not()), () => {
+              litBitfield.assign(gapLitBitfield);
+            });
+          });
+
+          globalLitBitfield.assign(globalLitBitfield.bitOr(litBitfield));
+
+          If(facesAway.not(), () => {
+            previousFrontHorizon.assign(directionIsRight.select(maxHorizon, minHorizon));
+            previousPosition.assign(sampleViewPosition);
+          });
+
+          const numOccludedZones = countOneBits(litBitfield);
 
           //
 
@@ -781,6 +827,7 @@ class SSGINode extends Node {
         const sliceNormal = viewNormal.div(length(projectedNormal)).toConst();
 
         globalOccludedBitfield.assign(0);
+        globalLitBitfield.assign(0);
 
         color.addAssign(
           horizonSampling(

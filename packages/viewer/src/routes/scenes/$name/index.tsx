@@ -79,7 +79,7 @@ function SceneDetail() {
           Every renderer uses the same scene settings and is compared against the same path-traced reference. A renderer
           missing from this scene's results is simply left out below.
         </p>
-        <section className="grid gap-4 md:grid-cols-4">
+        <section className="grid gap-4 md:grid-cols-5">
           <figure>
             <ResultImage alt="three-gpu-pathtracer reference" src={reference} />
             <figcaption className="mt-1 text-center text-sm text-muted-foreground">

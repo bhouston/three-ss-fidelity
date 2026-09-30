@@ -17,8 +17,9 @@ export interface ImageMetrics {
 export interface MetricsFile extends ImageMetrics {
   scene: string;
   pass: string;
-  reference: 'three-gpu-pathtracer';
-  /** The screen-space renderer name being compared against the reference. */
+  /** The ground-truth renderer compared against: three-gpu-pathtracer by default, or blender, a second reference. */
+  reference: string;
+  /** The renderer name being compared against the reference. */
   test: string;
   width: number;
   height: number;

@@ -140,6 +140,44 @@ renderer cannot express. Everything else is the example verbatim.
     `bhouston/three-gpu-pathtracer@ss-fidelity`, which merges the fixes proposed upstream in
     gkjohnson/three-gpu-pathtracer#858 (vertex colour merge) and #859 (InstancedMesh).
 
+## Blender Cycles (second reference)
+
+`blender` is a second ground-truth renderer alongside `three-gpu-pathtracer`: an independent, widely-trusted path
+tracer that lets us separate "screen-space approximation error" from "our reference renderer's own bias" (BSDF
+choice, shadow handling, etc. — see Fidelity decisions above). It isn't a screen-space renderer and isn't built via
+`createRenderer()`/`RendererName` (`packages/renderers`): it renders in one batch call, not `LiveRenderer`'s
+incremental frame loop, so it's a CLI-only renderer name (`RenderJob.renderer: RendererName | 'blender'`).
+
+- `pnpm cli render --renderers blender --scenes <name> --passes beauty` (or `direct`) shells out to Blender
+  (`$BLENDER_EXECUTABLE`, else a discovered `/Applications/Blender*.app` on macOS, else `blender` on PATH) in
+  `--background --factory-startup --python packages/cli/blender/render.py` mode and writes
+  `results/<scene>/<pass>/blender.avif`, same as any other renderer. `--samples` sets Cycles' sample count (unbiased,
+  no denoising, no clamping, box filter — matching the pathtracer's own settings).
+- The scene is exported as glTF (`GLTFExporter`) plus its lighting environment as an equirect EXR
+  (`environmentEquirect()` in `packages/renderers/src/pathtracer.ts`, reusing the same cube-camera bake the pathtracer
+  uses for `SceneSetup.environment`, then `CubeToEquirectGenerator`). Blender path traces to a linear EXR, which
+  `packages/cli/src/blender.ts`'s `encodeLinear` composites under the scene's background, ACES-tone-maps and
+  sRGB-encodes in Node, bit-matching three.js's own blit (`encodeLinear` is unit tested without a Blender binary;
+  actually invoking Blender is not exercised by CI, which has no Blender install).
+- `direct` gives Cycles 0 bounces (`max_bounces`/`diffuse_bounces`/`glossy_bounces`/`transmission_bounces` all 0).
+  Cycles still multiple-importance-samples lights and the world at the camera-ray hit even with 0 bounces (unlike
+  `three-gpu-pathtracer`, which needs its own `traceDirectOnly` shader patch to emulate the same "no secondary
+  bounce" definition), so it isn't bit-identical in scope to the pathtracer's `direct` pass, only comparable in
+  intent: first-hit shading with light/environment visibility, no indirect light.
+- The `ao` pass is not supported (no Cycles equivalent to `AmbientOcclusionMaterial`); `--passes ao` with
+  `--renderers blender` throws. `--motion` and `--ssr-debug` are screen-space-only diagnostics and also throw for
+  `blender`.
+- `pnpm cli compare` defaults to comparing the screen-space renderers against `three-gpu-pathtracer`, unchanged.
+  `--reference blender` compares against Blender instead — by default every renderer but Blender itself, so it
+  covers both "screen-space renderers vs. Blender" and "three-gpu-pathtracer vs. Blender" in one run — writing
+  `delta-<renderer>-vs-blender.avif` / `metrics-<renderer>-vs-blender.json` so these don't collide with the default
+  `three-gpu-pathtracer`-referenced files. `pnpm cli compare --renderers blender` (default reference) compares
+  Blender itself against `three-gpu-pathtracer`, writing the plain `delta-blender.avif` / `metrics-blender.json`.
+- Known differences from `three-gpu-pathtracer`: different BSDF (Blender's Principled BSDF vs.
+  three-gpu-pathtracer's Disney-style diffuse, see the baseline-bias note above), Blender's own MIS/light-sampling
+  implementation, and no shared code path at all below the exported glTF/EXR — the two are fully independent
+  implementations, which is the point of using Blender as a second reference.
+
 ## Headless rendering (CLI)
 
 - three-ss: dawn (`webgpu` npm) globals + a minimal canvas whose texture is `COPY_SRC`, read back through a mapped
@@ -157,7 +195,9 @@ renderer cannot express. Everything else is the example verbatim.
 ```
 pnpm cli render  --scenes 'ssgi-*' --passes '*' --renderers '*' [--samples 1024] [--frames N]
                                                      # results/<scene>/<pass>/<renderer>.avif
+                                                     # --renderers blender also renders with Blender Cycles
 pnpm cli compare --scenes '*' --passes '*'           # writes delta.avif + metrics.json (PSNR, RMSE, MAE)
+                                                     # --reference blender compares against Blender instead
 pnpm cli list                                        # scene names
 ```
 

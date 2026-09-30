@@ -25,8 +25,8 @@ importers:
         specifier: ^4.1.10
         version: 4.1.11(vitest@4.1.11)
       fidelity-kit:
-        specifier: ^0.1.1
-        version: 0.1.1(@types/node@25.9.8)
+        specifier: ^0.2.0
+        version: 0.2.0(@types/node@25.9.8)
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -1758,6 +1758,10 @@ packages:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
 
+  chokidar@5.0.0:
+    resolution: {integrity: sha512-TQMmc3w+5AxjpL8iIiwebF73dRDF4fBIieAqGn9RGCWaEVwQ6Fb2cGe31Yns0RRIzii5goJ1Y7xbMwo1TxMplw==}
+    engines: {node: '>= 20.19.0'}
+
   chromium-bidi@14.0.0:
     resolution: {integrity: sha512-9gYlLtS6tStdRWzrtXaTMnqcM4dudNegMXJxkR0I/CXObHalYeYcAMPrL19eroNZHtJ8DQmu1E+ZNOYu/IXMXw==}
     peerDependencies:
@@ -2101,8 +2105,8 @@ packages:
   fflate@0.8.3:
     resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
 
-  fidelity-kit@0.1.1:
-    resolution: {integrity: sha512-zHYxPTT7kanFkGm6nMV4ovQ3wZrXPtQwymM/lMlAQt8pbDA2ZBoKD5CWaMYuEbCTQLYQQXwGJ6eOaHtVh+4Bpw==}
+  fidelity-kit@0.2.0:
+    resolution: {integrity: sha512-xeUDbAJNQnA3HQLjyZTVYzP4KlLbDkhgisB8eJwijFoK/ZQMJRKlwp9kSt2zp63nyiZPj5kYzxib+FR7ijiJ3Q==}
     hasBin: true
 
   file-entry-cache@11.1.5:
@@ -2757,6 +2761,10 @@ packages:
 
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
+
+  readdirp@5.1.1:
+    resolution: {integrity: sha512-Kko+Y5XQ6fM+Ce3dq3m9YGxnacYZYl9cA1wZjaF3Vbry2L3i1qVg8+CAgNPsXRArPMUMCaOR7oa9Nqntc43JKA==}
+    engines: {node: '>= 20.19.0'}
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -4488,6 +4496,10 @@ snapshots:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
 
+  chokidar@5.0.0:
+    dependencies:
+      readdirp: 5.1.1
+
   chromium-bidi@14.0.0(devtools-protocol@0.0.1608973):
     dependencies:
       devtools-protocol: 0.0.1608973
@@ -4899,10 +4911,11 @@ snapshots:
 
   fflate@0.8.3: {}
 
-  fidelity-kit@0.1.1(@types/node@25.9.8):
+  fidelity-kit@0.2.0(@types/node@25.9.8):
     dependencies:
       '@clidoc/core': 1.1.0
       '@clidoc/yargs': 1.1.0
+      chokidar: 5.0.0
       p-limit: 7.3.3
       sharp: 0.35.4(@types/node@25.9.8)
       yargs: 18.2.0
@@ -5582,6 +5595,8 @@ snapshots:
       hookified: 2.2.0
 
   queue-microtask@1.2.3: {}
+
+  readdirp@5.1.1: {}
 
   require-directory@2.1.1: {}
 

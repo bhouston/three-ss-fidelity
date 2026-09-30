@@ -2,7 +2,7 @@
 # Build from the repo root: docker build -t three-ss-fidelity .
 FROM node:24-slim
 
-RUN npm install -g fidelity-kit@0.1.1
+RUN npm install -g fidelity-kit@0.2.0
 
 COPY results /data
 RUN fidelity-kit process /data && fidelity-kit hash /data

@@ -15,14 +15,32 @@ import {
   WebGLRenderTarget,
   WebGLRenderer,
 } from 'three';
-import type { BufferGeometry, Material, Object3D } from 'three';
+import type { BufferGeometry, DataTexture, Material, Object3D } from 'three';
 import { FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
 import { AmbientOcclusionMaterial, PathTracingSceneGenerator, WebGLPathTracer } from 'three-gpu-pathtracer';
+import { CubeToEquirectGenerator } from 'three-gpu-pathtracer/src/utils/CubeToEquirectGenerator.js';
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import type { LiveRenderer, RendererOptions } from './types.js';
 
 /** Path tracing bounces (three-new accumulates bounces over frames, so give the ground truth plenty). */
 export const PATHTRACER_BOUNCES = 8;
+
+/** Bakes `setup.environment` into a 256² half-float cube map, like the pathtracer does for its own scene.environment. */
+function bakeEnvironmentCube(renderer: WebGLRenderer, setup: SceneSetup): WebGLCubeRenderTarget | null {
+  if (!setup.environment) return null;
+  const cubeTarget = new WebGLCubeRenderTarget(256, { type: HalfFloatType });
+  new CubeCamera(0.1, 100, cubeTarget).update(renderer, setup.environment.scene);
+  return cubeTarget;
+}
+
+/** The lighting environment as an importance-sampled equirect (for exporters that need a single 2D texture, e.g. Blender). */
+export function environmentEquirect(renderer: WebGLRenderer, setup: SceneSetup): DataTexture | null {
+  const cubeTarget = bakeEnvironmentCube(renderer, setup);
+  if (!cubeTarget) return null;
+  const equirect = new CubeToEquirectGenerator(renderer).generate(cubeTarget.texture);
+  cubeTarget.dispose();
+  return equirect;
+}
 
 // Final blit, replacing the pathtracer's own: composites the scene's screen-space gradient background under the
 // accumulated (premultiplied) radiance before tone mapping, like the raster background, then tone maps and encodes.
@@ -185,13 +203,8 @@ export async function createPathTracerRenderer(
   renderer.toneMappingExposure = effects.toneMappingExposure;
 
   // the raster PMREM (RoomEnvironment etc.) as a plain cube map, which the pathtracer converts to an equirect
-  let cubeTarget: WebGLCubeRenderTarget | null = null;
-  if (setup.environment) {
-    cubeTarget = new WebGLCubeRenderTarget(256, { type: HalfFloatType });
-    const cubeCamera = new CubeCamera(0.1, 100, cubeTarget);
-    cubeCamera.update(renderer, setup.environment.scene);
-    scene.environment = cubeTarget.texture;
-  }
+  const cubeTarget = bakeEnvironmentCube(renderer, setup);
+  if (cubeTarget) scene.environment = cubeTarget.texture;
 
   // primary rays that miss must show the gradient composited in the blit: render them as black and transparent
   if (setup.gradientBackground) scene.background = new Color(0x000000);

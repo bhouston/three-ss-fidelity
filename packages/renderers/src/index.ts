@@ -6,7 +6,7 @@ import { createThreeNewRenderer } from './three-new.js';
 import type { LiveRenderer, RendererName, RendererOptions } from './types.js';
 
 export * from './types.js';
-export { createPathTracerRenderer, PATHTRACER_BOUNCES } from './pathtracer.js';
+export { createPathTracerRenderer, environmentEquirect, PATHTRACER_BOUNCES } from './pathtracer.js';
 export { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
 export { createThreeNewRenderer, passEffects } from './three-new.js';
 export { createCurrentRenderer } from './three-current.js';

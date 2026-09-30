@@ -5,8 +5,12 @@ import path from 'node:path';
 import sharp from 'sharp';
 import type { PassName, RendererName } from '@ss-fidelity/renderers';
 
+/** A renderer job can also target Blender Cycles, a second ground-truth renderer that isn't a `LiveRenderer`
+ * (it renders in one batch call via `renderBlender`, not `createRenderer`'s incremental frame loop). */
+export type JobRendererName = RendererName | 'blender';
+
 export interface RenderJob {
-  renderer: RendererName;
+  renderer: JobRendererName;
   scenes: string[];
   passes: PassName[];
   outDir: string;
@@ -36,13 +40,14 @@ function seedRandom(seed = 1): void {
   };
 }
 
-/** The only WebGL renderer left: everything else, including both path tracers, runs on WebGPURenderer. */
-function usesWebGL(renderer: RendererName): boolean {
-  return renderer === 'three-gpu-pathtracer';
+/** The only WebGL renderers: everything else, including the WebGPU path tracer, runs on WebGPURenderer. Blender needs
+ * a WebGL canvas too, only to bake `setup.environment` into a cube map before exporting it as an equirect EXR. */
+function usesWebGL(renderer: JobRendererName): boolean {
+  return renderer === 'three-gpu-pathtracer' || renderer === 'blender';
 }
 
 /** Path tracers report accumulated samples (job.samples); screen-space renderers report accumulated frames. */
-function usesSamples(renderer: RendererName): boolean {
+function usesSamples(renderer: JobRendererName): boolean {
   return renderer === 'three-gpu-pathtracer' || renderer === 'three-gpu-pathtracer-webgpu';
 }
 
@@ -69,6 +74,7 @@ async function main(job: RenderJob): Promise<void> {
     seedRandom(); // before the scene and renderer draw any random numbers
     const setup = await create(ctx);
     const canvas = headless.createCanvas(width, height);
+    if (job.renderer === 'blender') return renderBlenderJob(name, pass, setup, canvas, width, height, start);
     const renderer = await createRenderer(job.renderer, canvas, setup, { width, height, pass, ssrDebug: job.ssrDebug });
     if (job.motion) return renderMotion(name, pass, setup, renderer, canvas, job.outDir, job.motion);
     const target = screenSpace ? (job.frames ?? passEffects(setup, pass).frames) : job.samples;
@@ -89,6 +95,34 @@ async function main(job: RenderJob): Promise<void> {
     renderer.dispose();
     console.log(
       `${name} | ${pass} | ${job.renderer}: ${target} ${screenSpace ? 'frames' : 'samples'} in ${seconds(renderMs)} (setup ${seconds(renderStart - start)}) -> ${path.relative(process.cwd(), file)}`,
+    );
+  }
+
+  /** Blender is a single batch render, not a `LiveRenderer` with an incremental frame loop: its own branch. */
+  // oxlint-disable-next-line typescript/no-explicit-any -- headless SceneSetup import is dynamic (see main())
+  async function renderBlenderJob(
+    name: string,
+    pass: PassName,
+    setup: any,
+    canvas: HTMLCanvasElement,
+    width: number,
+    height: number,
+    start: number,
+  ): Promise<void> {
+    if (job.motion) throw new Error('blender: --motion is not supported');
+    if (job.ssrDebug) throw new Error('blender: --ssr-debug is not supported');
+    const { renderBlender } = await import('./blender.js');
+    const renderStart = performance.now();
+    const pixels = await renderBlender(setup, { width, height, pass, samples: job.samples, canvas });
+    const renderMs = performance.now() - renderStart;
+    const file = renderPath(name, pass, 'blender', job.outDir);
+    await mkdir(path.dirname(file), { recursive: true });
+    await sharp(pixels, { raw: { width, height, channels: 4 } })
+      .removeAlpha()
+      .avif(RESULT_AVIF)
+      .toFile(file);
+    console.log(
+      `${name} | ${pass} | blender: ${job.samples} samples in ${seconds(renderMs)} (setup ${seconds(renderStart - start)}) -> ${path.relative(process.cwd(), file)}`,
     );
   }
 }

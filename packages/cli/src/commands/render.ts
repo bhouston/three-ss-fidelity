@@ -9,6 +9,11 @@ import { selectNames } from '../select.js';
 
 const renderProcess = fileURLToPath(new URL('../render-process.js', import.meta.url));
 
+// Blender Cycles: a second ground-truth reference renderer, alongside three-gpu-pathtracer. It isn't a `LiveRenderer`
+// built by `createRenderer()` (one batch call, not incremental frames), so it's a CLI-layer renderer name, not part
+// of `@ss-fidelity/renderers`' `RendererName`.
+const cliRendererNames = [...rendererNames, 'blender'] as const;
+
 /** Runs one render-process job; resolves with its exit code. */
 export function run(job: RenderJob): Promise<number | null> {
   return new Promise((resolve, reject) => {
@@ -40,7 +45,11 @@ export const command = defineCommand({
       .option('scenes', { type: 'string', default: '*', describe: 'Scene name glob(s), comma separated' })
       .option('passes', { type: 'string', default: '*', describe: 'Pass name glob(s), comma separated' })
       .option('renderers', { type: 'string', default: '*', describe: 'Renderer name glob(s), comma separated' })
-      .option('samples', { type: 'number', default: 4096, describe: 'three-gpu-pathtracer samples per pixel' })
+      .option('samples', {
+        type: 'number',
+        default: 4096,
+        describe: 'three-gpu-pathtracer / blender samples per pixel',
+      })
       .option('frames', {
         type: 'number',
         describe: 'Screen-space renderer frames (default: each scene’s effects.frames)',
@@ -63,7 +72,7 @@ export const command = defineCommand({
   handler: async (argv) => {
     const scenes = selectNames(listSceneNames(), argv.scenes, 'scene');
     const passes = selectNames(passNames, argv.passes, 'pass') as RenderJob['passes'];
-    const renderers = selectNames(rendererNames, argv.renderers, 'renderer') as RenderJob['renderer'][];
+    const renderers = selectNames(cliRendererNames, argv.renderers, 'renderer') as RenderJob['renderer'][];
     let failed = false;
     // one child process per renderer, scene and pass: dawn and ANGLE don't share a process reliably, and GPU state leaked
     // from one scene's renderer into the next scene's (a red cast from ssgi-basic in ssr-steampunk-camera), so no

@@ -4,5 +4,9 @@ import { hideBin } from 'yargs/helpers';
 import { cliDocument, runCli } from './index.js';
 
 const argv = hideBin(process.argv);
-const document = await cliDocument();
-if (!(await handleOpenCliRequest(argv, () => document))) await runCli(argv);
+if (argv[0] === '__opencli') {
+  const document = await cliDocument();
+  await handleOpenCliRequest(argv, () => document);
+} else {
+  await runCli(argv);
+}

@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
-import { fromYargs } from '@clidoc/yargs';
+import type { OpenCliDocument } from '@clidoc/core';
+import { createDocgenCommand, fromYargsAsync } from '@clidoc/yargs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { fileCommands } from 'yargs-file-commands';
@@ -7,19 +8,25 @@ import { fileCommands } from 'yargs-file-commands';
 // Commands are the files in ./commands (list, render, compare, ...).
 async function loadCommands() {
   const commandsDir = fileURLToPath(new URL('./commands', import.meta.url));
-  return fileCommands({ commandDirs: [commandsDir], validation: true });
+  return fileCommands({ commandDirs: [commandsDir] });
 }
 
 /** OpenCLI document of this CLI (clidoc), served by `cli __opencli`. */
-export async function cliDocument() {
-  return fromYargs(await loadCommands(), { title: 'three-ss-fidelity', binary: 'cli', version: '0.1.0' });
+export async function cliDocument(): Promise<OpenCliDocument> {
+  const commands = await loadCommands();
+  const docgen = createDocgenCommand(() => cliDocument());
+  return fromYargsAsync([...commands, docgen], { title: 'three-ss-fidelity', binary: 'cli', version: '0.1.0' });
 }
 
 export async function runCli(argv = hideBin(process.argv)): Promise<void> {
+  const commands = await loadCommands();
+  const docgen = createDocgenCommand(() =>
+    fromYargsAsync([...commands, docgen], { title: 'three-ss-fidelity', binary: 'cli', version: '0.1.0' }),
+  );
   await yargs(argv)
     .scriptName('cli')
     .usage('$0 <command>')
-    .command(await loadCommands())
+    .command([...commands, docgen])
     .strictCommands()
     .demandCommand(1)
     .help()

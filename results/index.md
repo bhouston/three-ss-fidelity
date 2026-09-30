@@ -11,7 +11,3 @@ This viewer compares [three.js](https://threejs.org/) screen-space effects again
 Use the viewer controls to choose a reference renderer and an output: **Beauty**, **Direct**, or **Ambient occlusion**. Select a scene for a closer look. Delta images and error metrics help identify differences; some renderer/output combinations may not have results yet.
 
 Screen-space techniques only have access to the information visible to the camera, while path tracers can account for off-screen geometry and additional light bounces. Some visual differences are expected, especially for reflections, indirect illumination, and disoccluded regions.
-
-Want to contribute? [Explore the project, add test scenes, or report a rendering issue.](https://github.com/bhouston/three-ss-fidelity) See the [MaterialX fidelity suite](https://github.com/bhouston/mtlx-fidelity) for comparisons focused on MaterialX materials.
-
-Created by [Ben Houston](https://ben3d.ca). Results are scored and displayed with [fidelity-kit](https://github.com/bhouston/fidelity-kit).

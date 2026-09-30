@@ -135,6 +135,10 @@ pnpm exec oxfmt <changed files>
   won't show uncommitted changes inside them. Commit inside the submodule, push it, then commit the updated pointer
   here.
 
+## Results introduction
+
+Edit `results/index.md` to update the Markdown introduction above the comparisons. Fidelity-kit displays this file in the local viewer, static exports, and the deployed container. Keep its renderer descriptions in sync with `results/fidelity.json`.
+
 ## Documentation
 
 | Doc                                        | Topic                                                                                                                    |

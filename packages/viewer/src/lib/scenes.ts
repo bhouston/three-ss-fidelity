@@ -2,9 +2,13 @@
 export const RENDERERS = ['three-gpu-pathtracer', 'three-gpu-pathtracer-webgpu', 'three-current', 'three-new'] as const;
 export type RendererName = (typeof RENDERERS)[number];
 
+/** `RENDERERS` plus Blender Cycles: a second ground-truth reference with results but no live/interactive renderer. */
+export const RESULT_RENDERERS = [...RENDERERS, 'blender'] as const;
+export type ResultRendererName = (typeof RESULT_RENDERERS)[number];
+
 /** Every renderer scored against the reference: everything but three-gpu-pathtracer itself. */
-export const COMPARED_RENDERERS = RENDERERS.filter(
-  (name): name is Exclude<RendererName, 'three-gpu-pathtracer'> => name !== 'three-gpu-pathtracer',
+export const COMPARED_RENDERERS = RESULT_RENDERERS.filter(
+  (name): name is Exclude<ResultRendererName, 'three-gpu-pathtracer'> => name !== 'three-gpu-pathtracer',
 );
 
 /** Path tracers accumulate samples up to a cap instead of running forever. */
@@ -80,7 +84,7 @@ export interface SceneSummary {
   /** Path-traced reference image URL; absent when the file does not exist. */
   reference?: string;
   /** Keyed by compared renderer name; a renderer missing from a scene's results is simply absent here. */
-  renderers: Partial<Record<Exclude<RendererName, 'three-gpu-pathtracer'>, RendererResult>>;
+  renderers: Partial<Record<Exclude<ResultRendererName, 'three-gpu-pathtracer'>, RendererResult>>;
 }
 
 export const SORT_OPTIONS = [

@@ -47,7 +47,9 @@ else:
 scene.render.engine = "CYCLES"
 cycles = scene.cycles
 cycles.samples = job["samples"]
-cycles.use_adaptive_sampling = False
+# adaptive sampling only stops sampling a pixel early once it has converged within the threshold: free speed, no bias
+cycles.use_adaptive_sampling = True
+cycles.adaptive_threshold = 0.01
 cycles.use_denoising = False
 bounces = job["bounces"]
 cycles.max_bounces = bounces

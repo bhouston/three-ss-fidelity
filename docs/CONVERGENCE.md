@@ -1,7 +1,8 @@
 # Move-then-stop convergence benchmark
 
 The goal is a generic SSR/SSGI/TRAA stack that looks like the path-traced reference on general scenes, and that
-converges quickly to a great result once the camera stops. The single-image results (`cli render` + `cli compare`)
+converges quickly to a great result once the camera stops. The single-image results (`cli render` + `fidelity-kit
+process`)
 score a cold start at a fixed frame count, which is not how the renderers are used: a cold start happens once, at
 load. `cli converge` measures the case that matters.
 

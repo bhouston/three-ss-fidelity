@@ -4,10 +4,11 @@ three-ss-fidelity measures how close three.js screen-space effects (SSGI, SSR, T
 pre-pass they depend on) get to a path-traced ground truth. It is the test harness for significantly improving those
 effects, which is done in a fork of three.js. Each scene is rendered by the screen-space pipeline and by
 [three-gpu-pathtracer](https://github.com/gkjohnson/three-gpu-pathtracer). The images are diffed and scored, and the
-results can be browsed in a web viewer, along with a live view of every scene in every renderer.
+results can be browsed in a web viewer.
 
-The suite follows the design of the sibling [material-fidelity](https://github.com/bhouston/mtlx-fidelity) project: a scene registry, a
-renderer package, a CLI that renders and compares, and a TanStack Start viewer over committed results.
+The suite follows the design of the sibling [material-fidelity](https://github.com/bhouston/mtlx-fidelity) project: a
+scene registry, a renderer package, a CLI that renders, and [fidelity-kit](https://github.com/bhouston/fidelity-kit)
+for scoring, diffing, and viewing the committed results.
 
 Workflow rules (issues, branches, Conventional Commits, PRs, required checks) are in
 [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -16,9 +17,9 @@ Workflow rules (issues, branches, Conventional Commits, PRs, required checks) ar
 
 1. Change an effect in `submodules/three.js`, or in a vendored node under `packages/renderers/src/` (see below).
 2. Render the affected scenes: `pnpm cli render --scenes 'ssr-*' --renderers three-new`.
-3. Score them against the path tracer: `pnpm cli compare --scenes 'ssr-*' --renderers three-new`.
+3. Score them against the path tracer: `pnpm exec fidelity-kit process results`.
 4. Check for regressions: `pnpm cli quality-gate <baseline> <candidate>` (mean-RMSE threshold, default 1 %), e.g.
-   against results rendered before the change into another `--output`.
+   against results rendered before the change into another `--results`.
 5. For temporal and real-time work, also run `pnpm cli converge` (image quality after a camera move) and
    `pnpm cli bench` (frame time).
 6. Commit the updated `results/` and record the findings in the matching doc (see [Documentation](#documentation)).
@@ -33,9 +34,8 @@ submodules/three.js              bhouston/three.js @ ssgi-traa-redesign: the for
 submodules/three-gpu-pathtracer  bhouston/three-gpu-pathtracer @ ss-fidelity: the ground-truth renderer
 packages/scenes     @ss-fidelity/scenes     renderer-agnostic scene definitions + registry (browser and node)
 packages/renderers  @ss-fidelity/renderers  screen-space pipeline and path-tracer adapters behind one LiveRenderer API
-packages/cli        @ss-fidelity/cli        headless render / compare / converge / bench / quality-gate
-packages/viewer     @ss-fidelity/viewer     TanStack Start site: results grid, scene detail, live renderers
-results/<scene>/<pass>/                     committed render output and metrics (~935 files, ~27 MB)
+packages/cli        @ss-fidelity/cli        headless render / converge / bench / quality-gate
+results/<scene>/<pass>/                     committed render output; scored/viewed with fidelity-kit
 docs/                                       THREE-NEW.md, plans, benchmark write-ups; docs/history/ holds the experiment logs
 scripts/                                    one-off metric and experiment scripts (gi-*, ssr-*, traa-*) + check-pr.mjs
 ```
@@ -83,33 +83,32 @@ state leaked between scenes. Headless GPU comes from `src/headless/webgpu.ts` (d
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cli list [--verbose]`                | List scene names.                                                                                                                                                                       |
 | `cli render`                          | Write `results/<scene>/<pass>/<renderer>.avif`. `--scenes/--passes/--renderers` take comma-separated globs; also `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`. |
-| `cli compare`                         | Write `delta-<renderer>.avif` + `metrics-<renderer>.json` (PSNR, RMSE, MAE, max error vs the path tracer).                                                                              |
-| `cli quality-gate <base> <candidate>` | Fail if the candidate's mean RMSE regresses by more than `--threshold`.                                                                                                                 |
+| `cli quality-gate <base> <candidate>` | Fail if the candidate's mean RMSE (from `fidelity-kit process`'s metrics) regresses by more than `--threshold`.                                                                         |
 | `cli converge`                        | Move-then-stop benchmark: write `results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                         |
 | `cli bench --renderers a,b`           | Steady-state ms/frame, and A/B speedup when two renderers are given; `--gpu` for timestamp queries ([docs/PERF.md](docs/PERF.md)).                                                      |
 
 Run `pnpm cli <command> --help` for all flags. `pnpm cli` runs the built `dist/`, so run `pnpm build` (or `pnpm dev`)
 after changing sources.
 
-### `packages/viewer`
+### Viewer
 
-A TanStack Start + React + Tailwind site on port 3000 (`pnpm viewer`). It serves `results/` through
-`src/routes/api/results/$.ts` and the three.js example assets through `src/routes/three-examples/$.ts`.
+[fidelity-kit](https://github.com/bhouston/fidelity-kit) scores and serves `results/` directly; there is no custom
+viewer package. `results/fidelity.json` declares the renderers (`three-gpu-pathtracer` and `blender` are references)
+and outputs (`beauty`, `direct`, `ao`).
 
-- `/` is the results grid.
-- `/scenes/$name` shows a scene's images, delta images and metrics.
-- `/scenes/$name/live/$renderer` renders a scene live in the browser.
+- `pnpm fidelity:dev` serves the results grid and scene detail views at `localhost:3000`, uncached.
+- `pnpm fidelity:build` exports a static site to `site/`.
 
-Merging to `main` deploys it to Cloud Run (`packages/viewer/Dockerfile`).
+Merging to `main` deploys it to Cloud Run (root `Dockerfile`, which runs `fidelity-kit serve`).
 
 ## Results
 
 `results/<scene>/<pass>/` is committed and holds:
 
-- `three-gpu-pathtracer.avif`: the reference.
+- `three-gpu-pathtracer.avif` / `blender.avif`: the two references.
 - `<renderer>.avif`: each screen-space render.
-- `delta-<renderer>.avif`: an inferno-colormapped error image.
-- `metrics-<renderer>.json`: the scores against the reference.
+- `<renderer>.vs-<reference>.delta.avif` / `.metrics.json`: written by `fidelity-kit process`
+  (PSNR, RMSE, MAE, max error vs the reference).
 - `converge-<renderer>.json` (beauty only): the convergence curve.
 
 Images are AVIF q90 4:4:4 (`RESULT_AVIF` in `packages/cli/src/compare.ts`). Not every renderer is rendered for every

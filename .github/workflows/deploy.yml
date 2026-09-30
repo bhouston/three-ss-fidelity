@@ -11,7 +11,7 @@ jobs:
     uses: ./.github/workflows/deploy-service.yml
     with:
       service_name: three-ss-fidelity
-      dockerfile: packages/viewer/Dockerfile
+      dockerfile: Dockerfile
       context: .
     secrets:
       GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}

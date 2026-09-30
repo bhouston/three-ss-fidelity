@@ -33,9 +33,21 @@ time through TRAA and the temporal filters.
    - AO and GI are denoised by the fork's temporal reprojection and recurrent denoiser.
    - Visibility-bitmask sectors are rounded at both horizons (stock three.js floors the start and takes the ceiling
      of the width). A flat surface's own samples no longer occlude a sector through precision noise, so
-     camera-facing flat surfaces reach AO 1 (stock stays at about 0.93). AO RMSE falls 10–16 % in most scenes. Oblique
-     flat surfaces still sit about 0.1 low from another cause. SSGI beauty RMSE rises about 6 %, because the
-     GI shares the sector counts and the over-count had been adding energy to an estimate that was already dark.
+     camera-facing flat surfaces reach AO 1 (stock stays at about 0.93). AO RMSE falls 10–16 % in most scenes. SSGI
+     beauty RMSE rose about 6 %, because the GI shares the sector counts and the over-count had been adding energy to
+     an estimate that was already dark (undone by the next two fixes).
+   - Oblique flat surfaces (#52): samples are snapped to depth texel centers, and each sample's horizon is its angle
+     from the slice's tangent, placed above or below the tangent plane by its elevation (dot with the normal), instead
+     of its angle to the view direction. The depth was read from one texel while the position was rebuilt at the
+     fractional sample UV, which puts samples off the surface; and a snapped sample lies up to half a texel off the
+     slice plane, where its angle to the view direction no longer matches the slice's horizon. On a 65° wall, a
+     sample one pixel away then sits a sector or more inside the hemisphere. A CPU replay of the loop on
+     ssgi-basic's exact geometry in float64 gives the same 0.87 as the GPU, so it isn't precision, TRAA jitter, the
+     normal buffer (depth-derived normals give the same), GTAOFastAcos, or the denoiser (≈0.01). ssgi-basic walls,
+     floor and ceiling go from 0.86–0.88 to 0.99 (reference 0.97–1.0). AO RMSE falls 5–22 % (ssgi-basic 0.1056 →
+     0.0930), SSGI beauty RMSE 1–19 % (ssgi-basic 0.0719 → 0.0606). Exceptions: gltf-littlest-tokyo AO +2 % (its
+     path-traced AO reference is almost black, so any lighter AO scores worse) and higharc_dogwood beauty +2 %.
+     The SSGI pass costs roughly 10 % more at 8 slices × 32 steps (timed on a shared, noisy GPU).
 4. **SSR** (`ssr/NewSSRNode.js`):
    - Stochastic VNDF rays over the full GGX lobe, for metals and dielectrics alike.
    - Hits read the previous anti-aliased frame. Their specular is re-evaluated for the reflected direction, and

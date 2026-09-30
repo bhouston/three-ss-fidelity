@@ -151,8 +151,10 @@ incremental frame loop, so it's a CLI-only renderer name (`RenderJob.renderer: R
 - `pnpm cli render --renderers blender --scenes <name> --passes beauty` (or `direct`) shells out to Blender
   (`$BLENDER_EXECUTABLE`, else a discovered `/Applications/Blender*.app` on macOS, else `blender` on PATH) in
   `--background --factory-startup --python packages/cli/blender/render.py` mode and writes
-  `results/<scene>/<pass>/blender.avif`, same as any other renderer. `--samples` sets Cycles' sample count (unbiased,
-  no denoising, no clamping, box filter — matching the pathtracer's own settings).
+  `results/<scene>/<pass>/blender.avif`, same as any other renderer. `--samples` sets Cycles' max sample count
+  (unbiased: no denoising, no clamping, box filter — matching the pathtracer's own settings). Adaptive sampling
+  (`adaptive_threshold` 0.01) is on, so converged pixels stop sampling before the max — free speed, not a bias
+  source, since it only changes when sampling stops, not what a fully sampled pixel's value would be.
 - The scene is exported as glTF (`GLTFExporter`) plus its lighting environment as an equirect EXR
   (`environmentEquirect()` in `packages/renderers/src/pathtracer.ts`, reusing the same cube-camera bake the pathtracer
   uses for `SceneSetup.environment`, then `CubeToEquirectGenerator`). Blender path traces to a linear EXR, which

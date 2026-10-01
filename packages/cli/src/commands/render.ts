@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { hierarchyExperiments, passNames, rendererNames } from '@ss-fidelity/renderers';
+import { hierarchyExperiments, rendererNames } from '@ss-fidelity/renderers';
 import { listSceneNames } from '@ss-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
 import { resultsDir } from '../paths.js';
@@ -39,7 +39,7 @@ function parseMotion(value: string | undefined, objectValue: string | undefined)
 
 export const command = defineCommand({
   command: 'render',
-  describe: 'Render scenes with renderers into results/<scene>/<pass>/<renderer>.avif',
+  describe: 'Render scenes with renderers into results/<scene>/beauty/<renderer>.avif',
   builder: (yargs) =>
     yargs
       .option('experiment', {
@@ -49,7 +49,6 @@ export const command = defineCommand({
         describe: 'three-new: optional hierarchical experiment',
       })
       .option('scenes', { type: 'string', default: '*', describe: 'Scene name glob(s), comma separated' })
-      .option('passes', { type: 'string', default: '*', describe: 'Pass name glob(s), comma separated' })
       .option('renderers', { type: 'string', default: '*', describe: 'Renderer name glob(s), comma separated' })
       .option('width', { type: 'number', describe: 'Override native scene width' })
       .option('height', { type: 'number', describe: 'Override native scene height' })
@@ -79,35 +78,31 @@ export const command = defineCommand({
       .option('output', { type: 'string', default: resultsDir, describe: 'Results directory' }),
   handler: async (argv) => {
     const scenes = selectNames(listSceneNames(), argv.scenes, 'scene');
-    const passes = selectNames(passNames, argv.passes, 'pass') as RenderJob['passes'];
     const renderers = selectNames(cliRendererNames, argv.renderers, 'renderer') as RenderJob['renderer'][];
     if (argv.experiment !== 'baseline' && renderers.some((name) => name !== 'three-new')) {
       throw new Error('--experiment requires --renderers three-new');
     }
     let failed = false;
-    // one child process per renderer, scene and pass: dawn and ANGLE don't share a process reliably, and GPU state leaked
+    // one child process per renderer and scene: dawn and ANGLE don't share a process reliably, and GPU state leaked
     // from one scene's renderer into the next scene's (a red cast from ssgi-basic in ssr-steampunk-camera), so no
     // result may depend on what rendered before it
     for (const renderer of renderers) {
       for (const scene of scenes) {
-        for (const pass of passes) {
-          const code = await run({
-            renderer,
-            scenes: [scene],
-            passes: [pass],
-            outDir: argv.output,
-            frames: argv.frames,
-            width: argv.width,
-            height: argv.height,
-            samples: argv.samples,
-            motion: parseMotion(argv.motion, argv.motionObject),
-            ssrDebug: argv.ssrDebug,
-            hierarchyExperiment: argv.experiment as RenderJob['hierarchyExperiment'],
-          });
-          if (code !== 0) {
-            console.error(`${scene} | ${pass} | ${renderer} failed (exit code ${code})`);
-            failed = true;
-          }
+        const code = await run({
+          renderer,
+          scenes: [scene],
+          outDir: argv.output,
+          frames: argv.frames,
+          width: argv.width,
+          height: argv.height,
+          samples: argv.samples,
+          motion: parseMotion(argv.motion, argv.motionObject),
+          ssrDebug: argv.ssrDebug,
+          hierarchyExperiment: argv.experiment as RenderJob['hierarchyExperiment'],
+        });
+        if (code !== 0) {
+          console.error(`${scene} | ${renderer} failed (exit code ${code})`);
+          failed = true;
         }
       }
     }

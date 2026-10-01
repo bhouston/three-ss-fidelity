@@ -1,20 +1,19 @@
 // Child process entry of `cli bench`: measures one renderer's steady-state frame time across scenes. Each GPU
 // backend (dawn, ANGLE) gets its own process, matching render-process.ts, and the process exits explicitly.
 import { writeFile } from 'node:fs/promises';
-import type { HierarchyExperiment, PassName, RendererName } from '@ss-fidelity/renderers';
+import type { HierarchyExperiment, RendererName } from '@ss-fidelity/renderers';
 
 export interface BenchJob {
   hierarchyExperiment?: HierarchyExperiment;
   renderer: RendererName;
   scenes: string[];
-  pass: PassName;
   width: number;
   height: number;
   /** Frames rendered (and GPU-synced) before measuring, so shader compilation and temporal history settle. */
   warmup: number;
   /** Frames measured in total, in batches of BATCH back-to-back submits per GPU sync. */
   measure: number;
-  /** Where to write this renderer's { renderer, pass, scenes } JSON. */
+  /** Where to write this renderer's { renderer, scenes } JSON. */
   out: string;
   /**
    * Screen-space renderers only: create with `trackTimestamp: true` and report WebGPU timestamp-query GPU ms
@@ -127,7 +126,6 @@ async function main(job: BenchJob): Promise<void> {
     const live = await createRenderer(job.renderer, canvas, setup, {
       width: job.width,
       height: job.height,
-      pass: job.pass,
       trackTimestamp,
       hierarchyExperiment: job.hierarchyExperiment,
     });
@@ -222,7 +220,7 @@ async function main(job: BenchJob): Promise<void> {
   }
   await writeFile(
     job.out,
-    `${JSON.stringify({ experiment: job.hierarchyExperiment ?? 'baseline', renderer: job.renderer, pass: job.pass, scenes: results }, null, 2)}\n`,
+    `${JSON.stringify({ experiment: job.hierarchyExperiment ?? 'baseline', renderer: job.renderer, scenes: results }, null, 2)}\n`,
   );
 }
 

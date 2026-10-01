@@ -90,7 +90,7 @@ function checkerSetup(): SceneSetup {
   camera.position.set(0, 1.1, 2.6);
   const target = new Vector3(0, 0.4, -1.8);
   camera.lookAt(target);
-  return { scene: checkerScene(), camera, target, effects, aoRadius: 1 };
+  return { scene: checkerScene(), camera, target, effects };
 }
 
 /** A static background checker plane plus an opaque foreground slab that CLI `--motion-object` slides across it. */
@@ -114,7 +114,7 @@ function disocclusionSetup(): SceneSetup {
   camera.position.set(0, 0.9, 2.6);
   const target = new Vector3(0, 0.8, -2.2);
   camera.lookAt(target);
-  return { scene, camera, target, effects, aoRadius: 1 };
+  return { scene, camera, target, effects };
 }
 
 function diagnostic(name: string, description: string, create: () => SceneSetup): SceneDefinition {

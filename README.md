@@ -18,7 +18,7 @@ Workflow rules (issues, branches, Conventional Commits, PRs, required checks) ar
 1. Change an effect in `submodules/three.js`, or in a vendored node under `packages/renderers/src/` (see below).
 2. Render the affected scenes: `pnpm cli render --scenes 'ssr-*' --renderers three-new`.
 3. Score them against the path tracer: `pnpm exec fidelity-kit process results`.
-4. Check for regressions: `pnpm cli quality-gate <baseline> <candidate>` (per-scene/pass PSNR drop threshold, default 0.1 dB), e.g.
+4. Check for regressions: `pnpm cli quality-gate <baseline> <candidate>` (per-scene PSNR-drop threshold, default 0.1 dB), e.g.
    against results rendered before the change into another `--results`.
 5. For temporal and real-time work, also run `pnpm cli converge` (image quality after a camera move) and
    `pnpm cli bench` (frame time).
@@ -32,10 +32,12 @@ and why is in [docs/THREE-NEW.md](docs/THREE-NEW.md).
 ```
 submodules/three.js              bhouston/three.js @ ssgi-traa-redesign: the fork with the SSGI/SSR/TRAA nodes
 submodules/three-gpu-pathtracer  bhouston/three-gpu-pathtracer @ ss-fidelity: the ground-truth renderer
+submodules/fidelity-kit-blender bhouston/fidelity-kit-blender: reusable Blender Cycles rendering
+submodules/fidelity-kit-three-gpu-pathtracer bhouston/fidelity-kit-three-gpu-pathtracer: reusable legacy WebGL rendering
 packages/scenes     @ss-fidelity/scenes     renderer-agnostic scene definitions + registry (browser and node)
 packages/renderers  @ss-fidelity/renderers  screen-space pipeline and path-tracer adapters behind one LiveRenderer API
 packages/cli        @ss-fidelity/cli        headless render / converge / bench / quality-gate
-results/<scene>/<pass>/                     committed render output; scored/viewed with fidelity-kit
+results/<scene>/beauty/                     committed render output; scored/viewed with fidelity-kit
 docs/                                       THREE-NEW.md, plans, benchmark write-ups; docs/history/ holds the experiment logs
 scripts/                                    one-off metric and experiment scripts (gi-*, ssr-*, traa-*) + check-pr.mjs
 ```
@@ -47,7 +49,7 @@ in `submodules/three.js`. There is only ever one copy of three.
 
 - `src/types.ts` holds the contract. A `SceneDefinition` has a `name`, `description`, `width`/`height` and an async
   `create(ctx)`, which returns a `SceneSetup`: the scene, camera, orbit `target`, `effects` (SSGI/SSR parameters,
-  `temporalDenoise`, tone mapping, `frames` to render before capture) and `aoRadius`.
+  `temporalDenoise`, tone mapping, `frames` to render before capture).
 - `src/index.ts` is the registry (`listSceneNames`, `getScene`). Scene families each live in their own file:
   `ssgi.ts`, `ssr.ts` (steampunk), `ssr-diagnostics.ts` (`ssr-diag-*`), `gi-diagnostics.ts` and
   `gi-visible-walls.ts` (`gi-*`), `traa-diagnostics.ts` (`traa-*`), `gltf-examples.ts` (`gltf-*`), `higharc.ts`.
@@ -58,11 +60,11 @@ in `submodules/three.js`. There is only ever one copy of three.
 
 ### `packages/renderers`
 
-- `src/types.ts` defines `rendererNames`, `passNames` (`beauty`, `direct`, `ao`), `RendererOptions` and the
+- `src/types.ts` defines `rendererNames`, `RendererOptions` and the
   `LiveRenderer` interface (`render`/`setSize`/`setCamera`/`dispose`).
 - `src/index.ts` has `createRenderer`, which dispatches a renderer name to its adapter.
 - `src/three-new.ts` is the improved pipeline (WebGPURenderer + SSGI/SSR/TRAA/denoise), `src/three-current.ts` the
-  stock r186 one, and `src/pathtracer.ts` adapts three-gpu-pathtracer.
+  stock r186 one, and the WebGL path tracer calls `fidelity-kit-three-gpu-pathtracer` directly.
 - `src/ssr/NewSSRNode.js` and `src/ssgi-fast/SSGINode.js` are vendored nodes. They are developed here instead of in
   the submodule.
 
@@ -79,13 +81,13 @@ process** (`render-process.ts`, `bench-process.ts`), because dawn and ANGLE don'
 state leaked between scenes. Headless GPU comes from `src/headless/webgpu.ts` (dawn, the `webgpu` package) and
 `src/headless/webgl.ts` (`@onirenaud/node-webgl`, ANGLE). `Math.random` is seeded, so renders are reproducible.
 
-| Command                               | Does                                                                                                                                                                                                                           |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `cli list [--verbose]`                | List scene names.                                                                                                                                                                                                              |
-| `cli render`                          | Write `results/<scene>/<pass>/<renderer>.avif`. `--scenes/--passes/--renderers` take comma-separated globs; also `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`, `--experiment`, `--width`, `--height`. |
-| `cli quality-gate <base> <candidate>` | Fail if the candidate's PSNR (from `fidelity-kit process`'s metrics) drops by more than `--threshold` dB on any scene/pass.                                                                                                    |
-| `cli converge`                        | Move-then-stop benchmark: write `results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                                                                |
-| `cli bench --renderers a,b`           | Steady-state ms/frame, and A/B speedup when two renderers are given; `--experiment` selects optional hierarchical variants; `--gpu` for timestamp queries ([docs/PERF.md](docs/PERF.md)).                                      |
+| Command                               | Does                                                                                                                                                                                                                  |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cli list [--verbose]`                | List scene names.                                                                                                                                                                                                     |
+| `cli render`                          | Write `results/<scene>/beauty/<renderer>.avif`. `--scenes/--renderers` take comma-separated globs; also `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`, `--experiment`, `--width`, `--height`. |
+| `cli quality-gate <base> <candidate>` | Fail if the candidate's PSNR (from `fidelity-kit process`'s metrics) drops by more than `--threshold` dB on any scene.                                                                                                |
+| `cli converge`                        | Move-then-stop benchmark: write `results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                                                       |
+| `cli bench --renderers a,b`           | Steady-state ms/frame, and A/B speedup when two renderers are given; `--experiment` selects optional hierarchical variants; `--gpu` for timestamp queries ([docs/PERF.md](docs/PERF.md)).                             |
 
 Run `pnpm cli <command> --help` for all flags. `pnpm cli` runs the built `dist/`, so run `pnpm build` (or `pnpm dev`)
 after changing sources.
@@ -94,7 +96,7 @@ after changing sources.
 
 [fidelity-kit](https://github.com/bhouston/fidelity-kit) scores and serves `results/` directly; there is no custom
 viewer package. `results/fidelity.json` declares the renderers (`three-gpu-pathtracer` and `blender` are references)
-and outputs (`beauty`, `direct`, `ao`).
+and the single implicit beauty output.
 
 - `pnpm fidelity:dev` serves the results grid and scene detail views at `localhost:3000`, uncached.
 - `pnpm fidelity:build` exports a static site to `site/`.
@@ -103,7 +105,7 @@ Merging to `main` deploys `site/` to GitHub Pages at <https://ss-fidelity.ben3d.
 
 ## Results
 
-`results/<scene>/<pass>/` is committed and holds:
+`results/<scene>/beauty/` is committed and holds:
 
 - `three-gpu-pathtracer.avif` / `blender.avif`: the two references.
 - `<renderer>.avif`: each screen-space render.
@@ -111,8 +113,7 @@ Merging to `main` deploys `site/` to GitHub Pages at <https://ss-fidelity.ben3d.
   (PSNR vs the reference).
 - `converge-<renderer>.json` (beauty only): the convergence curve.
 
-Images are AVIF q90 4:4:4 (`RESULT_AVIF` in `packages/cli/src/compare.ts`). Not every renderer is rendered for every
-pass: `direct`/`ao` exist only for some renderers.
+Images are AVIF q90 4:4:4 (`RESULT_AVIF` in `packages/cli/src/compare.ts`). All renderers produce full beauty images; there is no pass selector. Historical AO/direct images remain as archived artifacts and are excluded from the active viewer configuration.
 
 Path-tracer references are slow (4096 spp). Regenerate them only when a scene changes, with
 `pnpm cli render --renderers three-gpu-pathtracer --scenes <name>`.
@@ -150,3 +151,5 @@ Edit `results/README.md` to update the Markdown introduction above the compariso
 | [docs/history/](docs/history/)             | Experiment logs (SSGI estimator, SSR correctness/speed/real-time, SSGI speed, TRAA tests), under the old renderer names. |
 
 The JSON and PNG files in `docs/history/` are the data behind those logs. Most were produced by the scripts in `scripts/`.
+
+Blender reference rendering calls `fidelity-kit-blender/three` directly. Set `BLENDER_EXECUTABLE` to choose an installation; otherwise the package discovers Blender on PATH or in macOS Applications. The suite explicitly bakes procedural IBL and passes environment intensity/rotation, background, bounce count, and Three.js tone-mapping/sRGB settings. The package owns GLB export, camera/light translation, Blender execution, and linear output processing. Unsupported suite features emit diagnostics.

@@ -18,10 +18,6 @@ export function hierarchyImageName(renderer: string, experiment?: HierarchyExper
   return experiment && experiment !== 'baseline' ? `${renderer}-${experiment}` : renderer;
 }
 
-/** What is rendered: render settings applied to every scene (not scene settings). */
-export const passNames = ['beauty', 'direct', 'ao'] as const;
-export type PassName = (typeof passNames)[number];
-
 export interface RendererOptions {
   /** three-new only; rebuild the pipeline when changing this option. */
   hierarchyExperiment?: HierarchyExperiment;
@@ -35,12 +31,6 @@ export interface RendererOptions {
    * 'hitcolor' shows the scene color the hit read.
    */
   ssrDebug?: 'hits' | 'hitcolor';
-  /**
-   * beauty: the full image, each renderer with its complete pipeline.
-   * direct: first-hit lighting only (screen-space renderers without SSGI/SSR, the pathtracer with a single scatter).
-   * ao: ambient occlusion within `SceneSetup.aoRadius`, written linear (1 = unoccluded, also for the background).
-   */
-  pass: PassName;
 }
 
 /** Incremental renderer over one scene: call render() once per animation frame (browser) or in a loop (node). */

@@ -61,7 +61,7 @@ function setup(fov = 65): SceneSetup {
   camera.position.set(0, 4, 4);
   const target = new Vector3(0, 0, 0);
   camera.lookAt(target);
-  return { scene, camera, target, effects: effects(), aoRadius: 4 };
+  return { scene, camera, target, effects: effects() };
 }
 
 function floor(scene: Scene, surface: MeshPhysicalMaterial): void {

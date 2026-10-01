@@ -3,7 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { hierarchyExperiments, passNames, rendererNames } from '@ss-fidelity/renderers';
+import { hierarchyExperiments, rendererNames } from '@ss-fidelity/renderers';
 import { listSceneNames } from '@ss-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
 import type { BenchJob, SceneBenchResult } from '../bench-process.js';
@@ -33,7 +33,6 @@ export const command = defineCommand({
         describe: 'three-new: optional hierarchical experiment',
       })
       .option('scenes', { type: 'string', default: '*', describe: 'Scene name glob(s), comma separated' })
-      .option('pass', { type: 'string', default: 'beauty', choices: passNames, describe: 'Pass to benchmark' })
       .option('width', { type: 'number', default: 1920 })
       .option('height', { type: 'number', default: 1080 })
       .option('warmup', { type: 'number', default: 60, describe: 'Frames rendered (and GPU-synced) before measuring' })
@@ -63,7 +62,6 @@ export const command = defineCommand({
         const code = await run({
           renderer: renderer as BenchJob['renderer'],
           scenes,
-          pass: argv.pass as BenchJob['pass'],
           width: argv.width,
           height: argv.height,
           warmup: argv.warmup,

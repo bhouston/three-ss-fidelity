@@ -64,7 +64,6 @@ for (const kind of ['highResolution', 'motion'])
         renderer: 'three-new',
         hierarchyExperiment: variant,
         scenes: [scene],
-        passes: ['beauty'],
         frames,
         samples: 4096,
         outDir: path.join(out, kind),

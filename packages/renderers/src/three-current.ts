@@ -9,7 +9,6 @@ import {
   DirectionalLightNode,
   HemisphereLightNode,
   LightProbeNode,
-  LinearSRGBColorSpace,
   PMREMGenerator,
   PointLightNode,
   RectAreaLightNode,
@@ -37,7 +36,6 @@ import {
   smoothstep,
   unpackRGBToNormal,
   vec2,
-  vec3,
   vec4,
   velocity,
 } from 'three-r186/tsl';
@@ -45,7 +43,6 @@ import { ssgi } from 'three-r186/addons/tsl/display/SSGINode.js';
 import { ssr } from 'three-r186/addons/tsl/display/SSRNode.js';
 import { traa } from 'three-r186/addons/tsl/display/TRAANode.js';
 import type { SceneSetup } from '@ss-fidelity/scenes';
-import { passEffects } from './three-new.js';
 import type { LiveRenderer, RendererOptions } from './types.js';
 
 // Scene graphs come from the fork's `three` and are rendered by the npm copy. The renderer is duck-typed (isMesh,
@@ -63,7 +60,7 @@ const forkLights: [AnyNode, AnyNode][] = [
   [LightProbeNode, Fork.LightProbe],
 ];
 
-function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: boolean): RenderPipeline {
+function createPipeline(renderer: WebGPURenderer, setup: SceneSetup): RenderPipeline {
   const { scene, camera, effects } = setup as AnyNode as {
     scene: AnyNode;
     camera: AnyNode;
@@ -113,12 +110,6 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: b
       ao = mix(ao, float(1), fade);
       gi = gi.mul(fade.oneMinus());
     }
-    if (aoOutput) {
-      // the ssgi example's "AO" output (TRAA-resolved like its combined output); background pixels are unoccluded
-      const background = scenePassDepth.sample(screenUV).r.greaterThanEqual(1);
-      renderPipeline.outputNode = antialias(vec4(vec3(background.select(float(1), ao)), 1));
-      return renderPipeline;
-    }
     scenePass.getTexture('diffuseColor').type = UnsignedByteType;
     const scenePassDiffuse: AnyNode = scenePass.getTextureNode('diffuseColor');
     composite = vec4(scenePassColor.rgb.mul(ao).add(scenePassDiffuse.rgb.mul(gi)), scenePassColor.a);
@@ -149,9 +140,9 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup, aoOutput: b
 export async function createCurrentRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
-  { width, height, pass: renderPass, trackTimestamp = false }: RendererOptions,
+  { width, height, trackTimestamp = false }: RendererOptions,
 ): Promise<LiveRenderer> {
-  const setup = { ...sceneSetup, effects: passEffects(sceneSetup, renderPass) };
+  const setup = sceneSetup;
   const { scene, camera, effects } = setup;
   // SSGI + SSR + TRAA scenes need all five attachments (40 bytes/sample, over WebGPU's default 32)
   const renderer = new WebGPURenderer({
@@ -162,7 +153,6 @@ export async function createCurrentRenderer(
   } as AnyNode);
   for (const [lightNode, light] of forkLights) renderer.library.addLight(lightNode, light);
   renderer.shadowMap.enabled = true;
-  if (renderPass === 'ao') renderer.outputColorSpace = LinearSRGBColorSpace;
   renderer.toneMapping = effects.toneMapping;
   renderer.toneMappingExposure = effects.toneMappingExposure;
   await renderer.init();
@@ -181,7 +171,7 @@ export async function createCurrentRenderer(
     pmremGenerator.dispose();
   }
 
-  const renderPipeline = createPipeline(renderer, setup, renderPass === 'ao');
+  const renderPipeline = createPipeline(renderer, setup);
   let frames = 0;
   const handle: LiveRenderer = {
     name: 'three-current',

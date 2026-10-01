@@ -18,11 +18,11 @@ describe('converge metrics', () => {
       frames.map((frame, i) => ({ frame, image: image(values[i]!) })),
     );
     expect(samples).toHaveLength(4);
-    expect(summary.atStop).toBeCloseTo(60 / 255);
-    expect(summary.after16).toBeCloseTo(20 / 255);
-    expect(summary.final).toBe(0);
+    expect(summary.atStop).toBeCloseTo(20 * Math.log10(255 / 60));
+    expect(summary.after16).toBeCloseTo(20 * Math.log10(255 / 20));
+    expect(summary.final).toBeNull();
     expect(summary.finalBias).toBe(0);
-    expect(summary.flicker).toBeCloseTo(1 / 255);
+    expect(summary.flicker).toBeCloseTo(20 * Math.log10(255));
   });
 
   it('needs the last two captures to be consecutive frames', () => {

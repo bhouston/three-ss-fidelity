@@ -5,7 +5,8 @@ import { createThreeNewRenderer } from './three-new.js';
 import { createCurrentRenderer } from './three-current.js';
 import { createRenderer as createPathTracerRenderer } from 'fidelity-kit-three-gpu-pathtracer';
 import { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
-import type { RendererName } from './types.js';
+import { hierarchyExperiments, hierarchyImageName } from './types.js';
+import type { RendererName, HierarchyExperiment } from './types.js';
 
 vi.mock('./three-new.js', () => ({ createThreeNewRenderer: vi.fn() }));
 vi.mock('./three-current.js', () => ({ createCurrentRenderer: vi.fn() }));
@@ -48,4 +49,35 @@ it('rejects unknown renderer names rather than silently choosing a method', () =
   expect(createThreeNewRenderer).not.toHaveBeenCalled();
   expect(createPathTracerRenderer).not.toHaveBeenCalled();
   expect(createWebGPUPathTracerRenderer).not.toHaveBeenCalled();
+});
+
+it('rejects experiments on other renderers before initializing a GPU', () => {
+  const options = { width: 640, height: 480, hierarchyExperiment: 'ssr-hiz-tight' as const };
+  expect(() => createRenderer('three-current', {} as HTMLCanvasElement, {} as SceneSetup, options)).toThrow(
+    'require the three-new',
+  );
+  expect(createCurrentRenderer).not.toHaveBeenCalled();
+  createRenderer('three-new', {} as HTMLCanvasElement, {} as SceneSetup, options);
+  expect(createThreeNewRenderer).toHaveBeenCalledWith({}, {}, options);
+});
+
+it('rejects misspelled experiment names instead of quietly benchmarking the baseline', () => {
+  expect(() =>
+    createRenderer('three-new', {} as HTMLCanvasElement, {} as SceneSetup, {
+      width: 640,
+      height: 480,
+      hierarchyExperiment: 'ssr-hzi-tight' as HierarchyExperiment,
+    }),
+  ).toThrow('Unknown hierarchical experiment');
+  expect(createThreeNewRenderer).not.toHaveBeenCalled();
+});
+
+it('uses suite-compatible experiment image identifiers while preserving baseline names', () => {
+  expect(hierarchyImageName('three-new')).toBe('three-new');
+  expect(hierarchyImageName('three-new', 'baseline')).toBe('three-new');
+  for (const experiment of hierarchyExperiments.filter((name) => name !== 'baseline')) {
+    const label = hierarchyImageName('three-new', experiment);
+    expect(label).toBe(`three-new-${experiment}`);
+    expect(label).toMatch(/^[a-z0-9][a-z0-9._-]*$/);
+  }
 });

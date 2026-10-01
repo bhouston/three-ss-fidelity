@@ -4,22 +4,22 @@ import { compareRgb, type RawImage } from './compare.js';
 export interface ConvergeSample {
   /** Frames at rest after the camera arrived at the reference pose (0 = the arrival frame). */
   frame: number;
-  rmse: number;
+  psnr: number | null;
   /** Mean signed error over all pixels and channels relative to the reference's mean: -0.05 = 5 % too dark. */
   bias: number;
 }
 
 export interface ConvergeSummary {
-  /** RMSE on the arrival frame: quality while moving. */
-  atStop: number;
-  /** RMSE 16 frames after stopping: how fast it converges. */
-  after16: number;
-  /** RMSE on the last capture: converged quality. */
-  final: number;
+  /** PSNR (dB) on the arrival frame: quality while moving. */
+  atStop: number | null;
+  /** PSNR (dB) 16 frames after stopping: how fast it converges. */
+  after16: number | null;
+  /** PSNR (dB) on the last capture: converged quality. */
+  final: number | null;
   /** Brightness bias on the last capture. */
   finalBias: number;
-  /** RMSE between the last two captures: residual flicker once still. */
-  flicker: number;
+  /** PSNR (dB) between the last two captures: residual flicker once still. */
+  flicker: number | null;
 }
 
 export interface ConvergeFile {
@@ -49,7 +49,7 @@ export function summarize(
 ): { samples: ConvergeSample[]; summary: ConvergeSummary } {
   const samples = captures.map(({ frame, image }) => ({
     frame,
-    rmse: compareRgb(reference, image).metrics.rmse,
+    psnr: compareRgb(reference, image).metrics.psnr,
     bias: meanBias(reference, image),
   }));
   const at = (frame: number) => {
@@ -63,11 +63,11 @@ export function summarize(
   return {
     samples,
     summary: {
-      atStop: at(0).rmse,
-      after16: at(16).rmse,
-      final: at(last.frame).rmse,
+      atStop: at(0).psnr,
+      after16: at(16).psnr,
+      final: at(last.frame).psnr,
       finalBias: at(last.frame).bias,
-      flicker: compareRgb(previous.image, last.image).metrics.rmse,
+      flicker: compareRgb(previous.image, last.image).metrics.psnr,
     },
   };
 }

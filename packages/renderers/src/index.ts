@@ -3,6 +3,7 @@ import { createRenderer as createPathTracerRenderer } from 'fidelity-kit-three-g
 import { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
 import { createCurrentRenderer } from './three-current.js';
 import { createThreeNewRenderer } from './three-new.js';
+import { hierarchyExperiments } from './types.js';
 import type { LiveRenderer, RendererName, RendererOptions } from './types.js';
 
 export * from './types.js';
@@ -16,6 +17,12 @@ export function createRenderer(
   setup: SceneSetup,
   options: RendererOptions,
 ): Promise<LiveRenderer> {
+  if (options.hierarchyExperiment !== undefined && !hierarchyExperiments.includes(options.hierarchyExperiment)) {
+    throw new Error(`Unknown hierarchical experiment "${options.hierarchyExperiment}"`);
+  }
+  if (options.hierarchyExperiment && options.hierarchyExperiment !== 'baseline' && name !== 'three-new') {
+    throw new Error('Hierarchical experiments require the three-new renderer');
+  }
   switch (name) {
     case 'three-gpu-pathtracer':
       return createPathTracerRenderer({

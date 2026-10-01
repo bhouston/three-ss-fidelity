@@ -14,19 +14,22 @@ load. `cli converge` measures the case that matters.
    temporal history (TRAA, denoisers, SSGI's multi-bounce feedback) is warm and in motion when it stops.
 2. Frames 0, 1, 2, 4, 8, 16, 32, 64, 128, 255 and 256 after stopping are scored against the committed
    `three-gpu-pathtracer` reference.
-3. `results/<scene>/beauty/converge-<renderer>.json` records the curve (RMSE and brightness bias per capture) and a
+3. `results/<scene>/beauty/converge-<renderer>.json` records the curve (PSNR (dB) and brightness bias per capture) and a
    summary:
 
 | field       | meaning                                                                   |
 | ----------- | ------------------------------------------------------------------------- |
-| `atStop`    | RMSE on the arrival frame: quality while moving                           |
-| `after16`   | RMSE 16 frames after stopping: "converges quickly"                        |
-| `final`     | RMSE at frame 256: converged quality                                      |
+| `atStop`    | PSNR (dB) on the arrival frame: quality while moving                      |
+| `after16`   | PSNR (dB) 16 frames after stopping: "converges quickly"                   |
+| `final`     | PSNR (dB) at frame 256: converged quality                                 |
 | `finalBias` | mean signed error relative to the reference's mean (−0.05 = 5 % too dark) |
-| `flicker`   | RMSE between frames 255 and 256: residual temporal instability            |
+| `flicker`   | PSNR (dB) between frames 255 and 256: residual temporal instability       |
 
 The default covers every screen-space renderer (all are real-time now). The findings below were measured before the
 consolidation: `three-new-ssr-rt` is now `three-new`, and `three-new-ssgi` (the fork's SSR) was removed.
+
+New captures store PSNR in dB; higher values indicate closer agreement. `null` represents identical images
+(infinite PSNR). Brightness bias remains a separate signed diagnostic. The historical results below retain their original units.
 
 ## Reproducibility
 

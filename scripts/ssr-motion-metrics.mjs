@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// Beauty RMSE vs the committed path-traced reference for `cli render --motion` captures (<renderer>@m<k>.avif).
+// Beauty PSNR (dB) vs the committed path-traced reference for `cli render --motion` captures (<renderer>@m<k>.avif).
 // Usage: node scripts/ssr-motion-metrics.mjs <captures-dir> <renderer1,renderer2,...> <k1,k2,...> [scene-prefix] [reference]
 // [reference] scores against another committed render instead (e.g. another renderer's committed render).
 import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { compareImages } from '../packages/cli/dist/compare.js';
+import { compareRgb, readRgb } from '../packages/cli/dist/compare.js';
 
 const repoRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const [dir, rendererList, captureList, prefix = '', referenceName = 'three-gpu-pathtracer'] = process.argv.slice(2);
@@ -31,9 +31,9 @@ for (const scene of scenes) {
       cells.push('n/a');
       continue;
     }
-    const { metrics } = await compareImages(reference, test);
-    sums[column].push(metrics.rmse);
-    cells.push(metrics.rmse.toFixed(4));
+    const { metrics } = compareRgb(...(await Promise.all([reference, test].map(readRgb))));
+    sums[column].push(metrics.psnr ?? Infinity);
+    cells.push(metrics.psnr?.toFixed(4) ?? '∞');
   }
   console.log(cells.join(' | '));
 }

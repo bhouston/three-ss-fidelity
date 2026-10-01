@@ -3,7 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { rendererNames } from '@ss-fidelity/renderers';
+import { hierarchyExperiments, rendererNames } from '@ss-fidelity/renderers';
 import { listSceneNames } from '@ss-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
 import type { BenchJob, SceneBenchResult } from '../bench-process.js';
@@ -26,6 +26,12 @@ export const command = defineCommand({
   builder: (yargs) =>
     yargs
       .option('renderers', { type: 'string', demandOption: true, describe: 'Renderer name glob(s), comma separated' })
+      .option('experiment', {
+        type: 'string',
+        choices: hierarchyExperiments,
+        default: 'baseline',
+        describe: 'three-new: optional hierarchical experiment',
+      })
       .option('scenes', { type: 'string', default: '*', describe: 'Scene name glob(s), comma separated' })
       .option('width', { type: 'number', default: 1920 })
       .option('height', { type: 'number', default: 1080 })
@@ -46,6 +52,9 @@ export const command = defineCommand({
     const tmp = await mkdtemp(path.join(os.tmpdir(), 'ss-fidelity-bench-'));
     try {
       const results: Record<string, Record<string, SceneBenchResult>> = {};
+      if (argv.experiment !== 'baseline' && renderers.some((name) => name !== 'three-new')) {
+        throw new Error('--experiment requires --renderers three-new');
+      }
       let failed = false;
       for (const renderer of renderers) {
         const out = path.join(tmp, `${renderer}.json`);
@@ -59,6 +68,7 @@ export const command = defineCommand({
           measure: argv.measure,
           out,
           gpu: argv.gpu,
+          hierarchyExperiment: argv.experiment as BenchJob['hierarchyExperiment'],
         });
         if (code !== 0) {
           console.error(`${renderer} failed (exit code ${code})`);
@@ -87,7 +97,11 @@ export const command = defineCommand({
         console.log(`  mean: ${meanSpeedup.toFixed(3)}`);
         summary = { results, ab: { baseline, candidate, speedups, meanSpeedup } };
       }
-      if (argv.out) await writeFile(argv.out, `${JSON.stringify(summary, null, 2)}\n`);
+      if (argv.out)
+        await writeFile(
+          argv.out,
+          `${JSON.stringify({ ...(summary as object), experiment: argv.experiment }, null, 2)}\n`,
+        );
     } finally {
       await rm(tmp, { recursive: true, force: true });
     }

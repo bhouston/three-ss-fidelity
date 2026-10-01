@@ -117,13 +117,13 @@ accumulated sample counter to reach 16 produced nonblack pixels after 181 render
 These checks establish native rendering support and expose a CLI accumulation issue; they do not establish
 a speedup or full-scene fidelity.
 
-| Command                               | Does                                                                                                                                                                                                                  |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cli list [--verbose]`                | List scene names.                                                                                                                                                                                                     |
-| `cli render`                          | Write `results/<scene>/beauty/<renderer>.avif`. `--scenes/--renderers` take comma-separated globs; also `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`, `--experiment`, `--width`, `--height`. |
-| `cli quality-gate <base> <candidate>` | Fail if the candidate's PSNR (from `fidelity-kit process`'s metrics) drops by more than `--threshold` dB on any scene.                                                                                                |
-| `cli converge`                        | Move-then-stop benchmark: write `results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                                                       |
-| `cli bench --renderers a,b`           | Repeated five-second completed-work benchmarks and A/B speedup; JSON + offline HTML reports; `--experiment` selects variants; `--profile` / `--gpu` for instrumented GPU timing ([docs/PERF.md](docs/PERF.md)).       |
+| Command                               | Does                                                                                                                                                                                                                                    |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cli list [--verbose]`                | List scene names.                                                                                                                                                                                                                       |
+| `cli render`                          | Write `results/<scene>/beauty/<renderer>.avif`. `--scenes/--renderers` take comma-separated globs; also `--missing-only`, `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`, `--experiment`, `--width`, `--height`. |
+| `cli quality-gate <base> <candidate>` | Fail if the candidate's PSNR (from `fidelity-kit process`'s metrics) drops by more than `--threshold` dB on any scene.                                                                                                                  |
+| `cli converge`                        | Move-then-stop benchmark: write `results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                                                                         |
+| `cli bench --renderers a,b`           | Repeated five-second completed-work benchmarks and A/B speedup; JSON + offline HTML reports; `--experiment` selects variants; `--profile` / `--gpu` for instrumented GPU timing ([docs/PERF.md](docs/PERF.md)).                         |
 
 Run `pnpm cli <command> --help` for all flags. `pnpm cli` runs the built `dist/`, so run `pnpm build` (or `pnpm dev`)
 after changing sources.
@@ -152,6 +152,8 @@ Merging to `main` deploys `site/` to GitHub Pages at <https://ss-fidelity.ben3d.
 - `<renderer>.vs-<reference>.delta.avif` / `.metrics.json`: written by `fidelity-kit process`
   (PSNR vs the reference).
 - `converge-<renderer>.json` (beauty only): the convergence curve.
+
+Use `pnpm cli render --missing-only` to fill gaps without overwriting existing images. The option checks the requested AVIF paths in `--output` (default: `results/`) before starting render processes, including experiment and SSR debug variants. With `--motion`, existing captures are preserved and only missing captures are written; frames still advance normally to preserve temporal history. Omit the flag to regenerate images after changing render settings or code.
 
 Images are AVIF q90 4:4:4 (`RESULT_AVIF` in `packages/cli/src/compare.ts`). All renderers produce full beauty images; there is no pass selector. Historical AO/direct images remain as archived artifacts and are excluded from the active viewer configuration.
 

@@ -3,7 +3,7 @@ import { EventEmitter } from 'node:events';
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { hierarchyImageName } from '@ss-fidelity/renderers';
+import { hierarchyImageName, ssgiWorkExperiments } from '@ss-fidelity/renderers';
 import { listSceneNames } from '@ss-fidelity/scenes';
 import yargs from 'yargs';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
@@ -149,6 +149,7 @@ test('default missing-only includes every full renderer name and skips existing 
     ['three-new', 'ssr-radiance-mips'],
     ['three-new', 'ssgi-radiance-mips'],
     ['three-new', 'hierarchy-combined'],
+    ...Object.keys(ssgiWorkExperiments).map((experiment) => ['three-new', experiment]),
     ['three-current', undefined],
     ['three-gpu-pathtracer', undefined],
     ['three-gpu-pathtracer-webgpu', undefined],
@@ -164,6 +165,7 @@ test('renderer globs and comma-separated names select complete configurations on
     ['three-new', 'ssr-radiance-mips'],
     ['three-new', 'ssgi-radiance-mips'],
     ['three-new', 'hierarchy-combined'],
+    ...Object.keys(ssgiWorkExperiments).map((experiment) => ['three-new', experiment]),
     ['blender', undefined],
   ]);
 });

@@ -1,0 +1,834 @@
+{
+  "metadata": {
+    "date": "2026-10-01T18:48:49.784Z",
+    "mode": "quality",
+    "control": "hierarchy-combined",
+    "variants": [
+      "ssgi-early-exit",
+      "ssgi-reuse-texels",
+      "ssgi-redundant-work",
+      "ssgi-4x32",
+      "ssgi-8x16",
+      "ssgi-6x32",
+      "ssgi-8x24"
+    ],
+    "frames": 128,
+    "width": 960,
+    "height": 540,
+    "warmup": 90,
+    "measure": 80,
+    "repeats": 3,
+    "maxReferencePsnrDropDb": 0.1,
+    "cpu": "Apple M3",
+    "platform": "darwin",
+    "node": "v26.3.0",
+    "revision": "7fc477ab4e23e5a67dbeb6874b904c47514c1485",
+    "submodules": "96a36865c7a1e5124730a1dc743d7bc98c1a3933 submodules/fidelity-kit-blender (heads/main)\n 9cd15bd3579cc9d480a3579fc6c1b019a4e37128 submodules/fidelity-kit-three-gpu-pathtracer (remotes/origin/feat/pinned-esm-pathtracer)\n 2cbb31e973a7ce074279831bc2ac6d468973978d submodules/three-gpu-pathtracer (v0.0.24-1239-g2cbb31e973a)\n 83c310af72715ae558beea12d169f00c62ea48eb submodules/three.js (r40-46670-g83c310af727)",
+    "sourceHashes": {
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e",
+      "scripts/ssgi-work-experiments.mjs": "de96f24a1cd8ccff5fcb01129055a4d019ad90f7339f7b0eb8a751e1b4a33ecd"
+    },
+    "variantSettings": {
+      "ssgi-early-exit": {
+        "earlyExit": true
+      },
+      "ssgi-reuse-texels": {
+        "reuseDuplicateTexels": true
+      },
+      "ssgi-redundant-work": {
+        "earlyExit": true,
+        "reuseDuplicateTexels": true
+      },
+      "ssgi-4x32": {
+        "sliceScale": 0.5
+      },
+      "ssgi-8x16": {
+        "stepScale": 0.5
+      },
+      "ssgi-6x32": {
+        "sliceScale": 0.75
+      },
+      "ssgi-8x24": {
+        "stepScale": 0.75
+      }
+    },
+    "timing": "GPU-completed batches; CPU submission excludes GPU waits; instrumented pass intervals are not used",
+    "quality": "decoded sRGB RGB8 from AVIF quality 90, 4:4:4; reference gate versus fresh combined control",
+    "motion": {
+      "degrees": 20,
+      "moveFrames": 16,
+      "captures": [0, 4, 16, 64]
+    }
+  },
+  "scenes": {
+    "ssgi-rounded": {
+      "quality": {
+        "hierarchy-combined": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-hierarchy-combined.avif",
+            "delta": "ssgi-rounded/hierarchy-combined-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 29.544698662600855
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-early-exit": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-ssgi-early-exit.avif",
+            "delta": "ssgi-rounded/ssgi-early-exit-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 29.544698662600855
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-reuse-texels": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-ssgi-reuse-texels.avif",
+            "delta": "ssgi-rounded/ssgi-reuse-texels-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 29.544698662600855
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-redundant-work": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-ssgi-redundant-work.avif",
+            "delta": "ssgi-rounded/ssgi-redundant-work-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 29.544698662600855
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-4x32": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-ssgi-4x32.avif",
+            "delta": "ssgi-rounded/ssgi-4x32-settled-delta.png",
+            "control": {
+              "psnr": 40.030384960557114
+            },
+            "reference": {
+              "psnr": 29.515684430488754
+            },
+            "psnrDropDb": 0.029014232112100302,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-8x16": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-ssgi-8x16.avif",
+            "delta": "ssgi-rounded/ssgi-8x16-settled-delta.png",
+            "control": {
+              "psnr": 34.111150364786326
+            },
+            "reference": {
+              "psnr": 29.054798164139513
+            },
+            "psnrDropDb": 0.489900498461342,
+            "passesReferenceGate": false
+          }
+        },
+        "ssgi-6x32": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-ssgi-6x32.avif",
+            "delta": "ssgi-rounded/ssgi-6x32-settled-delta.png",
+            "control": {
+              "psnr": 45.718954045207376
+            },
+            "reference": {
+              "psnr": 29.638633540105225
+            },
+            "psnrDropDb": -0.09393487750437046,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-8x24": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-ssgi-8x24.avif",
+            "delta": "ssgi-rounded/ssgi-8x24-settled-delta.png",
+            "control": {
+              "psnr": 42.592132618905005
+            },
+            "reference": {
+              "psnr": 29.56697664824879
+            },
+            "psnrDropDb": -0.022277985647935594,
+            "passesReferenceGate": true
+          }
+        },
+        "control-repeat": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-rounded/repeat/ssgi-rounded/beauty/three-new-hierarchy-combined.avif",
+            "delta": "ssgi-rounded/control-repeat-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 29.544698662600855
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        }
+      },
+      "timing": {},
+      "reference": {
+        "path": "results/ssgi-rounded/beauty/three-gpu-pathtracer.avif",
+        "sha256": "505d0b20d9ff66a3eecd8a787c431be47b9395a2b936d5e00759fcef58035e93"
+      }
+    },
+    "ssgi-metallic": {
+      "quality": {
+        "hierarchy-combined": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-hierarchy-combined.avif",
+            "delta": "ssgi-metallic/hierarchy-combined-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 27.828106100356077
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-early-exit": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssgi-early-exit.avif",
+            "delta": "ssgi-metallic/ssgi-early-exit-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 27.828106100356077
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-reuse-texels": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssgi-reuse-texels.avif",
+            "delta": "ssgi-metallic/ssgi-reuse-texels-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 27.828106100356077
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-redundant-work": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssgi-redundant-work.avif",
+            "delta": "ssgi-metallic/ssgi-redundant-work-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 27.828106100356077
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-4x32": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssgi-4x32.avif",
+            "delta": "ssgi-metallic/ssgi-4x32-settled-delta.png",
+            "control": {
+              "psnr": 40.18945925702902
+            },
+            "reference": {
+              "psnr": 27.707016601452604
+            },
+            "psnrDropDb": 0.12108949890347276,
+            "passesReferenceGate": false
+          }
+        },
+        "ssgi-8x16": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssgi-8x16.avif",
+            "delta": "ssgi-metallic/ssgi-8x16-settled-delta.png",
+            "control": {
+              "psnr": 34.82068173273129
+            },
+            "reference": {
+              "psnr": 27.736392032744735
+            },
+            "psnrDropDb": 0.09171406761134193,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-6x32": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssgi-6x32.avif",
+            "delta": "ssgi-metallic/ssgi-6x32-settled-delta.png",
+            "control": {
+              "psnr": 45.58957105423993
+            },
+            "reference": {
+              "psnr": 27.860175429011885
+            },
+            "psnrDropDb": -0.03206932865580825,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-8x24": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssgi-8x24.avif",
+            "delta": "ssgi-metallic/ssgi-8x24-settled-delta.png",
+            "control": {
+              "psnr": 43.110738554911364
+            },
+            "reference": {
+              "psnr": 27.913876478361427
+            },
+            "psnrDropDb": -0.08577037800534981,
+            "passesReferenceGate": true
+          }
+        },
+        "control-repeat": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-metallic/repeat/ssgi-metallic/beauty/three-new-hierarchy-combined.avif",
+            "delta": "ssgi-metallic/control-repeat-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 27.828106100356077
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        }
+      },
+      "timing": {},
+      "reference": {
+        "path": "results/ssgi-metallic/beauty/three-gpu-pathtracer.avif",
+        "sha256": "a0f2dad322585e40e468dbf91dd85403c1cc62d338af7f2320cd317faaada1a4"
+      }
+    },
+    "gi-emitter-corner-dense": {
+      "quality": {
+        "hierarchy-combined": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new-hierarchy-combined.avif",
+            "delta": "gi-emitter-corner-dense/hierarchy-combined-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 26.09113102424157
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-early-exit": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new-ssgi-early-exit.avif",
+            "delta": "gi-emitter-corner-dense/ssgi-early-exit-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 26.09113102424157
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-reuse-texels": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new-ssgi-reuse-texels.avif",
+            "delta": "gi-emitter-corner-dense/ssgi-reuse-texels-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 26.09113102424157
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-redundant-work": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new-ssgi-redundant-work.avif",
+            "delta": "gi-emitter-corner-dense/ssgi-redundant-work-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 26.09113102424157
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-4x32": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new-ssgi-4x32.avif",
+            "delta": "gi-emitter-corner-dense/ssgi-4x32-settled-delta.png",
+            "control": {
+              "psnr": 58.930464584900555
+            },
+            "reference": {
+              "psnr": 26.064240315202902
+            },
+            "psnrDropDb": 0.026890709038667637,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-8x16": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new-ssgi-8x16.avif",
+            "delta": "gi-emitter-corner-dense/ssgi-8x16-settled-delta.png",
+            "control": {
+              "psnr": 53.0392764009433
+            },
+            "reference": {
+              "psnr": 26.003959820986786
+            },
+            "psnrDropDb": 0.08717120325478334,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-6x32": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new-ssgi-6x32.avif",
+            "delta": "gi-emitter-corner-dense/ssgi-6x32-settled-delta.png",
+            "control": {
+              "psnr": 61.13106206993439
+            },
+            "reference": {
+              "psnr": 26.083422534029044
+            },
+            "psnrDropDb": 0.0077084902125257315,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-8x24": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new-ssgi-8x24.avif",
+            "delta": "gi-emitter-corner-dense/ssgi-8x24-settled-delta.png",
+            "control": {
+              "psnr": 58.512254966511684
+            },
+            "reference": {
+              "psnr": 26.058932225987004
+            },
+            "psnrDropDb": 0.03219879825456573,
+            "passesReferenceGate": true
+          }
+        },
+        "control-repeat": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-emitter-corner-dense/repeat/gi-emitter-corner-dense/beauty/three-new-hierarchy-combined.avif",
+            "delta": "gi-emitter-corner-dense/control-repeat-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 26.09113102424157
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        }
+      },
+      "timing": {},
+      "reference": {
+        "path": "results/gi-emitter-corner-dense/beauty/three-gpu-pathtracer.avif",
+        "sha256": "1f0c4ccd7d4e15434935f2db390d6902954c9894c175999388ce065e9f225ff3"
+      }
+    },
+    "gi-hierarchy-discontinuity": {
+      "quality": {
+        "hierarchy-combined": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-hierarchy-combined.avif",
+            "delta": "gi-hierarchy-discontinuity/hierarchy-combined-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 35.09829331569884
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-early-exit": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-early-exit.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-early-exit-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 35.09829331569884
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-reuse-texels": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-reuse-texels.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-reuse-texels-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 35.09829331569884
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-redundant-work": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-redundant-work.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-redundant-work-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 35.09829331569884
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-4x32": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-4x32.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-4x32-settled-delta.png",
+            "control": {
+              "psnr": 54.415884785487364
+            },
+            "reference": {
+              "psnr": 35.04218572504437
+            },
+            "psnrDropDb": 0.05610759065447013,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-8x16": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-8x16.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-8x16-settled-delta.png",
+            "control": {
+              "psnr": 50.38298771959619
+            },
+            "reference": {
+              "psnr": 34.99169018032989
+            },
+            "psnrDropDb": 0.10660313536894961,
+            "passesReferenceGate": false
+          }
+        },
+        "ssgi-6x32": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-6x32.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-6x32-settled-delta.png",
+            "control": {
+              "psnr": 55.85300744032342
+            },
+            "reference": {
+              "psnr": 35.080851852027955
+            },
+            "psnrDropDb": 0.017441463670884616,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-8x24": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-8x24.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-8x24-settled-delta.png",
+            "control": {
+              "psnr": 54.224123291136976
+            },
+            "reference": {
+              "psnr": 35.089387487528775
+            },
+            "psnrDropDb": 0.008905828170064467,
+            "passesReferenceGate": true
+          }
+        },
+        "control-repeat": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/repeat/gi-hierarchy-discontinuity/beauty/three-new-hierarchy-combined.avif",
+            "delta": "gi-hierarchy-discontinuity/control-repeat-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 35.09829331569884
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        }
+      },
+      "timing": {},
+      "reference": {
+        "path": "results/gi-hierarchy-discontinuity/beauty/three-gpu-pathtracer.avif",
+        "sha256": "2802343f1d02841ab7061f5e535059b6f6e2b377dbd4d55e9f7dd510d475bcd9"
+      }
+    },
+    "gi-room-open-high-albedo": {
+      "quality": {
+        "hierarchy-combined": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-hierarchy-combined.avif",
+            "delta": "gi-room-open-high-albedo/hierarchy-combined-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 31.689614914255113
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-early-exit": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-ssgi-early-exit.avif",
+            "delta": "gi-room-open-high-albedo/ssgi-early-exit-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 31.689614914255113
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-reuse-texels": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-ssgi-reuse-texels.avif",
+            "delta": "gi-room-open-high-albedo/ssgi-reuse-texels-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 31.689614914255113
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-redundant-work": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-ssgi-redundant-work.avif",
+            "delta": "gi-room-open-high-albedo/ssgi-redundant-work-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 31.689614914255113
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        },
+        "ssgi-4x32": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-ssgi-4x32.avif",
+            "delta": "gi-room-open-high-albedo/ssgi-4x32-settled-delta.png",
+            "control": {
+              "psnr": 41.81892105331583
+            },
+            "reference": {
+              "psnr": 30.423911464498403
+            },
+            "psnrDropDb": 1.2657034497567103,
+            "passesReferenceGate": false
+          }
+        },
+        "ssgi-8x16": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-ssgi-8x16.avif",
+            "delta": "gi-room-open-high-albedo/ssgi-8x16-settled-delta.png",
+            "control": {
+              "psnr": 44.30506790966039
+            },
+            "reference": {
+              "psnr": 30.643551836753886
+            },
+            "psnrDropDb": 1.046063077501227,
+            "passesReferenceGate": false
+          }
+        },
+        "ssgi-6x32": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-ssgi-6x32.avif",
+            "delta": "gi-room-open-high-albedo/ssgi-6x32-settled-delta.png",
+            "control": {
+              "psnr": 41.81892105331583
+            },
+            "reference": {
+              "psnr": 30.423911464498403
+            },
+            "psnrDropDb": 1.2657034497567103,
+            "passesReferenceGate": false
+          }
+        },
+        "ssgi-8x24": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-ssgi-8x24.avif",
+            "delta": "gi-room-open-high-albedo/ssgi-8x24-settled-delta.png",
+            "control": {
+              "psnr": 54.029184623519285
+            },
+            "reference": {
+              "psnr": 31.528551430378894
+            },
+            "psnrDropDb": 0.1610634838762195,
+            "passesReferenceGate": false
+          }
+        },
+        "control-repeat": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-room-open-high-albedo/repeat/gi-room-open-high-albedo/beauty/three-new-hierarchy-combined.avif",
+            "delta": "gi-room-open-high-albedo/control-repeat-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 31.689614914255113
+            },
+            "psnrDropDb": 0,
+            "passesReferenceGate": true
+          }
+        }
+      },
+      "timing": {},
+      "reference": {
+        "path": "results/gi-room-open-high-albedo/beauty/three-gpu-pathtracer.avif",
+        "sha256": "7f7dfe4a1d848f8599889bb670d3f80e7ef446cdd8e4168bf77ce0276b5d6ef2"
+      }
+    }
+  },
+  "withinQualityAllowance": false,
+  "ok": true
+}

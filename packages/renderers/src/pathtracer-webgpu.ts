@@ -78,11 +78,11 @@ async function bakeEquirectEnvironment(
 export async function createWebGPUPathTracerRenderer(
   canvas: HTMLCanvasElement,
   setup: SceneSetup,
-  { width, height }: RendererOptions,
+  { width, height, trackTimestamp = false }: RendererOptions,
 ): Promise<LiveRenderer> {
   dequantizeAttributes(setup.scene);
   const { scene, camera, effects } = setup;
-  const renderer = new WebGPURenderer({ canvas, antialias: false });
+  const renderer = new WebGPURenderer({ canvas, antialias: false, trackTimestamp });
   renderer.toneMapping = effects.toneMapping;
   renderer.toneMappingExposure = effects.toneMappingExposure;
   await renderer.init();

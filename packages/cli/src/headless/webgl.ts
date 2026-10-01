@@ -17,4 +17,4 @@ export async function readPixels(canvas: HTMLCanvasElement): Promise<Uint8Array>
 }
 
 /** WebGL renderers here don't use the animation loop. */
-export function animationFrame(): void {}
+export function animationFrame(_time?: number): void {}

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SS Fidelity · Live Lab</title>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/">SS FIDELITY <span>/ LIVE LAB</span></a
+      ><span id="live-status" role="status">Initializing</span>
+    </header>
+    <main>
+      <aside>
+        <label>Scene<select id="scene"></select></label><label>Pipeline<select id="renderer"></select></label
+        ><label>Experiment<select id="experiment"></select></label>
+        <div class="row">
+          <label>Width<input id="width" type="number" min="1" value="960" /></label
+          ><label>Height<input id="height" type="number" min="1" value="540" /></label>
+        </div>
+        <button id="load" class="primary">Load scene</button>
+        <p class="hint">Drag to orbit · scroll to zoom. Dimensions specify physical pixels.</p>
+        <label class="check"><input id="live-gpu" type="checkbox" />Instrument live GPU passes (reloads scene)</label>
+        <div class="divider"></div>
+        <div class="eyebrow">REPEATABLE MEASUREMENT</div>
+        <label
+          >Protocol<select id="protocol">
+            <option value="cadence">Browser frame cadence</option>
+            <option value="throughput">Completed-work throughput</option>
+            <option value="profile">GPU profile (synchronized)</option>
+          </select></label
+        >
+        <label
+          >Motion<select id="motion">
+            <option value="static">Static camera</option>
+            <option value="orbit">Scripted orbit · 120-frame cycle</option>
+          </select></label
+        >
+        <div class="row">
+          <label>Seconds<input id="duration" type="number" min="0.1" step="0.1" value="5" /></label
+          ><label>Repeats<input id="repeats" type="number" min="1" value="5" /></label>
+        </div>
+        <div class="row">
+          <label>Warmup frames<input id="warmup" type="number" min="0" value="60" /></label
+          ><label>Seed<input id="seed" type="number" value="1" /></label>
+        </div>
+        <label class="check"
+          ><input id="compare" type="checkbox" />Compare stock → experimental (alternating order)</label
+        >
+        <button id="benchmark" class="primary">Run benchmark</button><button id="cancel" disabled>Cancel run</button>
+        <div class="divider"></div>
+        <button id="capture">Capture converged PNG</button><button id="json" disabled>Download report JSON</button
+        ><button id="html" disabled>Download offline report</button>
+        <label class="file"
+          >Open saved report<input id="report-file" type="file" accept="application/json,.json"
+        /></label>
+      </aside>
+      <div class="workspace">
+        <section class="stage">
+          <div class="stage-heading"><span id="scene-title">Live render</span><span id="fps">—</span></div>
+          <div id="viewport"><canvas></canvas></div>
+          <p id="message" role="status">Loading the renderer…</p>
+        </section>
+        <section class="instruments">
+          <div class="stage-heading">
+            <span>LIVE INSTRUMENTS</span><span id="instrument-status">Last 120 frames · GPU off</span>
+          </div>
+          <div class="gauges">
+            <div><span>DISPLAY FPS</span><strong id="gauge-fps">—</strong></div>
+            <div><span>MEAN INTERVAL</span><strong id="gauge-mean">—</strong></div>
+            <div><span>p95 INTERVAL</span><strong id="gauge-p95">—</strong></div>
+            <div><span>CPU UPDATE + SUBMIT</span><strong id="gauge-cpu">—</strong></div>
+          </div>
+          <div class="gpu-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>GPU pass</th>
+                  <th>Mean ms</th>
+                  <th>p95 ms</th>
+                  <th>Frames sampled</th>
+                </tr>
+              </thead>
+              <tbody id="live-passes"></tbody>
+            </table>
+          </div>
+          <p class="hint instrument-note">
+            Rolling exploratory measurements while you interact. GPU results arrive asynchronously and add overhead;
+            pass durations are not a serial frame budget. Use the benchmark runner for repeatable comparisons.
+          </p>
+        </section>
+        <section class="report">
+          <div class="stage-heading"><span>PERFORMANCE REPORT</span><span id="report-id">No run yet</span></div>
+          <div id="empty">
+            <p>
+              Benchmark results appear here, with timing samples and variation between repetitions. Reports also work
+              offline.
+            </p>
+            <p class="hint">
+              Cadence follows display refresh. Throughput measures completed work. GPU profiles explain internal costs
+              and change synchronization.
+            </p>
+          </div>
+          <iframe id="report" title="Benchmark report" sandbox="allow-scripts" hidden></iframe>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

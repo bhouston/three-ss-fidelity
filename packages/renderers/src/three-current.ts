@@ -44,6 +44,7 @@ import { ssr } from 'three-r186/addons/tsl/display/SSRNode.js';
 import { traa } from 'three-r186/addons/tsl/display/TRAANode.js';
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import type { LiveRenderer, RendererOptions } from './types.js';
+import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
 
 // Scene graphs come from the fork's `three` and are rendered by the npm copy. The renderer is duck-typed (isMesh,
 // material.type, ...) except for lights, which it looks up by constructor, so the fork's light classes are
@@ -143,7 +144,7 @@ export async function createCurrentRenderer(
   { width, height, trackTimestamp = false }: RendererOptions,
 ): Promise<LiveRenderer> {
   const setup = sceneSetup;
-  const { scene, camera, effects } = setup;
+  const { camera, effects } = setup;
   // SSGI + SSR + TRAA scenes need all five attachments (40 bytes/sample, over WebGPU's default 32)
   const renderer = new WebGPURenderer({
     canvas,
@@ -153,23 +154,20 @@ export async function createCurrentRenderer(
   } as AnyNode);
   for (const [lightNode, light] of forkLights) renderer.library.addLight(lightNode, light);
   renderer.shadowMap.enabled = true;
-  renderer.toneMapping = effects.toneMapping;
-  renderer.toneMappingExposure = effects.toneMappingExposure;
+  configureRenderer(renderer, effects);
   await renderer.init();
 
-  const currentScene = scene as AnyNode;
-  if (setup.gradientBackground) {
-    const { center, edge } = setup.gradientBackground;
-    currentScene.backgroundNode = screenUV.distance(0.5).remap(0, 0.5).mix(color(center), color(edge));
-  }
-  if (setup.environment) {
-    const pmremGenerator = new PMREMGenerator(renderer);
-    currentScene.environment = pmremGenerator.fromScene(
-      setup.environment.scene as AnyNode,
-      setup.environment.sigma,
-    ).texture;
-    pmremGenerator.dispose();
-  }
+  const releaseScene = prepareScene(setup, {
+    createGradient: ({ center, edge }) => screenUV.distance(0.5).remap(0, 0.5).mix(color(center), color(edge)),
+    bakeEnvironment(environment) {
+      const generator = new PMREMGenerator(renderer);
+      try {
+        return generator.fromScene(environment.scene as AnyNode, environment.sigma) as AnyNode;
+      } finally {
+        generator.dispose();
+      }
+    },
+  });
 
   const renderPipeline = createPipeline(renderer, setup);
   let frames = 0;
@@ -184,15 +182,14 @@ export async function createCurrentRenderer(
       frames++;
     },
     setSize(w, h) {
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
+      setRenderSize(renderer, camera, w, h);
     },
     setCamera(newCamera) {
       if (newCamera !== camera) camera.copy(newCamera);
     },
     dispose() {
       renderPipeline.dispose();
+      releaseScene();
       renderer.dispose();
     },
   };

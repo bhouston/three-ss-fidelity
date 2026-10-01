@@ -4,9 +4,12 @@ import { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
 import { createCurrentRenderer } from './three-current.js';
 import { createThreeNewRenderer } from './three-new.js';
 import { hierarchyExperiments } from './types.js';
+import { createRendererProfiler } from './profiling.js';
 import type { LiveRenderer, RendererName, RendererOptions } from './types.js';
 
 export * from './types.js';
+export * from './helpers.js';
+export * from './profiling.js';
 export { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
 export { createThreeNewRenderer } from './three-new.js';
 export { createCurrentRenderer } from './three-current.js';
@@ -23,26 +26,53 @@ export function createRenderer(
   if (options.hierarchyExperiment && options.hierarchyExperiment !== 'baseline' && name !== 'three-new') {
     throw new Error('Hierarchical experiments require the three-new renderer');
   }
+  const instrument = (result: Promise<LiveRenderer>): Promise<LiveRenderer> => {
+    if (!options.trackTimestamp) return result;
+    return result.then((live) => {
+      const profiler = createRendererProfiler(live.renderer);
+      const dispose = live.dispose.bind(live);
+      return {
+        name: live.name,
+        renderer: live.renderer,
+        get frames() {
+          return live.frames;
+        },
+        profiler,
+        render: live.render.bind(live),
+        setSize: live.setSize.bind(live),
+        setCamera: live.setCamera.bind(live),
+        dispose() {
+          try {
+            profiler.dispose();
+          } finally {
+            dispose();
+          }
+        },
+      };
+    });
+  };
   switch (name) {
     case 'three-gpu-pathtracer':
-      return createPathTracerRenderer({
-        canvas,
-        scene: setup.scene,
-        camera: setup.camera,
-        ...options,
-        toneMapping: setup.effects.toneMapping,
-        toneMappingExposure: setup.effects.toneMappingExposure,
-        outputColorSpace: 'srgb',
-        environment: setup.environment ? { scene: setup.environment.scene } : undefined,
-        gradientBackground: setup.gradientBackground,
-      });
+      return instrument(
+        createPathTracerRenderer({
+          canvas,
+          scene: setup.scene,
+          camera: setup.camera,
+          ...options,
+          toneMapping: setup.effects.toneMapping,
+          toneMappingExposure: setup.effects.toneMappingExposure,
+          outputColorSpace: 'srgb',
+          environment: setup.environment ? { scene: setup.environment.scene } : undefined,
+          gradientBackground: setup.gradientBackground,
+        }),
+      );
     case 'three-gpu-pathtracer-webgpu':
-      return createWebGPUPathTracerRenderer(canvas, setup, options);
+      return instrument(createWebGPUPathTracerRenderer(canvas, setup, options));
     // unmodified three.js r186 from npm, not the fork (see three-current.ts)
     case 'three-current':
-      return createCurrentRenderer(canvas, setup, options);
+      return instrument(createCurrentRenderer(canvas, setup, options));
     case 'three-new':
-      return createThreeNewRenderer(canvas, setup, options);
+      return instrument(createThreeNewRenderer(canvas, setup, options));
     default:
       throw new Error(`Unknown renderer "${name}"`);
   }

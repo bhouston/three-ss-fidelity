@@ -14,6 +14,7 @@ import { traaDiagnosticScenes } from './traa-diagnostics.js';
 import type { SceneContext, SceneDefinition } from './types.js';
 
 export type * from './types.js';
+export * from './lifecycle.js';
 export { ANIMATED_POSE_TIME } from './ssgi.js';
 
 const scenes = new Map<string, SceneDefinition>(

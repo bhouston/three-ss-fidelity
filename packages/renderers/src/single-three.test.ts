@@ -30,3 +30,10 @@ it('resolves one copy of three (the submodule) everywhere', () => {
     expect(path.dirname(resolved), name).toBe(threeBuild);
   }
 });
+
+it('uses the path-tracer fork ESM source for every adapter instead of the npm CommonJS bundle', () => {
+  const source = realpathSync(path.join(repoRoot, 'submodules/three-gpu-pathtracer/src/index.js'));
+  for (const importer of ['packages/renderers', 'submodules/fidelity-kit-three-gpu-pathtracer']) {
+    expect(realpathSync(path.join(repoRoot, importer, 'node_modules/three-gpu-pathtracer/src/index.js'))).toBe(source);
+  }
+});

@@ -44,6 +44,7 @@ import { ssgi } from './ssgi-fast/SSGINode.js';
 import { newSSR } from './ssr/NewSSRNode.js';
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import type { LiveRenderer, RendererOptions } from './types.js';
+import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
 
 // The fork's TSL nodes are ahead of @types/three; the graph is built exactly as in the examples, so it is typed loosely.
 // oxlint-disable-next-line typescript/no-explicit-any
@@ -269,22 +270,23 @@ export async function createThreeNewRenderer(
   { width, height, trackTimestamp = false, ssrDebug, hierarchyExperiment }: RendererOptions,
 ): Promise<LiveRenderer> {
   const setup = sceneSetup;
-  const { scene, camera, effects } = setup;
+  const { camera, effects } = setup;
   const renderer = new WebGPURenderer({ canvas, antialias: false, trackTimestamp });
   renderer.shadowMap.enabled = true;
-  renderer.toneMapping = effects.toneMapping;
-  renderer.toneMappingExposure = effects.toneMappingExposure;
+  configureRenderer(renderer, effects);
   await renderer.init();
 
-  if (setup.gradientBackground) {
-    const { center, edge } = setup.gradientBackground;
-    scene.backgroundNode = screenUV.distance(0.5).remap(0, 0.5).mix(color(center), color(edge));
-  }
-  if (setup.environment) {
-    const pmremGenerator = new PMREMGenerator(renderer);
-    scene.environment = pmremGenerator.fromScene(setup.environment.scene, setup.environment.sigma).texture;
-    pmremGenerator.dispose();
-  }
+  const releaseScene = prepareScene(setup, {
+    createGradient: ({ center, edge }) => screenUV.distance(0.5).remap(0, 0.5).mix(color(center), color(edge)),
+    bakeEnvironment(environment) {
+      const generator = new PMREMGenerator(renderer);
+      try {
+        return generator.fromScene(environment.scene, environment.sigma);
+      } finally {
+        generator.dispose();
+      }
+    },
+  });
 
   const renderPipeline = createPipeline(renderer, setup, ssrDebug, hierarchyExperiment);
   const progressive = (renderPipeline as AnyNode).progressiveTRAA;
@@ -309,9 +311,7 @@ export async function createThreeNewRenderer(
       frames++;
     },
     setSize(w, h) {
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
+      setRenderSize(renderer, camera, w, h);
     },
     setCamera(newCamera) {
       if (newCamera !== camera) camera.copy(newCamera);
@@ -320,6 +320,7 @@ export async function createThreeNewRenderer(
       // RenderPipeline.dispose() and Renderer.dispose() don't reach the rtt() render targets (see docs/history/SSGI_FAST.md)
       for (const disposable of (renderPipeline as AnyNode).rttDisposables) disposable.dispose();
       renderPipeline.dispose();
+      releaseScene();
       renderer.dispose();
     },
   };

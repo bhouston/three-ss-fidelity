@@ -1,5 +1,6 @@
 import type { PerspectiveCamera, WebGLRenderer } from 'three';
 import type { WebGPURenderer } from 'three/webgpu';
+import type { LivePipeline } from '@ss-fidelity/runtime';
 
 export const rendererNames = [
   'three-new',
@@ -34,13 +35,12 @@ export interface RendererOptions {
 }
 
 /** Incremental renderer over one scene: call render() once per animation frame (browser) or in a loop (node). */
-export interface LiveRenderer {
-  readonly name: RendererName;
+export interface LiveRenderer extends LivePipeline {
+  readonly name: string;
   readonly renderer: WebGPURenderer | WebGLRenderer;
   /** Pipeline frames (screen-space renderers) or accumulated path-traced samples (three-gpu-pathtracer). */
   readonly frames: number;
   /** Renders one frame / one full-frame sample to the canvas. */
-  render(): void;
   /** Resizes the drawing buffer and the camera aspect. */
   setSize(width: number, height: number): void;
   /** Adopts a new camera pose (pass the scene camera after moving it, e.g. from OrbitControls); restarts path tracing. */

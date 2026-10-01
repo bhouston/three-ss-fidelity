@@ -117,10 +117,9 @@ let frameCallbackId = 0;
  * Call it before each rendered frame. A timer-driven requestAnimationFrame advanced three's frame counter (velocity
  * history, per-frame noise) at wall-clock pace instead, so renders weren't reproducible.
  */
-export function animationFrame(): void {
+export function animationFrame(time = performance.now()): void {
   const callbacks = [...frameCallbacks.values()];
   frameCallbacks.clear();
-  const time = performance.now();
   for (const callback of callbacks) callback(time);
 }
 

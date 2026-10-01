@@ -3,6 +3,7 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
+import { capture, seededRandom } from '@ss-fidelity/runtime';
 import type { HierarchyExperiment, RendererName } from '@ss-fidelity/renderers';
 
 /** A renderer job can also target Blender Cycles, a second ground-truth renderer that isn't a `LiveRenderer`
@@ -35,12 +36,7 @@ const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
 
 /** Replaces Math.random with a fixed-seed generator (mulberry32): every render is reproducible. */
 function seedRandom(seed = 1): void {
-  Math.random = () => {
-    seed = (seed + 0x6d2b79f5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+  Math.random = seededRandom(seed);
 }
 
 /** The only WebGL renderers: everything else, including the WebGPU path tracer, runs on WebGPURenderer. Blender needs
@@ -58,8 +54,9 @@ async function main(job: RenderJob): Promise<void> {
   const screenSpace = !usesSamples(job.renderer);
   const headless = usesWebGL(job.renderer) ? await import('./headless/webgl.js') : await import('./headless/webgpu.js');
   headless.install();
-  const { createRenderer, hierarchyImageName } = await import('@ss-fidelity/renderers');
-  const { getScene } = await import('@ss-fidelity/scenes');
+  const { createRenderer, hierarchyImageName, completeRenderer, createRendererFrameDriver } =
+    await import('@ss-fidelity/renderers');
+  const { getScene, disposeSceneSetup } = await import('@ss-fidelity/scenes');
   const { createNodeSceneContext } = await import('@ss-fidelity/scenes/node');
   const { renderPath } = await import('./paths.js');
   const { RESULT_AVIF } = await import('./compare.js');
@@ -90,12 +87,26 @@ async function main(job: RenderJob): Promise<void> {
     if (job.motion) return renderMotion(name, setup, renderer, canvas, job.outDir, job.motion, outputName);
     const target = screenSpace ? (job.frames ?? setup.effects.frames) : job.samples;
     const renderStart = performance.now();
-    while (renderer.frames < target) {
-      headless.animationFrame();
-      renderer.render();
-      await new Promise((resolve) => setImmediate(resolve)); // lets async shader compilation progress
+    const advance = createRendererFrameDriver(renderer.renderer);
+    let pixels: Uint8Array;
+    try {
+      pixels = await capture(
+        {
+          pipeline: renderer,
+          beforeFrame: advance,
+          complete: () => completeRenderer(renderer.renderer),
+          dispose() {},
+        },
+        { frames: Math.ceil(target) },
+        () => headless.readPixels(canvas),
+        {
+          yield: () => new Promise((resolve) => setImmediate(resolve)),
+        },
+      );
+    } finally {
+      renderer.dispose();
+      disposeSceneSetup(setup);
     }
-    const pixels = await headless.readPixels(canvas);
     const renderMs = performance.now() - renderStart;
     const file = renderPath(name, job.ssrDebug ? `${outputName}@${job.ssrDebug}` : outputName, job.outDir);
     await mkdir(path.dirname(file), { recursive: true });
@@ -103,7 +114,6 @@ async function main(job: RenderJob): Promise<void> {
       .removeAlpha()
       .avif(RESULT_AVIF)
       .toFile(file);
-    renderer.dispose();
     console.log(
       `${name} | ${job.renderer}: ${target} ${screenSpace ? 'frames' : 'samples'} in ${seconds(renderMs)} (setup ${seconds(renderStart - start)}) -> ${path.relative(process.cwd(), file)}`,
     );

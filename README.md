@@ -37,12 +37,14 @@ submodules/fidelity-kit-three-gpu-pathtracer bhouston/fidelity-kit-three-gpu-pat
 packages/scenes     @ss-fidelity/scenes     renderer-agnostic scene definitions + registry (browser and node)
 packages/renderers  @ss-fidelity/renderers  screen-space pipeline and path-tracer adapters behind one LiveRenderer API
 packages/cli        @ss-fidelity/cli        headless render / converge / bench / quality-gate
+packages/runtime    @ss-fidelity/runtime    backend-independent capture / benchmark runners + reports
+packages/playground @ss-fidelity/playground interactive live lab (pnpm live)
 results/<scene>/beauty/                     committed render output; scored/viewed with fidelity-kit
 docs/                                       THREE-NEW.md, plans, benchmark write-ups; docs/history/ holds the experiment logs
 scripts/                                    one-off metric and experiment scripts (gi-*, ssr-*, traa-*) + check-pr.mjs
 ```
 
-The workspace overrides `three` with `workspace:*`, so every package, and three-gpu-pathtracer itself, uses the fork
+The workspace overrides `three` and `three-gpu-pathtracer` with `workspace:*`, so every package, and three-gpu-pathtracer itself, uses the fork
 in `submodules/three.js`. There is only ever one copy of three.
 
 ### `packages/scenes`
@@ -87,10 +89,14 @@ state leaked between scenes. Headless GPU comes from `src/headless/webgpu.ts` (d
 | `cli render`                          | Write `results/<scene>/beauty/<renderer>.avif`. `--scenes/--renderers` take comma-separated globs; also `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`, `--experiment`, `--width`, `--height`. |
 | `cli quality-gate <base> <candidate>` | Fail if the candidate's PSNR (from `fidelity-kit process`'s metrics) drops by more than `--threshold` dB on any scene.                                                                                                |
 | `cli converge`                        | Move-then-stop benchmark: write `results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                                                       |
-| `cli bench --renderers a,b`           | Steady-state ms/frame, and A/B speedup when two renderers are given; `--experiment` selects optional hierarchical variants; `--gpu` for timestamp queries ([docs/PERF.md](docs/PERF.md)).                             |
+| `cli bench --renderers a,b`           | Repeated five-second completed-work benchmarks and A/B speedup; JSON + offline HTML reports; `--experiment` selects variants; `--profile` / `--gpu` for instrumented GPU timing ([docs/PERF.md](docs/PERF.md)).       |
 
 Run `pnpm cli <command> --help` for all flags. `pnpm cli` runs the built `dist/`, so run `pnpm build` (or `pnpm dev`)
 after changing sources.
+
+### Live lab
+
+Run `pnpm build` then `pnpm live` and open <http://127.0.0.1:5173/> for orbit interaction, converged PNG captures, fresh seeded benchmarks, and saved report inspection. The lab supports browser cadence, completed-work throughput, optional GPU profiling, and alternating stock/experimental comparisons. See [docs/PERF.md](docs/PERF.md) for protocols, report semantics, and custom pipeline helpers.
 
 ### Viewer
 

@@ -70,11 +70,12 @@ in `submodules/three.js`. There is only ever one copy of three.
 - `src/ssr/NewSSRNode.js` and `src/ssgi-fast/SSGINode.js` are vendored nodes. They are developed here instead of in
   the submodule.
 
-| Renderer               | What it is                                                                                     |
-| ---------------------- | ---------------------------------------------------------------------------------------------- |
-| `three-gpu-pathtracer` | Ground truth (default 4096 spp, seeded).                                                       |
-| `three-current`        | Unmodified three.js r186 from npm (`three@0.186.1`) with its stock SSGI/SSR example pipelines. |
-| `three-new`            | The fork + vendored SSGI/SSR nodes, real-time, TRAA ([docs/THREE-NEW.md](docs/THREE-NEW.md)).  |
+| Renderer                      | What it is                                                                                     |
+| ----------------------------- | ---------------------------------------------------------------------------------------------- |
+| `three-gpu-pathtracer`        | Ground truth (default 4096 spp, seeded).                                                       |
+| `three-gpu-pathtracer-webgpu` | Independent WebGPU path-traced reference from the path-tracer fork.                            |
+| `three-current`               | Unmodified three.js r186 from npm (`three@0.186.1`) with its stock SSGI/SSR example pipelines. |
+| `three-new`                   | The fork + vendored SSGI/SSR nodes, real-time, TRAA ([docs/THREE-NEW.md](docs/THREE-NEW.md)).  |
 
 ### `packages/cli`
 
@@ -82,6 +83,39 @@ Commands are the files in `src/commands/`, loaded by `yargs-file-commands`. Each
 process** (`render-process.ts`, `bench-process.ts`), because dawn and ANGLE don't share a process reliably and GPU
 state leaked between scenes. Headless GPU comes from `src/headless/webgpu.ts` (dawn, the `webgpu` package) and
 `src/headless/webgl.ts` (`@onirenaud/node-webgl`, ANGLE). `Math.random` is seeded, so renders are reproducible.
+
+Both path tracers already render directly in Node, without launching Puppeteer or a browser:
+
+| CLI renderer                  | Native backend                                                                           | Integration                                                                       |
+| ----------------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `three-gpu-pathtracer-webgpu` | [Dawn's `webgpu` package](https://github.com/dawn-gpu/node-webgpu)                       | Minimal canvas context backed by a GPU texture, with asynchronous pixel readback. |
+| `three-gpu-pathtracer`        | [`@onirenaud/node-webgl`](https://github.com/RenaudRohlinger/node-webgl) (ANGLE, WebGL2) | Canvas and DOM shims, with `getImageData()` pixel readback.                       |
+
+After building, try the WebGPU renderer with a small render into an isolated output directory:
+
+```sh
+pnpm cli render --scenes ssgi-basic --renderers three-gpu-pathtracer-webgpu --width 64 --height 64 --samples 16 --output /tmp/ss-fidelity-native-cli
+```
+
+Legacy WebGL uses `--renderers three-gpu-pathtracer`. Its native adapter can produce valid images, but the CLI
+currently counts render calls while the tracer skips sampling during shader compilation. A short render can
+exit successfully with a black image, and its reported sample count can exceed actual accumulated samples.
+Check pixel data rather than relying on the exit code. The accumulation bug is tracked in
+[#92](https://github.com/bhouston/three-ss-fidelity/issues/92); see the verification notes below.
+
+This avoids browser startup, a page server, and page-to-Node communication for CLI rendering. Faster total runs
+are plausible, especially for short jobs, but a speedup over Puppeteer requires a matched benchmark on the same
+GPU, scene, resolution, and sample count. The two path tracers use independent implementations, so comparing
+their timings does not measure native versus browser overhead. The WebGPU adapter currently approximates
+gradient backgrounds with their center color; differences between its images and the WebGL reference can also
+come from renderer behavior. Browser tests still verify the interactive viewer.
+
+Verification on macOS arm64 with Node 26.3.0, using `ssgi-basic` at 64×64 on `origin/main` revision
+`b07d48cbf15`: the WebGPU CLI produced a nonblack 16-sample image. Legacy WebGL CLI runs with both 16 and 1024
+requested samples produced all-zero RGB pixels. A direct native WebGL adapter probe that waited for its
+accumulated sample counter to reach 16 produced nonblack pixels after 181 render calls (7.56 seconds).
+These checks establish native rendering support and expose a CLI accumulation issue; they do not establish
+a speedup or full-scene fidelity.
 
 | Command                               | Does                                                                                                                                                                                                                                    |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -137,7 +137,7 @@ pnpm exec oxfmt <changed files>
 
 ## Results introduction
 
-Edit `results/index.md` to update the Markdown introduction above the comparisons. Fidelity-kit displays this file in the local viewer, static exports, and the deployed container. Keep its renderer descriptions in sync with `results/fidelity.json`.
+Edit `results/README.md` to update the Markdown introduction above the comparisons. Fidelity-kit displays this file in the local viewer, static exports, and the deployed container. Keep its renderer descriptions in sync with `results/fidelity.json`.
 
 ## Documentation
 

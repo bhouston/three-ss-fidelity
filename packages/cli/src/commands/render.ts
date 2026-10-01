@@ -1,9 +1,10 @@
 import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { hierarchyExperiments, rendererNames } from '@ss-fidelity/renderers';
+import { hierarchyExperiments, hierarchyImageName, rendererNames } from '@ss-fidelity/renderers';
 import { listSceneNames } from '@ss-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
-import { resultsDir } from '../paths.js';
+import { renderPath, resultsDir } from '../paths.js';
 import type { RenderJob } from '../render-process.js';
 import { selectNames } from '../select.js';
 
@@ -75,6 +76,11 @@ export const command = defineCommand({
         choices: ['hits', 'hitcolor'] as const,
         describe: 'three-new: write the SSR trace debug view as <renderer>@<view>.avif instead of the image',
       })
+      .option('missing-only', {
+        type: 'boolean',
+        default: false,
+        describe: 'Skip existing images and render only missing outputs',
+      })
       .option('output', { type: 'string', default: resultsDir, describe: 'Results directory' }),
   handler: async (argv) => {
     const scenes = selectNames(listSceneNames(), argv.scenes, 'scene');
@@ -88,7 +94,7 @@ export const command = defineCommand({
     // result may depend on what rendered before it
     for (const renderer of renderers) {
       for (const scene of scenes) {
-        const code = await run({
+        const job: RenderJob = {
           renderer,
           scenes: [scene],
           outDir: argv.output,
@@ -99,7 +105,30 @@ export const command = defineCommand({
           motion: parseMotion(argv.motion, argv.motionObject),
           ssrDebug: argv.ssrDebug,
           hierarchyExperiment: argv.experiment as RenderJob['hierarchyExperiment'],
-        });
+        };
+        if (argv.missingOnly) {
+          // Blender rejects these modes in the child process; do not hide those errors by skipping its job.
+          if (renderer !== 'blender' || (!job.motion && !job.ssrDebug)) {
+            const outputName = hierarchyImageName(renderer, job.hierarchyExperiment);
+            if (job.motion) {
+              // Keep the full frame progression; only remove capture writes for images already on disk.
+              job.motion.captures = job.motion.captures.filter(
+                (frame) => !existsSync(renderPath(scene, `${outputName}@m${frame}`, job.outDir)),
+              );
+              if (job.motion.captures.length === 0) {
+                console.log(`${scene} | ${renderer}: skipped (images already exist)`);
+                continue;
+              }
+            } else {
+              const imageName = job.ssrDebug ? `${outputName}@${job.ssrDebug}` : outputName;
+              if (existsSync(renderPath(scene, imageName, job.outDir))) {
+                console.log(`${scene} | ${renderer}: skipped (image already exists)`);
+                continue;
+              }
+            }
+          }
+        }
+        const code = await run(job);
         if (code !== 0) {
           console.error(`${scene} | ${renderer} failed (exit code ${code})`);
           failed = true;

@@ -166,6 +166,8 @@ Use `pnpm cli render --missing-only` to fill gaps across all renderers, includin
 | `three-new-ssr-radiance-mips`                                                     | `three-new-ssr-radiance-mips.avif`  |
 | `three-new-ssgi-radiance-mips`                                                    | `three-new-ssgi-radiance-mips.avif` |
 | `three-new-hierarchy-combined`                                                    | `three-new-hierarchy-combined.avif` |
+| `three-new-ssgi-half`                                                             | `three-new-ssgi-half.avif`          |
+| `three-new-ssgi-third`                                                            | `three-new-ssgi-third.avif`         |
 | `three-current`, `three-gpu-pathtracer`, `three-gpu-pathtracer-webgpu`, `blender` | `<renderer>.avif`                   |
 
 For example, `pnpm cli render --missing-only --renderers three-new-hierarchy-combined` fills only combined hierarchy captures. `cli render` no longer accepts `--experiment`; select the full renderer name instead. Baseline images retain their existing `three-new.avif` filename and viewer ID.

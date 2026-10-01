@@ -17,6 +17,8 @@ export const hierarchyExperiments = [
   'ssr-radiance-mips',
   'ssgi-radiance-mips',
   'hierarchy-combined',
+  'ssgi-half',
+  'ssgi-third',
 ] as const;
 export type HierarchyExperiment = (typeof hierarchyExperiments)[number];
 

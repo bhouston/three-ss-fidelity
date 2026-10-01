@@ -72,6 +72,8 @@ const definitions = {
   ],
 };
 definitions['hierarchy-combined'] = [...new Set(Object.values(definitions).flat()), 'ssgi-metallic'];
+definitions['ssgi-half'] = [...definitions['ssgi-radiance-mips'], 'ssgi-metallic'];
+definitions['ssgi-third'] = definitions['ssgi-half'];
 const experiments = values.experiments.split(',');
 for (const experiment of experiments) if (!definitions[experiment]) throw new Error(`Unknown experiment ${experiment}`);
 const scenes = values.scenes?.split(',') ?? [...new Set(experiments.flatMap((e) => definitions[e]))];

@@ -77,7 +77,10 @@ it('combines all three techniques while preserving the independent profiles', as
       // Perfect mirrors and secondary bounces retain the original, unquantized history source.
       expect(reflections.colorNode).not.toBe(gi.beautyNode);
     }
-    expect(state.targets).toHaveLength(experiment === 'ssr-radiance-mips' ? 2 : 1);
+    const reduced = experiment === 'ssgi-half' || experiment === 'ssgi-third';
+    expect(gi.resolutionScale).toBe(experiment === 'ssgi-half' ? 0.5 : experiment === 'ssgi-third' ? 1 / 3 : 1);
+    expect(reflections.resolutionScale).toBe(1);
+    expect(state.targets).toHaveLength(experiment === 'ssr-radiance-mips' || reduced ? 2 : 1);
     const disposals = state.targets.map((target) => vi.spyOn(target, 'dispose'));
     live.dispose();
     disposals.forEach((dispose) => expect(dispose).toHaveBeenCalledTimes(1));
@@ -96,6 +99,38 @@ it('keeps full-resolution SSR radiance when GI renders at half resolution', asyn
   expect(reflections._radianceMipNode).not.toBe(gi.beautyNode);
   expect(gi.beautyNode.getResolutionScale()).toBe(0.5);
   expect(reflections._radianceMipNode.getResolutionScale()).toBe(1);
+  live.dispose();
+});
+
+it.each(['ssgi-half', 'ssgi-third'] as const)('scales only GI and its radiance source for %s', async (experiment) => {
+  const live = await createThreeNewRenderer({} as HTMLCanvasElement, setup(0.5), {
+    width: 161,
+    height: 121,
+    hierarchyExperiment: experiment,
+  });
+  const gi = vi.mocked(ssgi).mock.results[0]!.value;
+  const scale = experiment === 'ssgi-half' ? 0.25 : 1 / 6;
+  expect(gi.resolutionScale).toBe(scale);
+  expect(gi.beautyNode.getResolutionScale()).toBe(scale);
+  expect(vi.mocked(newSSR).mock.results[0]!.value.resolutionScale).toBe(0.5);
+  gi.setSize(161, 121);
+  expect(gi._ssgiRenderTarget.width).toBe(Math.round(161 * scale));
+  expect(gi._ssgiRenderTarget.height).toBe(Math.round(121 * scale));
+  gi.setSize(1, 1);
+  expect(gi._ssgiRenderTarget.width).toBe(1);
+  expect(gi._ssgiRenderTarget.height).toBe(1);
+  expect(state.targets).toHaveLength(2);
+  live.dispose();
+});
+
+it('skips reduced-resolution resources for an SSR-only scene', async () => {
+  const live = await createThreeNewRenderer({} as HTMLCanvasElement, setup(1, false), {
+    width: 161,
+    height: 121,
+    hierarchyExperiment: 'ssgi-half',
+  });
+  expect(ssgi).not.toHaveBeenCalled();
+  expect(state.targets).toHaveLength(0);
   live.dispose();
 });
 

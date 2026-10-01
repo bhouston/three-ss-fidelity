@@ -173,7 +173,13 @@ The next levers are listed under "Next steps" in [history/SSR_TEMPORAL.md](histo
 
 ## Tools
 
-- `pnpm cli quality-gate three-current three-new` compares mean RMSE.
+- `pnpm cli quality-gate three-current three-new` checks the per-scene/pass PSNR drop (default allowance 0.1 dB).
 - `pnpm cli converge` measures quality after a camera move ([CONVERGENCE.md](CONVERGENCE.md)).
 - `pnpm cli bench --renderers three-new` measures frame time ([PERF.md](PERF.md)).
 - `pnpm cli render --ssr-debug hits` writes the SSR hit classification.
+
+## Optional hierarchical experiments
+
+`cli render` and `cli bench` accept `--experiment ssr-hiz-tight`, `ssr-radiance-mips`, or `ssgi-radiance-mips`.
+The default is `baseline`. See [history/HIERARCHICAL.md](history/HIERARCHICAL.md) for the research,
+independent experiments, diagnostics, reproducible runner, and measured performance/quality tradeoffs.

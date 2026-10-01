@@ -1,5 +1,6 @@
 // Asset-free experiments: isolate light transport from textures, SSR, ambient light and tone mapping.
 import {
+  BoxGeometry,
   Color,
   Mesh,
   MeshPhysicalMaterial,
@@ -88,6 +89,22 @@ function corner(overrides: Partial<SSGIEffect> = {}): SceneSetup {
   return result;
 }
 
+// High-frequency radiance next to a depth discontinuity: catches color bleeding that a smooth wall hides.
+function hierarchyDiscontinuity(): SceneSetup {
+  const result = corner({ sliceCount: 8, stepCount: 32, radius: 32 });
+  result.scene.remove(result.scene.getObjectByName('emitter')!);
+  for (let x = 0; x < 16; x++) {
+    const stripe = material(0);
+    stripe.emissive.setRGB(x % 2 ? 0.8 : 0, x % 2 ? 0 : 0.8, 0);
+    plane(result.scene, `emitter-stripe-${x}`, 10 / 16, 6, stripe, [-5 + ((x + 0.5) * 10) / 16, 3, -5], [0, 0, 0]);
+  }
+  const blocker = new Mesh(new BoxGeometry(0.08, 5, 0.08), material(0));
+  blocker.name = 'thin-blocker';
+  blocker.position.set(0, 2.5, -3);
+  result.scene.add(blocker);
+  return result;
+}
+
 function enclosure(fov: number): SceneSetup {
   const result = setup(fov);
   floor(result.scene, material(0.5));
@@ -124,6 +141,11 @@ function diagnostic(name: string, description: string, create: () => SceneSetup)
 }
 
 export const giDiagnosticScenes: SceneDefinition[] = [
+  diagnostic(
+    'gi-hierarchy-discontinuity',
+    'Alternating red/green emissive stripes behind a thin black occluder: radiance-mip bleeding.',
+    hierarchyDiscontinuity,
+  ),
   diagnostic(
     'gi-emitter-corner',
     'Single-bounce control: gray floor lit only by a visible black-albedo emissive wall.',

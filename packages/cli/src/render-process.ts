@@ -3,13 +3,17 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
-import type { PassName, RendererName } from '@ss-fidelity/renderers';
+import type { HierarchyExperiment, PassName, RendererName } from '@ss-fidelity/renderers';
 
 /** A renderer job can also target Blender Cycles, a second ground-truth renderer that isn't a `LiveRenderer`
  * (it renders in one batch call via `renderBlender`, not `createRenderer`'s incremental frame loop). */
 export type JobRendererName = RendererName | 'blender';
 
 export interface RenderJob {
+  hierarchyExperiment?: HierarchyExperiment;
+  /** Override native scene dimensions for resolution-dependent experiments. */
+  width?: number;
+  height?: number;
   renderer: JobRendererName;
   scenes: string[];
   passes: PassName[];
@@ -55,12 +59,13 @@ async function main(job: RenderJob): Promise<void> {
   const screenSpace = !usesSamples(job.renderer);
   const headless = usesWebGL(job.renderer) ? await import('./headless/webgl.js') : await import('./headless/webgpu.js');
   headless.install();
-  const { createRenderer, passEffects } = await import('@ss-fidelity/renderers');
+  const { createRenderer, passEffects, hierarchyImageName } = await import('@ss-fidelity/renderers');
   const { getScene } = await import('@ss-fidelity/scenes');
   const { createNodeSceneContext } = await import('@ss-fidelity/scenes/node');
   const { renderPath } = await import('./paths.js');
   const { RESULT_AVIF } = await import('./compare.js');
   const ctx = createNodeSceneContext();
+  const outputName = hierarchyImageName(job.renderer, job.hierarchyExperiment);
 
   for (const name of job.scenes) {
     for (const pass of job.passes) {
@@ -69,14 +74,26 @@ async function main(job: RenderJob): Promise<void> {
   }
 
   async function render(name: string, pass: PassName): Promise<void> {
-    const { width, height, create } = getScene(name);
+    const definition = getScene(name);
+    const { create } = definition;
+    const width = job.width ?? definition.width;
+    const height = job.height ?? definition.height;
+    if (![width, height].every((size) => Number.isInteger(size) && size > 0)) {
+      throw new Error('Render dimensions must be positive integers');
+    }
     const start = performance.now();
     seedRandom(); // before the scene and renderer draw any random numbers
     const setup = await create(ctx);
     const canvas = headless.createCanvas(width, height);
     if (job.renderer === 'blender') return renderBlenderJob(name, pass, setup, canvas, width, height, start);
-    const renderer = await createRenderer(job.renderer, canvas, setup, { width, height, pass, ssrDebug: job.ssrDebug });
-    if (job.motion) return renderMotion(name, pass, setup, renderer, canvas, job.outDir, job.motion);
+    const renderer = await createRenderer(job.renderer, canvas, setup, {
+      width,
+      height,
+      pass,
+      ssrDebug: job.ssrDebug,
+      hierarchyExperiment: job.hierarchyExperiment,
+    });
+    if (job.motion) return renderMotion(name, pass, setup, renderer, canvas, job.outDir, job.motion, outputName);
     const target = screenSpace ? (job.frames ?? passEffects(setup, pass).frames) : job.samples;
     const renderStart = performance.now();
     while (renderer.frames < target) {
@@ -86,7 +103,7 @@ async function main(job: RenderJob): Promise<void> {
     }
     const pixels = await headless.readPixels(canvas);
     const renderMs = performance.now() - renderStart;
-    const file = renderPath(name, pass, job.ssrDebug ? `${job.renderer}@${job.ssrDebug}` : job.renderer, job.outDir);
+    const file = renderPath(name, pass, job.ssrDebug ? `${outputName}@${job.ssrDebug}` : outputName, job.outDir);
     await mkdir(path.dirname(file), { recursive: true });
     await sharp(pixels, { raw: { width, height, channels: 4 } })
       .removeAlpha()
@@ -138,6 +155,7 @@ async function renderMotion(
   canvas: HTMLCanvasElement,
   outDir: string,
   { degrees, moveFrames, captures, object }: NonNullable<RenderJob['motion']>,
+  outputName: string,
 ): Promise<void> {
   const headless = await import('./headless/webgpu.js');
   const { renderPath } = await import('./paths.js');
@@ -173,7 +191,7 @@ async function renderMotion(
     renderer.render();
     await new Promise((resolve) => setImmediate(resolve));
     if (!captures.includes(f)) continue;
-    const file = renderPath(name, pass, `${renderer.name}@m${f}`, outDir);
+    const file = renderPath(name, pass, `${outputName}@m${f}`, outDir);
     await mkdir(path.dirname(file), { recursive: true });
     await sharp(await headless.readPixels(canvas), { raw: { width: canvas.width, height: canvas.height, channels: 4 } })
       .removeAlpha()

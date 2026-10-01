@@ -232,6 +232,15 @@ function diagnostic(name: string, description: string, create: () => SceneSetup)
 }
 
 export const ssrDiagnosticScenes: SceneDefinition[] = [
+  {
+    ...diagnostic(
+      'ssr-diag-odd-size',
+      'Thin emissive pole and overlapping objects at 481x361: odd-sized Hi-Z edge coverage.',
+      occlusion,
+    ),
+    width: 481,
+    height: 361,
+  },
   diagnostic(
     'ssr-diag-mirror',
     'Mirror metal floor (roughness 0) with emissive box/sphere/cylinder emitters at ~30° elevation.',

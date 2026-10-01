@@ -1,7 +1,7 @@
 // three-new: WebGPURenderer + RenderPipeline built like the three.js fork's webgpu_postprocessing_ssgi.html, with
 // solid-angle SSGI (vendored ssgi-fast/SSGINode.js) and real-time stochastic SSR (vendored ssr/NewSSRNode.js),
 // resolved with TRAA. See docs/THREE-NEW.md.
-import { BackSide, LinearSRGBColorSpace, NoToneMapping } from 'three';
+import { BackSide, LinearMipmapLinearFilter, LinearSRGBColorSpace, NoToneMapping } from 'three';
 import {
   MeshBasicNodeMaterial,
   PMREMGenerator,
@@ -108,6 +108,7 @@ function createPipeline(
   setup: SceneSetup,
   aoOutput: boolean,
   ssrDebug: RendererOptions['ssrDebug'],
+  hierarchyExperiment: RendererOptions['hierarchyExperiment'],
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const resolutionScale = effects.resolutionScale ?? 1;
@@ -181,8 +182,13 @@ function createPipeline(
       type: UnsignedInt101111Type,
       format: RGBFormat,
     });
+    if (hierarchyExperiment === 'ssgi-radiance-mips') {
+      giRadianceSource.value.generateMipmaps = true;
+      giRadianceSource.value.minFilter = LinearMipmapLinearFilter;
+    }
     rttDisposables.push(giRadianceSource);
     giPass = (ssgi as AnyNode)(giRadianceSource, prePassDepth, sceneNormal, camera);
+    giPass.radianceMips = hierarchyExperiment === 'ssgi-radiance-mips';
     giPass.loopInvariantInitialStep = true;
     giPass.useSolidAngleWeighting.value = true;
     giPass.sliceCount.value = effects.ssgi.sliceCount;
@@ -207,6 +213,17 @@ function createPipeline(
     backPass.transparent = true; // like the pre-pass
     backPass.overrideMaterial = new MeshBasicNodeMaterial({ side: BackSide });
 
+    // A mipmapped, reprojected source costs an extra pass for SSR; benchmark that cost too.
+    let ssrRadiance: AnyNode = previousRadiance;
+    if (hierarchyExperiment === 'ssr-radiance-mips') {
+      ssrRadiance = rtt(previousRadiance.sample(screenUV), null, null, {
+        type: UnsignedInt101111Type,
+        format: RGBFormat,
+        generateMipmaps: true,
+        minFilter: LinearMipmapLinearFilter,
+      });
+      rttDisposables.push(ssrRadiance);
+    }
     const ssrPass: AnyNode = (newSSR as AnyNode)(previousRadiance, prePassDepth, sceneNormal, {
       metalnessNode: prePassMetalRoughness.r,
       roughnessNode: prePassMetalRoughness.g,
@@ -224,6 +241,8 @@ function createPipeline(
       hitMaterialNode: prePass.getTextureNode('metalRoughness'),
       hitSpecularNode: prePass.getTextureNode('specular'),
       ...SSR_OPTIONS,
+      tightHiZ: hierarchyExperiment === 'ssr-hiz-tight',
+      radianceMipNode: hierarchyExperiment === 'ssr-radiance-mips' ? ssrRadiance : null,
     });
     if (scene.environment) ssrPass.environmentIntensity.value = scene.environmentIntensity;
     // NewSSRNode drops the fork's distance-fade/hit-rejection use of maxDistance in radiance mode, so maxDistance
@@ -290,7 +309,7 @@ function createPipeline(
 export async function createThreeNewRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
-  { width, height, pass: renderPass, trackTimestamp = false, ssrDebug }: RendererOptions,
+  { width, height, pass: renderPass, trackTimestamp = false, ssrDebug, hierarchyExperiment }: RendererOptions,
 ): Promise<LiveRenderer> {
   const setup = { ...sceneSetup, effects: passEffects(sceneSetup, renderPass) };
   const { scene, camera, effects } = setup;
@@ -311,7 +330,7 @@ export async function createThreeNewRenderer(
     pmremGenerator.dispose();
   }
 
-  const renderPipeline = createPipeline(renderer, setup, renderPass === 'ao', ssrDebug);
+  const renderPipeline = createPipeline(renderer, setup, renderPass === 'ao', ssrDebug, hierarchyExperiment);
   const progressive = (renderPipeline as AnyNode).progressiveTRAA;
   let frames = 0;
   let sceneSignature = 0;

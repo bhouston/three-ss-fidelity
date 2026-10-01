@@ -1,0 +1,1122 @@
+{
+  "metadata": {
+    "date": "2026-10-01T12:55:43.977Z",
+    "revision": "5891940f316e101ce417411c0d0a5e025a7bea90",
+    "dirty": true,
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpu": "Apple M3",
+    "node": "v26.3.0",
+    "timing": {
+      "width": 1280,
+      "height": 720,
+      "warmup": 40,
+      "measure": 100,
+      "repeats": 3,
+      "method": "median GPU-synchronized batch wall time; separate timestamp run"
+    },
+    "quality": {
+      "frames": 128,
+      "dimensions": "native scene dimensions",
+      "encoding": "AVIF quality 90, 4:4:4; decoded sRGB RGB8 metrics",
+      "maxPsnrDropDb": 0.1
+    },
+    "claimStatus": "Exploratory only. Shared CPU/GPU workload prevents reliable profiling. SSR mip timings are for an earlier prototype with a redundant base fetch."
+  },
+  "scenes": {
+    "ssr-diag-mirror": {
+      "timing": {
+        "baseline": {
+          "runs": [
+            {
+              "totalMs": 4.341756250000003,
+              "cpuMs": 1.3879500000000002
+            },
+            {
+              "totalMs": 4.326135400000004,
+              "cpuMs": 1.3804000000000003
+            },
+            {
+              "totalMs": 4.372354150000001,
+              "cpuMs": 1.3833
+            }
+          ],
+          "medianMs": 4.341756250000003,
+          "rangeMs": [4.326135400000004, 4.372354150000001],
+          "speedup": 1,
+          "timestamps": {
+            "totalMs": 8.961758350000002,
+            "cpuMs": 2.1033999999999997,
+            "gpuMs": 41.091072,
+            "passes": [
+              {
+                "name": "Render Pipeline",
+                "ms": 5.177344
+              },
+              {
+                "name": "SSR [ Previous Geometry ]",
+                "ms": 5.177344
+              },
+              {
+                "name": "SSR [ Temporal ]",
+                "ms": 5.046272
+              },
+              {
+                "name": "SSR [ History ]",
+                "ms": 5.046272
+              },
+              {
+                "name": "TRAA",
+                "ms": 4.980736
+              },
+              {
+                "name": "r:3:4",
+                "ms": 4.9152
+              },
+              {
+                "name": "SSR [ Spatial Resolve ]",
+                "ms": 4.718592
+              },
+              {
+                "name": "SSR [ Reflections ]",
+                "ms": 4.390912
+              },
+              {
+                "name": "SSR [ Hi-Z 1 ]",
+                "ms": 0.262144
+              },
+              {
+                "name": "SSR [ Hi-Z 0 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 2 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 3 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "Pre-Pass",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 6 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "Back-Face Depth Pre-Pass",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 4 ]",
+                "ms": 0.065536
+              },
+              {
+                "name": "SSR [ Hi-Z 5 ]",
+                "ms": 0.065536
+              }
+            ]
+          }
+        },
+        "ssr-hiz-tight": {
+          "runs": [
+            {
+              "totalMs": 3.784406250000001,
+              "cpuMs": 1.4244999999999999
+            },
+            {
+              "totalMs": 3.7854375000000005,
+              "cpuMs": 1.3690000000000002
+            },
+            {
+              "totalMs": 3.8359583499999985,
+              "cpuMs": 1.35725
+            }
+          ],
+          "medianMs": 3.7854375000000005,
+          "rangeMs": [3.784406250000001, 3.8359583499999985],
+          "speedup": 1.1469628675681482,
+          "timestamps": {
+            "totalMs": 8.225789550000002,
+            "cpuMs": 2.1406,
+            "gpuMs": 33.161216,
+            "passes": [
+              {
+                "name": "Render Pipeline",
+                "ms": 4.325376
+              },
+              {
+                "name": "TRAA",
+                "ms": 4.128768
+              },
+              {
+                "name": "r:3:4",
+                "ms": 4.063232
+              },
+              {
+                "name": "SSR [ History ]",
+                "ms": 4.063232
+              },
+              {
+                "name": "SSR [ Previous Geometry ]",
+                "ms": 4.063232
+              },
+              {
+                "name": "SSR [ Temporal ]",
+                "ms": 3.997696
+              },
+              {
+                "name": "SSR [ Spatial Resolve ]",
+                "ms": 3.735552
+              },
+              {
+                "name": "SSR [ Reflections ]",
+                "ms": 3.473408
+              },
+              {
+                "name": "SSR [ Hi-Z 1 ]",
+                "ms": 0.262144
+              },
+              {
+                "name": "SSR [ Hi-Z 0 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 2 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 3 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "Pre-Pass",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 6 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "Back-Face Depth Pre-Pass",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 4 ]",
+                "ms": 0.065536
+              },
+              {
+                "name": "SSR [ Hi-Z 5 ]",
+                "ms": 0.065536
+              }
+            ]
+          }
+        },
+        "ssr-radiance-mips": {
+          "runs": [
+            {
+              "totalMs": 4.724899999999996,
+              "cpuMs": 1.7857999999999996
+            },
+            {
+              "totalMs": 4.656860450000011,
+              "cpuMs": 1.6616
+            },
+            {
+              "totalMs": 4.749770850000004,
+              "cpuMs": 1.6829500000000004
+            }
+          ],
+          "medianMs": 4.724899999999996,
+          "rangeMs": [4.656860450000011, 4.749770850000004],
+          "speedup": 0.9189096594636937,
+          "timestamps": {
+            "totalMs": 9.669493749999997,
+            "cpuMs": 2.7963999999999998,
+            "gpuMs": 41.48428800000001,
+            "passes": [
+              {
+                "name": "Render Pipeline",
+                "ms": 5.373952
+              },
+              {
+                "name": "SSR [ Previous Geometry ]",
+                "ms": 5.177344
+              },
+              {
+                "name": "TRAA",
+                "ms": 5.177344
+              },
+              {
+                "name": "SSR [ Temporal ]",
+                "ms": 5.111808
+              },
+              {
+                "name": "SSR [ History ]",
+                "ms": 5.111808
+              },
+              {
+                "name": "r:3:4",
+                "ms": 4.980736
+              },
+              {
+                "name": "SSR [ Spatial Resolve ]",
+                "ms": 4.784128
+              },
+              {
+                "name": "SSR [ Reflections ]",
+                "ms": 4.456448
+              },
+              {
+                "name": "SSR [ Hi-Z 1 ]",
+                "ms": 0.262144
+              },
+              {
+                "name": "RTT",
+                "ms": 0.262144
+              },
+              {
+                "name": "SSR [ Hi-Z 0 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 2 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 3 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "Pre-Pass",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 6 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "Back-Face Depth Pre-Pass",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 4 ]",
+                "ms": 0.065536
+              },
+              {
+                "name": "SSR [ Hi-Z 5 ]",
+                "ms": 0.065536
+              }
+            ]
+          }
+        }
+      },
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 36.584615217883126
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "image": "ssr-diag-mirror/images/ssr-diag-mirror/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.0
+        },
+        "ssr-hiz-tight": {
+          "reference": {
+            "psnr": 36.58462460691756
+          },
+          "baseline": {
+            "psnr": 56.956709527982284
+          },
+          "image": "ssr-diag-mirror/images/ssr-diag-mirror/beauty/three-new-ssr-hiz-tight.avif",
+          "passesReferenceGate": true,
+          "psnrDropDb": -9.389034431706023e-6
+        },
+        "ssr-radiance-mips": {
+          "reference": {
+            "psnr": 36.586859187493324
+          },
+          "baseline": {
+            "psnr": 56.94515344762581
+          },
+          "image": "ssr-diag-mirror/images/ssr-diag-mirror/beauty/three-new-ssr-radiance-mips.avif",
+          "passesReferenceGate": true,
+          "psnrDropDb": -0.0022439696101983486
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 36.584615217883126
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "image": "ssr-diag-mirror/repeat/ssr-diag-mirror/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.0
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-mirror/beauty/three-gpu-pathtracer.avif",
+        "sha256": "5b78bbb953fffce7305a3544209356957319efdbbde423675ed786f5a2c30c0f"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "ssr-diag-rough-30": {
+      "timing": {
+        "baseline": {
+          "runs": [
+            {
+              "totalMs": 7.239660400000003,
+              "cpuMs": 1.54195
+            },
+            {
+              "totalMs": 7.243218750000006,
+              "cpuMs": 1.5388999999999997
+            },
+            {
+              "totalMs": 7.216229149999992,
+              "cpuMs": 1.4926
+            }
+          ],
+          "medianMs": 7.239660400000003,
+          "rangeMs": [7.216229149999992, 7.243218750000006],
+          "speedup": 1,
+          "timestamps": {
+            "totalMs": 12.27517085,
+            "cpuMs": 3.0787500000000003,
+            "gpuMs": 58.261504,
+            "passes": [
+              {
+                "name": "Render Pipeline",
+                "ms": 7.471104
+              },
+              {
+                "name": "SSR [ Previous Geometry ]",
+                "ms": 7.340032
+              },
+              {
+                "name": "SSR [ Temporal ]",
+                "ms": 7.274496
+              },
+              {
+                "name": "SSR [ History ]",
+                "ms": 7.274496
+              },
+              {
+                "name": "TRAA",
+                "ms": 7.274496
+              },
+              {
+                "name": "r:3:4",
+                "ms": 7.077888
+              },
+              {
+                "name": "SSR [ Spatial Resolve ]",
+                "ms": 7.012352
+              },
+              {
+                "name": "SSR [ Reflections ]",
+                "ms": 6.356992
+              },
+              {
+                "name": "SSR [ Hi-Z 0 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "Pre-Pass",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 1 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 2 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 5 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 3 ]",
+                "ms": 0.065536
+              },
+              {
+                "name": "SSR [ Hi-Z 4 ]",
+                "ms": 0.065536
+              },
+              {
+                "name": "SSR [ Hi-Z 6 ]",
+                "ms": 0.065536
+              },
+              {
+                "name": "Back-Face Depth Pre-Pass",
+                "ms": 0.065536
+              }
+            ]
+          }
+        },
+        "ssr-hiz-tight": {
+          "runs": [
+            {
+              "totalMs": 6.173247900000002,
+              "cpuMs": 1.5720500000000004
+            },
+            {
+              "totalMs": 6.0877562499999955,
+              "cpuMs": 1.4600499999999998
+            },
+            {
+              "totalMs": 6.103437500000007,
+              "cpuMs": 1.4571
+            }
+          ],
+          "medianMs": 6.103437500000007,
+          "rangeMs": [6.0877562499999955, 6.173247900000002],
+          "speedup": 1.186161142798627,
+          "timestamps": {
+            "totalMs": 10.691583349999997,
+            "cpuMs": 2.8737999999999997,
+            "gpuMs": 51.052544,
+            "passes": [
+              {
+                "name": "Render Pipeline",
+                "ms": 6.5536
+              },
+              {
+                "name": "SSR [ Temporal ]",
+                "ms": 6.488064
+              },
+              {
+                "name": "SSR [ History ]",
+                "ms": 6.488064
+              },
+              {
+                "name": "SSR [ Previous Geometry ]",
+                "ms": 6.422528
+              },
+              {
+                "name": "SSR [ Spatial Resolve ]",
+                "ms": 6.291456
+              },
+              {
+                "name": "TRAA",
+                "ms": 6.291456
+              },
+              {
+                "name": "r:3:4",
+                "ms": 6.029312
+              },
+              {
+                "name": "SSR [ Reflections ]",
+                "ms": 5.505024
+              },
+              {
+                "name": "SSR [ Hi-Z 0 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 1 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "Pre-Pass",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 2 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 5 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "Back-Face Depth Pre-Pass",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 3 ]",
+                "ms": 0.065536
+              },
+              {
+                "name": "SSR [ Hi-Z 4 ]",
+                "ms": 0.065536
+              },
+              {
+                "name": "SSR [ Hi-Z 6 ]",
+                "ms": 0.065536
+              }
+            ]
+          }
+        },
+        "ssr-radiance-mips": {
+          "runs": [
+            {
+              "totalMs": 7.61649165,
+              "cpuMs": 1.7525
+            },
+            {
+              "totalMs": 7.597874999999999,
+              "cpuMs": 1.95
+            },
+            {
+              "totalMs": 7.675787499999996,
+              "cpuMs": 2.0907500000000003
+            }
+          ],
+          "medianMs": 7.61649165,
+          "rangeMs": [7.597874999999999, 7.675787499999996],
+          "speedup": 0.950524300778299,
+          "timestamps": {
+            "totalMs": 11.2578125,
+            "cpuMs": 2.9707499999999993,
+            "gpuMs": 50.462720000000004,
+            "passes": [
+              {
+                "name": "Render Pipeline",
+                "ms": 6.5536
+              },
+              {
+                "name": "TRAA",
+                "ms": 6.356992
+              },
+              {
+                "name": "SSR [ History ]",
+                "ms": 6.22592
+              },
+              {
+                "name": "SSR [ Previous Geometry ]",
+                "ms": 6.22592
+              },
+              {
+                "name": "SSR [ Temporal ]",
+                "ms": 6.160384
+              },
+              {
+                "name": "r:3:4",
+                "ms": 6.094848
+              },
+              {
+                "name": "SSR [ Spatial Resolve ]",
+                "ms": 5.89824
+              },
+              {
+                "name": "SSR [ Reflections ]",
+                "ms": 5.439488
+              },
+              {
+                "name": "RTT",
+                "ms": 0.262144
+              },
+              {
+                "name": "SSR [ Hi-Z 0 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 1 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 2 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 3 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 6 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "Pre-Pass",
+                "ms": 0.065536
+              },
+              {
+                "name": "SSR [ Hi-Z 4 ]",
+                "ms": 0.065536
+              },
+              {
+                "name": "SSR [ Hi-Z 5 ]",
+                "ms": 0.065536
+              },
+              {
+                "name": "Back-Face Depth Pre-Pass",
+                "ms": 0.065536
+              }
+            ]
+          }
+        }
+      },
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 37.123640120104675
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "image": "ssr-diag-rough-30/images/ssr-diag-rough-30/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.0
+        },
+        "ssr-hiz-tight": {
+          "reference": {
+            "psnr": 37.12408725688002
+          },
+          "baseline": {
+            "psnr": 53.79682818275009
+          },
+          "image": "ssr-diag-rough-30/images/ssr-diag-rough-30/beauty/three-new-ssr-hiz-tight.avif",
+          "passesReferenceGate": true,
+          "psnrDropDb": -0.00044713677534247154
+        },
+        "ssr-radiance-mips": {
+          "reference": {
+            "psnr": 37.1164484101177
+          },
+          "baseline": {
+            "psnr": 53.70058956817516
+          },
+          "image": "ssr-diag-rough-30/images/ssr-diag-rough-30/beauty/three-new-ssr-radiance-mips.avif",
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.007191709986976491
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 37.123640120104675
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "image": "ssr-diag-rough-30/repeat/ssr-diag-rough-30/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.0
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-rough-30/beauty/three-gpu-pathtracer.avif",
+        "sha256": "eab360c4d84b6fdd1728010836c2d03a71fcb5c03cc2a008143a1a89ebeb2c0a"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "ssr-diag-occlusion": {
+      "timing": {
+        "baseline": {
+          "runs": [
+            {
+              "totalMs": 4.256845849999996,
+              "cpuMs": 1.3672499999999999
+            },
+            {
+              "totalMs": 4.535835399999996,
+              "cpuMs": 2.6045000000000003
+            },
+            {
+              "totalMs": 4.2016062499999975,
+              "cpuMs": 1.3740499999999995
+            }
+          ],
+          "medianMs": 4.256845849999996,
+          "rangeMs": [4.2016062499999975, 4.535835399999996],
+          "speedup": 1,
+          "timestamps": {
+            "totalMs": 10.4931917,
+            "cpuMs": 2.55165,
+            "gpuMs": 49.545215999999996,
+            "passes": [
+              {
+                "name": "Render Pipeline",
+                "ms": 6.291456
+              },
+              {
+                "name": "SSR [ Temporal ]",
+                "ms": 6.094848
+              },
+              {
+                "name": "SSR [ History ]",
+                "ms": 6.094848
+              },
+              {
+                "name": "SSR [ Previous Geometry ]",
+                "ms": 6.094848
+              },
+              {
+                "name": "TRAA",
+                "ms": 6.094848
+              },
+              {
+                "name": "r:3:4",
+                "ms": 5.832704
+              },
+              {
+                "name": "SSR [ Spatial Resolve ]",
+                "ms": 5.636096
+              },
+              {
+                "name": "SSR [ Reflections ]",
+                "ms": 5.373952
+              },
+              {
+                "name": "SSR [ Hi-Z 1 ]",
+                "ms": 0.32768
+              },
+              {
+                "name": "SSR [ Hi-Z 0 ]",
+                "ms": 0.262144
+              },
+              {
+                "name": "SSR [ Hi-Z 2 ]",
+                "ms": 0.262144
+              },
+              {
+                "name": "Pre-Pass",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 3 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 4 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 5 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 6 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "Back-Face Depth Pre-Pass",
+                "ms": 0.065536
+              }
+            ]
+          }
+        },
+        "ssr-hiz-tight": {
+          "runs": [
+            {
+              "totalMs": 3.766756250000003,
+              "cpuMs": 1.7499999999999996
+            },
+            {
+              "totalMs": 3.463770850000003,
+              "cpuMs": 1.3205000000000002
+            },
+            {
+              "totalMs": 3.471414599999997,
+              "cpuMs": 1.35425
+            }
+          ],
+          "medianMs": 3.471414599999997,
+          "rangeMs": [3.463770850000003, 3.766756250000003],
+          "speedup": 1.2262568262517533,
+          "timestamps": {
+            "totalMs": 8.501864549999999,
+            "cpuMs": 1.9982999999999997,
+            "gpuMs": 36.569087999999994,
+            "passes": [
+              {
+                "name": "Render Pipeline",
+                "ms": 4.718592
+              },
+              {
+                "name": "TRAA",
+                "ms": 4.521984
+              },
+              {
+                "name": "SSR [ Temporal ]",
+                "ms": 4.456448
+              },
+              {
+                "name": "SSR [ History ]",
+                "ms": 4.456448
+              },
+              {
+                "name": "SSR [ Previous Geometry ]",
+                "ms": 4.456448
+              },
+              {
+                "name": "r:3:4",
+                "ms": 4.390912
+              },
+              {
+                "name": "SSR [ Spatial Resolve ]",
+                "ms": 4.128768
+              },
+              {
+                "name": "SSR [ Reflections ]",
+                "ms": 3.801088
+              },
+              {
+                "name": "SSR [ Hi-Z 0 ]",
+                "ms": 0.262144
+              },
+              {
+                "name": "SSR [ Hi-Z 1 ]",
+                "ms": 0.262144
+              },
+              {
+                "name": "Pre-Pass",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 2 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 3 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "Back-Face Depth Pre-Pass",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 6 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 4 ]",
+                "ms": 0.065536
+              },
+              {
+                "name": "SSR [ Hi-Z 5 ]",
+                "ms": 0.065536
+              }
+            ]
+          }
+        },
+        "ssr-radiance-mips": {
+          "runs": [
+            {
+              "totalMs": 4.6385896,
+              "cpuMs": 1.9181000000000001
+            },
+            {
+              "totalMs": 4.5140749999999965,
+              "cpuMs": 1.5896
+            },
+            {
+              "totalMs": 4.498581250000001,
+              "cpuMs": 1.6233999999999997
+            }
+          ],
+          "medianMs": 4.5140749999999965,
+          "rangeMs": [4.498581250000001, 4.6385896],
+          "speedup": 0.9430161993320889,
+          "timestamps": {
+            "totalMs": 8.982179199999996,
+            "cpuMs": 2.3875,
+            "gpuMs": 37.617664,
+            "passes": [
+              {
+                "name": "Render Pipeline",
+                "ms": 4.784128
+              },
+              {
+                "name": "SSR [ Temporal ]",
+                "ms": 4.58752
+              },
+              {
+                "name": "SSR [ History ]",
+                "ms": 4.58752
+              },
+              {
+                "name": "SSR [ Previous Geometry ]",
+                "ms": 4.58752
+              },
+              {
+                "name": "TRAA",
+                "ms": 4.58752
+              },
+              {
+                "name": "r:3:4",
+                "ms": 4.456448
+              },
+              {
+                "name": "SSR [ Spatial Resolve ]",
+                "ms": 4.325376
+              },
+              {
+                "name": "SSR [ Reflections ]",
+                "ms": 4.063232
+              },
+              {
+                "name": "SSR [ Hi-Z 1 ]",
+                "ms": 0.262144
+              },
+              {
+                "name": "RTT",
+                "ms": 0.262144
+              },
+              {
+                "name": "SSR [ Hi-Z 0 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 2 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "SSR [ Hi-Z 3 ]",
+                "ms": 0.196608
+              },
+              {
+                "name": "Pre-Pass",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 6 ]",
+                "ms": 0.131072
+              },
+              {
+                "name": "Back-Face Depth Pre-Pass",
+                "ms": 0.131072
+              },
+              {
+                "name": "SSR [ Hi-Z 4 ]",
+                "ms": 0.065536
+              },
+              {
+                "name": "SSR [ Hi-Z 5 ]",
+                "ms": 0.065536
+              }
+            ]
+          }
+        }
+      },
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 36.632211016456885
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "image": "ssr-diag-occlusion/images/ssr-diag-occlusion/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.0
+        },
+        "ssr-hiz-tight": {
+          "reference": {
+            "psnr": 36.635865975198854
+          },
+          "baseline": {
+            "psnr": 60.57923337752285
+          },
+          "image": "ssr-diag-occlusion/images/ssr-diag-occlusion/beauty/three-new-ssr-hiz-tight.avif",
+          "passesReferenceGate": true,
+          "psnrDropDb": -0.003654958741968528
+        },
+        "ssr-radiance-mips": {
+          "reference": {
+            "psnr": 36.63772787451275
+          },
+          "baseline": {
+            "psnr": 59.85954006236195
+          },
+          "image": "ssr-diag-occlusion/images/ssr-diag-occlusion/beauty/three-new-ssr-radiance-mips.avif",
+          "passesReferenceGate": true,
+          "psnrDropDb": -0.005516858055862883
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 36.632211016456885
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "image": "ssr-diag-occlusion/repeat/ssr-diag-occlusion/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.0
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-occlusion/beauty/three-gpu-pathtracer.avif",
+        "sha256": "57b1d8f93c36b253a66a9034cbf5d544aea45863ac135388006d3e5409897a1f"
+      },
+      "baselineRepeatPsnrDb": null
+    }
+  },
+  "discarded1080": {
+    "reason": "Identical baseline repetitions changed from about 9 ms to 665 ms during user heavy CPU/GPU tasks; run interrupted, no speed claim.",
+    "availableRuns": {
+      "ssr-radiance-mips-timing-0.json": {
+        "experiment": "ssr-radiance-mips",
+        "renderer": "three-new",
+        "pass": "beauty",
+        "scenes": {
+          "ssr-diag-mirror": {
+            "totalMs": 10.095320849999997,
+            "cpuMs": 2.47255
+          }
+        }
+      },
+      "ssr-radiance-mips-timing-1.json": {
+        "experiment": "ssr-radiance-mips",
+        "renderer": "three-new",
+        "pass": "beauty",
+        "scenes": {
+          "ssr-diag-mirror": {
+            "totalMs": 9.973347899999998,
+            "cpuMs": 3.2278
+          }
+        }
+      },
+      "baseline-timing-1.json": {
+        "experiment": "baseline",
+        "renderer": "three-new",
+        "pass": "beauty",
+        "scenes": {
+          "ssr-diag-mirror": {
+            "totalMs": 665.3557583499999,
+            "cpuMs": 12.229250000000004
+          }
+        }
+      },
+      "ssr-hiz-tight-timing-1.json": {
+        "experiment": "ssr-hiz-tight",
+        "renderer": "three-new",
+        "pass": "beauty",
+        "scenes": {
+          "ssr-diag-mirror": {
+            "totalMs": 7.873339599999997,
+            "cpuMs": 2.4190499999999995
+          }
+        }
+      },
+      "baseline-timing-0.json": {
+        "experiment": "baseline",
+        "renderer": "three-new",
+        "pass": "beauty",
+        "scenes": {
+          "ssr-diag-mirror": {
+            "totalMs": 9.326166649999982,
+            "cpuMs": 2.40895
+          }
+        }
+      },
+      "ssr-hiz-tight-timing-0.json": {
+        "experiment": "ssr-hiz-tight",
+        "renderer": "three-new",
+        "pass": "beauty",
+        "scenes": {
+          "ssr-diag-mirror": {
+            "totalMs": 7.773497950000001,
+            "cpuMs": 2.0625000000000004
+          }
+        }
+      }
+    }
+  }
+}

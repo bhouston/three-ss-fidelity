@@ -9,11 +9,22 @@ export const rendererNames = [
 ] as const;
 export type RendererName = (typeof rendererNames)[number];
 
+/** Independent opt-in experiments. The baseline leaves the production pipeline unchanged. */
+export const hierarchyExperiments = ['baseline', 'ssr-hiz-tight', 'ssr-radiance-mips', 'ssgi-radiance-mips'] as const;
+export type HierarchyExperiment = (typeof hierarchyExperiments)[number];
+
+/** Static experiment captures use fidelity-kit's identifier alphabet. Motion/debug add their own suffixes. */
+export function hierarchyImageName(renderer: string, experiment?: HierarchyExperiment): string {
+  return experiment && experiment !== 'baseline' ? `${renderer}-${experiment}` : renderer;
+}
+
 /** What is rendered: render settings applied to every scene (not scene settings). */
 export const passNames = ['beauty', 'direct', 'ao'] as const;
 export type PassName = (typeof passNames)[number];
 
 export interface RendererOptions {
+  /** three-new only; rebuild the pipeline when changing this option. */
+  hierarchyExperiment?: HierarchyExperiment;
   width: number;
   height: number;
   /** Screen-space renderers: record WebGPU timestamp queries (renderer.resolveTimestampsAsync) for GPU timing. */

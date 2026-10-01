@@ -82,9 +82,9 @@ which also disables dawn's timestamp-quantization toggle, a WebGPU spec timing-s
 otherwise rounds query results to a coarse granularity -- safe here since this is a headless benchmark process,
 not a browser sandbox).
 
-## `cli quality-gate`: RMSE regression gate
+## `cli quality-gate`: PSNR regression gate
 
-Compares two already-compared renderers' mean RMSE against the `three-gpu-pathtracer` reference (i.e. it reads
+Compares two already-compared renderers' PSNR against the `three-gpu-pathtracer` reference (i.e. it reads
 `<renderer>.vs-three-gpu-pathtracer.metrics.json`, produced by `fidelity-kit process`, rather than re-decoding images):
 
 ```sh
@@ -92,7 +92,8 @@ pnpm exec fidelity-kit process results
 pnpm cli quality-gate three-current three-new --scenes ssgi-basic,ssgi-animated
 ```
 
-Fails (non-zero exit) when the candidate's mean RMSE across the selected scenes/passes is worse than the
-baseline's by more than `--threshold` (default `0.01`, i.e. 1%, relative). Options: `--scenes`, `--passes`
+Fails (non-zero exit) when the candidate's PSNR on any selected scene/pass drops from the
+baseline's by more than `--threshold` dB (default `0.1`). Higher PSNR is better; `null` in JSON
+means infinite PSNR (identical images). A perfect baseline becoming imperfect fails for every finite threshold. Options: `--scenes`, `--passes`
 (both default `*`), `--threshold`, `--results` (results directory), `--out` (JSON file with the row-by-row and
 summary result). Scene/pass combinations missing a metrics file for either renderer are skipped with a warning.

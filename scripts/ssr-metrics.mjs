@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Prints a table of beauty RMSE/PSNR per ssr-* scene for given renderers, plus mean RMSE overall and
+// Prints a table of beauty PSNR per ssr-* scene for given renderers, plus mean PSNR overall and
 // separately over the ssr-diag-* and ssr-steampunk-* groups.
 // Usage: node scripts/ssr-metrics.mjs [renderer1,renderer2,...]
 import { readFileSync, readdirSync } from 'node:fs';
@@ -23,10 +23,10 @@ const rows = [];
 for (const scene of scenes) {
   const row = { scene, group: group(scene) };
   for (const renderer of renderers) {
-    const file = path.join(resultsDir, scene, 'beauty', `metrics-${renderer}.json`);
+    const file = path.join(resultsDir, scene, 'beauty', `${renderer}.vs-three-gpu-pathtracer.metrics.json`);
     try {
       const data = JSON.parse(readFileSync(file, 'utf8'));
-      row[renderer] = { rmse: data.rmse, psnr: data.psnr };
+      row[renderer] = { psnr: data.psnr };
     } catch {
       row[renderer] = null;
     }
@@ -34,30 +34,35 @@ for (const scene of scenes) {
   rows.push(row);
 }
 
-const header = ['scene', ...renderers.flatMap((r) => [`${r} RMSE`, `${r} PSNR`])];
+const header = ['scene', ...renderers.map((r) => `${r} PSNR (dB)`)];
 console.log(header.join(' | '));
 for (const row of rows) {
   const cells = [row.scene];
   for (const renderer of renderers) {
     const m = row[renderer];
-    cells.push(m ? m.rmse.toFixed(4) : 'n/a', m ? (m.psnr?.toFixed(2) ?? '∞') : 'n/a');
+    cells.push(m ? (m.psnr?.toFixed(2) ?? '∞') : 'n/a');
   }
   console.log(cells.join(' | '));
 }
 
 const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : NaN);
 
-console.log('\nMean RMSE:');
+console.log('\nMean PSNR (dB):');
 for (const renderer of renderers) {
-  const all = rows.map((r) => r[renderer]?.rmse).filter((v) => v !== undefined && v !== null);
+  const all = rows
+    .map((r) => r[renderer]?.psnr)
+    .filter((v) => v !== undefined)
+    .map((v) => v ?? Infinity);
   const diag = rows
     .filter((r) => r.group === 'diag')
-    .map((r) => r[renderer]?.rmse)
-    .filter((v) => v != null);
+    .map((r) => r[renderer]?.psnr)
+    .filter((v) => v !== undefined)
+    .map((v) => v ?? Infinity);
   const steampunk = rows
     .filter((r) => r.group === 'steampunk')
-    .map((r) => r[renderer]?.rmse)
-    .filter((v) => v != null);
+    .map((r) => r[renderer]?.psnr)
+    .filter((v) => v !== undefined)
+    .map((v) => v ?? Infinity);
   console.log(
     `  ${renderer}: overall ${mean(all).toFixed(4)}, diag ${mean(diag).toFixed(4)}, steampunk ${mean(steampunk).toFixed(4)}`,
   );

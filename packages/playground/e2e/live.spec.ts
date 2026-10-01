@@ -2,6 +2,31 @@ import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import sharp from 'sharp';
 
+test('camera movement replaces history and settings support Back and Forward', async ({ page }) => {
+  await page.goto('/?scene=ssgi-basic&renderer=three-new&width=160&height=120&repeats=2');
+  await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
+  const initialLength = await page.evaluate(() => history.length);
+  const initialCamera = new URL(page.url()).searchParams.get('camera');
+  const box = (await page.locator('#viewport canvas').boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 30, box.y + box.height / 2 + 10, { steps: 10 });
+  await page.mouse.up();
+  await expect.poll(() => new URL(page.url()).searchParams.get('camera')).not.toBe(initialCamera);
+  expect(await page.evaluate(() => history.length)).toBe(initialLength);
+
+  // Save settings while damping may still have a trailing camera update pending.
+  await page.locator('#repeats').fill('4');
+  expect(await page.evaluate(() => history.length)).toBe(initialLength + 1);
+  await expect.poll(() => new URL(page.url()).searchParams.get('repeats')).toBe('4');
+  await page.goBack();
+  await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
+  await expect(page.locator('#repeats')).toHaveValue('2');
+  await page.goForward();
+  await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
+  await expect(page.locator('#repeats')).toHaveValue('4');
+});
+
 test('live scene, GPU/CPU reports, image capture, saved-report import and cancellation', async ({ page }, testInfo) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));

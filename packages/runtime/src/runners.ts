@@ -187,20 +187,45 @@ export async function benchmark(
 /** A single output may require multiple temporal frames or path-traced samples. */
 export async function capture<T>(
   session: RenderSession,
-  options: { frames: number; stepSeconds?: number },
+  options: {
+    frames: number;
+    stepSeconds?: number;
+    /** Count accumulated samples instead of render calls (calls may be skipped during shader compilation). */
+    accumulated?: { count(): number; stallTimeoutMs?: number };
+  },
   read: () => Promise<T>,
-  host: Pick<RunnerHost, 'yield'>,
+  host: Pick<RunnerHost, 'yield'> & Partial<Pick<RunnerHost, 'now'>>,
   signal?: AbortSignal,
 ): Promise<T> {
   if (!Number.isSafeInteger(options.frames) || options.frames < 1)
     throw new Error('Capture frames must be a positive integer');
-  for (let index = 0; index < options.frames; index++) {
+  const now = host.now ?? (() => performance.now());
+  const stallTimeoutMs = options.accumulated?.stallTimeoutMs ?? 120_000;
+  if (!Number.isFinite(stallTimeoutMs) || stallTimeoutMs <= 0)
+    throw new Error('Capture stall timeout must be positive and finite');
+  let count = options.accumulated?.count() ?? 0;
+  if (!Number.isFinite(count) || count < 0) throw new Error('Invalid accumulated sample count');
+  const target = count + options.frames;
+  let lastProgress = now();
+  for (let index = 0; count < target; index++) {
     signal?.throwIfAborted();
     const frame = context(index, options.stepSeconds ?? 1 / 60, 'capture');
     session.beforeFrame?.(frame);
     session.pipeline.render(frame);
-    if (index < options.frames - 1) await host.yield();
+    const next = options.accumulated?.count() ?? index + 1;
+    if (!Number.isFinite(next) || next < count) throw new Error('Invalid accumulated sample count');
+    if (next > count) lastProgress = now();
+    else if (now() - lastProgress >= stallTimeoutMs)
+      throw new Error(
+        `Capture stalled: accumulated ${count} of ${target} samples; no progress for ${stallTimeoutMs}ms`,
+      );
+    count = next;
+    if (count < target) await host.yield();
   }
+  signal?.throwIfAborted();
   await session.complete();
-  return read();
+  signal?.throwIfAborted();
+  const result = await read();
+  signal?.throwIfAborted();
+  return result;
 }

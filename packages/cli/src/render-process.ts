@@ -88,6 +88,11 @@ async function main(job: RenderJob): Promise<void> {
     const target = screenSpace ? (job.frames ?? setup.effects.frames) : job.samples;
     const renderStart = performance.now();
     const advance = createRendererFrameDriver(renderer.renderer);
+    const controller = new AbortController();
+    const interrupt = () => controller.abort(new Error('Render cancelled by SIGINT'));
+    const terminate = () => controller.abort(new Error('Render cancelled by SIGTERM'));
+    process.once('SIGINT', interrupt);
+    process.once('SIGTERM', terminate);
     let pixels: Uint8Array;
     try {
       pixels = await capture(
@@ -97,13 +102,19 @@ async function main(job: RenderJob): Promise<void> {
           complete: () => completeRenderer(renderer.renderer),
           dispose() {},
         },
-        { frames: Math.ceil(target) },
+        {
+          frames: Math.ceil(target),
+          accumulated: job.renderer === 'three-gpu-pathtracer' ? { count: () => renderer.frames } : undefined,
+        },
         () => headless.readPixels(canvas),
         {
           yield: () => new Promise((resolve) => setImmediate(resolve)),
         },
+        controller.signal,
       );
     } finally {
+      process.removeListener('SIGINT', interrupt);
+      process.removeListener('SIGTERM', terminate);
       renderer.dispose();
       disposeSceneSetup(setup);
     }

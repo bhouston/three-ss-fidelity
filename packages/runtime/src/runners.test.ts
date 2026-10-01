@@ -140,6 +140,85 @@ it('captures multiple logical frames, completes GPU work, and leaves session own
   expect(session.dispose).not.toHaveBeenCalled();
 });
 
+it('waits for accumulated samples through compilation and partial sampling before reading pixels', async () => {
+  const { session, host } = fixture();
+  let samples = 4;
+  let calls = 0;
+  session.pipeline.render = () => {
+    // Compilation skips the first two calls; tiled rendering advances by half a sample.
+    if (++calls > 2) samples += 0.5;
+  };
+  const read = vi.fn(async () => {
+    expect(samples).toBe(7);
+    expect(session.complete).toHaveBeenCalledOnce();
+    return 'pixels';
+  });
+  await expect(capture(session, { frames: 3, accumulated: { count: () => samples } }, read, host)).resolves.toBe(
+    'pixels',
+  );
+  expect(calls).toBe(8);
+  expect(host.yield).toHaveBeenCalledTimes(7);
+});
+
+it('fails stalled sample captures without reading pixels and leaves cleanup to the caller', async () => {
+  const { session, host } = fixture();
+  const read = vi.fn();
+  await expect(
+    capture(session, { frames: 1, accumulated: { count: () => 0, stallTimeoutMs: 5 } }, read, host),
+  ).rejects.toThrow('Capture stalled: accumulated 0 of 1 samples');
+  expect(read).not.toHaveBeenCalled();
+  expect(session.complete).not.toHaveBeenCalled();
+  expect(session.dispose).not.toHaveBeenCalled();
+});
+
+it('cancels sample captures during compilation without reading pixels', async () => {
+  const { session, host } = fixture();
+  const controller = new AbortController();
+  host.yield = vi.fn(async () => controller.abort(new Error('Render cancelled')));
+  const read = vi.fn();
+  await expect(
+    capture(session, { frames: 1, accumulated: { count: () => 0 } }, read, host, controller.signal),
+  ).rejects.toThrow('Render cancelled');
+  expect(read).not.toHaveBeenCalled();
+});
+
+it('does not return pixels when cancellation arrives during readback', async () => {
+  const { session, host } = fixture();
+  const controller = new AbortController();
+  await expect(
+    capture(
+      session,
+      { frames: 1 },
+      async () => {
+        controller.abort(new Error('Readback cancelled'));
+        return 'pixels';
+      },
+      host,
+      controller.signal,
+    ),
+  ).rejects.toThrow('Readback cancelled');
+});
+
+it('rejects invalid accumulation counters and stall timeouts', async () => {
+  for (const count of [NaN, Infinity, -1]) {
+    const { session, host } = fixture();
+    await expect(capture(session, { frames: 1, accumulated: { count: () => count } }, vi.fn(), host)).rejects.toThrow(
+      'Invalid accumulated sample count',
+    );
+  }
+  const { session, host } = fixture();
+  await expect(
+    capture(session, { frames: 1, accumulated: { count: () => 0, stallTimeoutMs: 0 } }, vi.fn(), host),
+  ).rejects.toThrow('Capture stall timeout');
+  let count = 1;
+  session.pipeline.render = () => {
+    count = 0;
+  };
+  await expect(capture(session, { frames: 1, accumulated: { count: () => count } }, vi.fn(), host)).rejects.toThrow(
+    'Invalid accumulated sample count',
+  );
+});
+
 it('computes even medians, sample standard deviation and nearest-rank p95 without mutating inputs', () => {
   const values = [4, 1, 3, 2];
   expect(statistics(values)).toMatchObject({ mean: 2.5, median: 2.5, p95: 4, n: 4 });

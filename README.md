@@ -91,17 +91,16 @@ Both path tracers already render directly in Node, without launching Puppeteer o
 | `three-gpu-pathtracer-webgpu` | [Dawn's `webgpu` package](https://github.com/dawn-gpu/node-webgpu)                       | Minimal canvas context backed by a GPU texture, with asynchronous pixel readback. |
 | `three-gpu-pathtracer`        | [`@onirenaud/node-webgl`](https://github.com/RenaudRohlinger/node-webgl) (ANGLE, WebGL2) | Canvas and DOM shims, with `getImageData()` pixel readback.                       |
 
-After building, try the WebGPU renderer with a small render into an isolated output directory:
+After building, try both renderers with a small render into an isolated output directory:
 
 ```sh
-pnpm cli render --scenes ssgi-basic --renderers three-gpu-pathtracer-webgpu --width 64 --height 64 --samples 16 --output /tmp/ss-fidelity-native-cli
+pnpm cli render --scenes ssgi-basic --renderers three-gpu-pathtracer,three-gpu-pathtracer-webgpu --width 64 --height 64 --samples 16 --output /tmp/ss-fidelity-native-cli
 ```
 
-Legacy WebGL uses `--renderers three-gpu-pathtracer`. Its native adapter can produce valid images, but the CLI
-currently counts render calls while the tracer skips sampling during shader compilation. A short render can
-exit successfully with a black image, and its reported sample count can exceed actual accumulated samples.
-Check pixel data rather than relying on the exit code. The accumulation bug is tracked in
-[#92](https://github.com/bhouston/three-ss-fidelity/issues/92); see the verification notes below.
+Legacy WebGL uses `--renderers three-gpu-pathtracer`. The CLI waits for the requested number of accumulated
+samples, including shader compilation calls that do not accumulate a sample. It fails if sampling makes no
+progress for two minutes, and SIGINT/SIGTERM cancel capture before an image is saved. Screen-space captures
+continue to count rendered frames.
 
 This avoids browser startup, a page server, and page-to-Node communication for CLI rendering. Faster total runs
 are plausible, especially for short jobs, but a speedup over Puppeteer requires a matched benchmark on the same
@@ -114,8 +113,10 @@ Verification on macOS arm64 with Node 26.3.0, using `ssgi-basic` at 64×64 on `o
 `b07d48cbf15`: the WebGPU CLI produced a nonblack 16-sample image. Legacy WebGL CLI runs with both 16 and 1024
 requested samples produced all-zero RGB pixels. A direct native WebGL adapter probe that waited for its
 accumulated sample counter to reach 16 produced nonblack pixels after 181 render calls (7.56 seconds).
-These checks establish native rendering support and expose a CLI accumulation issue; they do not establish
-a speedup or full-scene fidelity.
+These checks established native rendering support and exposed the CLI accumulation issue fixed in
+[#92](https://github.com/bhouston/three-ss-fidelity/issues/92). They do not establish a speedup or full-scene fidelity.
+A fresh legacy CLI render with the accumulation fix produced a nonblack 64×64 image at 16 samples (RGB ranges
+0–255). A long capture cancelled with SIGINT exited with an error and saved no image.
 
 | Command                               | Does                                                                                                                                                                                                                                    |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

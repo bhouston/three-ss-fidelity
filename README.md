@@ -99,7 +99,7 @@ and outputs (`beauty`, `direct`, `ao`).
 - `pnpm fidelity:dev` serves the results grid and scene detail views at `localhost:3000`, uncached.
 - `pnpm fidelity:build` exports a static site to `site/`.
 
-Merging to `main` deploys it to Cloud Run (root `Dockerfile`, which runs `fidelity-kit serve`).
+Merging to `main` deploys `site/` to GitHub Pages at <https://ss-fidelity.ben3d.ca>.
 
 ## Results
 

@@ -8,4 +8,4 @@ Closes #<!-- issue number matching your branch -->
 
 List checks run and their results, including any limitations.
 
-<!-- PRs target main. Merging to main deploys the viewer to Cloud Run. -->
+<!-- PRs target main. Merging to main deploys the viewer to GitHub Pages. -->

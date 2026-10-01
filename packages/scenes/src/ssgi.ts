@@ -161,7 +161,7 @@ async function createCornellBox(setup: Setup, ctx: SceneContext): Promise<SceneS
 
   scene.add(new AmbientLight('#0c0c0c'));
 
-  return { scene, camera, target, effects, aoRadius: 4 };
+  return { scene, camera, target, effects };
 }
 
 const descriptions: Record<Setup, string> = {

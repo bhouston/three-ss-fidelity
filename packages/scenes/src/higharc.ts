@@ -98,7 +98,6 @@ async function createDogwood(ctx: SceneContext): Promise<SceneSetup> {
       toneMappingExposure: 1,
       frames: 128,
     },
-    aoRadius: 120 * INCH,
   };
 }
 

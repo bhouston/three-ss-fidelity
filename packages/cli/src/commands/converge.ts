@@ -7,7 +7,7 @@ import { listSceneNames } from '@ss-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
 import { readRgb } from '../compare.js';
 import { summarize, type ConvergeFile, type ConvergeSummary } from '../converge.js';
-import { passDir, renderPath, resultsDir } from '../paths.js';
+import { sceneDir, renderPath, resultsDir } from '../paths.js';
 import type { RenderJob } from '../render-process.js';
 import { selectNames } from '../select.js';
 import { run } from './render.js';
@@ -39,7 +39,7 @@ export const command = defineCommand({
     try {
       for (const renderer of renderers) {
         for (const scene of scenes) {
-          const reference = renderPath(scene, 'beauty', 'three-gpu-pathtracer', argv.output);
+          const reference = renderPath(scene, 'three-gpu-pathtracer', argv.output);
           if (!existsSync(reference)) {
             console.warn(`${scene}: skipped, no three-gpu-pathtracer reference`);
             continue;
@@ -47,7 +47,6 @@ export const command = defineCommand({
           const code = await run({
             renderer,
             scenes: [scene],
-            passes: ['beauty'],
             outDir: captureDir,
             samples: 0,
             motion: { ...motion, captures: CAPTURES },
@@ -60,7 +59,7 @@ export const command = defineCommand({
           const captures = await Promise.all(
             CAPTURES.map(async (frame) => ({
               frame,
-              image: await readRgb(renderPath(scene, 'beauty', `${renderer}@m${frame}`, captureDir)),
+              image: await readRgb(renderPath(scene, `${renderer}@m${frame}`, captureDir)),
             })),
           );
           const { samples, summary } = summarize(await readRgb(reference), captures);
@@ -73,7 +72,7 @@ export const command = defineCommand({
             generatedAt: new Date().toISOString(),
           };
           await writeFile(
-            path.join(passDir(scene, 'beauty', argv.output), `converge-${renderer}.json`),
+            path.join(sceneDir(scene, argv.output), `converge-${renderer}.json`),
             `${JSON.stringify(file, null, 2)}\n`,
           );
           rows.push({ scene, renderer, summary });

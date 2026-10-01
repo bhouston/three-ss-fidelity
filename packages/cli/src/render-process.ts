@@ -3,7 +3,7 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
-import type { PassName, RendererName } from '@ss-fidelity/renderers';
+import type { RendererName } from '@ss-fidelity/renderers';
 
 /** A renderer job can also target Blender Cycles, a second ground-truth renderer that isn't a `LiveRenderer`
  * (it renders in one batch call via `renderBlender`, not `createRenderer`'s incremental frame loop). */
@@ -12,7 +12,6 @@ export type JobRendererName = RendererName | 'blender';
 export interface RenderJob {
   renderer: JobRendererName;
   scenes: string[];
-  passes: PassName[];
   outDir: string;
   /** Screen-space renderer frames; defaults to each scene's effects.frames. */
   frames?: number;
@@ -55,29 +54,25 @@ async function main(job: RenderJob): Promise<void> {
   const screenSpace = !usesSamples(job.renderer);
   const headless = usesWebGL(job.renderer) ? await import('./headless/webgl.js') : await import('./headless/webgpu.js');
   headless.install();
-  const { createRenderer, passEffects } = await import('@ss-fidelity/renderers');
+  const { createRenderer } = await import('@ss-fidelity/renderers');
   const { getScene } = await import('@ss-fidelity/scenes');
   const { createNodeSceneContext } = await import('@ss-fidelity/scenes/node');
   const { renderPath } = await import('./paths.js');
   const { RESULT_AVIF } = await import('./compare.js');
   const ctx = createNodeSceneContext();
 
-  for (const name of job.scenes) {
-    for (const pass of job.passes) {
-      await render(name, pass);
-    }
-  }
+  for (const name of job.scenes) await render(name);
 
-  async function render(name: string, pass: PassName): Promise<void> {
+  async function render(name: string): Promise<void> {
     const { width, height, create } = getScene(name);
     const start = performance.now();
     seedRandom(); // before the scene and renderer draw any random numbers
     const setup = await create(ctx);
     const canvas = headless.createCanvas(width, height);
-    if (job.renderer === 'blender') return renderBlenderJob(name, pass, setup, canvas, width, height, start);
-    const renderer = await createRenderer(job.renderer, canvas, setup, { width, height, pass, ssrDebug: job.ssrDebug });
-    if (job.motion) return renderMotion(name, pass, setup, renderer, canvas, job.outDir, job.motion);
-    const target = screenSpace ? (job.frames ?? passEffects(setup, pass).frames) : job.samples;
+    if (job.renderer === 'blender') return renderBlenderJob(name, setup, canvas, width, height, start);
+    const renderer = await createRenderer(job.renderer, canvas, setup, { width, height, ssrDebug: job.ssrDebug });
+    if (job.motion) return renderMotion(name, setup, renderer, canvas, job.outDir, job.motion);
+    const target = screenSpace ? (job.frames ?? setup.effects.frames) : job.samples;
     const renderStart = performance.now();
     while (renderer.frames < target) {
       headless.animationFrame();
@@ -86,7 +81,7 @@ async function main(job: RenderJob): Promise<void> {
     }
     const pixels = await headless.readPixels(canvas);
     const renderMs = performance.now() - renderStart;
-    const file = renderPath(name, pass, job.ssrDebug ? `${job.renderer}@${job.ssrDebug}` : job.renderer, job.outDir);
+    const file = renderPath(name, job.ssrDebug ? `${job.renderer}@${job.ssrDebug}` : job.renderer, job.outDir);
     await mkdir(path.dirname(file), { recursive: true });
     await sharp(pixels, { raw: { width, height, channels: 4 } })
       .removeAlpha()
@@ -94,7 +89,7 @@ async function main(job: RenderJob): Promise<void> {
       .toFile(file);
     renderer.dispose();
     console.log(
-      `${name} | ${pass} | ${job.renderer}: ${target} ${screenSpace ? 'frames' : 'samples'} in ${seconds(renderMs)} (setup ${seconds(renderStart - start)}) -> ${path.relative(process.cwd(), file)}`,
+      `${name} | ${job.renderer}: ${target} ${screenSpace ? 'frames' : 'samples'} in ${seconds(renderMs)} (setup ${seconds(renderStart - start)}) -> ${path.relative(process.cwd(), file)}`,
     );
   }
 
@@ -102,7 +97,6 @@ async function main(job: RenderJob): Promise<void> {
   // oxlint-disable-next-line typescript/no-explicit-any -- headless SceneSetup import is dynamic (see main())
   async function renderBlenderJob(
     name: string,
-    pass: PassName,
     setup: any,
     canvas: HTMLCanvasElement,
     width: number,
@@ -111,18 +105,57 @@ async function main(job: RenderJob): Promise<void> {
   ): Promise<void> {
     if (job.motion) throw new Error('blender: --motion is not supported');
     if (job.ssrDebug) throw new Error('blender: --ssr-debug is not supported');
-    const { renderBlender } = await import('./blender.js');
+    const { renderScene, exportEnvironment, outputSettings } = await import('fidelity-kit-blender/three');
+    const { bakeEnvironment } = await import('fidelity-kit-three-gpu-pathtracer');
+    const { WebGLRenderer } = await import('three');
     const renderStart = performance.now();
-    const pixels = await renderBlender(setup, { width, height, pass, samples: job.samples, canvas });
+    // Procedural environments are suite scene data: explicitly bake the same IBL as the path tracer.
+    const baker = new WebGLRenderer({ canvas });
+    let environment;
+    try {
+      const texture = setup.environment ? bakeEnvironment(baker, setup.environment.scene) : null;
+      if (texture) {
+        try {
+          environment = {
+            bytes: await exportEnvironment(texture),
+            intensity: setup.scene.environmentIntensity,
+            rotation: setup.scene.environmentRotation.toArray().slice(0, 3) as [number, number, number],
+          };
+        } finally {
+          texture.dispose();
+        }
+      }
+    } finally {
+      baker.dispose();
+    }
+    const gradient = setup.gradientBackground;
+    const result = await renderScene({
+      scene: setup.scene,
+      camera: setup.camera,
+      width,
+      height,
+      samples: job.samples,
+      bounces: 8,
+      environment,
+      background: gradient
+        ? { type: 'gradient', center: gradient.center.toArray(), edge: gradient.edge.toArray() }
+        : setup.scene.background === null
+          ? { type: 'color', color: [0, 0, 0] }
+          : undefined,
+      ...outputSettings({ ...setup.effects, outputColorSpace: 'srgb' }),
+      // Existing suite references omit ambient light and approximate unsupported glTF features.
+      unsupported: 'warn',
+    });
+    const pixels = result.pixels;
     const renderMs = performance.now() - renderStart;
-    const file = renderPath(name, pass, 'blender', job.outDir);
+    const file = renderPath(name, 'blender', job.outDir);
     await mkdir(path.dirname(file), { recursive: true });
     await sharp(pixels, { raw: { width, height, channels: 4 } })
       .removeAlpha()
       .avif(RESULT_AVIF)
       .toFile(file);
     console.log(
-      `${name} | ${pass} | blender: ${job.samples} samples in ${seconds(renderMs)} (setup ${seconds(renderStart - start)}) -> ${path.relative(process.cwd(), file)}`,
+      `${name} | blender: ${job.samples} samples in ${seconds(renderMs)} (setup ${seconds(renderStart - start)}) -> ${path.relative(process.cwd(), file)}`,
     );
   }
 }
@@ -130,7 +163,6 @@ async function main(job: RenderJob): Promise<void> {
 /** See {@link RenderJob.motion}. */
 async function renderMotion(
   name: string,
-  pass: PassName,
   // oxlint-disable-next-line typescript/no-explicit-any
   setup: any,
   // oxlint-disable-next-line typescript/no-explicit-any
@@ -173,7 +205,7 @@ async function renderMotion(
     renderer.render();
     await new Promise((resolve) => setImmediate(resolve));
     if (!captures.includes(f)) continue;
-    const file = renderPath(name, pass, `${renderer.name}@m${f}`, outDir);
+    const file = renderPath(name, `${renderer.name}@m${f}`, outDir);
     await mkdir(path.dirname(file), { recursive: true });
     await sharp(await headless.readPixels(canvas), { raw: { width: canvas.width, height: canvas.height, channels: 4 } })
       .removeAlpha()
@@ -182,7 +214,7 @@ async function renderMotion(
   }
   renderer.dispose();
   console.log(
-    `${name} | ${pass} | ${renderer.name}: motion ${degrees}° over ${moveFrames} frames in ${seconds(performance.now() - start)}`,
+    `${name} | ${renderer.name}: motion ${degrees}° over ${moveFrames} frames in ${seconds(performance.now() - start)}`,
   );
 }
 

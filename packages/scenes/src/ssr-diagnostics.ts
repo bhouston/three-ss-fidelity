@@ -133,7 +133,6 @@ function baseSetup(
     camera,
     target: targetVector,
     effects: effects(maxDistance, thickness),
-    aoRadius: 1,
     gradientBackground: { center: new Color().setRGB(0.22, 0.22, 0.24), edge: new Color().setRGB(0.14, 0.14, 0.16) },
     environment: environment(),
   };

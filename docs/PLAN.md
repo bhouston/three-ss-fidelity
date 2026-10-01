@@ -1,5 +1,7 @@
 # three-ss-fidelity plan
 
+This document records the original multi-output design. The current suite renders beauty only and consumes the independent `fidelity-kit-blender` and `fidelity-kit-three-gpu-pathtracer` submodules. AO/direct pass APIs and CLI selectors described below are historical; see [README.md](../README.md) for the current workflow.
+
 Goal: measure how close three.js screen-space effects (SSGI, SSR, plus the AO/depth/normal/velocity
 pre-pass they depend on) get to a path-traced ground truth, per programmatic scene, with images,
 delta images and metrics viewable in a website that can also show each scene live in either renderer.

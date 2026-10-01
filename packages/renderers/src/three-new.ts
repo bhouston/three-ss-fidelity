@@ -1,7 +1,7 @@
 // three-new: WebGPURenderer + RenderPipeline built like the three.js fork's webgpu_postprocessing_ssgi.html, with
 // solid-angle SSGI (vendored ssgi-fast/SSGINode.js) and real-time stochastic SSR (vendored ssr/NewSSRNode.js),
 // resolved with TRAA. See docs/THREE-NEW.md.
-import { BackSide, LinearSRGBColorSpace, NoToneMapping } from 'three';
+import { BackSide } from 'three';
 import {
   MeshBasicNodeMaterial,
   PMREMGenerator,
@@ -34,7 +34,6 @@ import {
   texture,
   unpackRGBToNormal,
   vec2,
-  vec3,
   vec4,
   velocity,
 } from 'three/tsl';
@@ -43,43 +42,8 @@ import { previousFrameGeometry, temporalReproject } from 'three/addons/tsl/displ
 import { traa } from 'three/addons/tsl/display/TRAANode.js';
 import { ssgi } from './ssgi-fast/SSGINode.js';
 import { newSSR } from './ssr/NewSSRNode.js';
-import type { SceneEffects, SceneSetup } from '@ss-fidelity/scenes';
-import type { LiveRenderer, PassName, RendererOptions } from './types.js';
-
-/** SSGINode's AO frames: the temporal denoiser converges at ~64 (see PLAN.md). */
-const AO_FRAMES = 128;
-
-/** The screen-space pipeline settings of a pass (shared with three-current.ts). */
-export function passEffects(setup: SceneSetup, renderPass: PassName): SceneEffects {
-  const { effects } = setup;
-  switch (renderPass) {
-    case 'beauty':
-      return effects;
-    case 'direct':
-      // the ssgi example's "Direct" output: the scene pass without the GI/radiance contexts
-      return { ...effects, ssgi: undefined, ssr: undefined, temporalDenoise: false };
-    case 'ao':
-      // SSGINode's AO comparable to ray-traced AO: world-space radius, linear visibility (aoIntensity 1), no fade;
-      // slice/step counts and thickness stay the scene's (the ssgi example's defaults for scenes without SSGI)
-      return {
-        ...effects,
-        ssgi: {
-          sliceCount: effects.ssgi?.sliceCount ?? 2,
-          stepCount: effects.ssgi?.stepCount ?? 8,
-          giIntensity: 0,
-          radius: setup.aoRadius,
-          thickness: effects.ssgi?.thickness,
-          aoIntensity: 1,
-          useScreenSpaceSampling: false,
-        },
-        ssr: undefined,
-        temporalDenoise: true,
-        toneMapping: NoToneMapping,
-        toneMappingExposure: 1,
-        frames: Math.max(effects.frames, AO_FRAMES),
-      };
-  }
-}
+import type { SceneSetup } from '@ss-fidelity/scenes';
+import type { LiveRenderer, RendererOptions } from './types.js';
 
 // The fork's TSL nodes are ahead of @types/three; the graph is built exactly as in the examples, so it is typed loosely.
 // oxlint-disable-next-line typescript/no-explicit-any
@@ -106,7 +70,6 @@ const SSR_OPTIONS = {
 function createPipeline(
   renderer: WebGPURenderer,
   setup: SceneSetup,
-  aoOutput: boolean,
   ssrDebug: RendererOptions['ssrDebug'],
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
@@ -272,12 +235,6 @@ function createPipeline(
       ao = mix(ao, float(1), fade);
       gi = gi.mul(fade.oneMinus());
     }
-    if (aoOutput) {
-      // the ssgi example's "AO" output; background pixels (no SSGI sample) are unoccluded
-      const background = prePassDepth.sample(screenUV).r.greaterThanEqual(1);
-      renderPipeline.outputNode = vec4(vec3(background.select(float(1), ao)), 1);
-      return renderPipeline;
-    }
     scenePass.contextNode = (builtinGIContext as AnyNode)(ao, gi, radiance);
   } else if (radiance) {
     scenePass.contextNode = radiance;
@@ -290,13 +247,12 @@ function createPipeline(
 export async function createThreeNewRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
-  { width, height, pass: renderPass, trackTimestamp = false, ssrDebug }: RendererOptions,
+  { width, height, trackTimestamp = false, ssrDebug }: RendererOptions,
 ): Promise<LiveRenderer> {
-  const setup = { ...sceneSetup, effects: passEffects(sceneSetup, renderPass) };
+  const setup = sceneSetup;
   const { scene, camera, effects } = setup;
   const renderer = new WebGPURenderer({ canvas, antialias: false, trackTimestamp });
   renderer.shadowMap.enabled = true;
-  if (renderPass === 'ao') renderer.outputColorSpace = LinearSRGBColorSpace;
   renderer.toneMapping = effects.toneMapping;
   renderer.toneMappingExposure = effects.toneMappingExposure;
   await renderer.init();
@@ -311,7 +267,7 @@ export async function createThreeNewRenderer(
     pmremGenerator.dispose();
   }
 
-  const renderPipeline = createPipeline(renderer, setup, renderPass === 'ao', ssrDebug);
+  const renderPipeline = createPipeline(renderer, setup, ssrDebug);
   const progressive = (renderPipeline as AnyNode).progressiveTRAA;
   let frames = 0;
   let sceneSignature = 0;

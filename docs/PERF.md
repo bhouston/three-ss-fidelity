@@ -14,7 +14,7 @@ pnpm cli bench --renderers three-new,three-current --scenes ssgi-basic,ssgi-anim
 ```
 
 Options: `--renderers` (required, comma-separated glob(s) against the renderer names), `--scenes` (default `*`),
-`--pass` (default `beauty`), `--width`/`--height` (default 1920x1080), `--warmup` (default 60 frames),
+`--width`/`--height` (default 1920x1080), `--warmup` (default 60 frames),
 `--measure` (default 120 frames, in batches of 20 back-to-back submits per GPU sync), `--out` (JSON file).
 
 Timing: each measured batch submits 20 frames, then waits for the GPU queue to actually finish
@@ -92,7 +92,6 @@ pnpm exec fidelity-kit process results
 pnpm cli quality-gate three-current three-new --scenes ssgi-basic,ssgi-animated
 ```
 
-Fails (non-zero exit) when the candidate's mean RMSE across the selected scenes/passes is worse than the
-baseline's by more than `--threshold` (default `0.01`, i.e. 1%, relative). Options: `--scenes`, `--passes`
-(both default `*`), `--threshold`, `--results` (results directory), `--out` (JSON file with the row-by-row and
-summary result). Scene/pass combinations missing a metrics file for either renderer are skipped with a warning.
+Fails (non-zero exit) when the candidate's mean RMSE across the selected scenes is worse than the
+baseline's by more than `--threshold` (default `0.01`, i.e. 1%, relative). Options: `--scenes` (default `*`), `--threshold`, `--results` (results directory), `--out` (JSON file with the row-by-row and
+summary result). Scenes missing a metrics file for either renderer are skipped with a warning.

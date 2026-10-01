@@ -177,7 +177,7 @@ async function createGLTFExample(example: GLTFExample, ctx: SceneContext): Promi
   camera.position.copy(target).addScaledVector(example.view.clone().normalize(), distance);
   camera.lookAt(target);
 
-  return { scene, camera, target, effects, aoRadius: 0.25 };
+  return { scene, camera, target, effects };
 }
 
 const examples: GLTFExample[] = [

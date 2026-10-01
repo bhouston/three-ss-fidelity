@@ -12,14 +12,12 @@ const pairs = [
 ];
 const rows = [];
 for (const [reference, test] of pairs) {
-  for (const pass of ['beauty', 'direct']) {
-    for (const renderer of ['three-new', 'three-gpu-pathtracer']) {
-      const { metrics } = await compareImages(
-        path.join(root, reference, pass, `${renderer}.avif`),
-        path.join(root, test, pass, `${renderer}.avif`),
-      );
-      rows.push({ reference, test, pass, renderer, ...metrics });
-    }
+  for (const renderer of ['three-new', 'three-gpu-pathtracer']) {
+    const { metrics } = await compareImages(
+      path.join(root, reference, 'beauty', `${renderer}.avif`),
+      path.join(root, test, 'beauty', `${renderer}.avif`),
+    );
+    rows.push({ reference, test, renderer, ...metrics });
   }
 }
 console.log(JSON.stringify(rows, null, 2));

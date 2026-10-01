@@ -15,6 +15,11 @@ it('resolves one copy of three (the submodule) everywhere', () => {
     renderers: import.meta.url,
     scenes: path.join(repoRoot, 'packages/scenes/package.json'),
     cli: path.join(repoRoot, 'packages/cli/package.json'),
+    'fidelity-kit-blender': path.join(repoRoot, 'submodules/fidelity-kit-blender/package.json'),
+    'fidelity-kit-three-gpu-pathtracer': path.join(
+      repoRoot,
+      'submodules/fidelity-kit-three-gpu-pathtracer/package.json',
+    ),
     'three-gpu-pathtracer': pathtracerEntry,
     'three-mesh-bvh': fromPathtracer.resolve('three-mesh-bvh'),
   };

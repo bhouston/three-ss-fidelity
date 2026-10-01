@@ -1,14 +1,13 @@
 import type { SceneSetup } from '@ss-fidelity/scenes';
-import { createPathTracerRenderer } from './pathtracer.js';
+import { createRenderer as createPathTracerRenderer } from 'fidelity-kit-three-gpu-pathtracer';
 import { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
 import { createCurrentRenderer } from './three-current.js';
 import { createThreeNewRenderer } from './three-new.js';
 import type { LiveRenderer, RendererName, RendererOptions } from './types.js';
 
 export * from './types.js';
-export { createPathTracerRenderer, environmentEquirect, PATHTRACER_BOUNCES } from './pathtracer.js';
 export { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
-export { createThreeNewRenderer, passEffects } from './three-new.js';
+export { createThreeNewRenderer } from './three-new.js';
 export { createCurrentRenderer } from './three-current.js';
 
 export function createRenderer(
@@ -19,7 +18,17 @@ export function createRenderer(
 ): Promise<LiveRenderer> {
   switch (name) {
     case 'three-gpu-pathtracer':
-      return createPathTracerRenderer(canvas, setup, options);
+      return createPathTracerRenderer({
+        canvas,
+        scene: setup.scene,
+        camera: setup.camera,
+        ...options,
+        toneMapping: setup.effects.toneMapping,
+        toneMappingExposure: setup.effects.toneMappingExposure,
+        outputColorSpace: 'srgb',
+        environment: setup.environment ? { scene: setup.environment.scene } : undefined,
+        gradientBackground: setup.gradientBackground,
+      });
     case 'three-gpu-pathtracer-webgpu':
       return createWebGPUPathTracerRenderer(canvas, setup, options);
     // unmodified three.js r186 from npm, not the fork (see three-current.ts)

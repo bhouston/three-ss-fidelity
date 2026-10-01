@@ -1,6 +1,6 @@
 // Compare linear-light luminance in a 16x16 patch around world-space floor center.
 // The source PNGs are 8-bit sRGB; this reverses sRGB encoding, not clipping or tone mapping.
-// Run after pnpm build and rendering gi-* beauty/direct: node scripts/gi-receiver-metrics.mjs
+// Run after pnpm build and rendering gi-*: node scripts/gi-receiver-metrics.mjs
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,25 +25,20 @@ for (const name of listSceneNames().filter(
   const left = Math.floor((center.x * 0.5 + 0.5) * definition.width) - 8;
   const top = Math.floor((-center.y * 0.5 + 0.5) * definition.height) - 8;
   const row = { scene: name, patch: { left, top, width: 16, height: 16 } };
-  for (const pass of ['beauty', 'direct'])
-    for (const renderer of ['three-new', 'three-gpu-pathtracer']) {
-      const pixels = await sharp(path.join(root, 'results', name, pass, `${renderer}.avif`))
-        .extract(row.patch)
-        .removeAlpha()
-        .raw()
-        .toBuffer();
-      let luminance = 0;
-      for (let i = 0; i < pixels.length; i += 3) {
-        luminance +=
-          0.2126 * linear(pixels[i] / 255) +
-          0.7152 * linear(pixels[i + 1] / 255) +
-          0.0722 * linear(pixels[i + 2] / 255);
-      }
-      row[`${pass}/${renderer}`] = luminance / (pixels.length / 3);
+  for (const renderer of ['three-new', 'three-gpu-pathtracer']) {
+    const pixels = await sharp(path.join(root, 'results', name, 'beauty', `${renderer}.avif`))
+      .extract(row.patch)
+      .removeAlpha()
+      .raw()
+      .toBuffer();
+    let luminance = 0;
+    for (let i = 0; i < pixels.length; i += 3) {
+      luminance +=
+        0.2126 * linear(pixels[i] / 255) + 0.7152 * linear(pixels[i + 1] / 255) + 0.0722 * linear(pixels[i + 2] / 255);
     }
-  row.ssgiIncrement = row['beauty/three-new'] - row['direct/three-new'];
-  row.pathTracerIncrement = row['beauty/three-gpu-pathtracer'] - row['direct/three-gpu-pathtracer'];
-  row.beautyRatio = row['beauty/three-new'] / row['beauty/three-gpu-pathtracer'];
+    row[renderer] = luminance / (pixels.length / 3);
+  }
+  row.beautyRatio = row['three-new'] / row['three-gpu-pathtracer'];
   rows.push(row);
 }
 console.log(JSON.stringify(rows, null, 2));

@@ -10,7 +10,7 @@ import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { hierarchyImageName } from '../packages/renderers/dist/types.js';
-import { compareRgb, readRgb } from '../packages/cli/dist/compare.js';
+import { compareRgb, readRgb, psnrDrop } from '../packages/cli/dist/compare.js';
 import { createRequire } from 'node:module';
 const sharp = createRequire(new URL('../packages/cli/package.json', import.meta.url))('sharp');
 
@@ -29,7 +29,7 @@ const { values } = parseArgs({
     'quality-height': { type: 'string' },
     warmup: { type: 'string', default: '60' },
     measure: { type: 'string', default: '120' },
-    threshold: { type: 'string', default: '0.01' },
+    threshold: { type: 'string', default: '0.1' },
     'skip-timing': { type: 'boolean', default: false },
     'skip-quality': { type: 'boolean', default: false },
   },
@@ -98,7 +98,7 @@ const report = {
       frames,
       dimensions: qualityWidth ? `${qualityWidth}x${qualityHeight}` : 'native scene dimensions',
       encoding: 'AVIF quality 90, 4:4:4; decoded sRGB RGB8 metrics',
-      threshold,
+      maxPsnrDropDb: threshold,
     },
   },
   scenes: {},
@@ -213,20 +213,15 @@ for (const scene of scenes) {
       captures[variant] = image;
       const againstReference = compareRgb(reference, image);
       const againstBaseline = compareRgb(captures.baseline, image);
-      const baselineRmse = row.quality.baseline?.reference.rmse ?? againstReference.metrics.rmse;
+      const baselineMetrics = row.quality.baseline?.reference ?? againstReference.metrics;
+      const drop = psnrDrop(baselineMetrics, againstReference.metrics);
       row.quality[variant] = {
         reference: againstReference.metrics,
         baseline: againstBaseline.metrics,
-        regression:
-          baselineRmse > 0
-            ? (againstReference.metrics.rmse - baselineRmse) / baselineRmse
-            : againstReference.metrics.rmse === 0
-              ? 0
-              : null,
+        psnrDropDb: Number.isFinite(drop) ? drop : null,
         image: path.relative(out, imagePath),
       };
-      row.quality[variant].passesReferenceGate =
-        row.quality[variant].reference.rmse <= row.quality.baseline.reference.rmse * (1 + threshold);
+      row.quality[variant].passesReferenceGate = drop <= threshold;
       for (const [comparisonName, comparison] of [
         ['reference', againstReference],
         ['baseline', againstBaseline],
@@ -237,12 +232,12 @@ for (const scene of scenes) {
           .toFile(path.join(dir, `${variant}-vs-${comparisonName}.png`));
       }
     }
-    row.baselineRepeatRmse = row.quality['baseline-repeat'].baseline.rmse;
+    row.baselineRepeatPsnrDb = row.quality['baseline-repeat'].baseline.psnr;
   }
   await writeFile(path.join(out, 'report.json'), `${JSON.stringify(report, null, 2)}\n`);
   for (const variant of variants.slice(1)) {
     console.log(
-      `${scene} ${variant}: ${row.timing[variant]?.speedup.toFixed(3) ?? 'n/a'}x, reference RMSE ${row.quality[variant]?.reference.rmse.toFixed(5) ?? 'n/a'}, gate ${row.quality[variant]?.passesReferenceGate ?? 'n/a'}`,
+      `${scene} ${variant}: ${row.timing[variant]?.speedup.toFixed(3) ?? 'n/a'}x, reference PSNR ${row.quality[variant] ? (row.quality[variant].reference.psnr?.toFixed(4) ?? '∞') : 'n/a'} dB, gate ${row.quality[variant]?.passesReferenceGate ?? 'n/a'}`,
     );
   }
 }

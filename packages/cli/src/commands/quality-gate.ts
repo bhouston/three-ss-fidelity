@@ -5,14 +5,11 @@ import { listSceneNames } from '@ss-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
 import { metricsPath, resultsDir } from '../paths.js';
 import { selectNames } from '../select.js';
-import { metricsRmse } from '../compare.js';
+import { psnrDrop } from '../compare.js';
 
 /** `fidelity-kit process`'s `<renderer>.vs-<reference>.metrics.json`. */
 interface FidelityMetrics {
-  psnr?: number | null;
-  rmse?: number;
-  mae: number;
-  maxError: number;
+  psnr: number | null;
   width: number;
   height: number;
   generatedAt: string;
@@ -29,7 +26,7 @@ const comparedRenderers = [
 export const command = defineCommand({
   command: 'quality-gate <baseline> <candidate>',
   describe:
-    'Fail if <candidate> mean RMSE vs three-gpu-pathtracer regresses on <baseline> by more than --threshold. Run `fidelity-kit process` for both renderers first.',
+    'Fail if <candidate> PSNR vs three-gpu-pathtracer drops from <baseline> on any scene/pass by more than --threshold. Run `fidelity-kit process` for both renderers first.',
   builder: (yargs) =>
     yargs
       .positional('baseline', { type: 'string', choices: comparedRenderers })
@@ -38,17 +35,26 @@ export const command = defineCommand({
       .option('passes', { type: 'string', default: '*', describe: 'Pass name glob(s), comma separated' })
       .option('threshold', {
         type: 'number',
-        default: 0.01,
-        describe: 'Max allowed relative mean-RMSE regression, e.g. 0.01 = 1%',
+        default: 0.1,
+        describe: 'Max allowed PSNR drop per scene/pass in dB (higher PSNR is better)',
       })
       .option('results', { type: 'string', default: resultsDir, describe: 'Results directory' })
       .option('out', { type: 'string', describe: 'Write the row-by-row and summary result as JSON' }),
   handler: async (argv) => {
+    if (!Number.isFinite(argv.threshold) || argv.threshold < 0)
+      throw new Error('--threshold must be finite and nonnegative');
     const baseline = argv.baseline!;
     const candidate = argv.candidate!;
     const scenes = selectNames(listSceneNames(), argv.scenes, 'scene');
     const passes = selectNames(passNames, argv.passes, 'pass');
-    const rows: { scene: string; pass: string; baselineRmse: number; candidateRmse: number }[] = [];
+    const rows: {
+      scene: string;
+      pass: string;
+      baselinePsnr: number | null;
+      candidatePsnr: number | null;
+      psnrDropDb: number | null;
+      ok: boolean;
+    }[] = [];
     for (const scene of scenes) {
       for (const pass of passes) {
         const baselinePath = metricsPath(scene, pass, baseline, 'three-gpu-pathtracer', argv.results);
@@ -61,42 +67,32 @@ export const command = defineCommand({
         }
         const baselineMetrics = JSON.parse(await readFile(baselinePath, 'utf8')) as FidelityMetrics;
         const candidateMetrics = JSON.parse(await readFile(candidatePath, 'utf8')) as FidelityMetrics;
+        const drop = psnrDrop(baselineMetrics, candidateMetrics);
         rows.push({
           scene,
           pass,
-          baselineRmse: metricsRmse(baselineMetrics),
-          candidateRmse: metricsRmse(candidateMetrics),
+          baselinePsnr: baselineMetrics.psnr,
+          candidatePsnr: candidateMetrics.psnr,
+          psnrDropDb: Number.isFinite(drop) ? drop : null,
+          ok: drop <= argv.threshold,
         });
       }
     }
     if (rows.length === 0)
       throw new Error('No scene/pass had metrics for both renderers; run `fidelity-kit process` first.');
 
-    const mean = (key: 'baselineRmse' | 'candidateRmse') => rows.reduce((sum, row) => sum + row[key], 0) / rows.length;
-    const baselineMean = mean('baselineRmse');
-    const candidateMean = mean('candidateRmse');
-    const regression =
-      baselineMean === 0
-        ? candidateMean === 0
-          ? 0
-          : Number.POSITIVE_INFINITY
-        : (candidateMean - baselineMean) / baselineMean;
-    const ok = regression <= argv.threshold;
-
+    const ok = rows.every((row) => row.ok);
     for (const row of rows) {
       console.log(
-        `${row.scene} | ${row.pass}: ${baseline} RMSE ${row.baselineRmse.toFixed(4)}, ${candidate} RMSE ${row.candidateRmse.toFixed(4)}`,
+        `${row.scene} | ${row.pass}: ${baseline} PSNR ${row.baselinePsnr?.toFixed(4) ?? '∞'} dB, ${candidate} PSNR ${row.candidatePsnr?.toFixed(4) ?? '∞'} dB: ${row.ok ? 'PASS' : 'FAIL'}`,
       );
     }
-    console.log(
-      `mean RMSE: ${baseline} ${baselineMean.toFixed(4)} -> ${candidate} ${candidateMean.toFixed(4)} ` +
-        `(${(regression * 100).toFixed(2)}% regression, threshold ${(argv.threshold * 100).toFixed(0)}%)`,
-    );
+    console.log(`Allowed PSNR drop per scene/pass: ${argv.threshold} dB`);
     console.log(ok ? 'QUALITY OK' : 'QUALITY FAIL');
     if (argv.out) {
       await writeFile(
         argv.out,
-        `${JSON.stringify({ ok, baseline, candidate, baselineMean, candidateMean, regression, rows }, null, 2)}\n`,
+        `${JSON.stringify({ ok, baseline, candidate, maxPsnrDropDb: argv.threshold, rows }, null, 2)}\n`,
       );
     }
     if (!ok) process.exitCode = 1;

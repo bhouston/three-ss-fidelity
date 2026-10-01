@@ -18,7 +18,7 @@ Workflow rules (issues, branches, Conventional Commits, PRs, required checks) ar
 1. Change an effect in `submodules/three.js`, or in a vendored node under `packages/renderers/src/` (see below).
 2. Render the affected scenes: `pnpm cli render --scenes 'ssr-*' --renderers three-new`.
 3. Score them against the path tracer: `pnpm exec fidelity-kit process results`.
-4. Check for regressions: `pnpm cli quality-gate <baseline> <candidate>` (mean-RMSE threshold, default 1 %), e.g.
+4. Check for regressions: `pnpm cli quality-gate <baseline> <candidate>` (per-scene/pass PSNR drop threshold, default 0.1 dB), e.g.
    against results rendered before the change into another `--results`.
 5. For temporal and real-time work, also run `pnpm cli converge` (image quality after a camera move) and
    `pnpm cli bench` (frame time).
@@ -83,7 +83,7 @@ state leaked between scenes. Headless GPU comes from `src/headless/webgpu.ts` (d
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `cli list [--verbose]`                | List scene names.                                                                                                                                                                                                              |
 | `cli render`                          | Write `results/<scene>/<pass>/<renderer>.avif`. `--scenes/--passes/--renderers` take comma-separated globs; also `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`, `--experiment`, `--width`, `--height`. |
-| `cli quality-gate <base> <candidate>` | Fail if the candidate's mean RMSE (from `fidelity-kit process`'s metrics) regresses by more than `--threshold`.                                                                                                                |
+| `cli quality-gate <base> <candidate>` | Fail if the candidate's PSNR (from `fidelity-kit process`'s metrics) drops by more than `--threshold` dB on any scene/pass.                                                                                                    |
 | `cli converge`                        | Move-then-stop benchmark: write `results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                                                                |
 | `cli bench --renderers a,b`           | Steady-state ms/frame, and A/B speedup when two renderers are given; `--experiment` selects optional hierarchical variants; `--gpu` for timestamp queries ([docs/PERF.md](docs/PERF.md)).                                      |
 
@@ -108,7 +108,7 @@ Merging to `main` deploys `site/` to GitHub Pages at <https://ss-fidelity.ben3d.
 - `three-gpu-pathtracer.avif` / `blender.avif`: the two references.
 - `<renderer>.avif`: each screen-space render.
 - `<renderer>.vs-<reference>.delta.avif` / `.metrics.json`: written by `fidelity-kit process`
-  (PSNR, RMSE, MAE, max error vs the reference).
+  (PSNR vs the reference).
 - `converge-<renderer>.json` (beauty only): the convergence curve.
 
 Images are AVIF q90 4:4:4 (`RESULT_AVIF` in `packages/cli/src/compare.ts`). Not every renderer is rendered for every

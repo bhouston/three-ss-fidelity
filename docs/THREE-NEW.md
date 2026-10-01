@@ -173,7 +173,7 @@ The next levers are listed under "Next steps" in [history/SSR_TEMPORAL.md](histo
 
 ## Tools
 
-- `pnpm cli quality-gate three-current three-new` compares mean RMSE.
+- `pnpm cli quality-gate three-current three-new` checks the per-scene/pass PSNR drop (default allowance 0.1 dB).
 - `pnpm cli converge` measures quality after a camera move ([CONVERGENCE.md](CONVERGENCE.md)).
 - `pnpm cli bench --renderers three-new` measures frame time ([PERF.md](PERF.md)).
 - `pnpm cli render --ssr-debug hits` writes the SSR hit classification.

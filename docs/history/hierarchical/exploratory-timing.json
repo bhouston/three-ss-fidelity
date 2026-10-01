@@ -19,7 +19,7 @@
       "frames": 128,
       "dimensions": "native scene dimensions",
       "encoding": "AVIF quality 90, 4:4:4; decoded sRGB RGB8 metrics",
-      "threshold": 0.01
+      "maxPsnrDropDb": 0.1
     },
     "claimStatus": "Exploratory only. Shared CPU/GPU workload prevents reliable profiling. SSR mip timings are for an earlier prototype with a redundant base fetch."
   },
@@ -316,78 +316,54 @@
       "quality": {
         "baseline": {
           "reference": {
-            "psnr": 36.584615217883126,
-            "rmse": 0.01481730563451502,
-            "mae": 0.002504130355846042,
-            "maxError": 0.6627450980392157
+            "psnr": 36.584615217883126
           },
           "baseline": {
-            "psnr": null,
-            "rmse": 0,
-            "mae": 0,
-            "maxError": 0
+            "psnr": null
           },
-          "regression": 0,
           "image": "ssr-diag-mirror/images/ssr-diag-mirror/beauty/three-new.avif",
-          "passesReferenceGate": true
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.0
         },
         "ssr-hiz-tight": {
           "reference": {
-            "psnr": 36.58462460691756,
-            "rmse": 0.014817289617719585,
-            "mae": 0.0025004690147664003,
-            "maxError": 0.6627450980392157
+            "psnr": 36.58462460691756
           },
           "baseline": {
-            "psnr": 56.956709527982284,
-            "rmse": 0.00141959520450807,
-            "mae": 0.00018689481965625758,
-            "maxError": 0.09411764705882353
+            "psnr": 56.956709527982284
           },
-          "regression": -1.0809519510603477e-6,
           "image": "ssr-diag-mirror/images/ssr-diag-mirror/beauty/three-new-ssr-hiz-tight.avif",
-          "passesReferenceGate": true
+          "passesReferenceGate": true,
+          "psnrDropDb": -9.389034431706023e-6
         },
         "ssr-radiance-mips": {
           "reference": {
-            "psnr": 36.586859187493324,
-            "rmse": 0.014813478129176319,
-            "mae": 0.0024979196925683854,
-            "maxError": 0.6588235294117647
+            "psnr": 36.586859187493324
           },
           "baseline": {
-            "psnr": 56.94515344762581,
-            "rmse": 0.0014214851518492438,
-            "mae": 0.0001992178044057129,
-            "maxError": 0.06666666666666667
+            "psnr": 56.94515344762581
           },
-          "regression": -0.00025831318008217403,
           "image": "ssr-diag-mirror/images/ssr-diag-mirror/beauty/three-new-ssr-radiance-mips.avif",
-          "passesReferenceGate": true
+          "passesReferenceGate": true,
+          "psnrDropDb": -0.0022439696101983486
         },
         "baseline-repeat": {
           "reference": {
-            "psnr": 36.584615217883126,
-            "rmse": 0.01481730563451502,
-            "mae": 0.002504130355846042,
-            "maxError": 0.6627450980392157
+            "psnr": 36.584615217883126
           },
           "baseline": {
-            "psnr": null,
-            "rmse": 0,
-            "mae": 0,
-            "maxError": 0
+            "psnr": null
           },
-          "regression": 0,
           "image": "ssr-diag-mirror/repeat/ssr-diag-mirror/beauty/three-new.avif",
-          "passesReferenceGate": true
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.0
         }
       },
       "reference": {
         "path": "results/ssr-diag-mirror/beauty/three-gpu-pathtracer.avif",
         "sha256": "5b78bbb953fffce7305a3544209356957319efdbbde423675ed786f5a2c30c0f"
       },
-      "baselineRepeatRmse": 0
+      "baselineRepeatPsnrDb": null
     },
     "ssr-diag-rough-30": {
       "timing": {
@@ -681,78 +657,54 @@
       "quality": {
         "baseline": {
           "reference": {
-            "psnr": 37.123640120104675,
-            "rmse": 0.013925730751057026,
-            "mae": 0.005462062757201646,
-            "maxError": 0.5333333333333333
+            "psnr": 37.123640120104675
           },
           "baseline": {
-            "psnr": null,
-            "rmse": 0,
-            "mae": 0,
-            "maxError": 0
+            "psnr": null
           },
-          "regression": 0,
           "image": "ssr-diag-rough-30/images/ssr-diag-rough-30/beauty/three-new.avif",
-          "passesReferenceGate": true
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.0
         },
         "ssr-hiz-tight": {
           "reference": {
-            "psnr": 37.12408725688002,
-            "rmse": 0.013925013893448452,
-            "mae": 0.005490241466957153,
-            "maxError": 0.5333333333333333
+            "psnr": 37.12408725688002
           },
           "baseline": {
-            "psnr": 53.79682818275009,
-            "rmse": 0.002042483660130719,
-            "mae": 0.0005748835027838296,
-            "maxError": 0.06666666666666667
+            "psnr": 53.79682818275009
           },
-          "regression": -5.147719867552267e-5,
           "image": "ssr-diag-rough-30/images/ssr-diag-rough-30/beauty/three-new-ssr-hiz-tight.avif",
-          "passesReferenceGate": true
+          "passesReferenceGate": true,
+          "psnrDropDb": -0.00044713677534247154
         },
         "ssr-radiance-mips": {
           "reference": {
-            "psnr": 37.1164484101177,
-            "rmse": 0.013937265699504603,
-            "mae": 0.0054724869886226095,
-            "maxError": 0.5333333333333333
+            "psnr": 37.1164484101177
           },
           "baseline": {
-            "psnr": 53.70058956817516,
-            "rmse": 0.0020652399697000555,
-            "mae": 0.0005338598402323892,
-            "maxError": 0.09411764705882353
+            "psnr": 53.70058956817516
           },
-          "regression": 0.0008283190773813198,
           "image": "ssr-diag-rough-30/images/ssr-diag-rough-30/beauty/three-new-ssr-radiance-mips.avif",
-          "passesReferenceGate": true
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.007191709986976491
         },
         "baseline-repeat": {
           "reference": {
-            "psnr": 37.123640120104675,
-            "rmse": 0.013925730751057026,
-            "mae": 0.005462062757201646,
-            "maxError": 0.5333333333333333
+            "psnr": 37.123640120104675
           },
           "baseline": {
-            "psnr": null,
-            "rmse": 0,
-            "mae": 0,
-            "maxError": 0
+            "psnr": null
           },
-          "regression": 0,
           "image": "ssr-diag-rough-30/repeat/ssr-diag-rough-30/beauty/three-new.avif",
-          "passesReferenceGate": true
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.0
         }
       },
       "reference": {
         "path": "results/ssr-diag-rough-30/beauty/three-gpu-pathtracer.avif",
         "sha256": "eab360c4d84b6fdd1728010836c2d03a71fcb5c03cc2a008143a1a89ebeb2c0a"
       },
-      "baselineRepeatRmse": 0
+      "baselineRepeatPsnrDb": null
     },
     "ssr-diag-occlusion": {
       "timing": {
@@ -1046,78 +998,54 @@
       "quality": {
         "baseline": {
           "reference": {
-            "psnr": 36.632211016456885,
-            "rmse": 0.014736333759058907,
-            "mae": 0.0022876724763979664,
-            "maxError": 0.5529411764705883
+            "psnr": 36.632211016456885
           },
           "baseline": {
-            "psnr": null,
-            "rmse": 0,
-            "mae": 0,
-            "maxError": 0
+            "psnr": null
           },
-          "regression": 0,
           "image": "ssr-diag-occlusion/images/ssr-diag-occlusion/beauty/three-new.avif",
-          "passesReferenceGate": true
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.0
         },
         "ssr-hiz-tight": {
           "reference": {
-            "psnr": 36.635865975198854,
-            "rmse": 0.01473013412221823,
-            "mae": 0.002293709150326797,
-            "maxError": 0.5568627450980392
+            "psnr": 36.635865975198854
           },
           "baseline": {
-            "psnr": 60.57923337752285,
-            "rmse": 0.0009354882373266704,
-            "mae": 0.0001088719438392641,
-            "maxError": 0.06666666666666667
+            "psnr": 60.57923337752285
           },
-          "regression": -0.0004207041549168517,
           "image": "ssr-diag-occlusion/images/ssr-diag-occlusion/beauty/three-new-ssr-hiz-tight.avif",
-          "passesReferenceGate": true
+          "passesReferenceGate": true,
+          "psnrDropDb": -0.003654958741968528
         },
         "ssr-radiance-mips": {
           "reference": {
-            "psnr": 36.63772787451275,
-            "rmse": 0.014726976922615247,
-            "mae": 0.0022866512345679013,
-            "maxError": 0.5568627450980392
+            "psnr": 36.63772787451275
           },
           "baseline": {
-            "psnr": 59.85954006236195,
-            "rmse": 0.0010163025069782196,
-            "mae": 0.0001318461026385863,
-            "maxError": 0.11372549019607843
+            "psnr": 59.85954006236195
           },
-          "regression": -0.0006349500898015063,
           "image": "ssr-diag-occlusion/images/ssr-diag-occlusion/beauty/three-new-ssr-radiance-mips.avif",
-          "passesReferenceGate": true
+          "passesReferenceGate": true,
+          "psnrDropDb": -0.005516858055862883
         },
         "baseline-repeat": {
           "reference": {
-            "psnr": 36.632211016456885,
-            "rmse": 0.014736333759058907,
-            "mae": 0.0022876724763979664,
-            "maxError": 0.5529411764705883
+            "psnr": 36.632211016456885
           },
           "baseline": {
-            "psnr": null,
-            "rmse": 0,
-            "mae": 0,
-            "maxError": 0
+            "psnr": null
           },
-          "regression": 0,
           "image": "ssr-diag-occlusion/repeat/ssr-diag-occlusion/beauty/three-new.avif",
-          "passesReferenceGate": true
+          "passesReferenceGate": true,
+          "psnrDropDb": 0.0
         }
       },
       "reference": {
         "path": "results/ssr-diag-occlusion/beauty/three-gpu-pathtracer.avif",
         "sha256": "57b1d8f93c36b253a66a9034cbf5d544aea45863ac135388006d3e5409897a1f"
       },
-      "baselineRepeatRmse": 0
+      "baselineRepeatPsnrDb": null
     }
   },
   "discarded1080": {

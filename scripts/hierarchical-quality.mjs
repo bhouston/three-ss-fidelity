@@ -91,21 +91,6 @@ for (const kind of ['highResolution', 'motion'])
       await sharp(data, { raw: { width: deltaWidth, height: deltaHeight, channels: 3 } })
         .png()
         .toFile(delta);
-      const histogram = new Uint32Array(256);
-      for (let i = 0; i < baseline.data.length; i += 3) {
-        const e = Math.max(...[0, 1, 2].map((c) => Math.abs(baseline.data[i + c] - candidate.data[i + c])));
-        histogram[e]++;
-      }
-      const total = baseline.width * baseline.height;
-      let cumulative = 0,
-        p99 = 0;
-      for (let i = 0; i < 256; i++) {
-        cumulative += histogram[i];
-        if (cumulative >= total * 0.99) {
-          p99 = i;
-          break;
-        }
-      }
       row[frame === null ? 'settled' : `m${frame}`] = {
         width: baseline.width,
         height: baseline.height,
@@ -113,8 +98,6 @@ for (const kind of ['highResolution', 'motion'])
         candidate: path.relative(out, files[1]),
         delta: path.relative(out, delta),
         metrics: comparison.metrics,
-        p99MaxChannelError: p99 / 255,
-        fractionAbove8: histogram.slice(9).reduce((a, b) => a + b, 0) / total,
       };
     }
     await writeFile(path.join(out, 'report.json'), JSON.stringify(report, null, 2) + '\n');

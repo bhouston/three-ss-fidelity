@@ -90,7 +90,7 @@ export const command = defineCommand({
       const mean = Object.fromEntries(
         (Object.keys(own[0]!) as (keyof ConvergeSummary)[]).map((key) => [
           key,
-          own.reduce((sum, summary) => sum + summary[key], 0) / own.length,
+          own.reduce((sum, summary) => sum + (summary[key] ?? Infinity), 0) / own.length,
         ]),
       ) as unknown as ConvergeSummary;
       console.log(`mean | ${renderer} (${own.length} scenes): ${formatSummary(mean)}`);
@@ -100,7 +100,7 @@ export const command = defineCommand({
 
 function formatSummary(s: ConvergeSummary): string {
   return (
-    `RMSE at stop ${s.atStop.toFixed(4)}, +16 ${s.after16.toFixed(4)}, final ${s.final.toFixed(4)}; ` +
-    `bias ${(s.finalBias * 100).toFixed(1)}%, flicker ${s.flicker.toFixed(4)}`
+    `PSNR (dB) at stop ${s.atStop?.toFixed(4) ?? '∞'}, +16 ${s.after16?.toFixed(4) ?? '∞'}, final ${s.final?.toFixed(4) ?? '∞'}; ` +
+    `bias ${(s.finalBias * 100).toFixed(1)}%, flicker ${s.flicker?.toFixed(4) ?? '∞'}`
   );
 }

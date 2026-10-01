@@ -1,0 +1,242 @@
+{
+  "metadata": {
+    "date": "2026-10-01T16:54:36.308Z",
+    "revision": "637170f88a99fe5eab8b40787fddea0b3e777814",
+    "dirty": true,
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpu": "Apple M3",
+    "node": "v26.3.0",
+    "timing": {
+      "enabled": false,
+      "width": 1920,
+      "height": 1080,
+      "warmup": 60,
+      "measure": 120,
+      "repeats": 3,
+      "method": "median GPU-synchronized batch wall time; separate timestamp run"
+    },
+    "quality": {
+      "enabled": true,
+      "frames": 128,
+      "dimensions": "native scene dimensions",
+      "encoding": "AVIF quality 90, 4:4:4; decoded sRGB RGB8 metrics",
+      "maxPsnrDropDb": 0.1
+    }
+  },
+  "scenes": {
+    "ssgi-basic": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 27.481138484406348
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "ssgi-basic/images/ssgi-basic/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "ssr-hiz-tight": {
+          "reference": {
+            "psnr": 27.52361696317786
+          },
+          "baseline": {
+            "psnr": 49.56879658627625
+          },
+          "psnrDropDb": -0.042478478771514006,
+          "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssr-hiz-tight.avif",
+          "passesReferenceGate": true
+        },
+        "ssr-radiance-mips": {
+          "reference": {
+            "psnr": 27.473744913587353
+          },
+          "baseline": {
+            "psnr": 50.09162327044017
+          },
+          "psnrDropDb": 0.007393570818994277,
+          "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssr-radiance-mips.avif",
+          "passesReferenceGate": true
+        },
+        "ssgi-radiance-mips": {
+          "reference": {
+            "psnr": 27.649939280270175
+          },
+          "baseline": {
+            "psnr": 45.7811255773275
+          },
+          "psnrDropDb": -0.16880079586382735,
+          "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-radiance-mips.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 27.679954190924963
+          },
+          "baseline": {
+            "psnr": 45.673532783907746
+          },
+          "psnrDropDb": -0.1988157065186158,
+          "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 27.481138484406348
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "ssgi-basic/repeat/ssgi-basic/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssgi-basic/beauty/three-gpu-pathtracer.avif",
+        "sha256": "daf7fcd17a2dfd3d1dd44974ff49bdf5ace6cfad6af4585706a38f54bab6dd25"
+      },
+      "baselineRepeatPsnrDb": null,
+      "combinedComparisons": {
+        "baseline": {
+          "psnrDropDb": -0.1988157065186158,
+          "passesReferenceGate": true,
+          "image": {
+            "psnr": 45.673532783907746
+          }
+        },
+        "ssr-hiz-tight": {
+          "psnrDropDb": -0.1563372277471018,
+          "passesReferenceGate": true,
+          "image": {
+            "psnr": 45.716901956850364
+          }
+        },
+        "ssr-radiance-mips": {
+          "psnrDropDb": -0.20620927733761008,
+          "passesReferenceGate": true,
+          "image": {
+            "psnr": 45.721783677788096
+          }
+        },
+        "ssgi-radiance-mips": {
+          "psnrDropDb": -0.03001491065478845,
+          "passesReferenceGate": true,
+          "image": {
+            "psnr": 49.82471645817423
+          }
+        }
+      }
+    },
+    "ssgi-metallic": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 27.626608888490484
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "ssr-hiz-tight": {
+          "reference": {
+            "psnr": 27.73278582357228
+          },
+          "baseline": {
+            "psnr": 46.0173544461502
+          },
+          "psnrDropDb": -0.10617693508179471,
+          "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssr-hiz-tight.avif",
+          "passesReferenceGate": true
+        },
+        "ssr-radiance-mips": {
+          "reference": {
+            "psnr": 27.61986100118207
+          },
+          "baseline": {
+            "psnr": 50.26044286226635
+          },
+          "psnrDropDb": 0.0067478873084141355,
+          "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssr-radiance-mips.avif",
+          "passesReferenceGate": true
+        },
+        "ssgi-radiance-mips": {
+          "reference": {
+            "psnr": 27.72592107497497
+          },
+          "baseline": {
+            "psnr": 48.60800542351135
+          },
+          "psnrDropDb": -0.09931218648448592,
+          "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssgi-radiance-mips.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 27.828106100356077
+          },
+          "baseline": {
+            "psnr": 45.53073708431511
+          },
+          "psnrDropDb": -0.20149721186559333,
+          "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 27.62854156010688
+          },
+          "baseline": {
+            "psnr": 51.16441699351075
+          },
+          "psnrDropDb": -0.0019326716163945434,
+          "image": "ssgi-metallic/repeat/ssgi-metallic/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssgi-metallic/beauty/three-gpu-pathtracer.avif",
+        "sha256": "a0f2dad322585e40e468dbf91dd85403c1cc62d338af7f2320cd317faaada1a4"
+      },
+      "baselineRepeatPsnrDb": 51.16441699351075,
+      "combinedComparisons": {
+        "baseline": {
+          "psnrDropDb": -0.20149721186559333,
+          "passesReferenceGate": true,
+          "image": {
+            "psnr": 45.53073708431511
+          }
+        },
+        "ssr-hiz-tight": {
+          "psnrDropDb": -0.09532027678379862,
+          "passesReferenceGate": true,
+          "image": {
+            "psnr": 48.571853771727476
+          }
+        },
+        "ssr-radiance-mips": {
+          "psnrDropDb": -0.20824509917400746,
+          "passesReferenceGate": true,
+          "image": {
+            "psnr": 45.51165476200792
+          }
+        },
+        "ssgi-radiance-mips": {
+          "psnrDropDb": -0.10218502538110741,
+          "passesReferenceGate": true,
+          "image": {
+            "psnr": 46.18254179338845
+          }
+        }
+      }
+    }
+  },
+  "ok": true
+}

@@ -76,6 +76,10 @@ function createPipeline(
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const resolutionScale = effects.resolutionScale ?? 1;
+  const combined = hierarchyExperiment === 'hierarchy-combined';
+  const giRadianceMips = combined || hierarchyExperiment === 'ssgi-radiance-mips';
+  const ssrRadianceMips = combined || hierarchyExperiment === 'ssr-radiance-mips';
+  const tightHiZ = combined || hierarchyExperiment === 'ssr-hiz-tight';
   // rtt() render targets (giRadianceSource below) aren't tracked by RenderPipeline's own dispose(), so they're
   // collected here and disposed explicitly in createThreeNewRenderer's dispose() (see docs/history/SSGI_FAST.md).
   const rttDisposables: AnyNode[] = [];
@@ -138,6 +142,7 @@ function createPipeline(
   };
 
   let giPass: AnyNode = null;
+  let sharedRadiance: AnyNode = null;
   if (effects.ssgi) {
     // SSGINode samples the radiance ~32 times per pixel, each a dependent velocity + previous-frame fetch pair;
     // reprojecting it once into an RG11B10 texture (at SSGI's resolution) replaces that with one fetch per sample
@@ -146,13 +151,16 @@ function createPipeline(
       type: UnsignedInt101111Type,
       format: RGBFormat,
     });
-    if (hierarchyExperiment === 'ssgi-radiance-mips') {
+    if (giRadianceMips) {
       giRadianceSource.value.generateMipmaps = true;
       giRadianceSource.value.minFilter = LinearMipmapLinearFilter;
     }
     rttDisposables.push(giRadianceSource);
     giPass = (ssgi as AnyNode)(giRadianceSource, prePassDepth, sceneNormal, camera);
-    giPass.radianceMips = hierarchyExperiment === 'ssgi-radiance-mips';
+    // SSR's LOD is expressed in full-resolution pixels. Share only when GI's source has that resolution;
+    // sharing a reduced-resolution chain would change its footprint and lose fine reflection detail.
+    if (combined && resolutionScale === 1) sharedRadiance = giRadianceSource;
+    giPass.radianceMips = giRadianceMips;
     giPass.loopInvariantInitialStep = true;
     giPass.useSolidAngleWeighting.value = true;
     giPass.sliceCount.value = effects.ssgi.sliceCount;
@@ -179,7 +187,9 @@ function createPipeline(
 
     // A mipmapped, reprojected source costs an extra pass for SSR; benchmark that cost too.
     let ssrRadiance: AnyNode = previousRadiance;
-    if (hierarchyExperiment === 'ssr-radiance-mips') {
+    if (sharedRadiance) {
+      ssrRadiance = sharedRadiance;
+    } else if (ssrRadianceMips) {
       ssrRadiance = rtt(previousRadiance.sample(screenUV), null, null, {
         type: UnsignedInt101111Type,
         format: RGBFormat,
@@ -205,8 +215,8 @@ function createPipeline(
       hitMaterialNode: prePass.getTextureNode('metalRoughness'),
       hitSpecularNode: prePass.getTextureNode('specular'),
       ...SSR_OPTIONS,
-      tightHiZ: hierarchyExperiment === 'ssr-hiz-tight',
-      radianceMipNode: hierarchyExperiment === 'ssr-radiance-mips' ? ssrRadiance : null,
+      tightHiZ,
+      radianceMipNode: ssrRadianceMips ? ssrRadiance : null,
     });
     if (scene.environment) ssrPass.environmentIntensity.value = scene.environmentIntensity;
     // NewSSRNode drops the fork's distance-fade/hit-rejection use of maxDistance in radiance mode, so maxDistance

@@ -1,0 +1,686 @@
+{
+  "metadata": {
+    "date": "2026-10-01T16:43:48.671Z",
+    "revision": "637170f88a99fe5eab8b40787fddea0b3e777814",
+    "dirty": true,
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpu": "Apple M3",
+    "node": "v26.3.0",
+    "timing": {
+      "enabled": false,
+      "width": 1920,
+      "height": 1080,
+      "warmup": 60,
+      "measure": 120,
+      "repeats": 3,
+      "method": "median GPU-synchronized batch wall time; separate timestamp run"
+    },
+    "quality": {
+      "enabled": true,
+      "frames": 128,
+      "dimensions": "native scene dimensions",
+      "encoding": "AVIF quality 90, 4:4:4; decoded sRGB RGB8 metrics",
+      "maxPsnrDropDb": 0.1
+    },
+    "captureBatches": [
+      {
+        "date": "2026-10-01T16:43:48.671Z",
+        "revision": "637170f88a99fe5eab8b40787fddea0b3e777814",
+        "dirty": true,
+        "platform": "darwin",
+        "arch": "arm64",
+        "cpu": "Apple M3",
+        "node": "v26.3.0",
+        "timing": {
+          "enabled": false,
+          "width": 1920,
+          "height": 1080,
+          "warmup": 60,
+          "measure": 120,
+          "repeats": 3,
+          "method": "median GPU-synchronized batch wall time; separate timestamp run"
+        },
+        "quality": {
+          "enabled": true,
+          "frames": 128,
+          "dimensions": "native scene dimensions",
+          "encoding": "AVIF quality 90, 4:4:4; decoded sRGB RGB8 metrics",
+          "maxPsnrDropDb": 0.1
+        }
+      },
+      {
+        "date": "2026-10-01T16:50:14.767Z",
+        "revision": "637170f88a99fe5eab8b40787fddea0b3e777814",
+        "dirty": true,
+        "platform": "darwin",
+        "arch": "arm64",
+        "cpu": "Apple M3",
+        "node": "v26.3.0",
+        "timing": {
+          "enabled": false,
+          "width": 1920,
+          "height": 1080,
+          "warmup": 60,
+          "measure": 120,
+          "repeats": 3,
+          "method": "median GPU-synchronized batch wall time; separate timestamp run"
+        },
+        "quality": {
+          "enabled": true,
+          "frames": 128,
+          "dimensions": "native scene dimensions",
+          "encoding": "AVIF quality 90, 4:4:4; decoded sRGB RGB8 metrics",
+          "maxPsnrDropDb": 0.1
+        }
+      }
+    ]
+  },
+  "scenes": {
+    "ssr-diag-mirror": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 36.584615217883126
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssr-diag-mirror/images/ssr-diag-mirror/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 36.5932728935062
+          },
+          "baseline": {
+            "psnr": 55.8896052966991
+          },
+          "psnrDropDb": -0.008657675623076955,
+          "image": "results/ssr-diag-mirror/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 36.584615217883126
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssr-diag-mirror/repeat/ssr-diag-mirror/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-mirror/beauty/three-gpu-pathtracer.avif",
+        "sha256": "5b78bbb953fffce7305a3544209356957319efdbbde423675ed786f5a2c30c0f"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "ssr-diag-grazing": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 34.21029811108766
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssr-diag-grazing/images/ssr-diag-grazing/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 34.22695015105086
+          },
+          "baseline": {
+            "psnr": 57.49644773992205
+          },
+          "psnrDropDb": -0.01665203996319775,
+          "image": "results/ssr-diag-grazing/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 34.21029811108766
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssr-diag-grazing/repeat/ssr-diag-grazing/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-grazing/beauty/three-gpu-pathtracer.avif",
+        "sha256": "dca22583e557953897b5d9c0a3c7f87718ba0cac68fdf8605870589cc3c01cd3"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "ssr-diag-occlusion": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 36.632211016456885
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssr-diag-occlusion/images/ssr-diag-occlusion/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 36.63860951134824
+          },
+          "baseline": {
+            "psnr": 59.66321947986601
+          },
+          "psnrDropDb": -0.0063984948913571316,
+          "image": "results/ssr-diag-occlusion/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 36.632211016456885
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssr-diag-occlusion/repeat/ssr-diag-occlusion/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-occlusion/beauty/three-gpu-pathtracer.avif",
+        "sha256": "57b1d8f93c36b253a66a9034cbf5d544aea45863ac135388006d3e5409897a1f"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "ssr-diag-metal-hit": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 31.945230435876418
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssr-diag-metal-hit/images/ssr-diag-metal-hit/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 31.952619517113533
+          },
+          "baseline": {
+            "psnr": 51.56213875537385
+          },
+          "psnrDropDb": -0.007389081237114681,
+          "image": "results/ssr-diag-metal-hit/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 31.951254168429752
+          },
+          "baseline": {
+            "psnr": 55.375575069149214
+          },
+          "psnrDropDb": -0.006023732553334327,
+          "image": ".output/combined-native/ssr-diag-metal-hit/repeat/ssr-diag-metal-hit/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-metal-hit/beauty/three-gpu-pathtracer.avif",
+        "sha256": "78bd58334041b42243f52ba6c457bd4e70fff34c1458c6f471c7f63eb8701d7c"
+      },
+      "baselineRepeatPsnrDb": 55.375575069149214
+    },
+    "ssr-diag-rough-30": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 37.123640120104675
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssr-diag-rough-30/images/ssr-diag-rough-30/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 37.11777048848635
+          },
+          "baseline": {
+            "psnr": 53.34100470560608
+          },
+          "psnrDropDb": 0.0058696316183244335,
+          "image": "results/ssr-diag-rough-30/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 37.123640120104675
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssr-diag-rough-30/repeat/ssr-diag-rough-30/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-rough-30/beauty/three-gpu-pathtracer.avif",
+        "sha256": "eab360c4d84b6fdd1728010836c2d03a71fcb5c03cc2a008143a1a89ebeb2c0a"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "ssr-diag-odd-size": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 37.976115200954816
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssr-diag-odd-size/images/ssr-diag-odd-size/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 37.961883891082564
+          },
+          "baseline": {
+            "psnr": 60.00372207488681
+          },
+          "psnrDropDb": 0.014231309872251074,
+          "image": "results/ssr-diag-odd-size/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 37.976115200954816
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssr-diag-odd-size/repeat/ssr-diag-odd-size/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-odd-size/beauty/three-gpu-pathtracer.avif",
+        "sha256": "f6fb7a40ea4bb904f1634a61993be93add305f3aade0c596940d126f0467e55b"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "ssr-diag-rough-60": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 26.034626295175265
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssr-diag-rough-60/images/ssr-diag-rough-60/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 26.028310559115724
+          },
+          "baseline": {
+            "psnr": 52.89516032045746
+          },
+          "psnrDropDb": 0.006315736059541166,
+          "image": "results/ssr-diag-rough-60/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 26.034626295175265
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssr-diag-rough-60/repeat/ssr-diag-rough-60/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-rough-60/beauty/three-gpu-pathtracer.avif",
+        "sha256": "9c8e12918331df8e79735f43d866943347f360bbacb0e6994091fd06c336c5c0"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "ssgi-basic": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 27.481138484406348
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssgi-basic/images/ssgi-basic/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 27.679954190924963
+          },
+          "baseline": {
+            "psnr": 45.673532783907746
+          },
+          "psnrDropDb": -0.1988157065186158,
+          "image": "results/ssgi-basic/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 27.481138484406348
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native/ssgi-basic/repeat/ssgi-basic/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssgi-basic/beauty/three-gpu-pathtracer.avif",
+        "sha256": "daf7fcd17a2dfd3d1dd44974ff49bdf5ace6cfad6af4585706a38f54bab6dd25"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "ssgi-rounded": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 29.347669394359702
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native-rest/ssgi-rounded/images/ssgi-rounded/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 29.544698662600855
+          },
+          "baseline": {
+            "psnr": 47.77321531114172
+          },
+          "psnrDropDb": -0.19702926824115252,
+          "image": "results/ssgi-rounded/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 29.347669394359702
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native-rest/ssgi-rounded/repeat/ssgi-rounded/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssgi-rounded/beauty/three-gpu-pathtracer.avif",
+        "sha256": "505d0b20d9ff66a3eecd8a787c431be47b9395a2b936d5e00759fcef58035e93"
+      },
+      "baselineRepeatPsnrDb": null,
+      "combinedComparisons": {
+        "baseline": {
+          "psnrDropDb": -0.19702926824115252,
+          "passesReferenceGate": true,
+          "image": {
+            "psnr": 47.77321531114172
+          }
+        }
+      }
+    },
+    "gi-emitter-corner-dense": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 26.10781653225507
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native-rest/gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 26.09113102424157
+          },
+          "baseline": {
+            "psnr": 60.571878685131736
+          },
+          "psnrDropDb": 0.016685508013502215,
+          "image": "results/gi-emitter-corner-dense/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 26.10781653225507
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native-rest/gi-emitter-corner-dense/repeat/gi-emitter-corner-dense/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/gi-emitter-corner-dense/beauty/three-gpu-pathtracer.avif",
+        "sha256": "1f0c4ccd7d4e15434935f2db390d6902954c9894c175999388ce065e9f225ff3"
+      },
+      "baselineRepeatPsnrDb": null,
+      "combinedComparisons": {
+        "baseline": {
+          "psnrDropDb": 0.016685508013502215,
+          "passesReferenceGate": true,
+          "image": {
+            "psnr": 60.571878685131736
+          }
+        }
+      }
+    },
+    "gi-room-open-high-albedo": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 31.725908147687676
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native-rest/gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 31.689614914255113
+          },
+          "baseline": {
+            "psnr": 57.59277452321159
+          },
+          "psnrDropDb": 0.036293233432562744,
+          "image": "results/gi-room-open-high-albedo/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 31.725908147687676
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native-rest/gi-room-open-high-albedo/repeat/gi-room-open-high-albedo/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/gi-room-open-high-albedo/beauty/three-gpu-pathtracer.avif",
+        "sha256": "7f7dfe4a1d848f8599889bb670d3f80e7ef446cdd8e4168bf77ce0276b5d6ef2"
+      },
+      "baselineRepeatPsnrDb": null,
+      "combinedComparisons": {
+        "baseline": {
+          "psnrDropDb": 0.036293233432562744,
+          "passesReferenceGate": true,
+          "image": {
+            "psnr": 57.59277452321159
+          }
+        }
+      }
+    },
+    "gi-hierarchy-discontinuity": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 35.1462378032902
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native-rest/gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 35.09829331569884
+          },
+          "baseline": {
+            "psnr": 54.695661576301305
+          },
+          "psnrDropDb": 0.04794448759135861,
+          "image": "results/gi-hierarchy-discontinuity/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 35.1462378032902
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native-rest/gi-hierarchy-discontinuity/repeat/gi-hierarchy-discontinuity/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/gi-hierarchy-discontinuity/beauty/three-gpu-pathtracer.avif",
+        "sha256": "2802343f1d02841ab7061f5e535059b6f6e2b377dbd4d55e9f7dd510d475bcd9"
+      },
+      "baselineRepeatPsnrDb": null,
+      "combinedComparisons": {
+        "baseline": {
+          "psnrDropDb": 0.04794448759135861,
+          "passesReferenceGate": true,
+          "image": {
+            "psnr": 54.695661576301305
+          }
+        }
+      }
+    },
+    "ssgi-metallic": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 27.626608888490484
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": ".output/combined-native-rest/ssgi-metallic/images/ssgi-metallic/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "hierarchy-combined": {
+          "reference": {
+            "psnr": 27.828106100356077
+          },
+          "baseline": {
+            "psnr": 45.53073708431511
+          },
+          "psnrDropDb": -0.20149721186559333,
+          "image": "results/ssgi-metallic/beauty/three-new-hierarchy-combined.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 27.627855367618935
+          },
+          "baseline": {
+            "psnr": 50.666098598896255
+          },
+          "psnrDropDb": -0.0012464791284507726,
+          "image": ".output/combined-native-rest/ssgi-metallic/repeat/ssgi-metallic/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssgi-metallic/beauty/three-gpu-pathtracer.avif",
+        "sha256": "a0f2dad322585e40e468dbf91dd85403c1cc62d338af7f2320cd317faaada1a4"
+      },
+      "baselineRepeatPsnrDb": 50.666098598896255,
+      "combinedComparisons": {
+        "baseline": {
+          "psnrDropDb": -0.20149721186559333,
+          "passesReferenceGate": true,
+          "image": {
+            "psnr": 45.53073708431511
+          }
+        }
+      }
+    }
+  },
+  "ok": true
+}

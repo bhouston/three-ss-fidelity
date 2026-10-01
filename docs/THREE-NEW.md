@@ -180,6 +180,35 @@ The next levers are listed under "Next steps" in [history/SSR_TEMPORAL.md](histo
 
 ## Optional hierarchical experiments
 
-`cli render` and `cli bench` accept `--experiment ssr-hiz-tight`, `ssr-radiance-mips`, or `ssgi-radiance-mips`.
+`cli render` and `cli bench` accept `--experiment ssr-hiz-tight`, `ssr-radiance-mips`, `ssgi-radiance-mips`, or `hierarchy-combined`.
 The default is `baseline`. See [history/HIERARCHICAL.md](history/HIERARCHICAL.md) for the research,
 independent experiments, diagnostics, reproducible runner, and measured performance/quality tradeoffs.
+
+`hierarchy-combined` enables all three techniques. When SSGI and SSR both run and
+`resolutionScale` is 1, they share the existing GI RG11B10 reprojected radiance target
+and its mip chain, avoiding the extra SSR radiance pass. At other scales SSR keeps
+its own full-resolution target so its pixel-based footprint remains correct.
+Mirror/near-hit SSR and secondary bounces still sample the original history;
+depth, normals, hit refinement, sampling budgets, and temporal filters are unchanged.
+
+Select `hierarchy-combined` in the live viewer's Experiment control, or open
+`?scene=ssgi-metallic&renderer=three-new&experiment=hierarchy-combined`.
+The fidelity viewer identifies captures as `three-new-hierarchy-combined`.
+
+```sh
+pnpm cli render --renderers three-new --experiment hierarchy-combined
+pnpm exec fidelity-kit process results
+pnpm cli quality-gate three-new three-new-hierarchy-combined --threshold 0.1
+# Compare all individual profiles and the combined profile on both-effect scenes:
+node scripts/hierarchical-experiments.mjs --scenes ssgi-basic,ssgi-metallic --out .output/combined
+# 1080p and motion captures for the combined profile:
+node scripts/hierarchical-quality.mjs --experiments hierarchy-combined --out .output/combined-extra
+```
+
+Mip filtering changes radiance and is not a lossless transformation. The runner
+compares against path-traced references, repeats the baseline to expose variation,
+and exits unsuccessfully if the allowed PSNR drop is exceeded. With individual
+profiles included, it also gates the combined result against each individual result.
+Throughput uses fresh seeded processes and alternating order; timestamp profiles
+run separately. Performance is scene and device dependent. See
+[COMBINED-HIERARCHY.md](COMBINED-HIERARCHY.md) for measured evidence and limitations.

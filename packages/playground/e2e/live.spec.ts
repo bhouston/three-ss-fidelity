@@ -121,3 +121,39 @@ test('URL restores every control and the camera on refresh', async ({ page }) =>
     .forEach((value, index) => expect(restored[index]).toBeCloseTo(value, 8));
   await expect(page.getByText('See it. Measure it.')).toHaveCount(0);
 });
+
+test('combined hierarchy renders both effects, survives resize and camera motion, and exports its benchmark', async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto(
+    '/?scene=ssgi-metallic&renderer=three-new&experiment=hierarchy-combined&width=161&height=121&live-gpu=0&protocol=throughput&duration=0.1&repeats=1&warmup=3',
+  );
+  await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
+  await expect(page.locator('#experiment')).toHaveValue('hierarchy-combined');
+  const canvas = page.locator('#viewport canvas');
+  const box = (await canvas.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 15, box.y + box.height / 2 + 5);
+  await page.mouse.up();
+  await expect.poll(() => new URL(page.url()).searchParams.get('camera')).not.toBeNull();
+  await page.locator('#width').fill('193');
+  await page.locator('#height').fill('145');
+  await page.getByRole('button', { name: 'Load scene', exact: true }).click();
+  await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
+  const savedImage = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Capture converged PNG', exact: true }).click();
+  const stats = await sharp(await readFile((await (await savedImage).path())!)).stats();
+  expect(stats.channels[0]!.stdev).toBeGreaterThan(5);
+  await page.getByRole('button', { name: 'Run benchmark', exact: true }).click();
+  await expect(page.locator('#live-status')).toHaveText('Report ready', { timeout: 90000 });
+  const savedReport = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download report JSON', exact: true }).click();
+  const report = JSON.parse(await readFile((await (await savedReport).path())!, 'utf8'));
+  expect(report.entries[0].experiment).toBe('hierarchy-combined');
+  expect(report.entries[0].workload.settings.ssgi).toBeTruthy();
+  expect(report.entries[0].workload.settings.ssr).toBeTruthy();
+  expect(errors).toEqual([]);
+});

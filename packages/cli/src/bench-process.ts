@@ -1,9 +1,10 @@
 // Child process entry of `cli bench`: measures one renderer's steady-state frame time across scenes. Each GPU
 // backend (dawn, ANGLE) gets its own process, matching render-process.ts, and the process exits explicitly.
 import { writeFile } from 'node:fs/promises';
-import type { PassName, RendererName } from '@ss-fidelity/renderers';
+import type { HierarchyExperiment, PassName, RendererName } from '@ss-fidelity/renderers';
 
 export interface BenchJob {
+  hierarchyExperiment?: HierarchyExperiment;
   renderer: RendererName;
   scenes: string[];
   pass: PassName;
@@ -128,6 +129,7 @@ async function main(job: BenchJob): Promise<void> {
       height: job.height,
       pass: job.pass,
       trackTimestamp,
+      hierarchyExperiment: job.hierarchyExperiment,
     });
     const gpuRenderer = live.renderer as unknown as TimestampRenderer;
     const gpuSupported = trackTimestamp && gpuRenderer.hasFeature('timestamp-query');
@@ -218,7 +220,10 @@ async function main(job: BenchJob): Promise<void> {
       for (const pass of result.passes ?? []) console.log(`    ${pass.name}: ${pass.ms.toFixed(3)} ms`);
     }
   }
-  await writeFile(job.out, `${JSON.stringify({ renderer: job.renderer, pass: job.pass, scenes: results }, null, 2)}\n`);
+  await writeFile(
+    job.out,
+    `${JSON.stringify({ experiment: job.hierarchyExperiment ?? 'baseline', renderer: job.renderer, pass: job.pass, scenes: results }, null, 2)}\n`,
+  );
 }
 
 try {

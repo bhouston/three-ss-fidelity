@@ -13,6 +13,21 @@ const noAssets: SceneContext = {
 };
 
 describe('GI diagnostic controls', () => {
+  it('isolates radiance filtering with black emissive stripes and a thin unlit blocker', async () => {
+    const { scene, effects } = await getScene('gi-hierarchy-discontinuity').create(noAssets);
+    expect(effects.ssr).toBeUndefined();
+    expect(effects.ssgi?.stepCount).toBe(32);
+    const stripes = scene.children.filter((mesh) => mesh.name.startsWith('emitter-stripe-')) as Mesh[];
+    expect(stripes).toHaveLength(16);
+    for (const mesh of stripes) {
+      const material = mesh.material as MeshPhysicalMaterial;
+      expect(material.color.getHex()).toBe(0);
+      expect(material.emissive.r + material.emissive.g).toBe(0.8);
+      expect(material.emissive.r * material.emissive.g).toBe(0);
+    }
+    const blocker = scene.getObjectByName('thin-blocker') as Mesh;
+    expect((blocker.material as MeshPhysicalMaterial).emissive.getHex()).toBe(0);
+  });
   it('removes off-screen room geometry without changing visible primary-ray surfaces', async () => {
     const closed = await getScene('gi-room-high-albedo').create(noAssets);
     const open = await getScene('gi-room-open-high-albedo').create(noAssets);

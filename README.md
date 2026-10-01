@@ -79,13 +79,13 @@ process** (`render-process.ts`, `bench-process.ts`), because dawn and ANGLE don'
 state leaked between scenes. Headless GPU comes from `src/headless/webgpu.ts` (dawn, the `webgpu` package) and
 `src/headless/webgl.ts` (`@onirenaud/node-webgl`, ANGLE). `Math.random` is seeded, so renders are reproducible.
 
-| Command                               | Does                                                                                                                                                                                    |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cli list [--verbose]`                | List scene names.                                                                                                                                                                       |
-| `cli render`                          | Write `results/<scene>/<pass>/<renderer>.avif`. `--scenes/--passes/--renderers` take comma-separated globs; also `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`. |
-| `cli quality-gate <base> <candidate>` | Fail if the candidate's mean RMSE (from `fidelity-kit process`'s metrics) regresses by more than `--threshold`.                                                                         |
-| `cli converge`                        | Move-then-stop benchmark: write `results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                         |
-| `cli bench --renderers a,b`           | Steady-state ms/frame, and A/B speedup when two renderers are given; `--gpu` for timestamp queries ([docs/PERF.md](docs/PERF.md)).                                                      |
+| Command                               | Does                                                                                                                                                                                                                           |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `cli list [--verbose]`                | List scene names.                                                                                                                                                                                                              |
+| `cli render`                          | Write `results/<scene>/<pass>/<renderer>.avif`. `--scenes/--passes/--renderers` take comma-separated globs; also `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`, `--experiment`, `--width`, `--height`. |
+| `cli quality-gate <base> <candidate>` | Fail if the candidate's mean RMSE (from `fidelity-kit process`'s metrics) regresses by more than `--threshold`.                                                                                                                |
+| `cli converge`                        | Move-then-stop benchmark: write `results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                                                                |
+| `cli bench --renderers a,b`           | Steady-state ms/frame, and A/B speedup when two renderers are given; `--experiment` selects optional hierarchical variants; `--gpu` for timestamp queries ([docs/PERF.md](docs/PERF.md)).                                      |
 
 Run `pnpm cli <command> --help` for all flags. `pnpm cli` runs the built `dist/`, so run `pnpm build` (or `pnpm dev`)
 after changing sources.

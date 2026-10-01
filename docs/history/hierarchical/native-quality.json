@@ -1,0 +1,1091 @@
+{
+  "metadata": {
+    "date": "2026-10-01T13:03:31.306Z",
+    "revision": "5891940f316e101ce417411c0d0a5e025a7bea90",
+    "dirty": true,
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpu": "Apple M3",
+    "node": "v26.3.0",
+    "timing": {
+      "width": 1920,
+      "height": 1080,
+      "warmup": 60,
+      "measure": 120,
+      "repeats": 3,
+      "method": "median GPU-synchronized batch wall time; separate timestamp run",
+      "enabled": false
+    },
+    "quality": {
+      "frames": 128,
+      "dimensions": "native scene dimensions",
+      "encoding": "AVIF quality 90, 4:4:4; decoded sRGB RGB8 metrics",
+      "threshold": 0.01,
+      "enabled": true
+    },
+    "profiling": "Disabled: user was running heavy CPU/GPU work.",
+    "ssrRadianceMipsFinalCaptureDate": "2026-10-01T13:18:40.420Z"
+  },
+  "scenes": {
+    "ssr-diag-mirror": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 36.584615217883126,
+            "rmse": 0.01481730563451502,
+            "mae": 0.002504130355846042,
+            "maxError": 0.6627450980392157
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-mirror/images/ssr-diag-mirror/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 36.584615217883126,
+            "rmse": 0.01481730563451502,
+            "mae": 0.002504130355846042,
+            "maxError": 0.6627450980392157
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssr-hiz-tight": {
+          "reference": {
+            "psnr": 36.58462460691756,
+            "rmse": 0.014817289617719585,
+            "mae": 0.0025004690147664003,
+            "maxError": 0.6627450980392157
+          },
+          "baseline": {
+            "psnr": 56.956709527982284,
+            "rmse": 0.00141959520450807,
+            "mae": 0.00018689481965625758,
+            "maxError": 0.09411764705882353
+          },
+          "regression": -1.0809519510603477e-6,
+          "image": ".output/hierarchy-quality/ssr-diag-mirror/images/ssr-diag-mirror/beauty/three-new-ssr-hiz-tight.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 36.584615217883126,
+            "rmse": 0.01481730563451502,
+            "mae": 0.002504130355846042,
+            "maxError": 0.6627450980392157
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssr-radiance-mips": {
+          "reference": {
+            "psnr": 36.586859187493324,
+            "rmse": 0.014813478129176319,
+            "mae": 0.0024979196925683854,
+            "maxError": 0.6588235294117647
+          },
+          "baseline": {
+            "psnr": 56.94515344762581,
+            "rmse": 0.0014214851518492438,
+            "mae": 0.0001992178044057129,
+            "maxError": 0.06666666666666667
+          },
+          "regression": -0.00025831318008217403,
+          "image": ".output/hierarchy-ssr-mips-final/ssr-diag-mirror/images/ssr-diag-mirror/beauty/three-new-ssr-radiance-mips.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 36.584615217883126,
+            "rmse": 0.01481730563451502,
+            "mae": 0.002504130355846042,
+            "maxError": 0.6627450980392157
+          },
+          "matchedBaselineImage": ".output/hierarchy-ssr-mips-final/ssr-diag-mirror/images/ssr-diag-mirror/beauty/three-new.avif",
+          "baselineRepeatRmse": 0
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 36.584615217883126,
+            "rmse": 0.01481730563451502,
+            "mae": 0.002504130355846042,
+            "maxError": 0.6627450980392157
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-mirror/repeat/ssr-diag-mirror/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 36.584615217883126,
+            "rmse": 0.01481730563451502,
+            "mae": 0.002504130355846042,
+            "maxError": 0.6627450980392157
+          },
+          "baselineRepeatRmse": 0
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-mirror/beauty/three-gpu-pathtracer.avif",
+        "sha256": "5b78bbb953fffce7305a3544209356957319efdbbde423675ed786f5a2c30c0f"
+      },
+      "baselineRepeatRmse": 0
+    },
+    "ssr-diag-grazing": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 34.21029811108766,
+            "rmse": 0.019475342068753152,
+            "mae": 0.002629327039457758,
+            "maxError": 0.5450980392156862
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-grazing/images/ssr-diag-grazing/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 34.21029811108766,
+            "rmse": 0.019475342068753152,
+            "mae": 0.002629327039457758,
+            "maxError": 0.5450980392156862
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssr-hiz-tight": {
+          "reference": {
+            "psnr": 34.221016992699546,
+            "rmse": 0.019451323212819414,
+            "mae": 0.0026261725369160008,
+            "maxError": 0.5450980392156862
+          },
+          "baseline": {
+            "psnr": 57.95922986446335,
+            "rmse": 0.0012648484904557251,
+            "mae": 0.00013829127329944324,
+            "maxError": 0.10588235294117647
+          },
+          "regression": -0.001233295715625675,
+          "image": ".output/hierarchy-quality/ssr-diag-grazing/images/ssr-diag-grazing/beauty/three-new-ssr-hiz-tight.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 34.21029811108766,
+            "rmse": 0.019475342068753152,
+            "mae": 0.002629327039457758,
+            "maxError": 0.5450980392156862
+          },
+          "baselineRepeatRmse": 0
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 34.21029811108766,
+            "rmse": 0.019475342068753152,
+            "mae": 0.002629327039457758,
+            "maxError": 0.5450980392156862
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-grazing/repeat/ssr-diag-grazing/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 34.21029811108766,
+            "rmse": 0.019475342068753152,
+            "mae": 0.002629327039457758,
+            "maxError": 0.5450980392156862
+          },
+          "baselineRepeatRmse": 0
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-grazing/beauty/three-gpu-pathtracer.avif",
+        "sha256": "dca22583e557953897b5d9c0a3c7f87718ba0cac68fdf8605870589cc3c01cd3"
+      },
+      "baselineRepeatRmse": 0
+    },
+    "ssr-diag-occlusion": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 36.632211016456885,
+            "rmse": 0.014736333759058907,
+            "mae": 0.0022876724763979664,
+            "maxError": 0.5529411764705883
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-occlusion/images/ssr-diag-occlusion/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 36.632211016456885,
+            "rmse": 0.014736333759058907,
+            "mae": 0.0022876724763979664,
+            "maxError": 0.5529411764705883
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssr-hiz-tight": {
+          "reference": {
+            "psnr": 36.635865975198854,
+            "rmse": 0.01473013412221823,
+            "mae": 0.002293709150326797,
+            "maxError": 0.5568627450980392
+          },
+          "baseline": {
+            "psnr": 60.57923337752285,
+            "rmse": 0.0009354882373266704,
+            "mae": 0.0001088719438392641,
+            "maxError": 0.06666666666666667
+          },
+          "regression": -0.0004207041549168517,
+          "image": ".output/hierarchy-quality/ssr-diag-occlusion/images/ssr-diag-occlusion/beauty/three-new-ssr-hiz-tight.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 36.632211016456885,
+            "rmse": 0.014736333759058907,
+            "mae": 0.0022876724763979664,
+            "maxError": 0.5529411764705883
+          },
+          "baselineRepeatRmse": 0
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 36.632211016456885,
+            "rmse": 0.014736333759058907,
+            "mae": 0.0022876724763979664,
+            "maxError": 0.5529411764705883
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-occlusion/repeat/ssr-diag-occlusion/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 36.632211016456885,
+            "rmse": 0.014736333759058907,
+            "mae": 0.0022876724763979664,
+            "maxError": 0.5529411764705883
+          },
+          "baselineRepeatRmse": 0
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-occlusion/beauty/three-gpu-pathtracer.avif",
+        "sha256": "57b1d8f93c36b253a66a9034cbf5d544aea45863ac135388006d3e5409897a1f"
+      },
+      "baselineRepeatRmse": 0
+    },
+    "ssr-diag-metal-hit": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 31.945230435876418,
+            "rmse": 0.02527775371920709,
+            "mae": 0.00522629206003389,
+            "maxError": 0.6509803921568628
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-metal-hit/images/ssr-diag-metal-hit/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 31.945230435876418,
+            "rmse": 0.02527775371920709,
+            "mae": 0.00522629206003389,
+            "maxError": 0.6509803921568628
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssr-hiz-tight": {
+          "reference": {
+            "psnr": 31.95752425608675,
+            "rmse": 0.025242001441132693,
+            "mae": 0.005211366799806342,
+            "maxError": 0.6352941176470588
+          },
+          "baseline": {
+            "psnr": 51.52632499963169,
+            "rmse": 0.0026526732017832346,
+            "mae": 0.0005374077099975792,
+            "maxError": 0.19607843137254902
+          },
+          "regression": -0.0014143771820686257,
+          "image": ".output/hierarchy-quality/ssr-diag-metal-hit/images/ssr-diag-metal-hit/beauty/three-new-ssr-hiz-tight.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 31.945230435876418,
+            "rmse": 0.02527775371920709,
+            "mae": 0.00522629206003389,
+            "maxError": 0.6509803921568628
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssr-radiance-mips": {
+          "reference": {
+            "psnr": 31.94020844010891,
+            "rmse": 0.025292373002082206,
+            "mae": 0.005245211510530138,
+            "maxError": 0.6470588235294118
+          },
+          "baseline": {
+            "psnr": 53.45370651377375,
+            "rmse": 0.0021247834467834166,
+            "mae": 0.0004187545388525781,
+            "maxError": 0.10196078431372549
+          },
+          "regression": 0.0003975238233383432,
+          "image": ".output/hierarchy-ssr-mips-final/ssr-diag-metal-hit/images/ssr-diag-metal-hit/beauty/three-new-ssr-radiance-mips.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 31.943660602054074,
+            "rmse": 0.025282322676508966,
+            "mae": 0.005228917029774872,
+            "maxError": 0.6431372549019608
+          },
+          "matchedBaselineImage": ".output/hierarchy-ssr-mips-final/ssr-diag-metal-hit/images/ssr-diag-metal-hit/beauty/three-new.avif",
+          "baselineRepeatRmse": 0.001663263502630948
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 31.945230435876418,
+            "rmse": 0.02527775371920709,
+            "mae": 0.00522629206003389,
+            "maxError": 0.6509803921568628
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-metal-hit/repeat/ssr-diag-metal-hit/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 31.945230435876418,
+            "rmse": 0.02527775371920709,
+            "mae": 0.00522629206003389,
+            "maxError": 0.6509803921568628
+          },
+          "baselineRepeatRmse": 0
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-metal-hit/beauty/three-gpu-pathtracer.avif",
+        "sha256": "78bd58334041b42243f52ba6c457bd4e70fff34c1458c6f471c7f63eb8701d7c"
+      },
+      "baselineRepeatRmse": 0
+    },
+    "ssr-diag-rough-30": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 37.123640120104675,
+            "rmse": 0.013925730751057026,
+            "mae": 0.005462062757201646,
+            "maxError": 0.5333333333333333
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-rough-30/images/ssr-diag-rough-30/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 37.123640120104675,
+            "rmse": 0.013925730751057026,
+            "mae": 0.005462062757201646,
+            "maxError": 0.5333333333333333
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssr-hiz-tight": {
+          "reference": {
+            "psnr": 37.12408725688002,
+            "rmse": 0.013925013893448452,
+            "mae": 0.005490241466957153,
+            "maxError": 0.5333333333333333
+          },
+          "baseline": {
+            "psnr": 53.79682818275009,
+            "rmse": 0.002042483660130719,
+            "mae": 0.0005748835027838296,
+            "maxError": 0.06666666666666667
+          },
+          "regression": -5.147719867552267e-5,
+          "image": ".output/hierarchy-quality/ssr-diag-rough-30/images/ssr-diag-rough-30/beauty/three-new-ssr-hiz-tight.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 37.123640120104675,
+            "rmse": 0.013925730751057026,
+            "mae": 0.005462062757201646,
+            "maxError": 0.5333333333333333
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssr-radiance-mips": {
+          "reference": {
+            "psnr": 37.1164484101177,
+            "rmse": 0.013937265699504603,
+            "mae": 0.0054724869886226095,
+            "maxError": 0.5333333333333333
+          },
+          "baseline": {
+            "psnr": 53.70058956817516,
+            "rmse": 0.0020652399697000555,
+            "mae": 0.0005338598402323892,
+            "maxError": 0.09411764705882353
+          },
+          "regression": 0.0008283190773813198,
+          "image": ".output/hierarchy-ssr-mips-final/ssr-diag-rough-30/images/ssr-diag-rough-30/beauty/three-new-ssr-radiance-mips.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 37.123640120104675,
+            "rmse": 0.013925730751057026,
+            "mae": 0.005462062757201646,
+            "maxError": 0.5333333333333333
+          },
+          "matchedBaselineImage": ".output/hierarchy-ssr-mips-final/ssr-diag-rough-30/images/ssr-diag-rough-30/beauty/three-new.avif",
+          "baselineRepeatRmse": 0
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 37.123640120104675,
+            "rmse": 0.013925730751057026,
+            "mae": 0.005462062757201646,
+            "maxError": 0.5333333333333333
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-rough-30/repeat/ssr-diag-rough-30/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 37.123640120104675,
+            "rmse": 0.013925730751057026,
+            "mae": 0.005462062757201646,
+            "maxError": 0.5333333333333333
+          },
+          "baselineRepeatRmse": 0
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-rough-30/beauty/three-gpu-pathtracer.avif",
+        "sha256": "eab360c4d84b6fdd1728010836c2d03a71fcb5c03cc2a008143a1a89ebeb2c0a"
+      },
+      "baselineRepeatRmse": 0
+    },
+    "ssr-diag-odd-size": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 37.976115200954816,
+            "rmse": 0.012623920182505986,
+            "mae": 0.00199741988889781,
+            "maxError": 0.5490196078431373
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-odd-size/images/ssr-diag-odd-size/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 37.976115200954816,
+            "rmse": 0.012623920182505986,
+            "mae": 0.00199741988889781,
+            "maxError": 0.5490196078431373
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssr-hiz-tight": {
+          "reference": {
+            "psnr": 37.9650557514095,
+            "rmse": 0.012640004030508047,
+            "mae": 0.001996742358482622,
+            "maxError": 0.5490196078431373
+          },
+          "baseline": {
+            "psnr": 62.174226382783374,
+            "rmse": 0.000778553893386573,
+            "mae": 7.684700531368283e-5,
+            "maxError": 0.047058823529411764
+          },
+          "regression": 0.001274077130521605,
+          "image": ".output/hierarchy-quality/ssr-diag-odd-size/images/ssr-diag-odd-size/beauty/three-new-ssr-hiz-tight.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 37.976115200954816,
+            "rmse": 0.012623920182505986,
+            "mae": 0.00199741988889781,
+            "maxError": 0.5490196078431373
+          },
+          "baselineRepeatRmse": 0
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 37.976115200954816,
+            "rmse": 0.012623920182505986,
+            "mae": 0.00199741988889781,
+            "maxError": 0.5490196078431373
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-odd-size/repeat/ssr-diag-odd-size/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 37.976115200954816,
+            "rmse": 0.012623920182505986,
+            "mae": 0.00199741988889781,
+            "maxError": 0.5490196078431373
+          },
+          "baselineRepeatRmse": 0
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-odd-size/beauty/three-gpu-pathtracer.avif",
+        "sha256": "f6fb7a40ea4bb904f1634a61993be93add305f3aade0c596940d126f0467e55b"
+      },
+      "baselineRepeatRmse": 0
+    },
+    "ssr-diag-rough-60": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 26.034626295175265,
+            "rmse": 0.04991932281353012,
+            "mae": 0.03884527808036795,
+            "maxError": 0.5333333333333333
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-rough-60/images/ssr-diag-rough-60/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 26.034626295175265,
+            "rmse": 0.04991932281353012,
+            "mae": 0.03884527808036795,
+            "maxError": 0.5333333333333333
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssr-radiance-mips": {
+          "reference": {
+            "psnr": 26.05480419328274,
+            "rmse": 0.04980349150751062,
+            "mae": 0.03873329702251271,
+            "maxError": 0.5333333333333333
+          },
+          "baseline": {
+            "psnr": 54.38147534882347,
+            "rmse": 0.0019095288864422939,
+            "mae": 0.0005192522996853062,
+            "maxError": 0.09803921568627451
+          },
+          "regression": -0.0023203701390777545,
+          "image": ".output/hierarchy-ssr-mips-final/ssr-diag-rough-60/images/ssr-diag-rough-60/beauty/three-new-ssr-radiance-mips.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 26.034626295175265,
+            "rmse": 0.04991932281353012,
+            "mae": 0.03884527808036795,
+            "maxError": 0.5333333333333333
+          },
+          "matchedBaselineImage": ".output/hierarchy-ssr-mips-final/ssr-diag-rough-60/images/ssr-diag-rough-60/beauty/three-new.avif",
+          "baselineRepeatRmse": 0
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 26.034626295175265,
+            "rmse": 0.04991932281353012,
+            "mae": 0.03884527808036795,
+            "maxError": 0.5333333333333333
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssr-diag-rough-60/repeat/ssr-diag-rough-60/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 26.034626295175265,
+            "rmse": 0.04991932281353012,
+            "mae": 0.03884527808036795,
+            "maxError": 0.5333333333333333
+          },
+          "baselineRepeatRmse": 0
+        }
+      },
+      "reference": {
+        "path": "results/ssr-diag-rough-60/beauty/three-gpu-pathtracer.avif",
+        "sha256": "9c8e12918331df8e79735f43d866943347f360bbacb0e6994091fd06c336c5c0"
+      },
+      "baselineRepeatRmse": 0
+    },
+    "ssgi-basic": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 27.481138484406348,
+            "rmse": 0.0422613217511605,
+            "mae": 0.032394186580882355,
+            "maxError": 0.4235294117647059
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssgi-basic/images/ssgi-basic/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 27.481138484406348,
+            "rmse": 0.0422613217511605,
+            "mae": 0.032394186580882355,
+            "maxError": 0.4235294117647059
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssgi-radiance-mips": {
+          "reference": {
+            "psnr": 27.649939280270175,
+            "rmse": 0.04144794814952194,
+            "mae": 0.03191018178104575,
+            "maxError": 0.4117647058823529
+          },
+          "baseline": {
+            "psnr": 45.7811255773275,
+            "rmse": 0.005139770425859875,
+            "mae": 0.0036588499114923747,
+            "maxError": 0.12549019607843137
+          },
+          "regression": -0.01924628875613012,
+          "image": ".output/hierarchy-quality/ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-radiance-mips.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 27.481138484406348,
+            "rmse": 0.0422613217511605,
+            "mae": 0.032394186580882355,
+            "maxError": 0.4235294117647059
+          },
+          "baselineRepeatRmse": 0
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 27.481138484406348,
+            "rmse": 0.0422613217511605,
+            "mae": 0.032394186580882355,
+            "maxError": 0.4235294117647059
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssgi-basic/repeat/ssgi-basic/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 27.481138484406348,
+            "rmse": 0.0422613217511605,
+            "mae": 0.032394186580882355,
+            "maxError": 0.4235294117647059
+          },
+          "baselineRepeatRmse": 0
+        }
+      },
+      "reference": {
+        "path": "results/ssgi-basic/beauty/three-gpu-pathtracer.avif",
+        "sha256": "daf7fcd17a2dfd3d1dd44974ff49bdf5ace6cfad6af4585706a38f54bab6dd25"
+      },
+      "baselineRepeatRmse": 0
+    },
+    "ssgi-rounded": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 29.347669394359702,
+            "rmse": 0.03408917809161575,
+            "mae": 0.025892101545479305,
+            "maxError": 0.4117647058823529
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssgi-rounded/images/ssgi-rounded/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 29.347669394359702,
+            "rmse": 0.03408917809161575,
+            "mae": 0.025892101545479305,
+            "maxError": 0.4117647058823529
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssgi-radiance-mips": {
+          "reference": {
+            "psnr": 29.50219774592986,
+            "rmse": 0.03348806952991601,
+            "mae": 0.025434372446895424,
+            "maxError": 0.4117647058823529
+          },
+          "baseline": {
+            "psnr": 48.03809883126233,
+            "rmse": 0.003963647811401886,
+            "mae": 0.0025186717047930283,
+            "maxError": 0.09411764705882353
+          },
+          "regression": -0.017633413163680275,
+          "image": ".output/hierarchy-quality/ssgi-rounded/images/ssgi-rounded/beauty/three-new-ssgi-radiance-mips.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 29.347669394359702,
+            "rmse": 0.03408917809161575,
+            "mae": 0.025892101545479305,
+            "maxError": 0.4117647058823529
+          },
+          "baselineRepeatRmse": 0
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 29.347669394359702,
+            "rmse": 0.03408917809161575,
+            "mae": 0.025892101545479305,
+            "maxError": 0.4117647058823529
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/ssgi-rounded/repeat/ssgi-rounded/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 29.347669394359702,
+            "rmse": 0.03408917809161575,
+            "mae": 0.025892101545479305,
+            "maxError": 0.4117647058823529
+          },
+          "baselineRepeatRmse": 0
+        }
+      },
+      "reference": {
+        "path": "results/ssgi-rounded/beauty/three-gpu-pathtracer.avif",
+        "sha256": "505d0b20d9ff66a3eecd8a787c431be47b9395a2b936d5e00759fcef58035e93"
+      },
+      "baselineRepeatRmse": 0
+    },
+    "gi-emitter-corner-dense": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 26.10781653225507,
+            "rmse": 0.04950045300220348,
+            "mae": 0.026905069898329702,
+            "maxError": 0.30196078431372547
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 26.10781653225507,
+            "rmse": 0.04950045300220348,
+            "mae": 0.026905069898329702,
+            "maxError": 0.30196078431372547
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssgi-radiance-mips": {
+          "reference": {
+            "psnr": 26.09113102424157,
+            "rmse": 0.04959563427428889,
+            "mae": 0.02700315450254176,
+            "maxError": 0.30196078431372547
+          },
+          "baseline": {
+            "psnr": 60.571878685131736,
+            "rmse": 0.0009362806883263119,
+            "mae": 0.0002097857661583152,
+            "maxError": 0.023529411764705882
+          },
+          "regression": 0.0019228363845715222,
+          "image": ".output/hierarchy-quality/gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new-ssgi-radiance-mips.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 26.10781653225507,
+            "rmse": 0.04950045300220348,
+            "mae": 0.026905069898329702,
+            "maxError": 0.30196078431372547
+          },
+          "baselineRepeatRmse": 0
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 26.10781653225507,
+            "rmse": 0.04950045300220348,
+            "mae": 0.026905069898329702,
+            "maxError": 0.30196078431372547
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/gi-emitter-corner-dense/repeat/gi-emitter-corner-dense/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 26.10781653225507,
+            "rmse": 0.04950045300220348,
+            "mae": 0.026905069898329702,
+            "maxError": 0.30196078431372547
+          },
+          "baselineRepeatRmse": 0
+        }
+      },
+      "reference": {
+        "path": "results/gi-emitter-corner-dense/beauty/three-gpu-pathtracer.avif",
+        "sha256": "1f0c4ccd7d4e15434935f2db390d6902954c9894c175999388ce065e9f225ff3"
+      },
+      "baselineRepeatRmse": 0
+    },
+    "gi-room-open-high-albedo": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 31.725908147687676,
+            "rmse": 0.025924153996495645,
+            "mae": 0.021814928286129263,
+            "maxError": 0.07058823529411765
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 31.725908147687676,
+            "rmse": 0.025924153996495645,
+            "mae": 0.021814928286129263,
+            "maxError": 0.07058823529411765
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssgi-radiance-mips": {
+          "reference": {
+            "psnr": 31.689614914255113,
+            "rmse": 0.026032702438512866,
+            "mae": 0.02193409586056645,
+            "maxError": 0.07058823529411765
+          },
+          "baseline": {
+            "psnr": 57.59277452321159,
+            "rmse": 0.0013193538048013756,
+            "mae": 0.0004425608206245461,
+            "maxError": 0.00784313725490196
+          },
+          "regression": 0.0041871546524486275,
+          "image": ".output/hierarchy-quality/gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-ssgi-radiance-mips.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 31.725908147687676,
+            "rmse": 0.025924153996495645,
+            "mae": 0.021814928286129263,
+            "maxError": 0.07058823529411765
+          },
+          "baselineRepeatRmse": 0
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 31.725908147687676,
+            "rmse": 0.025924153996495645,
+            "mae": 0.021814928286129263,
+            "maxError": 0.07058823529411765
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/gi-room-open-high-albedo/repeat/gi-room-open-high-albedo/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 31.725908147687676,
+            "rmse": 0.025924153996495645,
+            "mae": 0.021814928286129263,
+            "maxError": 0.07058823529411765
+          },
+          "baselineRepeatRmse": 0
+        }
+      },
+      "reference": {
+        "path": "results/gi-room-open-high-albedo/beauty/three-gpu-pathtracer.avif",
+        "sha256": "7f7dfe4a1d848f8599889bb670d3f80e7ef446cdd8e4168bf77ce0276b5d6ef2"
+      },
+      "baselineRepeatRmse": 0
+    },
+    "gi-hierarchy-discontinuity": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 35.1462378032902,
+            "rmse": 0.017485904809787775,
+            "mae": 0.004263056765916243,
+            "maxError": 0.3803921568627451
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 35.1462378032902,
+            "rmse": 0.017485904809787775,
+            "mae": 0.004263056765916243,
+            "maxError": 0.3803921568627451
+          },
+          "baselineRepeatRmse": 0
+        },
+        "ssgi-radiance-mips": {
+          "reference": {
+            "psnr": 35.09829331569884,
+            "rmse": 0.017582690610613537,
+            "mae": 0.004413875272331154,
+            "maxError": 0.3803921568627451
+          },
+          "baseline": {
+            "psnr": 54.695661576301305,
+            "rmse": 0.0018416916589794495,
+            "mae": 0.0005964279230210603,
+            "maxError": 0.058823529411764705
+          },
+          "regression": 0.005535075358044143,
+          "image": ".output/hierarchy-quality/gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-radiance-mips.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 35.1462378032902,
+            "rmse": 0.017485904809787775,
+            "mae": 0.004263056765916243,
+            "maxError": 0.3803921568627451
+          },
+          "baselineRepeatRmse": 0
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 35.1462378032902,
+            "rmse": 0.017485904809787775,
+            "mae": 0.004263056765916243,
+            "maxError": 0.3803921568627451
+          },
+          "baseline": {
+            "psnr": null,
+            "rmse": 0,
+            "mae": 0,
+            "maxError": 0
+          },
+          "regression": 0,
+          "image": ".output/hierarchy-quality/gi-hierarchy-discontinuity/repeat/gi-hierarchy-discontinuity/beauty/three-new.avif",
+          "passesReferenceGate": true,
+          "matchedBaselineReference": {
+            "psnr": 35.1462378032902,
+            "rmse": 0.017485904809787775,
+            "mae": 0.004263056765916243,
+            "maxError": 0.3803921568627451
+          },
+          "baselineRepeatRmse": 0
+        }
+      },
+      "reference": {
+        "path": "results/gi-hierarchy-discontinuity/beauty/three-gpu-pathtracer.avif",
+        "sha256": "2802343f1d02841ab7061f5e535059b6f6e2b377dbd4d55e9f7dd510d475bcd9"
+      },
+      "baselineRepeatRmse": 0
+    }
+  }
+}

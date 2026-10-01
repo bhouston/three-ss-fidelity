@@ -28,6 +28,16 @@ const sceneNames = [
 ];
 
 describe('SSR diagnostic scenes', () => {
+  it('provides an odd-sized occlusion scene for Hi-Z edge coverage', async () => {
+    const scene = getScene('ssr-diag-odd-size');
+    expect(scene.width).toBe(481);
+    expect(scene.height).toBe(361);
+    const setup = await scene.create(noAssets);
+    expect(setup.effects.ssr).toBeDefined();
+    expect(setup.scene.children.map((child) => child.name)).toEqual(
+      (await getScene('ssr-diag-occlusion').create(noAssets)).scene.children.map((child) => child.name),
+    );
+  });
   it('registers each scene once, at 480x360, with a unique name', () => {
     const names = listSceneNames();
     for (const name of sceneNames) expect(names.filter((n) => n === name)).toHaveLength(1);

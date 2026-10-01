@@ -24,6 +24,7 @@ import {
   luminance,
   max,
   min,
+  log2,
   mix,
   mul,
   nodeObject,
@@ -176,6 +177,8 @@ class NewSSRNode extends Node {
       velocityNode = null,
       maxMarchSteps = null,
       hiZ = false,
+      tightHiZ = false,
+      radianceMipNode = null,
       debugView = null,
       silhouetteFetch = false,
       // three-new-ssr-fast options (see SSRFastOptions in types.ts). Every default below reproduces
@@ -648,6 +651,8 @@ class NewSSRNode extends Node {
      *
      * @type {boolean}
      */
+    this._tightHiZ = tightHiZ;
+    this._radianceMipNode = radianceMipNode;
     this._hiZ = hiZ && stochastic && outputRadiance;
     if (this._hiZ) {
       this._hiZTargets = [0, 1].map((i) => {
@@ -1916,7 +1921,17 @@ class NewSSRNode extends Node {
           }
           const worldDistance = distance(worldPosition, hitWorldPosition).mul(specDominantFactor).toVar();
 
-          const reflectColor = this.colorNode.sample(uvS).toVar();
+          // GGX already samples the lobe stochastically. This is an intentionally conservative footprint
+          // experiment, not a replacement for ray sampling. Near hits and mirrors always read mip zero.
+          const reflectColor = (this._radianceMipNode === null ? this.colorNode.sample(uvS) : vec4(0)).toVar();
+          if (this._radianceMipNode !== null) {
+            const footprint = uvPos.sub(uvS).mul(this._resolution).length().mul(roughness.pow(2)).div(8);
+            If(roughness.greaterThanEqual(0.2).and(footprint.greaterThan(1)), () => {
+              reflectColor.assign(this._radianceMipNode.sample(uvS).level(log2(footprint).min(2)));
+            }).Else(() => {
+              reflectColor.assign(this.colorNode.sample(uvS));
+            });
+          }
 
           // Multi-bounce: add the reprojected previous-frame reflection at the hit point.
           reflectColor.rgb.assign(reprojectHitPointHistory(uvS, reflectColor.rgb));
@@ -2066,14 +2081,29 @@ class NewSSRNode extends Node {
           const last = sourceSize.sub(1);
           const tap = (x, y) => textureLoad(source, base.add(ivec2(x, y)).min(last), int(sourceLevel)).r;
           const nearest = min(min(tap(0, 0), tap(1, 0)), min(tap(0, 1), tap(1, 1))).toVar();
-          for (const [x, y] of [
-            [2, 0],
-            [2, 1],
-            [2, 2],
-            [0, 2],
-            [1, 2],
-          ]) {
-            nearest.assign(min(nearest, tap(x, y)));
+          if (this._tightHiZ) {
+            // Only the last destination cell includes an odd source's leftover row/column. Expanding
+            // every cell to 3x3 imports neighbouring occluders, forcing needless traversal descents.
+            const edge = base.add(2).equal(last);
+            If(edge.x, () => {
+              nearest.assign(min(nearest, min(tap(2, 0), tap(2, 1))));
+            });
+            If(edge.y, () => {
+              nearest.assign(min(nearest, min(tap(0, 2), tap(1, 2))));
+            });
+            If(edge.x.and(edge.y), () => {
+              nearest.assign(min(nearest, tap(2, 2)));
+            });
+          } else {
+            for (const [x, y] of [
+              [2, 0],
+              [2, 1],
+              [2, 2],
+              [0, 2],
+              [1, 2],
+            ]) {
+              nearest.assign(min(nearest, tap(x, y)));
+            }
           }
           return vec4(nearest);
         })();

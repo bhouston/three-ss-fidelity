@@ -14,6 +14,20 @@ export interface ImageMetrics {
   maxError: number;
 }
 
+/** Read legacy RMSE or fidelity-kit 2's PSNR-only metrics (unit peak: RMSE = 10^(-PSNR/20)). */
+export function metricsRmse(metrics: { rmse?: number; psnr?: number | null }): number {
+  if (metrics.rmse !== undefined) {
+    if (Number.isFinite(metrics.rmse) && metrics.rmse >= 0) return metrics.rmse;
+    throw new Error('Invalid RMSE in metrics');
+  }
+  // fidelity-kit writes null for infinite PSNR, i.e. identical images.
+  if (metrics.psnr === null) return 0;
+  if (typeof metrics.psnr === 'number' && Number.isFinite(metrics.psnr) && metrics.psnr >= 0) {
+    return 10 ** (-metrics.psnr / 20);
+  }
+  throw new Error('Metrics must contain valid RMSE or PSNR');
+}
+
 /** Encoding for committed result images: near-lossless (worst render ~40 dB PSNR vs PNG), full-res chroma so noise and false colour survive. */
 export const RESULT_AVIF = { quality: 90, chromaSubsampling: '4:4:4' } as const;
 

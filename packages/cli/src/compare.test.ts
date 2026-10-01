@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compareRgb, type RawImage } from './compare.js';
+import { compareRgb, metricsRmse, type RawImage } from './compare.js';
 
 const solid = (r: number, g: number, b: number, width = 4, height = 2): RawImage => ({
   data: Buffer.from(Array.from({ length: width * height }, () => [r, g, b]).flat()),
@@ -29,5 +29,24 @@ describe('compareRgb', () => {
 
   it('rejects images of different sizes', () => {
     expect(() => compareRgb(solid(0, 0, 0, 2, 2), solid(0, 0, 0, 4, 2))).toThrow('size mismatch');
+  });
+});
+
+describe('fidelity-kit metric compatibility', () => {
+  it('recovers normalized RMSE from measured PSNR', () => {
+    const { metrics } = compareRgb(solid(100, 100, 100), solid(151, 100, 100));
+    expect(metricsRmse({ psnr: metrics.psnr })).toBeCloseTo(metrics.rmse, 12);
+  });
+  it('preserves legacy RMSE when both fields are available', () => {
+    expect(metricsRmse({ rmse: 0.25, psnr: 40 })).toBe(0.25);
+  });
+  it('handles perfect and maximal pixel differences', () => {
+    expect(metricsRmse({ psnr: null })).toBe(0);
+    expect(metricsRmse({ psnr: 0 })).toBe(1);
+  });
+  it('rejects missing or invalid metrics instead of emitting NaN into the gate', () => {
+    for (const metrics of [{}, { rmse: NaN }, { rmse: -1 }, { psnr: NaN }, { psnr: -1 }]) {
+      expect(() => metricsRmse(metrics)).toThrow();
+    }
   });
 });

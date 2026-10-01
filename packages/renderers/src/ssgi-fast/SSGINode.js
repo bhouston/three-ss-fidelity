@@ -62,6 +62,7 @@ import {
   floor,
   length,
   min,
+  log2,
 } from 'three/tsl';
 
 const _quadMesh = /*@__PURE__*/ new QuadMesh();
@@ -154,6 +155,8 @@ class SSGINode extends Node {
      * @default null
      */
     this.lightNormalNode = null;
+    // Opt-in: filter only radiance at distant gathers. Depth, normals and sector visibility stay full resolution.
+    this.radianceMips = false;
 
     /**
      * perf(three-new-ssgi-fast): evaluate the per-pixel initial ray step once instead of re-emitting it (a
@@ -550,7 +553,10 @@ class SSGINode extends Node {
     // separately-packed encoding (see ssgi-fast.ts) instead of re-fetching/renormalizing normalNode.
     const sampleLightNormal = (uv) =>
       this.lightNormalNode !== null ? this.lightNormalNode.sample(uv).rgb : sampleNormal(uv);
-    const sampleBeauty = (uv) => this.beautyNode.sample(uv);
+    const sampleBeauty = (coord, radiusPixels) =>
+      this.radianceMips
+        ? this.beautyNode.sample(coord).level(log2(radiusPixels.div(32).max(1)).clamp(0, 3))
+        : this.beautyNode.sample(coord);
 
     // From Activision GTAO paper: https://www.activision.com/cdn/research/s2016_pbs_activision_occlusion.pptx
 
@@ -714,7 +720,7 @@ class SSGINode extends Node {
           If(numOccludedZones.greaterThan(0), () => {
             // If a ray hit the sample, that sample is visible from shading point
 
-            const lightColor = sampleBeauty(sampleUV);
+            const lightColor = sampleBeauty(sampleUV, length(uvOffset.mul(this._resolution)));
 
             If(luminance(lightColor).greaterThan(0.001), () => {
               // Continue if there is light at that location (intensity > 0)

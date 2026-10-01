@@ -1,15 +1,16 @@
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import { passNames, rendererNames } from '@ss-fidelity/renderers';
+import { hierarchyExperiments, hierarchyImageName, passNames, rendererNames } from '@ss-fidelity/renderers';
 import { listSceneNames } from '@ss-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
 import { metricsPath, resultsDir } from '../paths.js';
 import { selectNames } from '../select.js';
+import { metricsRmse } from '../compare.js';
 
 /** `fidelity-kit process`'s `<renderer>.vs-<reference>.metrics.json`. */
 interface FidelityMetrics {
-  psnr: number | null;
-  rmse: number;
+  psnr?: number | null;
+  rmse?: number;
   mae: number;
   maxError: number;
   width: number;
@@ -18,7 +19,12 @@ interface FidelityMetrics {
 }
 
 // Every screen-space renderer (everything but the path-traced reference itself).
-const comparedRenderers = rendererNames.filter((name) => name !== 'three-gpu-pathtracer');
+const comparedRenderers = [
+  ...rendererNames.filter((name) => name !== 'three-gpu-pathtracer'),
+  ...hierarchyExperiments
+    .filter((name) => name !== 'baseline')
+    .map((experiment) => hierarchyImageName('three-new', experiment)),
+];
 
 export const command = defineCommand({
   command: 'quality-gate <baseline> <candidate>',
@@ -55,7 +61,12 @@ export const command = defineCommand({
         }
         const baselineMetrics = JSON.parse(await readFile(baselinePath, 'utf8')) as FidelityMetrics;
         const candidateMetrics = JSON.parse(await readFile(candidatePath, 'utf8')) as FidelityMetrics;
-        rows.push({ scene, pass, baselineRmse: baselineMetrics.rmse, candidateRmse: candidateMetrics.rmse });
+        rows.push({
+          scene,
+          pass,
+          baselineRmse: metricsRmse(baselineMetrics),
+          candidateRmse: metricsRmse(candidateMetrics),
+        });
       }
     }
     if (rows.length === 0)
@@ -64,7 +75,12 @@ export const command = defineCommand({
     const mean = (key: 'baselineRmse' | 'candidateRmse') => rows.reduce((sum, row) => sum + row[key], 0) / rows.length;
     const baselineMean = mean('baselineRmse');
     const candidateMean = mean('candidateRmse');
-    const regression = (candidateMean - baselineMean) / baselineMean;
+    const regression =
+      baselineMean === 0
+        ? candidateMean === 0
+          ? 0
+          : Number.POSITIVE_INFINITY
+        : (candidateMean - baselineMean) / baselineMean;
     const ok = regression <= argv.threshold;
 
     for (const row of rows) {

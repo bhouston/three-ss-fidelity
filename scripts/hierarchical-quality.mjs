@@ -15,6 +15,8 @@ const { values } = parseArgs({
     frames: { type: 'string', default: '128' },
     width: { type: 'string', default: '1920' },
     height: { type: 'string', default: '1080' },
+    experiments: { type: 'string' },
+    scenes: { type: 'string' },
   },
 });
 const frames = Number(values.frames),
@@ -39,6 +41,10 @@ const cases = [
   ['ssr-diag-occlusion', 'ssr-hiz-tight'],
   ['ssr-diag-rough-60', 'ssr-radiance-mips'],
   ['gi-hierarchy-discontinuity', 'ssgi-radiance-mips'],
+  ['ssr-diag-occlusion', 'hierarchy-combined'],
+  ['ssr-diag-rough-60', 'hierarchy-combined'],
+  ['gi-hierarchy-discontinuity', 'hierarchy-combined'],
+  ['ssgi-metallic', 'hierarchy-combined'],
 ];
 async function run(job, log) {
   const chunks = [];
@@ -56,8 +62,14 @@ async function run(job, log) {
   await writeFile(path.join(out, log), Buffer.concat(chunks));
   if (code !== 0) throw new Error(`Failed GPU capture: ${log}`);
 }
+const selectedCases = cases.filter(
+  ([scene, experiment]) =>
+    (!values.experiments || values.experiments.split(',').includes(experiment)) &&
+    (!values.scenes || values.scenes.split(',').includes(scene)),
+);
+if (selectedCases.length === 0) throw new Error('No matching quality cases');
 for (const kind of ['highResolution', 'motion'])
-  for (const [scene, experiment] of cases) {
+  for (const [scene, experiment] of selectedCases) {
     for (const variant of ['baseline', experiment]) {
       console.log(kind, scene, variant);
       const job = {
@@ -77,7 +89,7 @@ for (const kind of ['highResolution', 'motion'])
       await run(job, `${kind}-${scene}-${variant}.log`);
     }
     const row = { experiment };
-    report[kind][scene] = row;
+    report[kind][`${scene}/${experiment}`] = row;
     for (const frame of kind === 'motion' ? report.metadata.motion.captures : [null]) {
       const suffix = frame === null ? '' : `@m${frame}`;
       const files = ['three-new', hierarchyImageName('three-new', experiment)].map((label) =>
@@ -86,7 +98,7 @@ for (const kind of ['highResolution', 'motion'])
       const [baseline, candidate] = await Promise.all(files.map(readRgb));
       const comparison = compareRgb(baseline, candidate);
       const { data, width: deltaWidth, height: deltaHeight } = comparison.delta;
-      const delta = path.join(out, `${kind}-${scene}${suffix}-delta.png`);
+      const delta = path.join(out, `${kind}-${scene}-${experiment}${suffix}-delta.png`);
       await sharp(data, { raw: { width: deltaWidth, height: deltaHeight, channels: 3 } })
         .png()
         .toFile(delta);

@@ -9,7 +9,7 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { hierarchyImageName } from '../packages/renderers/dist/types.js';
+import { hierarchyExperiments, hierarchyImageName } from '../packages/renderers/dist/types.js';
 import { compareRgb, readRgb, psnrDrop } from '../packages/cli/dist/compare.js';
 import { createRequire } from 'node:module';
 const sharp = createRequire(new URL('../packages/cli/package.json', import.meta.url))('sharp');
@@ -19,7 +19,7 @@ const { values } = parseArgs({
   options: {
     out: { type: 'string', default: '.output/hierarchy' },
     references: { type: 'string', default: 'results' },
-    experiments: { type: 'string', default: 'ssr-hiz-tight,ssr-radiance-mips,ssgi-radiance-mips' },
+    experiments: { type: 'string', default: hierarchyExperiments.filter((name) => name !== 'baseline').join(',') },
     scenes: { type: 'string' },
     repeats: { type: 'string', default: '3' },
     width: { type: 'string', default: '1920' },
@@ -71,6 +71,7 @@ const definitions = {
     'gi-hierarchy-discontinuity',
   ],
 };
+definitions['hierarchy-combined'] = [...new Set(Object.values(definitions).flat()), 'ssgi-metallic'];
 const experiments = values.experiments.split(',');
 for (const experiment of experiments) if (!definitions[experiment]) throw new Error(`Unknown experiment ${experiment}`);
 const scenes = values.scenes?.split(',') ?? [...new Set(experiments.flatMap((e) => definitions[e]))];
@@ -136,24 +137,42 @@ for (const scene of scenes) {
           {
             renderer: 'three-new',
             hierarchyExperiment: variant,
-            scenes: [scene],
+            scene,
             width,
             height,
-            warmup,
-            measure,
+            seed: 1,
+            motion: 'static',
+            orbitDegrees: 30,
+            options: {
+              protocol: 'throughput',
+              durationMs: 1000,
+              warmupFrames: warmup,
+              measureFrames: measure,
+              batchSize: 20,
+              cycleFrames: 1,
+              stepSeconds: 1 / 60,
+            },
             out: file,
-            gpu: false,
           },
           `${file}.log`,
         );
-        const result = JSON.parse(await readFile(file, 'utf8')).scenes[scene];
+        const result = JSON.parse(await readFile(file, 'utf8')).entry.runs[0];
         (row.timing[variant] ??= { runs: [] }).runs.push(result);
       }
     }
     for (const variant of variants) {
       const result = row.timing[variant];
-      result.medianMs = median(result.runs.map((r) => r.totalMs));
-      result.rangeMs = [Math.min(...result.runs.map((r) => r.totalMs)), Math.max(...result.runs.map((r) => r.totalMs))];
+      result.medianMs = median(
+        result.runs.map((r) => r.metrics.find((m) => m.descriptor.id === 'throughput.frame').statistics.mean),
+      );
+      result.rangeMs = [
+        Math.min(
+          ...result.runs.map((r) => r.metrics.find((m) => m.descriptor.id === 'throughput.frame').statistics.mean),
+        ),
+        Math.max(
+          ...result.runs.map((r) => r.metrics.find((m) => m.descriptor.id === 'throughput.frame').statistics.mean),
+        ),
+      ];
       result.speedup = row.timing.baseline.medianMs / result.medianMs;
       const file = path.join(dir, `${variant}-gpu.json`);
       console.log(`${scene} ${variant}: timestamp breakdown`);
@@ -162,17 +181,26 @@ for (const scene of scenes) {
         {
           renderer: 'three-new',
           hierarchyExperiment: variant,
-          scenes: [scene],
+          scene,
           width,
           height,
-          warmup: Math.min(warmup, 20),
-          measure: Math.min(measure, 30),
+          seed: 1,
+          motion: 'static',
+          orbitDegrees: 30,
+          options: {
+            protocol: 'profile',
+            durationMs: 1000,
+            warmupFrames: Math.min(warmup, 20),
+            measureFrames: Math.min(measure, 30),
+            batchSize: 1,
+            cycleFrames: 1,
+            stepSeconds: 1 / 60,
+          },
           out: file,
-          gpu: true,
         },
         `${file}.log`,
       );
-      result.timestamps = JSON.parse(await readFile(file, 'utf8')).scenes[scene];
+      result.timestamps = JSON.parse(await readFile(file, 'utf8')).entry.runs[0];
     }
   }
   if (!values['skip-quality']) {
@@ -230,6 +258,17 @@ for (const scene of scenes) {
       }
     }
     row.baselineRepeatPsnrDb = row.quality['baseline-repeat'].baseline.psnr;
+    if (captures['hierarchy-combined']) {
+      row.combinedComparisons = {};
+      for (const variant of variants.filter((name) => name !== 'hierarchy-combined')) {
+        const drop = psnrDrop(row.quality[variant].reference, row.quality['hierarchy-combined'].reference);
+        row.combinedComparisons[variant] = {
+          psnrDropDb: Number.isFinite(drop) ? drop : null,
+          passesReferenceGate: drop <= threshold,
+          image: compareRgb(captures[variant], captures['hierarchy-combined']).metrics,
+        };
+      }
+    }
   }
   await writeFile(path.join(out, 'report.json'), `${JSON.stringify(report, null, 2)}\n`);
   for (const variant of variants.slice(1)) {
@@ -238,4 +277,12 @@ for (const scene of scenes) {
     );
   }
 }
+// A report with failed rows must fail automation too, rather than merely print 'gate false'.
+report.ok = Object.values(report.scenes).every((row) =>
+  [...Object.values(row.quality), ...Object.values(row.combinedComparisons ?? {})].every(
+    (variant) => variant.passesReferenceGate,
+  ),
+);
+await writeFile(path.join(out, 'report.json'), `${JSON.stringify(report, null, 2)}\n`);
 console.log(`Report: ${path.join(out, 'report.json')}`);
+if (!report.ok) process.exitCode = 1;

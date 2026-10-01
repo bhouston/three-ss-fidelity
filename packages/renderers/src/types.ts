@@ -10,8 +10,14 @@ export const rendererNames = [
 ] as const;
 export type RendererName = (typeof rendererNames)[number];
 
-/** Independent opt-in experiments. The baseline leaves the production pipeline unchanged. */
-export const hierarchyExperiments = ['baseline', 'ssr-hiz-tight', 'ssr-radiance-mips', 'ssgi-radiance-mips'] as const;
+/** Opt-in experiments, including a combined profile. The baseline leaves the production pipeline unchanged. */
+export const hierarchyExperiments = [
+  'baseline',
+  'ssr-hiz-tight',
+  'ssr-radiance-mips',
+  'ssgi-radiance-mips',
+  'hierarchy-combined',
+] as const;
 export type HierarchyExperiment = (typeof hierarchyExperiments)[number];
 
 /** Static experiment captures use fidelity-kit's identifier alphabet. Motion/debug add their own suffixes. */

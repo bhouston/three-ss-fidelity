@@ -178,3 +178,18 @@ export const ssgiScenes: SceneDefinition[] = (['basic', 'rounded', 'metallic', '
   height: HEIGHT,
   create: (ctx) => createCornellBox(setup, ctx),
 }));
+
+ssgiScenes.push({
+  name: 'ssgi-basic-oblique',
+  description: 'SSGI basic Cornell box from an elevated oblique live-viewer camera, exposing screen-space artifacts.',
+  width: 960,
+  height: 540,
+  async create(ctx) {
+    const setup = await createCornellBox('basic', ctx);
+    setup.camera.position.set(-10.821845368481219, 22.26621572392704, 23.639592219224244);
+    setup.camera.aspect = 960 / 540;
+    setup.camera.updateProjectionMatrix();
+    setup.camera.lookAt(setup.target);
+    return setup;
+  },
+});

@@ -59,6 +59,9 @@ in `submodules/three.js`. There is only ever one copy of three.
   node-side `SceneContext`.
 - **To add a scene:** add a `SceneDefinition` to the family file (or a new file), make sure it is spread into the
   registry in `index.ts`, add or extend the family's `*.test.ts`, then render the path-tracer reference.
+- `ssgi-basic-oblique` preserves the basic Cornell box and uses an elevated oblique camera captured in the live
+  viewer at 960×540. Select it in the live lab or with `pnpm cli render --scenes ssgi-basic-oblique` to reproduce
+  the screen-space artifact view with any renderer.
 
 ### `packages/renderers`
 

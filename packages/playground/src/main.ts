@@ -1,4 +1,5 @@
 import './style.css';
+import { createUrlStateWriter } from './url-state';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {
   createBrowserSceneContext,
@@ -82,7 +83,7 @@ function vectorParam(name: string): number[] | undefined {
 }
 let savedPosition = vectorParam('camera');
 let savedTarget = vectorParam('target');
-function saveState() {
+function saveState(mode: 'push' | 'replace') {
   const next = new URLSearchParams();
   for (const id of stateIds) {
     const node = element<HTMLInputElement | HTMLSelectElement>(id);
@@ -93,16 +94,24 @@ function saveState() {
   }
   if (savedPosition) next.set('camera', savedPosition.join(','));
   if (savedTarget) next.set('target', savedTarget.join(','));
-  history.replaceState(null, '', `?${next}`);
+  const url = `?${next}`;
+  if (url === location.search) return;
+  history[mode === 'push' ? 'pushState' : 'replaceState'](null, '', url + location.hash);
 }
+const urlState = createUrlStateWriter(saveState);
 for (const id of stateIds)
   element(id).addEventListener('input', () => {
     if (id === 'scene') {
       savedPosition = undefined;
       savedTarget = undefined;
     }
-    saveState();
+    urlState.settings();
   });
+window.addEventListener('popstate', () => {
+  urlState.cancel();
+  // Reuse startup restoration for every setting, the scene, and the camera pose.
+  location.reload();
+});
 
 const ctx = createBrowserSceneContext('/');
 let active:
@@ -374,14 +383,14 @@ async function load() {
       active.live.setCamera(active.setup.camera);
       savedPosition = active.setup.camera.position.toArray();
       savedTarget = controls.target.toArray();
-      saveState();
+      urlState.camera();
     });
     element('scene-title').textContent = `${config.scene} / ${config.renderer}`;
     element('live-status').textContent = 'Interactive';
     message(getScene(config.scene).description);
     savedPosition = active.setup.camera.position.toArray();
     savedTarget = controls.target.toArray();
-    saveState();
+    urlState.camera();
     interactiveIndex = 0;
     previousTime = 0;
     intervalStart = performance.now();
@@ -591,6 +600,7 @@ input('report-file').addEventListener('change', () => {
       .catch(fail);
 });
 window.addEventListener('beforeunload', () => {
+  urlState.cancel();
   if (reportUrl) URL.revokeObjectURL(reportUrl);
   controller?.abort();
   stop();

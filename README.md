@@ -16,7 +16,7 @@ Workflow rules (issues, branches, Conventional Commits, PRs, required checks) ar
 ## How the work is done
 
 1. Change an effect in `submodules/three.js`, or in a vendored node under `packages/renderers/src/` (see below).
-2. Render the affected scenes: `pnpm cli render --scenes 'ssr-*' --renderers three-new`.
+2. Render the affected scenes: `pnpm cli render --scenes 'ssr-*' --renderers three-new-baseline`.
 3. Score them against the path tracer: `pnpm exec fidelity-kit process results`.
 4. Check for regressions: `pnpm cli quality-gate <baseline> <candidate>` (per-scene PSNR-drop threshold, default 0.1 dB), e.g.
    against results rendered before the change into another `--results`.
@@ -121,13 +121,13 @@ These checks established native rendering support and exposed the CLI accumulati
 A fresh legacy CLI render with the accumulation fix produced a nonblack 64×64 image at 16 samples (RGB ranges
 0–255). A long capture cancelled with SIGINT exited with an error and saved no image.
 
-| Command                               | Does                                                                                                                                                                                                                                    |
-| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cli list [--verbose]`                | List scene names.                                                                                                                                                                                                                       |
-| `cli render`                          | Write `results/<scene>/beauty/<renderer>.avif`. `--scenes/--renderers` take comma-separated globs; also `--missing-only`, `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`, `--experiment`, `--width`, `--height`. |
-| `cli quality-gate <base> <candidate>` | Fail if the candidate's PSNR (from `fidelity-kit process`'s metrics) drops by more than `--threshold` dB on any scene.                                                                                                                  |
-| `cli converge`                        | Move-then-stop benchmark: write `results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                                                                         |
-| `cli bench --renderers a,b`           | Repeated five-second completed-work benchmarks and A/B speedup; JSON + offline HTML reports; `--experiment` selects variants; `--profile` / `--gpu` for instrumented GPU timing ([docs/PERF.md](docs/PERF.md)).                         |
+| Command                               | Does                                                                                                                                                                                                                    |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cli list [--verbose]`                | List scene names.                                                                                                                                                                                                       |
+| `cli render`                          | Write `results/<scene>/beauty/<renderer>.avif`. `--scenes/--renderers` take comma-separated globs; also `--missing-only`, `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`, `--width`, `--height`. |
+| `cli quality-gate <base> <candidate>` | Fail if the candidate's PSNR (from `fidelity-kit process`'s metrics) drops by more than `--threshold` dB on any scene.                                                                                                  |
+| `cli converge`                        | Move-then-stop benchmark: write `results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                                                         |
+| `cli bench --renderers a,b`           | Repeated five-second completed-work benchmarks and A/B speedup; JSON + offline HTML reports; `--experiment` selects variants; `--profile` / `--gpu` for instrumented GPU timing ([docs/PERF.md](docs/PERF.md)).         |
 
 Run `pnpm cli <command> --help` for all flags. `pnpm cli` runs the built `dist/`, so run `pnpm build` (or `pnpm dev`)
 after changing sources.
@@ -157,7 +157,20 @@ Merging to `main` deploys `site/` to GitHub Pages at <https://ss-fidelity.ben3d.
   (PSNR vs the reference).
 - `converge-<renderer>.json` (beauty only): the convergence curve.
 
-Use `pnpm cli render --missing-only` to fill gaps without overwriting existing images. The option checks the requested AVIF paths in `--output` (default: `results/`) before starting render processes, including experiment and SSR debug variants. With `--motion`, existing captures are preserved and only missing captures are written; frames still advance normally to preserve temporal history. Omit the flag to regenerate images after changing render settings or code.
+Use `pnpm cli render --missing-only` to fill gaps across all renderers, including every hierarchy variant, without overwriting existing images. Select complete renderer names with `--renderers`; comma-separated names and globs such as `'three-new-*'` work. The render command uses these names:
+
+| Renderer name                                                                     | Output image                        |
+| --------------------------------------------------------------------------------- | ----------------------------------- |
+| `three-new-baseline`                                                              | `three-new.avif`                    |
+| `three-new-ssr-hiz-tight`                                                         | `three-new-ssr-hiz-tight.avif`      |
+| `three-new-ssr-radiance-mips`                                                     | `three-new-ssr-radiance-mips.avif`  |
+| `three-new-ssgi-radiance-mips`                                                    | `three-new-ssgi-radiance-mips.avif` |
+| `three-new-hierarchy-combined`                                                    | `three-new-hierarchy-combined.avif` |
+| `three-current`, `three-gpu-pathtracer`, `three-gpu-pathtracer-webgpu`, `blender` | `<renderer>.avif`                   |
+
+For example, `pnpm cli render --missing-only --renderers three-new-hierarchy-combined` fills only combined hierarchy captures. `cli render` no longer accepts `--experiment`; select the full renderer name instead. Baseline images retain their existing `three-new.avif` filename and viewer ID.
+
+The option checks the requested AVIF paths in `--output` (default: `results/`) before starting render processes, including SSR debug variants. With `--motion`, existing captures are preserved and only missing captures are written; frames still advance normally to preserve temporal history. Omit the flag to regenerate images after changing render settings or code.
 
 Images are AVIF q90 4:4:4 (`RESULT_AVIF` in `packages/cli/src/compare.ts`). All renderers produce full beauty images; there is no pass selector. Historical AO/direct images remain as archived artifacts and are excluded from the active viewer configuration.
 

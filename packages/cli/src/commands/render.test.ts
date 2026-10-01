@@ -50,7 +50,7 @@ async function render(...args: string[]): Promise<void> {
     .parseAsync([
       'render',
       ...(args.includes('--scenes') ? [] : ['--scenes', scenes[0]!]),
-      ...(args.includes('--renderers') ? [] : ['--renderers', 'three-new']),
+      ...(args.includes('--renderers') ? [] : ['--renderers', 'three-new-baseline']),
       '--output',
       output,
       ...args,
@@ -59,7 +59,7 @@ async function render(...args: string[]): Promise<void> {
 
 test('missing-only skips existing scene/renderer pairs before spawning a child', async () => {
   const file = await image(scenes[0]!, 'three-new');
-  await render('--missing-only', '--scenes', scenes.join(','), '--renderers', 'three-new,blender');
+  await render('--missing-only', '--scenes', scenes.join(','), '--renderers', 'three-new-baseline,blender');
   expect(jobs.map((job) => [job.scenes[0], job.renderer])).toEqual([
     [scenes[1], 'three-new'],
     [scenes[0], 'blender'],
@@ -80,23 +80,23 @@ test('default rendering still starts jobs for existing images', async () => {
 test('missing-only skips a complete set without starting any children', async () => {
   await image(scenes[0]!, 'three-new');
   await image(scenes[0]!, 'blender');
-  await render('--missing-only', '--renderers', 'three-new,blender');
+  await render('--missing-only', '--renderers', 'three-new-baseline,blender');
   expect(spawn).not.toHaveBeenCalled();
 });
 
-test('missing-only uses experiment and SSR debug output names', async () => {
+test('full renderer names preserve variant and SSR debug output names', async () => {
   const experiment = 'ssr-hiz-tight';
   const name = hierarchyImageName('three-new', experiment);
   await image(scenes[0]!, 'three-new');
-  await render('--missing-only', '--experiment', experiment);
+  await render('--missing-only', '--renderers', `three-new-${experiment}`);
   expect(jobs).toHaveLength(1);
   await image(scenes[0]!, name);
-  await render('--missing-only', '--experiment', experiment);
+  await render('--missing-only', '--renderers', `three-new-${experiment}`);
   expect(jobs).toHaveLength(1);
-  await render('--missing-only', '--experiment', experiment, '--ssr-debug', 'hits');
+  await render('--missing-only', '--renderers', `three-new-${experiment}`, '--ssr-debug', 'hits');
   expect(jobs).toHaveLength(2);
   await image(scenes[0]!, `${name}@hits`);
-  await render('--missing-only', '--experiment', experiment, '--ssr-debug', 'hits');
+  await render('--missing-only', '--renderers', `three-new-${experiment}`, '--ssr-debug', 'hits');
   expect(jobs).toHaveLength(2);
 });
 
@@ -120,7 +120,15 @@ test('partial motion jobs keep motion parameters and capture only missing frames
 test('motion capture names take precedence over SSR debug names and include experiments', async () => {
   const name = hierarchyImageName('three-new', 'ssr-hiz-tight');
   await image(scenes[0]!, `${name}@m0`);
-  await render('--missing-only', '--experiment', 'ssr-hiz-tight', '--ssr-debug', 'hits', '--motion', '30,10,0');
+  await render(
+    '--missing-only',
+    '--renderers',
+    'three-new-ssr-hiz-tight',
+    '--ssr-debug',
+    'hits',
+    '--motion',
+    '30,10,0',
+  );
   expect(spawn).not.toHaveBeenCalled();
 });
 
@@ -128,4 +136,40 @@ test('missing-only preserves unsupported Blender mode failures in the render pro
   await image(scenes[0]!, 'blender');
   await render('--missing-only', '--renderers', 'blender', '--ssr-debug', 'hits');
   expect(jobs).toHaveLength(1);
+});
+
+test('default missing-only includes every full renderer name and skips existing variant images', async () => {
+  await image(scenes[0]!, 'three-new');
+  await image(scenes[0]!, 'three-new-ssr-hiz-tight');
+  await yargs()
+    .command(command)
+    .exitProcess(false)
+    .parseAsync(['render', '--missing-only', '--scenes', scenes[0]!, '--output', output]);
+  expect(jobs.map((job) => [job.renderer, job.hierarchyExperiment])).toEqual([
+    ['three-new', 'ssr-radiance-mips'],
+    ['three-new', 'ssgi-radiance-mips'],
+    ['three-new', 'hierarchy-combined'],
+    ['three-current', undefined],
+    ['three-gpu-pathtracer', undefined],
+    ['three-gpu-pathtracer-webgpu', undefined],
+    ['blender', undefined],
+  ]);
+});
+
+test('renderer globs and comma-separated names select complete configurations once', async () => {
+  await render('--renderers', 'three-new-*,three-new-hierarchy-combined,blender');
+  expect(jobs.map((job) => [job.renderer, job.hierarchyExperiment])).toEqual([
+    ['three-new', 'baseline'],
+    ['three-new', 'ssr-hiz-tight'],
+    ['three-new', 'ssr-radiance-mips'],
+    ['three-new', 'ssgi-radiance-mips'],
+    ['three-new', 'hierarchy-combined'],
+    ['blender', undefined],
+  ]);
+});
+
+test('render rejects the removed experiment option and the old ambiguous renderer name', async () => {
+  await expect(render('--experiment', 'hierarchy-combined')).rejects.toThrow('Unknown argument: experiment');
+  await expect(render('--renderers', 'three-new')).rejects.toThrow('No renderer matches');
+  expect(spawn).not.toHaveBeenCalled();
 });

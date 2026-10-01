@@ -1,3 +1,5 @@
+> Historical CLI examples below use the former render `--experiment` option. Current rendering selects full names, for example `--renderers three-new-ssr-hiz-tight`; benchmarking still uses `--experiment`.
+
 # Optional hierarchical SSR / SSGI experiments
 
 These experiments leave `three-new`'s default pipeline unchanged. Select one with `--experiment` on `cli render`

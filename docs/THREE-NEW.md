@@ -176,12 +176,15 @@ The next levers are listed under "Next steps" in [history/SSR_TEMPORAL.md](histo
 - `pnpm cli quality-gate three-current three-new` checks the per-scene/pass PSNR drop (default allowance 0.1 dB).
 - `pnpm cli converge` measures quality after a camera move ([CONVERGENCE.md](CONVERGENCE.md)).
 - `pnpm cli bench --renderers three-new` measures frame time ([PERF.md](PERF.md)).
-- `pnpm cli render --ssr-debug hits` writes the SSR hit classification.
+- `pnpm cli render --renderers three-new-baseline --ssr-debug hits` writes the SSR hit classification.
 
 ## Optional hierarchical experiments
 
-`cli render` and `cli bench` accept `--experiment ssr-hiz-tight`, `ssr-radiance-mips`, `ssgi-radiance-mips`, or `hierarchy-combined`.
-The default is `baseline`. See [history/HIERARCHICAL.md](history/HIERARCHICAL.md) for the research,
+`cli render` selects complete names with `--renderers`: `three-new-baseline`, `three-new-ssr-hiz-tight`,
+`three-new-ssr-radiance-mips`, `three-new-ssgi-radiance-mips`, or `three-new-hierarchy-combined`.
+Its default selection includes all five profiles and the other renderers, so `--missing-only` fills experimental captures too.
+The baseline keeps the existing `three-new.avif` output filename. `cli bench` continues to accept
+`--renderers three-new --experiment <profile>` and defaults to `baseline`. See [history/HIERARCHICAL.md](history/HIERARCHICAL.md) for the research,
 independent experiments, diagnostics, reproducible runner, and measured performance/quality tradeoffs.
 
 `hierarchy-combined` enables all three techniques. When SSGI and SSR both run and
@@ -196,7 +199,7 @@ Select `hierarchy-combined` in the live viewer's Experiment control, or open
 The fidelity viewer identifies captures as `three-new-hierarchy-combined`.
 
 ```sh
-pnpm cli render --renderers three-new --experiment hierarchy-combined
+pnpm cli render --renderers three-new-hierarchy-combined
 pnpm exec fidelity-kit process results
 pnpm cli quality-gate three-new three-new-hierarchy-combined --threshold 0.1
 # Compare all individual profiles and the combined profile on both-effect scenes:

@@ -10,10 +10,20 @@ import { selectNames } from '../select.js';
 
 const renderProcess = fileURLToPath(new URL('../render-process.js', import.meta.url));
 
-// Blender Cycles: a second ground-truth reference renderer, alongside three-gpu-pathtracer. It isn't a `LiveRenderer`
-// built by `createRenderer()` (one batch call, not incremental frames), so it's a CLI-layer renderer name, not part
-// of `@ss-fidelity/renderers`' `RendererName`.
-const cliRendererNames = [...rendererNames, 'blender'] as const;
+// Public render names select complete configurations; pipeline options stay internal.
+// Baseline retains three-new.avif, while each hierarchy variant keeps its existing filename.
+type RenderProfile = Pick<RenderJob, 'renderer' | 'hierarchyExperiment'> & { name: string };
+const renderProfiles: RenderProfile[] = [
+  ...hierarchyExperiments.map((experiment) => ({
+    name: `three-new-${experiment}`,
+    renderer: 'three-new' as const,
+    hierarchyExperiment: experiment,
+  })),
+  ...rendererNames.filter((name) => name !== 'three-new').map((renderer) => ({ name: renderer, renderer })),
+  { name: 'blender', renderer: 'blender' },
+];
+const profilesByName = new Map(renderProfiles.map((profile) => [profile.name, profile]));
+const cliRendererNames = renderProfiles.map((profile) => profile.name);
 
 /** Runs one render-process job; resolves with its exit code. */
 export function run(job: RenderJob): Promise<number | null> {
@@ -43,14 +53,13 @@ export const command = defineCommand({
   describe: 'Render scenes with renderers into results/<scene>/beauty/<renderer>.avif',
   builder: (yargs) =>
     yargs
-      .option('experiment', {
-        type: 'string',
-        choices: hierarchyExperiments,
-        default: 'baseline',
-        describe: 'three-new: optional hierarchical experiment',
-      })
+      .strictOptions()
       .option('scenes', { type: 'string', default: '*', describe: 'Scene name glob(s), comma separated' })
-      .option('renderers', { type: 'string', default: '*', describe: 'Renderer name glob(s), comma separated' })
+      .option('renderers', {
+        type: 'string',
+        default: '*',
+        describe: `Renderer name glob(s), comma separated. Available: ${cliRendererNames.join(', ')}`,
+      })
       .option('width', { type: 'number', describe: 'Override native scene width' })
       .option('height', { type: 'number', describe: 'Override native scene height' })
       .option('samples', {
@@ -74,7 +83,7 @@ export const command = defineCommand({
       .option('ssr-debug', {
         type: 'string',
         choices: ['hits', 'hitcolor'] as const,
-        describe: 'three-new: write the SSR trace debug view as <renderer>@<view>.avif instead of the image',
+        describe: 'three-new-*: write the SSR trace debug view as <renderer>@<view>.avif instead of the image',
       })
       .option('missing-only', {
         type: 'boolean',
@@ -84,15 +93,12 @@ export const command = defineCommand({
       .option('output', { type: 'string', default: resultsDir, describe: 'Results directory' }),
   handler: async (argv) => {
     const scenes = selectNames(listSceneNames(), argv.scenes, 'scene');
-    const renderers = selectNames(cliRendererNames, argv.renderers, 'renderer') as RenderJob['renderer'][];
-    if (argv.experiment !== 'baseline' && renderers.some((name) => name !== 'three-new')) {
-      throw new Error('--experiment requires --renderers three-new');
-    }
+    const profiles = selectNames(cliRendererNames, argv.renderers, 'renderer').map((name) => profilesByName.get(name)!);
     let failed = false;
     // one child process per renderer and scene: dawn and ANGLE don't share a process reliably, and GPU state leaked
     // from one scene's renderer into the next scene's (a red cast from ssgi-basic in ssr-steampunk-camera), so no
     // result may depend on what rendered before it
-    for (const renderer of renderers) {
+    for (const { name, renderer, hierarchyExperiment } of profiles) {
       for (const scene of scenes) {
         const job: RenderJob = {
           renderer,
@@ -104,7 +110,7 @@ export const command = defineCommand({
           samples: argv.samples,
           motion: parseMotion(argv.motion, argv.motionObject),
           ssrDebug: argv.ssrDebug,
-          hierarchyExperiment: argv.experiment as RenderJob['hierarchyExperiment'],
+          hierarchyExperiment,
         };
         if (argv.missingOnly) {
           // Blender rejects these modes in the child process; do not hide those errors by skipping its job.
@@ -116,13 +122,13 @@ export const command = defineCommand({
                 (frame) => !existsSync(renderPath(scene, `${outputName}@m${frame}`, job.outDir)),
               );
               if (job.motion.captures.length === 0) {
-                console.log(`${scene} | ${renderer}: skipped (images already exist)`);
+                console.log(`${scene} | ${name}: skipped (images already exist)`);
                 continue;
               }
             } else {
               const imageName = job.ssrDebug ? `${outputName}@${job.ssrDebug}` : outputName;
               if (existsSync(renderPath(scene, imageName, job.outDir))) {
-                console.log(`${scene} | ${renderer}: skipped (image already exists)`);
+                console.log(`${scene} | ${name}: skipped (image already exists)`);
                 continue;
               }
             }
@@ -130,7 +136,7 @@ export const command = defineCommand({
         }
         const code = await run(job);
         if (code !== 0) {
-          console.error(`${scene} | ${renderer} failed (exit code ${code})`);
+          console.error(`${scene} | ${name} failed (exit code ${code})`);
           failed = true;
         }
       }

@@ -126,7 +126,7 @@ async function main(job: RenderJob): Promise<void> {
       .avif(RESULT_AVIF)
       .toFile(file);
     console.log(
-      `${name} | ${job.renderer}: ${target} ${screenSpace ? 'frames' : 'samples'} in ${seconds(renderMs)} (setup ${seconds(renderStart - start)}) -> ${path.relative(process.cwd(), file)}`,
+      `${name} | ${outputName}: ${target} ${screenSpace ? 'frames' : 'samples'} in ${seconds(renderMs)} (setup ${seconds(renderStart - start)}) -> ${path.relative(process.cwd(), file)}`,
     );
   }
 
@@ -252,7 +252,7 @@ async function renderMotion(
   }
   renderer.dispose();
   console.log(
-    `${name} | ${renderer.name}: motion ${degrees}° over ${moveFrames} frames in ${seconds(performance.now() - start)}`,
+    `${name} | ${outputName}: motion ${degrees}° over ${moveFrames} frames in ${seconds(performance.now() - start)}`,
   );
 }
 

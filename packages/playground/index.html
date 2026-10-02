@@ -61,6 +61,49 @@
           <div id="viewport"><canvas></canvas></div>
           <p id="message" role="status">Loading the renderer…</p>
         </section>
+        <section class="instruments startup" id="startup" aria-labelledby="startup-heading">
+          <div class="stage-heading">
+            <span id="startup-heading">SCENE STARTUP</span><span id="startup-status" role="status">Waiting</span>
+          </div>
+          <div class="gauges">
+            <div><span>TIME TO FIRST FRAME</span><strong id="startup-total">—</strong></div>
+            <div><span>SCENE + ASSETS</span><strong id="startup-scene">—</strong></div>
+            <div><span>RENDERER SETUP</span><strong id="startup-renderer">—</strong></div>
+            <div><span>GPU COMPLETION WAIT</span><strong id="startup-gpu">—</strong></div>
+          </div>
+          <p class="instrument-note" id="startup-context">Measured separately for every scene load.</p>
+          <div class="gpu-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Startup stage</th>
+                  <th>Elapsed</th>
+                </tr>
+              </thead>
+              <tbody id="startup-stages"></tbody>
+            </table>
+          </div>
+          <p class="instrument-note" id="startup-shaders"></p>
+          <details class="startup-details">
+            <summary>Shader and pipeline details</summary>
+            <p class="hint" id="startup-coverage"></p>
+            <div class="gpu-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Pass</th>
+                    <th>Shader generation</th>
+                    <th>Pipeline API</th>
+                    <th>Pipeline calls</th>
+                    <th>Fragment WGSL</th>
+                  </tr>
+                </thead>
+                <tbody id="startup-passes"></tbody>
+              </table>
+            </div>
+          </details>
+          <div class="startup-actions"><button id="startup-json" disabled>Download startup JSON</button></div>
+        </section>
         <section class="instruments">
           <div class="stage-heading">
             <span>LIVE INSTRUMENTS</span><span id="instrument-status">Last 120 frames · GPU off</span>

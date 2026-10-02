@@ -10,6 +10,7 @@ import type { LiveRenderer, RendererName, RendererOptions } from './types.js';
 export * from './types.js';
 export * from './helpers.js';
 export * from './profiling.js';
+export * from './startup.js';
 export { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
 export { createThreeNewRenderer } from './three-new.js';
 export { createCurrentRenderer } from './three-current.js';

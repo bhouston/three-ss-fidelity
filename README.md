@@ -134,7 +134,7 @@ after changing sources.
 
 ### Live lab
 
-Run `pnpm build` then `pnpm live` and open <http://127.0.0.1:5173/> for orbit interaction, converged PNG captures, fresh seeded benchmarks, and saved report inspection. The lab supports browser cadence, completed-work throughput, optional GPU profiling, and alternating stock/experimental comparisons. See [docs/PERF.md](docs/PERF.md) for protocols, report semantics, and custom pipeline helpers.
+Run `pnpm build` then `pnpm live` and open <http://127.0.0.1:5173/> for orbit interaction, converged PNG captures, fresh seeded benchmarks, and saved report inspection. The lab supports browser cadence, completed-work throughput, optional GPU profiling, and alternating stock/experimental comparisons. Each scene load also shows startup stages, shader-generation and pipeline-call details, and downloadable startup JSON. See [docs/PERF.md](docs/PERF.md) for protocols, report semantics, and custom pipeline helpers.
 
 ### Viewer
 

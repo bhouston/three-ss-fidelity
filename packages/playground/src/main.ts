@@ -1,4 +1,7 @@
 import './style.css';
+import { LiveStartup } from './startup';
+import type { StartupSnapshot } from './startup';
+import { resetStartup, showStartup } from './startup-view';
 import { createUrlStateWriter } from './url-state';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {
@@ -13,6 +16,7 @@ import {
   completeRenderer,
   createRenderer,
   createRendererFrameDriver,
+  createRendererStartupProfiler,
   hierarchyExperiments,
   rendererNames,
 } from '@ss-fidelity/renderers';
@@ -143,6 +147,10 @@ const rollingPasses = new Map<string, Map<number, number>>();
 let resolvingLiveGpu = false;
 let lastInstrumentUpdate = 0;
 let gpuError = '';
+let startupCapture: LiveStartup | undefined;
+let startupSnapshot: StartupSnapshot | undefined;
+let startupLoadId = 0;
+let initialLoad = true;
 
 function resetInstruments() {
   rollingIntervals.length = 0;
@@ -233,6 +241,7 @@ function lock(locked: boolean) {
   element<HTMLButtonElement>('html').disabled = locked || !report;
 }
 function stop() {
+  startupCapture?.stop();
   cancelAnimationFrame(animation);
   controls?.dispose();
   controls = undefined;
@@ -271,25 +280,34 @@ function configuration() {
     seed,
   };
 }
-async function session(config: ReturnType<typeof configuration>, profile: boolean, motion: 'static' | 'orbit') {
+async function session(
+  config: ReturnType<typeof configuration>,
+  profile: boolean,
+  motion: 'static' | 'orbit',
+  startup?: LiveStartup,
+) {
   const originalRandom = Math.random;
   const random = seededRandom(config.seed);
   Math.random = random;
   let setup: SceneSetup | undefined;
   let live: LiveRenderer | undefined;
   try {
-    setup = await getScene(config.scene).create(ctx);
+    setup = startup
+      ? await startup.measure('scene', () => getScene(config.scene).create(ctx))
+      : await getScene(config.scene).create(ctx);
     Math.random = originalRandom;
     const canvas = document.createElement('canvas');
     canvas.width = config.width;
     canvas.height = config.height;
     element('viewport').replaceChildren(canvas);
-    live = await createRenderer(config.renderer, canvas, setup, {
-      width: config.width,
-      height: config.height,
-      trackTimestamp: profile,
-      hierarchyExperiment: config.experiment,
-    });
+    const create = () =>
+      createRenderer(config.renderer, canvas, setup!, {
+        width: config.width,
+        height: config.height,
+        trackTimestamp: profile,
+        hierarchyExperiment: config.experiment,
+      });
+    live = startup ? await startup.measure('renderer', create) : await create();
     const renderer = live;
     const sceneSetup = setup;
     const advance = createRendererFrameDriver(renderer.renderer);
@@ -350,6 +368,9 @@ function animate(time: number) {
     active.live.profiler?.beginFrame(frame.index);
     active.session.pipeline.render(frame);
     active.live.profiler?.endFrame();
+    const startup = startupCapture;
+    if (startup?.isCapturing && startup.rendered() >= 4)
+      void startup.finish(() => completeRenderer(active!.live.renderer));
     instrument(time, interval, performance.now() - cpuStart);
     intervalFrames++;
     if (time - intervalStart > 500) {
@@ -360,6 +381,7 @@ function animate(time: number) {
     }
     animation = requestAnimationFrame(animate);
   } catch (error) {
+    startupCapture?.fail(error);
     fail(error);
     stop();
   }
@@ -369,13 +391,44 @@ function fail(error: unknown) {
   element('live-status').textContent = 'Needs attention';
 }
 async function load() {
+  const started = performance.now();
+  const pageMs = initialLoad ? started : 0;
+  initialLoad = false;
+  const loadId = ++startupLoadId;
+  startupSnapshot = undefined;
   lock(true);
   stop();
+  const cleanupMs = performance.now() - started;
+  startupCapture = undefined;
+  resetStartup();
+  element('startup').dataset.state = 'loading';
+  element('startup-status').textContent = 'Loading…';
+  element<HTMLButtonElement>('startup-json').disabled = true;
   element('live-status').textContent = 'Loading';
-  message('Loading assets and compiling the pipeline…');
+  message('Loading scene assets…');
+  let refresh: ReturnType<typeof setInterval> | undefined;
   try {
     const config = configuration();
-    active = await session(config, input('live-gpu').checked, 'static');
+    const startup = new LiveStartup(
+      config.scene,
+      config.renderer,
+      createRendererStartupProfiler(config.renderer),
+      (snapshot) => {
+        if (startupLoadId !== loadId) return;
+        startupSnapshot = snapshot;
+        showStartup(snapshot);
+      },
+      () => performance.now(),
+      started - pageMs,
+      pageMs,
+      cleanupMs,
+      config,
+    );
+    startupCapture = startup;
+    refresh = setInterval(() => {
+      if (startupLoadId === loadId) showStartup(startup.snapshot());
+    }, 100);
+    active = await session(config, input('live-gpu').checked, 'static', startup);
     resetInstruments();
     const restoreCamera = savedScene === config.scene;
     if (restoreCamera && savedPosition) active.setup.camera.position.fromArray(savedPosition);
@@ -392,19 +445,39 @@ async function load() {
       urlState.camera();
     });
     element('scene-title').textContent = `${config.scene} / ${config.renderer}`;
+    message('Preparing the first frame and waiting for GPU completion…');
+    const time = await new Promise<number>((resolve) => requestAnimationFrame(resolve));
+    const firstFrame: FrameContext = { index: 0, timeSeconds: time / 1000, deltaSeconds: 1 / 60, phase: 'interactive' };
+    await startup.measure('first-render', () => {
+      active!.session.beforeFrame?.(firstFrame);
+      active!.live.profiler?.beginFrame(0);
+      try {
+        active!.session.pipeline.render(firstFrame);
+      } finally {
+        active!.live.profiler?.endFrame();
+      }
+      startup.rendered();
+    });
+    await startup.measure('gpu-wait', () => completeRenderer(active!.live.renderer));
+    startup.ready();
     element('live-status').textContent = 'Interactive';
     message(getScene(config.scene).description);
     savedScene = config.scene;
     savedPosition = active.setup.camera.position.toArray();
     savedTarget = controls.target.toArray();
     urlState.camera();
-    interactiveIndex = 0;
+    interactiveIndex = 1;
     previousTime = 0;
     intervalStart = performance.now();
     intervalFrames = 0;
   } catch (error) {
+    startupCapture?.fail(error);
+    stop();
+    element('startup').dataset.state = 'failed';
+    element('startup-status').textContent = 'Load failed';
     fail(error);
   } finally {
+    clearInterval(refresh);
     lock(false);
     if (active) animation = requestAnimationFrame(animate);
   }
@@ -538,6 +611,7 @@ async function runBenchmark() {
   }
 }
 async function captureImage() {
+  startupCapture?.stop();
   if (!active) throw new Error('Load a scene before capturing');
   const current = active;
   lock(true);
@@ -582,6 +656,13 @@ function action(id: string, task: () => Promise<void>) {
   });
 }
 action('load', load);
+action('startup-json', async () => {
+  if (startupSnapshot)
+    download(
+      new Blob([JSON.stringify(startupSnapshot, null, 2)], { type: 'application/json' }),
+      `${startupSnapshot.scene}-${startupSnapshot.renderer}-startup.json`,
+    );
+});
 input('live-gpu').addEventListener('change', () => {
   if (!busy) void load().catch(fail);
 });

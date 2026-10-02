@@ -1,5 +1,5 @@
 import { BoxGeometry, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, PlaneGeometry, Scene, Vector3 } from 'three';
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { geometrySnapshot, momentVisibility, octBorderTexel, octDecode, relocateProbe } from './geometry.js';
 
 it('moves a probe out of a nearby solid, but rejects a deeply embedded probe', () => {
@@ -83,4 +83,43 @@ it('preserves outward winding when a mesh is mirrored', () => {
   expect(geometry.trace(new Vector3(), new Vector3(1, 0, 0), 10)!.backface).toBe(true);
   expect(box.geometry.index!.array).toEqual(original);
   geometry.dispose();
+});
+
+it.each([false, true])('snapshots mixed indexing without changing borrowed geometry (instanced: %s)', (instanced) => {
+  const scene = new Scene();
+  const material = new MeshBasicMaterial();
+  const indexed = new BoxGeometry();
+  const nonIndexed = new BoxGeometry().toNonIndexed();
+  const originalPositions = nonIndexed.attributes.position!.array.slice();
+  const originalIndex = indexed.index!.array.slice();
+  const sourceDispose = vi.spyOn(nonIndexed, 'dispose');
+  const box = new Mesh(indexed, material);
+  box.position.x = 2;
+  const other = instanced ? new InstancedMesh(nonIndexed, material, 2) : new Mesh(nonIndexed, material);
+  other.position.x = 5;
+  if (other instanceof InstancedMesh) {
+    other.setMatrixAt(0, new Matrix4());
+    other.setMatrixAt(1, new Matrix4().makeTranslation(3, 0, 0));
+  }
+  // Exercise both the indexed-first and non-indexed-first merge paths.
+  for (const order of [
+    [box, other],
+    [other, box],
+  ]) {
+    scene.clear();
+    scene.add(...order);
+    const snapshot = geometrySnapshot(scene);
+    for (const x of instanced ? [2, 5, 8] : [2, 5]) {
+      const hit = snapshot.trace(new Vector3(x - 1, 0, 0), new Vector3(1, 0, 0), 1)!;
+      expect(hit.distance).toBeCloseTo(0.5);
+      expect(hit.backface).toBe(false);
+      expect(snapshot.trace(new Vector3(x, 0, 0), new Vector3(1, 0, 0), 1)!.backface).toBe(true);
+    }
+    snapshot.dispose();
+  }
+  expect(other.geometry).toBe(nonIndexed);
+  expect(nonIndexed.index).toBeNull();
+  expect(nonIndexed.attributes.position!.array).toEqual(originalPositions);
+  expect(indexed.index!.array).toEqual(originalIndex);
+  expect(sourceDispose).not.toHaveBeenCalled();
 });

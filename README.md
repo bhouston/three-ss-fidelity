@@ -73,6 +73,11 @@ to let sunlight enter, and transmissive glass does not cast opaque raster shadow
 transmission test. The headphone also has a glossy floor. Licenses, attribution, source hashes and preprocessing details
 live in [assets/complex-scenes](assets/complex-scenes/README.md).
 
+Each of these eight scenes also has a `-w` variant (for example, `model-bedroom-w`). It uses the same GLB and
+whitens materials during scene setup: color textures and vertex tint are removed, while alpha cutouts, transmission,
+roughness, metalness and normal detail remain. Emission is neutralized at the same luminance. Cameras, window sunlight
+and precomputed atlases are identical to the colored variant; the headphone's floor is also white.
+
 [glTF Transform](https://gltf-transform.dev/modules/functions/functions/unwrap) already provides an xatlas-based
 unwrap CLI and a separately installable core/transform SDK, so this suite uses it instead of adding another repository:
 

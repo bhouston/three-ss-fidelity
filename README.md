@@ -78,6 +78,7 @@ in `submodules/three.js`. There is only ever one copy of three.
 | `three-gpu-pathtracer`        | Ground truth (default 4096 spp, seeded).                                                                    |
 | `three-gpu-pathtracer-webgpu` | Independent WebGPU path-traced reference from the path-tracer fork.                                         |
 | `three-current`               | Unmodified three.js r186 from npm (`three@0.186.1`) with its stock SSGI/SSR example pipelines.              |
+| `three-new-light-probe-ddgi`  | Baked diffuse probes with DDGI visibility weighting and relocation ([research](docs/DDGI_RESEARCH.md)).     |
 | `three-new-light-probe`       | Automatically fitted baked SH diffuse probe grid replacing SSGI ([research](docs/LIGHT_PROBE_RESEARCH.md)). |
 | `three-new`                   | The fork + vendored SSGI/SSR nodes, real-time, TRAA ([docs/THREE-NEW.md](docs/THREE-NEW.md)).               |
 
@@ -174,6 +175,8 @@ Use `pnpm cli render --missing-only` to fill gaps across all renderers, includin
 | `three-current`, `three-gpu-pathtracer`, `three-gpu-pathtracer-webgpu`, `blender` | `<renderer>.avif`                       |
 
 `pnpm cli render --renderers three-new-light-probe` captures the basic SH probe renderer. The same renderer name is available in the live lab and `cli bench`. It bakes about 2,000 probes before rendering; moving lights and geometry need a new scene session. See [probe research](docs/LIGHT_PROBE_RESEARCH.md).
+
+`three-new-light-probe-ddgi` adds directional visibility and probe relocation/classification. It remains a static bake; both probe renderers are available independently in render, bench, and the live lab. See [DDGI research](docs/DDGI_RESEARCH.md).
 
 The `three-new-ssr-temporal-validated` and `three-new-ssr-temporal-gaussian` profiles compare validated reflection history and Gaussian clipping. Their captures appear in fidelity-kit; the same options are available in the live lab's experiment selector. Bare `pnpm cli render --missing-only` includes both profiles automatically. To fill only these profiles, use `pnpm cli render --missing-only --renderers 'three-new-ssr-temporal-*' --frames 128`. See [temporal research](docs/SSR_TEMPORAL_RESEARCH.md).
 

@@ -108,5 +108,12 @@ it('dispatches the basic probe renderer as a separately named pipeline', () => {
   const setup = { effects: {} } as SceneSetup;
   const options = { width: 640, height: 480 };
   createRenderer('three-new-light-probe', {} as HTMLCanvasElement, setup, options);
-  expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, true);
+  expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'light-probe');
+});
+
+it('dispatches the DDGI extension without changing the basic probe mode', () => {
+  const setup = { effects: {} } as SceneSetup;
+  const options = { width: 640, height: 480 };
+  createRenderer('three-new-light-probe-ddgi', {} as HTMLCanvasElement, setup, options);
+  expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'light-probe-ddgi');
 });

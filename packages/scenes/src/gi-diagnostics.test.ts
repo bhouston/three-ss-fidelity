@@ -83,3 +83,22 @@ describe('GI diagnostic controls', () => {
       }
   });
 });
+
+it('seals the probe-leakage partition across floor, ceiling and both end walls', async () => {
+  for (const [name, thickness] of [
+    ['gi-probe-thin-wall', 0.06],
+    ['gi-probe-thick-wall', 0.6],
+  ] as const) {
+    const setup = await getScene(name).create(noAssets);
+    const wall = setup.scene.getObjectByName('opaque-partition') as Mesh;
+    wall.geometry.computeBoundingBox();
+    const size = wall.geometry.boundingBox!.getSize(new Vector3());
+    expect(size.x).toBeCloseTo(thickness);
+    expect(size.y).toBe(6);
+    expect(size.z).toBe(10);
+    expect(setup.scene.environment).toBeNull();
+    expect(setup.effects.ssr).toBeUndefined();
+    const emitter = setup.scene.getObjectByName('partition-emitter') as Mesh;
+    expect((emitter.material as MeshPhysicalMaterial).color.getHex()).toBe(0);
+  }
+});

@@ -44,16 +44,21 @@ export function fitProbeGrid(scene: Scene, budget = PROBE_BUDGET) {
 }
 
 /** Bake reflected/emitted diffuse radiance; leave the existing environment term applied exactly once. */
-export async function bakeProbeGrid(renderer: WebGPURenderer, scene: Scene): Promise<() => void> {
+export async function bakeProbeGrid(renderer: WebGPURenderer, scene: Scene, ddgi = false): Promise<() => void> {
   const fitted = fitProbeGrid(scene);
-  const grid = new LightProbeGrid(
-    fitted.size.x,
-    fitted.size.y,
-    fitted.size.z,
-    fitted.resolution.x,
-    fitted.resolution.y,
-    fitted.resolution.z,
-  );
+  const { DDGIProbeGrid } = ddgi ? await import('./ddgi/DDGIProbeGrid.js') : { DDGIProbeGrid: undefined };
+  const visibility = ddgi ? await (await import('./ddgi/visibility.js')).bakeVisibility(scene, fitted) : undefined;
+  const grid =
+    visibility && DDGIProbeGrid
+      ? new DDGIProbeGrid(fitted, visibility)
+      : new LightProbeGrid(
+          fitted.size.x,
+          fitted.size.y,
+          fitted.size.z,
+          fitted.resolution.x,
+          fitted.resolution.y,
+          fitted.resolution.z,
+        );
   grid.position.copy(fitted.center);
   scene.add(grid);
   const originalBackground = scene.background;
@@ -84,6 +89,10 @@ export async function bakeProbeGrid(renderer: WebGPURenderer, scene: Scene): Pro
         await completeRenderer(renderer);
         await new Promise<void>((resolve) => setTimeout(resolve, 0));
       }
+    }
+    if (visibility && 'convertIrradiance' in grid) {
+      grid.convertIrradiance(renderer);
+      await completeRenderer(renderer);
     }
     console.info(
       `SH probe grid: ${fitted.resolution.toArray().join('x')} (${fitted.count} probes), ${PROBE_BAKE.bounces + 1} passes, bake ${(performance.now() - started).toFixed(0)} ms`,

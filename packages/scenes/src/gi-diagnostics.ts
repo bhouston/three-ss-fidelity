@@ -136,11 +136,37 @@ function diffuseRoom(albedo: number, open = false): SceneSetup {
   return result;
 }
 
+/** Sealed black partition: the right-hand floor has no physical path to the left-hand emitter. */
+function probePartition(thickness: number): SceneSetup {
+  const result = setup(65);
+  floor(result.scene, material(0.5));
+  walls(result.scene, material(0));
+  const emitter = result.scene.getObjectByName('left') as Mesh;
+  emitter.name = 'partition-emitter';
+  emitter.material = material(0, 0.5);
+  const partition = new Mesh(new BoxGeometry(thickness, 6, 10), material(0));
+  partition.name = 'opaque-partition';
+  partition.position.set(0.12, 3, 0);
+  result.scene.add(partition);
+  result.camera.position.set(3, 3, 4);
+  result.target.set(1.5, 0, 0);
+  result.camera.lookAt(result.target);
+  return result;
+}
+
 function diagnostic(name: string, description: string, create: () => SceneSetup): SceneDefinition {
   return { name, description, width: WIDTH, height: HEIGHT, create: async () => create() };
 }
 
 export const giDiagnosticScenes: SceneDefinition[] = [
+  diagnostic(
+    'gi-probe-thin-wall',
+    'Emissive left chamber separated from an unlit right chamber by a sealed 0.06-unit black partition.',
+    () => probePartition(0.06),
+  ),
+  diagnostic('gi-probe-thick-wall', 'Same sealed probe-leakage control with a 0.6-unit solid partition.', () =>
+    probePartition(0.6),
+  ),
   diagnostic(
     'gi-hierarchy-discontinuity',
     'Alternating red/green emissive stripes behind a thin black occluder: radiance-mip bleeding.',

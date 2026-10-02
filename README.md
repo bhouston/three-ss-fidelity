@@ -159,14 +159,18 @@ Merging to `main` deploys `site/` to GitHub Pages at <https://ss-fidelity.ben3d.
 
 Use `pnpm cli render --missing-only` to fill gaps across all renderers, including every hierarchy variant, without overwriting existing images. Select complete renderer names with `--renderers`; comma-separated names and globs such as `'three-new-*'` work. The render command uses these names:
 
-| Renderer name                                                                     | Output image                        |
-| --------------------------------------------------------------------------------- | ----------------------------------- |
-| `three-new-baseline`                                                              | `three-new.avif`                    |
-| `three-new-ssr-hiz-tight`                                                         | `three-new-ssr-hiz-tight.avif`      |
-| `three-new-ssr-radiance-mips`                                                     | `three-new-ssr-radiance-mips.avif`  |
-| `three-new-ssgi-radiance-mips`                                                    | `three-new-ssgi-radiance-mips.avif` |
-| `three-new-hierarchy-combined`                                                    | `three-new-hierarchy-combined.avif` |
-| `three-current`, `three-gpu-pathtracer`, `three-gpu-pathtracer-webgpu`, `blender` | `<renderer>.avif`                   |
+| Renderer name                                                                     | Output image                            |
+| --------------------------------------------------------------------------------- | --------------------------------------- |
+| `three-new-baseline`                                                              | `three-new.avif`                        |
+| `three-new-ssr-hiz-tight`                                                         | `three-new-ssr-hiz-tight.avif`          |
+| `three-new-ssr-radiance-mips`                                                     | `three-new-ssr-radiance-mips.avif`      |
+| `three-new-ssgi-radiance-mips`                                                    | `three-new-ssgi-radiance-mips.avif`     |
+| `three-new-hierarchy-combined`                                                    | `three-new-hierarchy-combined.avif`     |
+| `three-new-ssr-temporal-validated`                                                | `three-new-ssr-temporal-validated.avif` |
+| `three-new-ssr-temporal-gaussian`                                                 | `three-new-ssr-temporal-gaussian.avif`  |
+| `three-current`, `three-gpu-pathtracer`, `three-gpu-pathtracer-webgpu`, `blender` | `<renderer>.avif`                       |
+
+The `three-new-ssr-temporal-validated` and `three-new-ssr-temporal-gaussian` profiles compare validated reflection history and Gaussian clipping. Their captures appear in fidelity-kit; the same options are available in the live lab's experiment selector. Bare `pnpm cli render --missing-only` includes both profiles automatically. To fill only these profiles, use `pnpm cli render --missing-only --renderers 'three-new-ssr-temporal-*' --frames 128`. See [temporal research](docs/SSR_TEMPORAL_RESEARCH.md).
 
 For example, `pnpm cli render --missing-only --renderers three-new-hierarchy-combined` fills only combined hierarchy captures. `cli render` no longer accepts `--experiment`; select the full renderer name instead. Baseline images retain their existing `three-new.avif` filename and viewer ID.
 

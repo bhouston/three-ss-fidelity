@@ -81,3 +81,25 @@ it('uses suite-compatible experiment image identifiers while preserving baseline
     expect(label).toMatch(/^[a-z0-9][a-z0-9._-]*$/);
   }
 });
+
+// A misspelled or unsupported experiment must not silently produce baseline measurements.
+it('rejects SSR temporal profiles on other renderers before initializing a GPU', () => {
+  expect(() =>
+    createRenderer('three-current', {} as HTMLCanvasElement, {} as SceneSetup, {
+      width: 1,
+      height: 1,
+      ssrTemporalProfile: 'validated',
+    }),
+  ).toThrow('SSR temporal profiles require the three-new');
+  expect(createCurrentRenderer).not.toHaveBeenCalled();
+});
+it('rejects unknown SSR temporal profiles before initializing a GPU', () => {
+  expect(() =>
+    createRenderer('three-new', {} as HTMLCanvasElement, {} as SceneSetup, {
+      width: 1,
+      height: 1,
+      ssrTemporalProfile: 'validtaed' as import('./types.js').SSRTemporalProfile,
+    }),
+  ).toThrow('Unknown SSR temporal profile');
+  expect(createThreeNewRenderer).not.toHaveBeenCalled();
+});

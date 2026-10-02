@@ -17,6 +17,8 @@ export const hierarchyExperiments = [
   'ssr-radiance-mips',
   'ssgi-radiance-mips',
   'hierarchy-combined',
+  'ssr-temporal-validated',
+  'ssr-temporal-gaussian',
 ] as const;
 export type HierarchyExperiment = (typeof hierarchyExperiments)[number];
 
@@ -25,7 +27,13 @@ export function hierarchyImageName(renderer: string, experiment?: HierarchyExper
   return experiment && experiment !== 'baseline' ? `${renderer}-${experiment}` : renderer;
 }
 
+/** Literature-informed SSR ablations; baseline remains the production default. */
+export const ssrTemporalProfiles = ['baseline', 'validated', 'gaussian'] as const;
+export type SSRTemporalProfile = (typeof ssrTemporalProfiles)[number];
+
 export interface RendererOptions {
+  /** three-new only: opt-in reflection history ablations; rebuild the pipeline when changing. */
+  ssrTemporalProfile?: SSRTemporalProfile;
   /** three-new only; rebuild the pipeline when changing this option. */
   hierarchyExperiment?: HierarchyExperiment;
   width: number;

@@ -80,6 +80,11 @@ let _rendererState;
  * Indirect diffuse samples include the spherical solid-angle weight of their slice direction.
  * The sampling radius and depth-buffer visibility still limit the lighting that can be recovered.
  *
+ * Algorithm/source map and our corrections: docs/SCREEN_SPACE_ALGORITHMS.md.
+ * The visibility-bitmask method is Therrien, Levesque & Gilet (arXiv 2023; journal 2022):
+ * https://arxiv.org/abs/2301.11376. Our Jacobian, tangent-horizon and gap-fill corrections
+ * are local adaptations, not claims that these particular changes appear in that paper.
+ *
  * References:
  * - {@link https://github.com/cdrinmatane/SSRT3}.
  * - {@link https://cdrinmatane.github.io/posts/ssaovb-code/}.
@@ -520,6 +525,7 @@ class SSGINode extends Node {
     const globalOccludedBitfield = uint(0);
     const globalLitBitfield = uint(0);
 
+    // Local sector-center quadrature correction; see docs/SCREEN_SPACE_ALGORITHMS.md (AO/SSGI).
     // the sectors whose centers lie between two horizons. Rounding both ends (instead of flooring the start and taking
     // the ceiling of the width) keeps a sample lying on the shading point's tangent plane, whose horizon interval is zero
     // up to depth/normal precision, from occluding a whole sector
@@ -752,6 +758,7 @@ class SSGINode extends Node {
                   .select(BACKFACE_LIGHTING, float(0));
                 const emission = facesShadingPoint.select(float(1), backfaceWeight);
 
+                // Local irradiance-measure correction derived in docs/history/GI-ESTIMATOR-FOLLOWUP.md.
                 // Equal slice-angle sectors do not subtend equal solid angles. Approximate the spherical
                 // Jacobian at the sample direction; the factor of two preserves the existing GI gain scale.
                 const solidAngleWeight = this.useSolidAngleWeighting.select(

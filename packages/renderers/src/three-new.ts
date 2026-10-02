@@ -39,7 +39,7 @@ import {
 } from 'three/tsl';
 import { recurrentDenoise } from 'three/addons/tsl/display/RecurrentDenoiseNode.js';
 import { previousFrameGeometry, temporalReproject } from 'three/addons/tsl/display/TemporalReprojectNode.js';
-import { traa } from 'three/addons/tsl/display/TRAANode.js';
+import { traa } from './traa/TRAANode.js';
 import { ssgi } from './ssgi-fast/SSGINode.js';
 import { bilateralUpsample } from './ssgi-fast/bilateralUpsample.js';
 import { newSSR } from './ssr/NewSSRNode.js';
@@ -74,6 +74,7 @@ function createPipeline(
   setup: SceneSetup,
   ssrDebug: RendererOptions['ssrDebug'],
   hierarchyExperiment: RendererOptions['hierarchyExperiment'],
+  ssrTemporalProfile: RendererOptions['ssrTemporalProfile'],
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const resolutionScale = effects.resolutionScale ?? 1;
@@ -119,6 +120,9 @@ function createPipeline(
   // current one. Once the view is still, TRAA's history becomes an exact running mean (render() below restarts it
   // when an object moves).
   const scenePass = pass(scene, camera);
+  // TAA accumulation/validation background: Yang, Liu & Salvi, A Survey of Temporal Antialiasing
+  // Techniques (2020): https://research.nvidia.com/labs/rtr/publication/yang2020survey/
+  // Resolve the beauty after the dedicated SSR denoiser; TAA alone is not the reflection denoiser.
   const aaPass: AnyNode = traa(scenePass, prePassDepth, prePassVelocity, camera);
   aaPass.progressive = true;
   (renderPipeline as AnyNode).progressiveTRAA = aaPass;
@@ -127,6 +131,9 @@ function createPipeline(
     previousFrame.sample(uv.sub(prePassVelocity.sample(uv).xy.mul(vec2(0.5, -0.5)))),
   );
 
+  // AO/GI use the fork's diffuse reprojection and recurrent edge-aware filter.
+  // REBLUR-derived helpers are credited in RecurrentDenoiseNode (https://github.com/NVIDIA-RTX/NRD).
+  // See docs/SCREEN_SPACE_ALGORITHMS.md: this is not an exact NRD or SVGF port.
   const temporal = effects.temporalDenoise;
   const sharedPreviousFrame = temporal ? previousFrameGeometry(prePassDepth, prePassNormal) : null;
   const temporalDenoise = (signal: AnyNode, scale = resolutionScale): AnyNode => {
@@ -213,6 +220,13 @@ function createPipeline(
       reflectNonMetals: true,
       stochastic: true,
       temporalFilter: true,
+      temporalProfile:
+        ssrTemporalProfile ??
+        (hierarchyExperiment === 'ssr-temporal-validated'
+          ? 'validated'
+          : hierarchyExperiment === 'ssr-temporal-gaussian'
+            ? 'gaussian'
+            : 'baseline'),
       velocityNode: prePassVelocity,
       debugView: ssrDebug ?? null,
       backDepthNode: backPass.getTextureNode('depth'),
@@ -291,7 +305,7 @@ function createPipeline(
 export async function createThreeNewRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
-  { width, height, trackTimestamp = false, ssrDebug, hierarchyExperiment }: RendererOptions,
+  { width, height, trackTimestamp = false, ssrDebug, hierarchyExperiment, ssrTemporalProfile }: RendererOptions,
 ): Promise<LiveRenderer> {
   const setup = sceneSetup;
   const { camera, effects } = setup;
@@ -312,7 +326,7 @@ export async function createThreeNewRenderer(
     },
   });
 
-  const renderPipeline = createPipeline(renderer, setup, ssrDebug, hierarchyExperiment);
+  const renderPipeline = createPipeline(renderer, setup, ssrDebug, hierarchyExperiment, ssrTemporalProfile);
   const progressive = (renderPipeline as AnyNode).progressiveTRAA;
   let frames = 0;
   let sceneSignature = 0;

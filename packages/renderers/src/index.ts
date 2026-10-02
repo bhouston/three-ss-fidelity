@@ -3,13 +3,14 @@ import { createRenderer as createPathTracerRenderer } from 'fidelity-kit-three-g
 import { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
 import { createCurrentRenderer } from './three-current.js';
 import { createThreeNewRenderer } from './three-new.js';
-import { hierarchyExperiments } from './types.js';
+import { hierarchyExperiments, ssrTemporalProfiles } from './types.js';
 import { createRendererProfiler } from './profiling.js';
 import type { LiveRenderer, RendererName, RendererOptions } from './types.js';
 
 export * from './types.js';
 export * from './helpers.js';
 export * from './profiling.js';
+export * from './startup.js';
 export { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
 export { createThreeNewRenderer } from './three-new.js';
 export { createCurrentRenderer } from './three-current.js';
@@ -25,6 +26,12 @@ export function createRenderer(
   }
   if (options.hierarchyExperiment && options.hierarchyExperiment !== 'baseline' && name !== 'three-new') {
     throw new Error('Hierarchical experiments require the three-new renderer');
+  }
+  if (options.ssrTemporalProfile !== undefined && !ssrTemporalProfiles.includes(options.ssrTemporalProfile)) {
+    throw new Error(`Unknown SSR temporal profile "${options.ssrTemporalProfile}"`);
+  }
+  if (options.ssrTemporalProfile && name !== 'three-new') {
+    throw new Error('SSR temporal profiles require the three-new renderer');
   }
   const instrument = (result: Promise<LiveRenderer>): Promise<LiveRenderer> => {
     if (!options.trackTimestamp) return result;

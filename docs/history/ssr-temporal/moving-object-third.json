@@ -1,0 +1,133 @@
+{
+  "metadata": {
+    "moveFrames": 20,
+    "warmup": 16,
+    "seed": 1,
+    "scale": 0.3333333333333333,
+    "captureFormat": "lossless PNG",
+    "limitations": "Moving captures are visual diagnostics. Frame differences during motion are not noise metrics. Reference PSNR is measured only at the matching final pose; scale<1 resizes the reference and is a preliminary diagnostic, not a native-resolution accuracy gate. Timing includes GPU completion, not readback; it is not a timestamp profile.",
+    "reviewDate": "2026-10-01",
+    "repositoryBase": "3201856bb06",
+    "settledFrames": [112, 128],
+    "repetitions": 1,
+    "timingNote": "Exploratory shared-device measurements; do not use these values for performance conclusions."
+  },
+  "cases": [
+    {
+      "scene": "ssr-diag-rough-30",
+      "profile": "baseline",
+      "captures": [
+        {
+          "frame": 0,
+          "psnr": 35.1606307361835,
+          "bias": 0.005669500820747805
+        },
+        {
+          "frame": 1,
+          "psnr": 35.433753149664525,
+          "bias": 0.005645250098493712
+        },
+        {
+          "frame": 4,
+          "psnr": 36.15157357643445,
+          "bias": 0.0056671155038047795
+        },
+        {
+          "frame": 16,
+          "psnr": 37.19876412604593,
+          "bias": 0.005557523442033551
+        },
+        {
+          "frame": 64,
+          "psnr": 37.92985356290835,
+          "bias": 0.005289042768335236
+        },
+        {
+          "frame": 128,
+          "psnr": 38.084597363730055,
+          "bias": 0.00514738144544111
+        }
+      ],
+      "settledStdDev255": {
+        "mean": 0.019271653010671512,
+        "p95": 0
+      },
+      "run": {
+        "scene": "ssr-diag-rough-30",
+        "profile": "baseline",
+        "moveFrames": 20,
+        "warmup": 16,
+        "scale": 0.3333333333333333,
+        "degrees": 0,
+        "object": {
+          "name": "sphere-green",
+          "dx": 1.5
+        },
+        "width": 160,
+        "height": 120,
+        "renderAndCompletionMs": {
+          "median": 635.4812080000011,
+          "p95": 853.0354999999981
+        }
+      }
+    },
+    {
+      "scene": "ssr-diag-rough-30",
+      "profile": "gaussian",
+      "captures": [
+        {
+          "frame": 0,
+          "psnr": 34.71482704220782,
+          "bias": 0.005870397514393731
+        },
+        {
+          "frame": 1,
+          "psnr": 35.03726742080893,
+          "bias": 0.005846411827355531
+        },
+        {
+          "frame": 4,
+          "psnr": 35.855886733462455,
+          "bias": 0.005883649275188318
+        },
+        {
+          "frame": 16,
+          "psnr": 37.03658849011,
+          "bias": 0.005743048093157758
+        },
+        {
+          "frame": 64,
+          "psnr": 37.88350323055865,
+          "bias": 0.005384587963664202
+        },
+        {
+          "frame": 128,
+          "psnr": 38.0770841452093,
+          "bias": 0.005161428311883371
+        }
+      ],
+      "settledStdDev255": {
+        "mean": 0.020289187944682287,
+        "p95": 0
+      },
+      "run": {
+        "scene": "ssr-diag-rough-30",
+        "profile": "gaussian",
+        "moveFrames": 20,
+        "warmup": 16,
+        "scale": 0.3333333333333333,
+        "degrees": 0,
+        "object": {
+          "name": "sphere-green",
+          "dx": 1.5
+        },
+        "width": 160,
+        "height": 120,
+        "renderAndCompletionMs": {
+          "median": 638.3215420000051,
+          "p95": 815.0809160000063
+        }
+      }
+    }
+  ]
+}

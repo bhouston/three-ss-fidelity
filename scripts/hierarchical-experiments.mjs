@@ -74,6 +74,13 @@ const definitions = {
 definitions['hierarchy-combined'] = [...new Set(Object.values(definitions).flat()), 'ssgi-metallic'];
 definitions['ssgi-half'] = [...definitions['ssgi-radiance-mips'], 'ssgi-metallic'];
 definitions['ssgi-third'] = definitions['ssgi-half'];
+definitions['ssr-temporal-validated'] = [
+  'ssr-diag-mirror',
+  'ssr-diag-rough-30',
+  'ssr-diag-rough-60',
+  'ssr-steampunk-camera',
+];
+definitions['ssr-temporal-gaussian'] = definitions['ssr-temporal-validated'];
 const experiments = values.experiments.split(',');
 for (const experiment of experiments) if (!definitions[experiment]) throw new Error(`Unknown experiment ${experiment}`);
 const scenes = values.scenes?.split(',') ?? [...new Set(experiments.flatMap((e) => definitions[e]))];

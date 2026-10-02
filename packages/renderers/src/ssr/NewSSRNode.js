@@ -5,6 +5,7 @@ import {
   If,
   Loop,
   abs,
+  array,
   bool,
   cross,
   distance,
@@ -51,6 +52,7 @@ import {
   sqrt,
   property,
   outputStruct,
+  struct,
 } from 'three/tsl';
 import {
   FloatType,
@@ -72,6 +74,10 @@ import {
   Vector3,
 } from 'three/webgpu';
 import { bindAnalyticNoise } from 'three/addons/tsl/utils/RNoise.js';
+// GGX sampler sources (implemented in SpecularHelpers): Dupuy & Benyoub, HPG 2023,
+// https://arxiv.org/abs/2306.05044; Eto & Tokuyoshi, SIGGRAPH Asia 2023,
+// https://gpuopen.com/download/Bounded_VNDF_Sampling_for_Smith-GGX_Reflections.pdf
+// Preserve the matching bounded-VNDF PDF when changing sample directions or weights.
 import {
   ENV_RAY_LENGTH,
   getSpecularDominantFactor,
@@ -103,7 +109,7 @@ const halfFloatTarget = (name) => {
 /** World position -> UV in the frame of a view-projection matrix ((-1, -1) behind the camera). */
 const projectToUV = (world, viewProjection) => {
   const clip = viewProjection.mul(vec4(world, 1)).toVar();
-  const screen = clip.xy.div(clip.w).mul(0.5).add(0.5);
+  const screen = clip.xy.div(clip.w).mul(0.5).add(0.5).toVar();
   return clip.w.greaterThan(0).select(vec2(screen.x, screen.y.oneMinus()), vec2(-1));
 };
 
@@ -118,6 +124,7 @@ const SECONDARY_NOISE_SALT = 2 ** 23;
 
 /**
  * @typedef {Object} NewSSRNodeOptions
+ * @property {'baseline'|'validated'|'gaussian'} [temporalProfile='baseline'] - Experimental history reconstruction and clipping.
  * @property {boolean} [stochastic=false] - When `false`, traces a single mirror reflection and softens roughness with a blur pass (first-generation SSR). When `true`, varies the reflection direction per pixel with stochastic GGX rays (second-generation SSR); higher quality on rough/glossy surfaces but noisier, so it expects a temporal/spatial denoiser downstream.
  * @property {Node<float>} [metalnessNode=null] - Per-pixel metalness. Drives GGX reflection sampling and, with `reflectNonMetals=false`, the non-metal early-out.
  * @property {Node<float>} [roughnessNode=null] - Per-pixel roughness. Drives GGX sampling and the blur mip selection.
@@ -174,6 +181,7 @@ class NewSSRNode extends Node {
       hitSpecularNode = null,
       radianceHistoryNode = null,
       temporalFilter = false,
+      temporalProfile = 'baseline',
       velocityNode = null,
       maxMarchSteps = null,
       hiZ = false,
@@ -204,6 +212,10 @@ class NewSSRNode extends Node {
      * @type {?('hits'|'hitcolor')}
      */
     this.debugView = debugView;
+    if (!['baseline', 'validated', 'gaussian'].includes(temporalProfile)) {
+      throw new Error(`Unknown SSR temporal profile: ${temporalProfile}`);
+    }
+    this.temporalProfile = temporalProfile;
 
     /**
      * Reads a hit's color from inside the hit object's screen footprint instead of its anti-aliased silhouette texel
@@ -695,10 +707,15 @@ class NewSSRNode extends Node {
       // with resolutionScale < 1: the filtered result upsampled to full resolution, depth/normal aware
       this._upsampleTarget = halfFloatTarget('NewSSRNode.Upsample');
       this._upsampleMaterial = new NodeMaterial();
+      this._upsampleMaterial.name = 'NewSSRNode.Upsample';
       this._spatialMaterial = new NodeMaterial();
+      this._spatialMaterial.name = 'NewSSRNode.Spatial';
       this._temporalMaterial = new NodeMaterial();
+      this._temporalMaterial.name = 'NewSSRNode.Temporal';
       this._historyCopyMaterial = new NodeMaterial();
+      this._historyCopyMaterial.name = 'NewSSRNode.HistoryCopy';
       this._geometryMaterial = new NodeMaterial();
+      this._geometryMaterial.name = 'NewSSRNode.Geometry';
       this._previousViewProjection = uniform(new Matrix4());
       this._currentViewProjection = uniform(new Matrix4());
       this._previousCameraPosition = uniform(new Vector3());
@@ -1259,8 +1276,8 @@ class NewSSRNode extends Node {
     // pixel sees a low-discrepancy sequence over frames with no correlation between dimensions (unlike the
     // analytic R² tile noise, whose four components derive from one scalar per pixel).
     const sampleMarchNoise = (uvCoord, frameIndex, salt = 0) => {
-      const pixel = uvCoord.mul(this._resolution).floor();
-      const seed = pixel.x.add(pixel.y.mul(this._resolution.x)).mul(4).add(salt);
+      const pixel = uvCoord.mul(this._resolution).floor().toVar();
+      const seed = pixel.x.add(pixel.y.mul(this._resolution.x)).mul(4).add(salt).toVar();
       const rotation = vec4(hash(seed), hash(seed.add(1)), hash(seed.add(2)), hash(seed.add(3)));
       const g = 1.1673039782614187; // x^5 = x + 1
       const alpha = vec4(1 / g, 1 / g ** 2, 1 / g ** 3, 1 / g ** 4);
@@ -1287,6 +1304,34 @@ class NewSSRNode extends Node {
     });
 
     const ssr = Fn(() => {
+      // The fork's GGX helper is an inline Fn. Wrap it in a typed layout so both
+      // reflection bounces share one emitted sampler without changing its math.
+      const ReflectionSample = struct(
+        { reflectDir: 'vec3', sampleWeight: 'vec3', pdf: 'float', NdotV: 'float', alpha: 'float', f0: 'vec3' },
+        'SSRReflectionSample',
+      );
+      const sampleReflection = Fn(([n, v, perceptualRoughness, metallic, baseColor, random]) => {
+        const sample = ggxReflectionSample(n, v, perceptualRoughness, metallic, baseColor, random).toVar();
+        return ReflectionSample({
+          reflectDir: sample.get('reflectDir'),
+          sampleWeight: sample.get('sampleWeight'),
+          pdf: sample.get('pdf'),
+          NdotV: sample.get('NdotV'),
+          alpha: sample.get('alpha'),
+          f0: sample.get('f0'),
+        });
+      }).setLayout({
+        name: 'ssrSampleReflection',
+        type: 'SSRReflectionSample',
+        inputs: [
+          { name: 'normal', type: 'vec3' },
+          { name: 'viewDirection', type: 'vec3' },
+          { name: 'roughness', type: 'float' },
+          { name: 'metalness', type: 'float' },
+          { name: 'albedo', type: 'vec3' },
+          { name: 'random', type: 'vec4' },
+        ],
+      });
       const noise = sampleMarchNoise(uvNode, this._frameIndex).toVar();
       const uvPos = uvNode.toVar();
 
@@ -1345,7 +1390,7 @@ class NewSSRNode extends Node {
           .add(V.mul(float(0.02).sub(NdotVRaw).max(0)))
           .normalize()
           .toVar();
-        const ggxSample = ggxReflectionSample(sampleNormal, V, roughness, metalness, albedo, Xi).toVar();
+        const ggxSample = sampleReflection(sampleNormal, V, roughness, metalness, albedo, Xi).toVar();
 
         // A below-horizon sample has G2 = 0 (NdotL clamps to 0), so its weight is already 0: no re-sampling.
 
@@ -1466,7 +1511,7 @@ class NewSSRNode extends Node {
         const Vcam = vPHit.normalize().negate();
         const Vray = viewReflectDir.negate();
         const NdotVcam = dot(Nh, Vcam).clamp(1e-4, 1);
-        const NdotVray = dot(Nh, Vray);
+        const NdotVray = dot(Nh, Vray).toVar();
         const fss = (NdotV) => {
           const dfg = DFGLUT({ roughness: hitRoughness, dotNV: NdotV });
           return hitSpecular.rgb.mul(dfg.x).add(hitSpecular.a.mul(dfg.y));
@@ -1479,7 +1524,7 @@ class NewSSRNode extends Node {
         // hidden surface faces the ray.
         const hidden = NdotVray.lessThanEqual(0).or(hitInside);
         const Nb = hidden.select(Vray, Nh).toVar();
-        const secondary = ggxReflectionSample(Nb, Vray, hitRoughness, float(1), hitSpecular.rgb, Xi2).toVar();
+        const secondary = sampleReflection(Nb, Vray, hitRoughness, float(1), hitSpecular.rgb, Xi2).toVar();
         const dir2 = secondary.get('reflectDir').toVar();
         const L2 = vec3(0).toVar();
         const sampleEnvForDir2 = () => {
@@ -1519,20 +1564,25 @@ class NewSSRNode extends Node {
       // UV and depth (refined when `binaryRefine`). `incidentDir` is the direction the point was viewed along.
       // The parameters deliberately shadow the primary ray's names, which the march body was written against.
       /* oxlint-disable no-shadow */
-      const trace = (
-        viewPosition,
-        viewNormal,
-        viewReflectDir,
-        incidentDir,
-        uvPos,
-        jitter,
-        qualityOverride = null,
-        hiZ = this._hiZ,
-      ) => {
+      const TraceResult = struct(
+        {
+          foundHit: 'bool',
+          hitUvS: 'vec2',
+          hitD: 'float',
+          hitInside: 'bool',
+          endS: 'float',
+          exhausted: 'bool',
+          sExit: 'float',
+        },
+        'SSRTraceResult',
+      );
+      // Construct the layout function during this graph build: it captures this material's
+      // texture/uniform bindings, which must not be cached across unrelated node builders.
+      const traceRay = Fn((inputs) => {
+        const [viewPosition, viewNormal, viewReflectDir, incidentDir, uvPos, jitter, marchQuality, traceMultiplier] =
+          inputs;
         /* oxlint-enable no-shadow */
-        // perf(three-new-ssr-fast): the second bounce can march at a different (lower) step density than
-        // the primary ray via `qualityOverride` (SSRFastOptions.secondBounceQuality); `null` uses `quality`.
-        const marchQuality = qualityOverride === null ? this.quality.clamp() : float(qualityOverride).clamp();
+        const hiZ = this._hiZ;
         // Guard grazing or back-facing normals, which would make the ray infinite or reverse it.
         const maxReflectRayLen = this.maxDistance.div(dot(incidentDir.negate(), viewNormal).max(1e-3)).toVar();
 
@@ -1578,7 +1628,7 @@ class NewSSRNode extends Node {
                 .toConst()
             : marchQuality.mul(MAX_STEPS).max(float(1)),
         )
-          .mul(skipTrace ? int(metalness.greaterThan(0.0)) : int(1))
+          .mul(traceMultiplier)
           .toConst();
 
         const xSpan = xLen.div(totalStep).toVar();
@@ -1669,7 +1719,7 @@ class NewSSRNode extends Node {
             const sy = abs(yLen).greaterThan(1e-5).select(boundary.y.sub(d0.y).div(yLen), float(1e9));
             const sNext = min(sx, sy).add(epsilon).toVar();
             // mip sizes round down: a cell past the last full one isn't in the pyramid, so it is never skipped
-            const levelSize = this._resolution.div(cellSize).floor().max(1);
+            const levelSize = this._resolution.div(cellSize).floor().max(1).toVar();
             const covered = cell.x.lessThan(levelSize.x).and(cell.y.lessThan(levelSize.y));
             const coord = ivec2(cell.clamp(vec2(0), levelSize.sub(1)));
             const nearest = float(0).toVar();
@@ -1878,7 +1928,44 @@ class NewSSRNode extends Node {
             });
           });
         }
-        return { foundHit, hitUvS, hitD, hitInside, endS, exhausted, sExit };
+        return TraceResult({ foundHit, hitUvS, hitD, hitInside, endS, exhausted, sExit: sExit ?? float(1) });
+      }).setLayout({
+        name: 'ssrTrace',
+        type: 'SSRTraceResult',
+        inputs: [
+          { name: 'viewPosition', type: 'vec3' },
+          { name: 'viewNormal', type: 'vec3' },
+          { name: 'viewReflectDir', type: 'vec3' },
+          { name: 'incidentDir', type: 'vec3' },
+          { name: 'uvPos', type: 'vec2' },
+          { name: 'jitter', type: 'float' },
+          { name: 'marchQuality', type: 'float' },
+          { name: 'traceMultiplier', type: 'int' },
+        ],
+      });
+      const trace = (position, normal, direction, incident, coord, jitter, qualityOverride = null) => {
+        // Keep per-ray quality and the primary surface's metalness gate explicit function inputs.
+        const marchQuality = qualityOverride === null ? this.quality.clamp() : float(qualityOverride).clamp();
+        const traceMultiplier = skipTrace ? int(metalness.greaterThan(0.0)) : int(1);
+        const result = traceRay(
+          position,
+          normal,
+          direction,
+          incident,
+          coord,
+          jitter,
+          marchQuality,
+          traceMultiplier,
+        ).toVar();
+        return {
+          foundHit: result.get('foundHit'),
+          hitUvS: result.get('hitUvS'),
+          hitD: result.get('hitD'),
+          hitInside: result.get('hitInside'),
+          endS: result.get('endS'),
+          exhausted: result.get('exhausted'),
+          sExit: result.get('sExit'),
+        };
       };
 
       const output = vec4(0).toVar();
@@ -2075,10 +2162,12 @@ class NewSSRNode extends Node {
       // (a 3x3 footprint, clamped), so every source texel is covered
       const downsample = (source, sourceLevel) =>
         Fn(() => {
-          const sourceSize = ivec2(textureSize(textureLoad(source), int(sourceLevel)));
+          const sourceSize = ivec2(textureSize(textureLoad(source), int(sourceLevel))).toVar();
           const size = sourceSize.div(2).max(1);
-          const base = ivec2(uvNode.mul(vec2(size)).floor()).mul(2);
-          const last = sourceSize.sub(1);
+          const base = ivec2(uvNode.mul(vec2(size)).floor())
+            .mul(2)
+            .toVar();
+          const last = sourceSize.sub(1).toVar();
           const tap = (x, y) => textureLoad(source, base.add(ivec2(x, y)).min(last), int(sourceLevel)).r;
           const nearest = min(min(tap(0, 0), tap(1, 0)), min(tap(0, 1), tap(1, 1))).toVar();
           if (this._tightHiZ) {
@@ -2138,6 +2227,8 @@ class NewSSRNode extends Node {
     const normalAt = (coord) => this.normalNode.sample(coord).rgb.normalize();
     const roughnessAt = (coord) => this.hitMaterialNode.sample(coord).g;
 
+    // Source: Tomasz Stachowiak, Stochastic Screen-Space Reflections, SIGGRAPH 2015.
+    // https://h3.gd/stochastic-ssr/ (ratio-estimator reconstruction; our geometry weights are an adaptation).
     // Spatial: Σ L·w / Σ w over this pixel's and up to 8 neighbours' rays (Stachowiak 2015), each neighbour weighted by
     // plane distance, normal and roughness similarity. The radius follows the lobe width (GGX alpha); mirrors keep
     // their own ray. Also resolves the w-weighted hit distance for the virtual-point reprojection.
@@ -2156,23 +2247,25 @@ class NewSSRNode extends Node {
       If(radius.greaterThan(0.5), () => {
         const pixel = uvNode.mul(resolution).floor();
         const seed = pixel.x.add(pixel.y.mul(resolution.x));
-        const rotation = fract(hash(seed.mul(3).add(1)).add(float(this._frameIndex).mul(0.618034))).mul(Math.PI * 2);
+        const rotation = fract(hash(seed.mul(3).add(1)).add(float(this._frameIndex).mul(0.618034)))
+          .mul(Math.PI * 2)
+          .toVar();
         const TAPS = 8;
-        for (let i = 0; i < TAPS; i++) {
-          const angle = rotation.add(i * 2.399963);
-          const uvTap = snap(
-            uvNode.add(
-              vec2(cos(angle), sin(angle))
-                .mul(radius.mul(Math.sqrt((i + 0.5) / TAPS)))
-                .mul(texel),
-            ),
-          );
+        // Preserve the original JavaScript-computed float constants while indexing one loop body.
+        const tapParameters = array(
+          Array.from({ length: TAPS }, (_, i) => vec2(i * 2.399963, Math.sqrt((i + 0.5) / TAPS))),
+        );
+        // Keep one sampling body in the generated shader instead of expanding eight copies.
+        Loop(TAPS, ({ i }) => {
+          const parameters = tapParameters.element(i).toVar();
+          const angle = rotation.add(parameters.x).toVar();
+          const uvTap = snap(uvNode.add(vec2(cos(angle), sin(angle)).mul(radius.mul(parameters.y)).mul(texel))).toVar();
           const inside = uvTap.x
             .greaterThan(0)
             .and(uvTap.x.lessThan(1))
             .and(uvTap.y.greaterThan(0))
             .and(uvTap.y.lessThan(1));
-          const tapDepth = sampleDepth(uvTap);
+          const tapDepth = sampleDepth(uvTap).toVar();
           const planeDistance = abs(dot(N, viewPositionAt(uvTap, tapDepth).sub(P))).div(abs(P.z).mul(0.01).add(1e-4));
           const weight = float(1)
             .sub(planeDistance)
@@ -2190,7 +2283,7 @@ class NewSSRNode extends Node {
           numerator.addAssign(tap.rgb.mul(weight));
           denominator.addAssign(tap.a.mul(weight));
           distanceSum.addAssign(tap.a.mul(weight).mul(distanceTexture.sample(uvTap).r));
-        }
+        });
       });
       const inverse = float(1).div(denominator.max(1e-8));
       return vec4(numerator.mul(inverse), distanceSum.mul(inverse));
@@ -2198,6 +2291,10 @@ class NewSSRNode extends Node {
     this._spatialMaterial.fragmentNode = spatial();
     this._spatialMaterial.needsUpdate = true;
 
+    // Sources: AMD FidelityFX Reflection Denoiser, reprojection and temporal passes:
+    // https://gpuopen.com/manuals/fidelityfx_sdk/techniques/denoiser/#amd-fidelityfx-reflection-denoiser
+    // NVIDIA NRD/REBLUR (specular history and confidence): https://github.com/NVIDIA-RTX/NRD
+    // These are small adaptations, not a port. No NRD same-seed lighting-gradient confidence is computed here.
     // Temporal: reproject the history along the surface motion and to the reflection's virtual point (the hit seen
     // through the mirror, which is what moves on screen for sharp reflections), keep whichever valid one is closer to
     // this frame's neighbourhood, variance-clip it and blend with 1/n, n capped by a roughness-dependent history length.
@@ -2215,23 +2312,47 @@ class NewSSRNode extends Node {
 
       const m1 = vec3(0).toVar();
       const m2 = vec3(0).toVar();
-      for (let y = -1; y <= 1; y++) {
-        for (let x = -1; x <= 1; x++) {
-          const c = toYCoCg(spatialTexture.sample(uvNode.add(vec2(x, y).mul(texel))).rgb).toVar();
-          m1.addAssign(c);
-          m2.addAssign(c.mul(c));
-        }
-      }
-      const mean = m1.div(9).toVar();
-      // dilated: the largest hit-object motion around this pixel
       const motion = float(0).toVar();
-      for (let y = -1; y <= 1; y++) {
-        for (let x = -1; x <= 1; x++) {
-          motion.assign(max(motion, distanceTexture.sample(uvNode.add(vec2(x, y).mul(texel))).g));
-        }
-      }
+      // AMD's temporal reflection pass uses 9x9 Gaussian statistics. Our gaussian ablation uses
+      // that footprint (sigma=2 pixels, our choice) in YCoCg; the baseline retains uniform 3x3.
+      // This tests clipping independently of GGX rays, spatial radius and history caps.
+      const gaussian = this.temporalProfile === 'gaussian';
+      const radius = gaussian ? 4 : 1;
+      let normalization = 0;
+      for (let y = -radius; y <= radius; y++)
+        for (let x = -radius; x <= radius; x++) normalization += gaussian ? Math.exp(-(x * x + y * y) / 8) : 1;
+      Loop(
+        { name: 'y', start: -radius, end: radius, condition: '<=' },
+        { name: 'x', start: -radius, end: radius, condition: '<=' },
+        ({ x, y }) => {
+          const uvTap = uvNode.add(vec2(x, y).mul(texel)).toVar();
+          const c = toYCoCg(spatialTexture.sample(uvTap).rgb).toVar();
+          if (gaussian) {
+            const weight = float(x)
+              .mul(float(x))
+              .add(float(y).mul(float(y)))
+              .div(-8)
+              .exp()
+              .toVar();
+            m1.addAssign(c.mul(weight));
+            m2.addAssign(c.mul(c).mul(weight));
+          } else {
+            m1.addAssign(c);
+            m2.addAssign(c.mul(c));
+          }
+          // Keep the dynamic-object dilation at 3x3 in every profile.
+          if (!gaussian) motion.assign(max(motion, distanceTexture.sample(uvTap).g));
+        },
+      );
+      if (gaussian)
+        Loop(
+          { name: 'y', start: -1, end: 1, condition: '<=' },
+          { name: 'x', start: -1, end: 1, condition: '<=' },
+          ({ x, y }) => motion.assign(max(motion, distanceTexture.sample(uvNode.add(vec2(x, y).mul(texel))).g)),
+        );
+      const mean = m1.div(normalization).toVar();
       const dynamic = motion.smoothstep(0.1, 1).toVar();
-      const sigma = sqrt(m2.div(9).sub(mean.mul(mean)).max(0)).toVar();
+      const sigma = sqrt(m2.div(normalization).sub(mean.mul(mean)).max(0)).toVar();
 
       const project = projectToUV;
       const cameraPosition = this._cameraWorldPosition;
@@ -2244,9 +2365,9 @@ class NewSSRNode extends Node {
         .and(abs(geometrySurface.w.sub(previousDistance)).lessThan(previousDistance.mul(0.05)));
 
       const viewDirection = worldPosition.sub(cameraPosition).normalize();
-      const virtualPoint = cameraPosition.add(
-        viewDirection.mul(distance(cameraPosition, worldPosition).add(current.a)),
-      );
+      const virtualPoint = cameraPosition
+        .add(viewDirection.mul(distance(cameraPosition, worldPosition).add(current.a)))
+        .toVar();
       // like the velocity buffer: the virtual point's motion between the two unjittered cameras, applied to this pixel,
       // so TRAA's sub-pixel jitter doesn't resample (blur) the history every frame
       const uvVirtual = uvNode
@@ -2256,12 +2377,57 @@ class NewSSRNode extends Node {
       const geometryVirtual = geometryTexture.sample(uvVirtual).toVar();
       const validVirtual = insideScreen(uvVirtual).and(dot(geometryVirtual.xyz, worldNormal).greaterThan(0.9));
 
-      const historySurface = historyTexture.sample(uvSurface).toVar();
-      const historyVirtual = historyTexture.sample(uvVirtual).toVar();
+      // AMD reconstructs edge history from a 2x2 interpolation neighborhood. Validate each tap
+      // before interpolation so an unrelated surface or cleared background cannot contaminate RGB.
+      // Coverage confidence below is our adaptation: it discounts history length for partial support.
+      const gatherHistory = (coord, surface) => {
+        if (this.temporalProfile === 'baseline') return historyTexture.sample(coord);
+        const pixel = coord.mul(resolution).sub(0.5).toVar();
+        const base = pixel.floor().toVar();
+        const f = pixel.sub(base).toVar();
+        const sum = vec4(0).toVar();
+        const support = float(0).toVar();
+        for (const [x, y] of [
+          [0, 0],
+          [1, 0],
+          [0, 1],
+          [1, 1],
+        ]) {
+          const tapUV = base.add(vec2(x, y)).add(0.5).mul(texel).toVar();
+          const geometry = geometryTexture.sample(tapUV).toVar();
+          const h = historyTexture.sample(tapUV).toVar();
+          let compatible = insideScreen(tapUV)
+            .and(geometry.w.greaterThan(0))
+            .and(dot(geometry.xyz, worldNormal).greaterThan(0.9))
+            .and(h.a.greaterThanEqual(1));
+          // Virtual reprojection follows reflected features, not the original surface point;
+          // testing its distance against previousDistance would incorrectly reject mirror parallax.
+          if (surface)
+            compatible = compatible.and(abs(geometry.w.sub(previousDistance)).lessThan(previousDistance.mul(0.05)));
+          const weight = (x ? f.x : f.x.oneMinus())
+            .mul(y ? f.y : f.y.oneMinus())
+            .mul(compatible.select(float(1), float(0)))
+            .toVar();
+          sum.addAssign(h.mul(weight));
+          support.addAssign(weight);
+        }
+        // RGB is normalized by valid coverage. Alpha retains coverage-weighted history length.
+        return vec4(sum.rgb.div(support.max(1e-8)), sum.a);
+      };
+      const historySurface = gatherHistory(uvSurface, true).toVar();
+      const historyVirtual = gatherHistory(uvVirtual, false).toVar();
+      const surfaceValid =
+        this.temporalProfile === 'baseline'
+          ? validSurface
+          : insideScreen(uvSurface).and(historySurface.a.greaterThan(0));
+      const virtualValid =
+        this.temporalProfile === 'baseline'
+          ? validVirtual
+          : insideScreen(uvVirtual).and(historyVirtual.a.greaterThan(0));
       const score = (h) => abs(toYCoCg(h.rgb).x.sub(mean.x)).div(sigma.x.add(1e-4));
-      const useVirtual = validVirtual.and(validSurface.not().or(score(historyVirtual).lessThan(score(historySurface))));
+      const useVirtual = virtualValid.and(surfaceValid.not().or(score(historyVirtual).lessThan(score(historySurface))));
       const history = useVirtual.select(historyVirtual, historySurface).toVar();
-      const valid = validVirtual.or(validSurface).and(this._historyValid.greaterThan(0));
+      const valid = virtualValid.or(surfaceValid).and(this._historyValid.greaterThan(0));
 
       const maxFrames = mix(
         mix(this.historyMin, this.historyMax, roughness.div(this.historyRoughness).clamp()),
@@ -2269,8 +2435,9 @@ class NewSSRNode extends Node {
         dynamic,
       );
       const frames = valid.select(history.a.add(1), float(1)).min(maxFrames).toVar();
-      const box = sigma.mul(mix(this.clipGamma, this.dynamicClipGamma, dynamic));
-      const clipped = fromYCoCg(toYCoCg(history.rgb).clamp(mean.sub(box), mean.add(box)));
+      const box = sigma.mul(mix(this.clipGamma, this.dynamicClipGamma, dynamic)).toVar();
+      const clippedYCoCg = toYCoCg(history.rgb).clamp(mean.sub(box), mean.add(box)).toVar();
+      const clipped = fromYCoCg(clippedYCoCg);
       return vec4(mix(clipped, current.rgb, float(1).div(frames)), frames);
     });
     this._temporalMaterial.fragmentNode = temporal();
@@ -2302,19 +2469,15 @@ class NewSSRNode extends Node {
       const f = coord.sub(base).toVar();
       const sum = vec3(0).toVar();
       const weightSum = float(0).toVar();
-      for (const [x, y] of [
-        [0, 0],
-        [1, 0],
-        [0, 1],
-        [1, 1],
-      ]) {
+      Loop({ name: 'y', start: 0, end: 2 }, { name: 'x', start: 0, end: 2 }, ({ x, y }) => {
         const uvTap = base
           .add(vec2(x, y))
           .add(0.5)
           .mul(texel)
-          .clamp(texel.mul(0.5), vec2(1).sub(texel.mul(0.5)));
-        const tapDepth = sampleDepth(uvTap);
-        const bilinear = (x ? f.x : f.x.oneMinus()).mul(y ? f.y : f.y.oneMinus());
+          .clamp(texel.mul(0.5), vec2(1).sub(texel.mul(0.5)))
+          .toVar();
+        const tapDepth = sampleDepth(uvTap).toVar();
+        const bilinear = x.equal(1).select(f.x, f.x.oneMinus()).mul(y.equal(1).select(f.y, f.y.oneMinus()));
         const plane = abs(dot(N, viewPositionAt(uvTap, tapDepth).sub(P))).div(abs(P.z).mul(0.01).add(1e-4));
         const weight = bilinear
           .add(1e-3)
@@ -2324,7 +2487,7 @@ class NewSSRNode extends Node {
           .toVar();
         sum.addAssign(temporalTexture.sample(uvTap).rgb.mul(weight));
         weightSum.addAssign(weight);
-      }
+      });
       // no compatible texel (thin feature): nearest
       return vec4(weightSum.greaterThan(1e-4).select(sum.div(weightSum), temporalTexture.sample(uvNode).rgb), 1);
     })();

@@ -1,0 +1,175 @@
+{
+  "metadata": {
+    "moveFrames": 20,
+    "warmup": 16,
+    "seed": 1,
+    "captureFormat": "lossless PNG",
+    "limitations": "Moving captures are visual diagnostics. Frame differences during motion are not noise metrics. Reference PSNR is measured only at the matching final pose. Timing includes GPU completion, not readback; it is not a timestamp profile.",
+    "reviewDate": "2026-10-01",
+    "repositoryBase": "3201856bb06",
+    "settledFrames": [112, 128],
+    "repetitions": 1,
+    "timingNote": "Exploratory shared-device measurements; do not use these values for performance conclusions."
+  },
+  "cases": [
+    {
+      "scene": "ssr-diag-rough-30",
+      "profile": "baseline",
+      "captures": [
+        {
+          "frame": 0,
+          "psnr": 36.5767584343438,
+          "bias": 0.006074573782587893
+        },
+        {
+          "frame": 1,
+          "psnr": 36.58851458661151,
+          "bias": 0.006026798369958867
+        },
+        {
+          "frame": 4,
+          "psnr": 36.683802973930604,
+          "bias": 0.005916436430646951
+        },
+        {
+          "frame": 16,
+          "psnr": 36.911532736484574,
+          "bias": 0.00540434878748432
+        },
+        {
+          "frame": 64,
+          "psnr": 37.04891186539503,
+          "bias": 0.004535822703721169
+        },
+        {
+          "frame": 128,
+          "psnr": 37.108975260659385,
+          "bias": 0.004175438558780255
+        }
+      ],
+      "settledStdDev255": {
+        "mean": 0.01589588001977094,
+        "p95": 0
+      },
+      "run": {
+        "scene": "ssr-diag-rough-30",
+        "profile": "baseline",
+        "moveFrames": 20,
+        "warmup": 16,
+        "degrees": 20,
+        "width": 480,
+        "height": 360,
+        "renderAndCompletionMs": {
+          "median": 552.148165999999,
+          "p95": 835.5136669999993
+        }
+      }
+    },
+    {
+      "scene": "ssr-diag-rough-30",
+      "profile": "validated",
+      "captures": [
+        {
+          "frame": 0,
+          "psnr": 36.559705531960674,
+          "bias": 0.0060589970841097695
+        },
+        {
+          "frame": 1,
+          "psnr": 36.57636306881124,
+          "bias": 0.0060076293137977
+        },
+        {
+          "frame": 4,
+          "psnr": 36.67579002277082,
+          "bias": 0.005895574255085987
+        },
+        {
+          "frame": 16,
+          "psnr": 36.90887814031217,
+          "bias": 0.005381219304205369
+        },
+        {
+          "frame": 64,
+          "psnr": 37.050900783417816,
+          "bias": 0.004513900488188159
+        },
+        {
+          "frame": 128,
+          "psnr": 37.110942863821705,
+          "bias": 0.004154311373226279
+        }
+      ],
+      "settledStdDev255": {
+        "mean": 0.015855295180114228,
+        "p95": 0
+      },
+      "run": {
+        "scene": "ssr-diag-rough-30",
+        "profile": "validated",
+        "moveFrames": 20,
+        "warmup": 16,
+        "degrees": 20,
+        "width": 480,
+        "height": 360,
+        "renderAndCompletionMs": {
+          "median": 609.9539589999986,
+          "p95": 882.5813750000016
+        }
+      }
+    },
+    {
+      "scene": "ssr-diag-rough-30",
+      "profile": "gaussian",
+      "captures": [
+        {
+          "frame": 0,
+          "psnr": 36.48757057191637,
+          "bias": 0.006221418764271064
+        },
+        {
+          "frame": 1,
+          "psnr": 36.50287100061808,
+          "bias": 0.006189175881787993
+        },
+        {
+          "frame": 4,
+          "psnr": 36.61369096784095,
+          "bias": 0.006108583398357707
+        },
+        {
+          "frame": 16,
+          "psnr": 36.90192708390091,
+          "bias": 0.005625028497775984
+        },
+        {
+          "frame": 64,
+          "psnr": 37.09845303184349,
+          "bias": 0.004688041499151519
+        },
+        {
+          "frame": 128,
+          "psnr": 37.177103299978484,
+          "bias": 0.004263112698134905
+        }
+      ],
+      "settledStdDev255": {
+        "mean": 0.015620691246307987,
+        "p95": 0
+      },
+      "run": {
+        "scene": "ssr-diag-rough-30",
+        "profile": "gaussian",
+        "moveFrames": 20,
+        "warmup": 16,
+        "degrees": 20,
+        "width": 480,
+        "height": 360,
+        "renderAndCompletionMs": {
+          "median": 586.9885000000068,
+          "p95": 746.9391249999971
+        }
+      }
+    }
+  ]
+}

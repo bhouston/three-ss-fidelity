@@ -1,0 +1,179 @@
+{
+  "metadata": {
+    "moveFrames": 20,
+    "warmup": 16,
+    "seed": 1,
+    "scale": 0.25,
+    "captureFormat": "lossless PNG",
+    "limitations": "Moving captures are visual diagnostics. Frame differences during motion are not noise metrics. Reference PSNR is measured only at the matching final pose; scale<1 resizes the reference and is a preliminary diagnostic, not a native-resolution accuracy gate. Timing includes GPU completion, not readback; it is not a timestamp profile.",
+    "reviewDate": "2026-10-01",
+    "repositoryBase": "3201856bb06",
+    "settledFrames": [112, 128],
+    "repetitions": 1,
+    "timingNote": "Exploratory shared-device measurements; do not use these values for performance conclusions."
+  },
+  "cases": [
+    {
+      "scene": "ssr-steampunk-camera",
+      "profile": "baseline",
+      "captures": [
+        {
+          "frame": 0,
+          "psnr": 21.397346899614234,
+          "bias": -0.0045433703647875774
+        },
+        {
+          "frame": 1,
+          "psnr": 21.44353473350378,
+          "bias": -0.0051527382603104655
+        },
+        {
+          "frame": 4,
+          "psnr": 21.491965716564145,
+          "bias": -0.00599886334003281
+        },
+        {
+          "frame": 16,
+          "psnr": 21.5155600954354,
+          "bias": -0.007809492091577228
+        },
+        {
+          "frame": 64,
+          "psnr": 22.2895912453238,
+          "bias": 0.0028667912761065665
+        },
+        {
+          "frame": 128,
+          "psnr": 22.601747998679738,
+          "bias": 0.006046440259905272
+        }
+      ],
+      "settledStdDev255": {
+        "mean": 0.2786387332604817,
+        "p95": 1.1910856900774462
+      },
+      "run": {
+        "scene": "ssr-steampunk-camera",
+        "profile": "baseline",
+        "moveFrames": 20,
+        "warmup": 16,
+        "scale": 0.25,
+        "degrees": 20,
+        "width": 160,
+        "height": 120,
+        "renderAndCompletionMs": {
+          "median": 609.3671669999894,
+          "p95": 782.9530000000013
+        }
+      }
+    },
+    {
+      "scene": "ssr-steampunk-camera",
+      "profile": "validated",
+      "captures": [
+        {
+          "frame": 0,
+          "psnr": 21.365851974058018,
+          "bias": -0.005088588337544041
+        },
+        {
+          "frame": 1,
+          "psnr": 21.402496721139492,
+          "bias": -0.00561903717166711
+        },
+        {
+          "frame": 4,
+          "psnr": 21.457244313554007,
+          "bias": -0.006373616140165665
+        },
+        {
+          "frame": 16,
+          "psnr": 21.499610626225078,
+          "bias": -0.00801907857035189
+        },
+        {
+          "frame": 64,
+          "psnr": 22.283987933422086,
+          "bias": 0.002796440569944442
+        },
+        {
+          "frame": 128,
+          "psnr": 22.598555253549844,
+          "bias": 0.00601227958047078
+        }
+      ],
+      "settledStdDev255": {
+        "mean": 0.2787985462950499,
+        "p95": 1.1910856900774462
+      },
+      "run": {
+        "scene": "ssr-steampunk-camera",
+        "profile": "validated",
+        "moveFrames": 20,
+        "warmup": 16,
+        "scale": 0.25,
+        "degrees": 20,
+        "width": 160,
+        "height": 120,
+        "renderAndCompletionMs": {
+          "median": 619.2292089999974,
+          "p95": 762.3693749999948
+        }
+      }
+    },
+    {
+      "scene": "ssr-steampunk-camera",
+      "profile": "gaussian",
+      "captures": [
+        {
+          "frame": 0,
+          "psnr": 21.692138761165406,
+          "bias": 0.008483799100480539
+        },
+        {
+          "frame": 1,
+          "psnr": 21.749631070415248,
+          "bias": 0.008034524158082998
+        },
+        {
+          "frame": 4,
+          "psnr": 21.79986375644789,
+          "bias": 0.006884786175003921
+        },
+        {
+          "frame": 16,
+          "psnr": 21.88765653337246,
+          "bias": 0.0063567049127228464
+        },
+        {
+          "frame": 64,
+          "psnr": 22.53277021000776,
+          "bias": 0.017848560409215626
+        },
+        {
+          "frame": 128,
+          "psnr": 22.87212466677463,
+          "bias": 0.022243788421604117
+        }
+      ],
+      "settledStdDev255": {
+        "mean": 0.2869337609862564,
+        "p95": 1.2779741754353195
+      },
+      "run": {
+        "scene": "ssr-steampunk-camera",
+        "profile": "gaussian",
+        "moveFrames": 20,
+        "warmup": 16,
+        "scale": 0.25,
+        "degrees": 20,
+        "width": 160,
+        "height": 120,
+        "renderAndCompletionMs": {
+          "median": 624.1912909999955,
+          "p95": 768.6201669999937
+        }
+      }
+    }
+  ]
+}

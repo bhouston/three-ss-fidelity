@@ -18,6 +18,7 @@ import type { SceneContext } from './types.js';
 
 /** `submodules/three.js/examples/`, found through the (single, workspace) `three` package. */
 export const threeExamplesDir = fileURLToPath(new URL('../examples/', import.meta.resolve('three')));
+export const suiteAssetsDir = fileURLToPath(new URL('../../../assets/', import.meta.url));
 
 async function readUrl(url: string): Promise<Buffer> {
   if (url.startsWith('blob:')) {
@@ -95,7 +96,7 @@ class NodeDRACOLoader extends DRACOLoader {
   }
 }
 
-export function createNodeSceneContext(examplesDir = threeExamplesDir): SceneContext {
+export function createNodeSceneContext(examplesDir = threeExamplesDir, assetsDir = suiteAssetsDir): SceneContext {
   (globalThis as { self?: unknown }).self ??= globalThis; // GLTFLoader reads self.URL
   (globalThis as { Worker?: unknown }).Worker ??= InlineWorker;
   // FileLoader (KTX2Loader's) reports stream progress
@@ -127,7 +128,9 @@ export function createNodeSceneContext(examplesDir = threeExamplesDir): SceneCon
 
   return {
     async loadGLTF(assetPath) {
-      const file = path.join(examplesDir, assetPath);
+      const file = assetPath.startsWith('suite-assets/')
+        ? path.join(assetsDir, assetPath.slice('suite-assets/'.length))
+        : path.join(examplesDir, assetPath);
       return loader.parseAsync(
         new Uint8Array(await readFile(file)).buffer,
         `${pathToFileURL(path.dirname(file)).href}/`,

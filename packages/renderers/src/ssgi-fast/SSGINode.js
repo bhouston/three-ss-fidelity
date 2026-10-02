@@ -529,7 +529,7 @@ class SSGINode extends Node {
     // the sectors whose centers lie between two horizons. Rounding both ends (instead of flooring the start and taking
     // the ceiling of the width) keeps a sample lying on the shading point's tangent plane, whose horizon interval is zero
     // up to depth/normal precision, from occluding a whole sector
-    const sectorBitfield = (minHorizon, maxHorizon) => {
+    const sectorBitfield = Fn(([minHorizon, maxHorizon]) => {
       const start = round(minHorizon.mul(float(MAX_RAY)));
       const width = uint(max(round(maxHorizon.mul(float(MAX_RAY))).sub(start), 0));
 
@@ -537,7 +537,14 @@ class SSGINode extends Node {
         .greaterThan(uint(0))
         .select(uint(shiftRight(uint(0xffffffff), uint(32).sub(width))), uint(0))
         .shiftLeft(uint(start));
-    };
+    }).setLayout({
+      name: 'ssgiSectorBitfield',
+      type: 'uint',
+      inputs: [
+        { name: 'minHorizon', type: 'float' },
+        { name: 'maxHorizon', type: 'float' },
+      ],
+    });
 
     const sampleDepth = (uv) => {
       const depth = this.depthNode.sample(uv).r;

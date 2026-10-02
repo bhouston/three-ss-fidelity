@@ -52,6 +52,7 @@ import {
   sqrt,
   property,
   outputStruct,
+  struct,
 } from 'three/tsl';
 import {
   FloatType,
@@ -1303,6 +1304,34 @@ class NewSSRNode extends Node {
     });
 
     const ssr = Fn(() => {
+      // The fork's GGX helper is an inline Fn. Wrap it in a typed layout so both
+      // reflection bounces share one emitted sampler without changing its math.
+      const ReflectionSample = struct(
+        { reflectDir: 'vec3', sampleWeight: 'vec3', pdf: 'float', NdotV: 'float', alpha: 'float', f0: 'vec3' },
+        'SSRReflectionSample',
+      );
+      const sampleReflection = Fn(([n, v, perceptualRoughness, metallic, baseColor, random]) => {
+        const sample = ggxReflectionSample(n, v, perceptualRoughness, metallic, baseColor, random).toVar();
+        return ReflectionSample({
+          reflectDir: sample.get('reflectDir'),
+          sampleWeight: sample.get('sampleWeight'),
+          pdf: sample.get('pdf'),
+          NdotV: sample.get('NdotV'),
+          alpha: sample.get('alpha'),
+          f0: sample.get('f0'),
+        });
+      }).setLayout({
+        name: 'ssrSampleReflection',
+        type: 'SSRReflectionSample',
+        inputs: [
+          { name: 'normal', type: 'vec3' },
+          { name: 'viewDirection', type: 'vec3' },
+          { name: 'roughness', type: 'float' },
+          { name: 'metalness', type: 'float' },
+          { name: 'albedo', type: 'vec3' },
+          { name: 'random', type: 'vec4' },
+        ],
+      });
       const noise = sampleMarchNoise(uvNode, this._frameIndex).toVar();
       const uvPos = uvNode.toVar();
 
@@ -1361,7 +1390,7 @@ class NewSSRNode extends Node {
           .add(V.mul(float(0.02).sub(NdotVRaw).max(0)))
           .normalize()
           .toVar();
-        const ggxSample = ggxReflectionSample(sampleNormal, V, roughness, metalness, albedo, Xi).toVar();
+        const ggxSample = sampleReflection(sampleNormal, V, roughness, metalness, albedo, Xi).toVar();
 
         // A below-horizon sample has G2 = 0 (NdotL clamps to 0), so its weight is already 0: no re-sampling.
 
@@ -1495,7 +1524,7 @@ class NewSSRNode extends Node {
         // hidden surface faces the ray.
         const hidden = NdotVray.lessThanEqual(0).or(hitInside);
         const Nb = hidden.select(Vray, Nh).toVar();
-        const secondary = ggxReflectionSample(Nb, Vray, hitRoughness, float(1), hitSpecular.rgb, Xi2).toVar();
+        const secondary = sampleReflection(Nb, Vray, hitRoughness, float(1), hitSpecular.rgb, Xi2).toVar();
         const dir2 = secondary.get('reflectDir').toVar();
         const L2 = vec3(0).toVar();
         const sampleEnvForDir2 = () => {
@@ -1535,20 +1564,25 @@ class NewSSRNode extends Node {
       // UV and depth (refined when `binaryRefine`). `incidentDir` is the direction the point was viewed along.
       // The parameters deliberately shadow the primary ray's names, which the march body was written against.
       /* oxlint-disable no-shadow */
-      const trace = (
-        viewPosition,
-        viewNormal,
-        viewReflectDir,
-        incidentDir,
-        uvPos,
-        jitter,
-        qualityOverride = null,
-        hiZ = this._hiZ,
-      ) => {
+      const TraceResult = struct(
+        {
+          foundHit: 'bool',
+          hitUvS: 'vec2',
+          hitD: 'float',
+          hitInside: 'bool',
+          endS: 'float',
+          exhausted: 'bool',
+          sExit: 'float',
+        },
+        'SSRTraceResult',
+      );
+      // Construct the layout function during this graph build: it captures this material's
+      // texture/uniform bindings, which must not be cached across unrelated node builders.
+      const traceRay = Fn((inputs) => {
+        const [viewPosition, viewNormal, viewReflectDir, incidentDir, uvPos, jitter, marchQuality, traceMultiplier] =
+          inputs;
         /* oxlint-enable no-shadow */
-        // perf(three-new-ssr-fast): the second bounce can march at a different (lower) step density than
-        // the primary ray via `qualityOverride` (SSRFastOptions.secondBounceQuality); `null` uses `quality`.
-        const marchQuality = qualityOverride === null ? this.quality.clamp() : float(qualityOverride).clamp();
+        const hiZ = this._hiZ;
         // Guard grazing or back-facing normals, which would make the ray infinite or reverse it.
         const maxReflectRayLen = this.maxDistance.div(dot(incidentDir.negate(), viewNormal).max(1e-3)).toVar();
 
@@ -1594,7 +1628,7 @@ class NewSSRNode extends Node {
                 .toConst()
             : marchQuality.mul(MAX_STEPS).max(float(1)),
         )
-          .mul(skipTrace ? int(metalness.greaterThan(0.0)) : int(1))
+          .mul(traceMultiplier)
           .toConst();
 
         const xSpan = xLen.div(totalStep).toVar();
@@ -1894,7 +1928,44 @@ class NewSSRNode extends Node {
             });
           });
         }
-        return { foundHit, hitUvS, hitD, hitInside, endS, exhausted, sExit };
+        return TraceResult({ foundHit, hitUvS, hitD, hitInside, endS, exhausted, sExit: sExit ?? float(1) });
+      }).setLayout({
+        name: 'ssrTrace',
+        type: 'SSRTraceResult',
+        inputs: [
+          { name: 'viewPosition', type: 'vec3' },
+          { name: 'viewNormal', type: 'vec3' },
+          { name: 'viewReflectDir', type: 'vec3' },
+          { name: 'incidentDir', type: 'vec3' },
+          { name: 'uvPos', type: 'vec2' },
+          { name: 'jitter', type: 'float' },
+          { name: 'marchQuality', type: 'float' },
+          { name: 'traceMultiplier', type: 'int' },
+        ],
+      });
+      const trace = (position, normal, direction, incident, coord, jitter, qualityOverride = null) => {
+        // Keep per-ray quality and the primary surface's metalness gate explicit function inputs.
+        const marchQuality = qualityOverride === null ? this.quality.clamp() : float(qualityOverride).clamp();
+        const traceMultiplier = skipTrace ? int(metalness.greaterThan(0.0)) : int(1);
+        const result = traceRay(
+          position,
+          normal,
+          direction,
+          incident,
+          coord,
+          jitter,
+          marchQuality,
+          traceMultiplier,
+        ).toVar();
+        return {
+          foundHit: result.get('foundHit'),
+          hitUvS: result.get('hitUvS'),
+          hitD: result.get('hitD'),
+          hitInside: result.get('hitInside'),
+          endS: result.get('endS'),
+          exhausted: result.get('exhausted'),
+          sExit: result.get('sExit'),
+        };
       };
 
       const output = vec4(0).toVar();

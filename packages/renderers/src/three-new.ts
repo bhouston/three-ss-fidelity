@@ -315,8 +315,9 @@ export async function createThreeNewRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
   { width, height, trackTimestamp = false, ssrDebug, hierarchyExperiment, ssrTemporalProfile }: RendererOptions,
-  useProbes = false,
+  probeMode?: 'light-probe' | 'light-probe-ddgi',
 ): Promise<LiveRenderer> {
+  const useProbes = probeMode !== undefined;
   const setup = sceneSetup;
   const { camera, effects } = setup;
   const renderer = new WebGPURenderer({ canvas, antialias: false, trackTimestamp });
@@ -339,7 +340,8 @@ export async function createThreeNewRenderer(
   let releaseProbes: (() => void) | undefined;
   let renderPipeline: RenderPipeline;
   try {
-    if (useProbes && effects.ssgi) releaseProbes = await bakeProbeGrid(renderer, setup.scene);
+    if (useProbes && effects.ssgi)
+      releaseProbes = await bakeProbeGrid(renderer, setup.scene, probeMode === 'light-probe-ddgi');
     renderPipeline = createPipeline(renderer, setup, ssrDebug, hierarchyExperiment, ssrTemporalProfile, useProbes);
   } catch (error) {
     releaseProbes?.();
@@ -352,7 +354,7 @@ export async function createThreeNewRenderer(
   let sceneSignature = 0;
 
   const handle: LiveRenderer = {
-    name: useProbes ? 'three-new-light-probe' : 'three-new',
+    name: probeMode ? `three-new-${probeMode}` : 'three-new',
     renderer,
     get frames() {
       return frames;

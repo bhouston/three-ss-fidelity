@@ -24,6 +24,7 @@ const { values } = parseArgs({
       default: [
         ...hierarchyExperiments.filter((name) => name !== 'baseline' && !Object.hasOwn(ssgiWorkExperiments, name)),
         'sh-probes',
+        'ddgi-probes',
       ].join(','),
     },
     scenes: { type: 'string' },
@@ -99,6 +100,14 @@ definitions['ssr-temporal-validated'] = [
   'ssr-steampunk-camera',
 ];
 definitions['ssr-temporal-gaussian'] = definitions['ssr-temporal-validated'];
+definitions['ddgi-probes'] = [...definitions['sh-probes'], 'gi-probe-thin-wall', 'gi-probe-thick-wall'];
+const rendererFor = (variant) =>
+  variant === 'sh-probes'
+    ? 'three-new-light-probe'
+    : variant === 'ddgi-probes'
+      ? 'three-new-light-probe-ddgi'
+      : 'three-new';
+const experimentFor = (variant) => (variant === 'sh-probes' || variant === 'ddgi-probes' ? 'baseline' : variant);
 const experiments = values.experiments.split(',');
 for (const experiment of experiments) if (!definitions[experiment]) throw new Error(`Unknown experiment ${experiment}`);
 const scenes = values.scenes?.split(',') ?? [...new Set(experiments.flatMap((e) => definitions[e]))];
@@ -162,8 +171,8 @@ for (const scene of scenes) {
         await run(
           'bench-process.js',
           {
-            renderer: variant === 'sh-probes' ? 'three-new-light-probe' : 'three-new',
-            hierarchyExperiment: variant === 'sh-probes' ? 'baseline' : variant,
+            renderer: rendererFor(variant),
+            hierarchyExperiment: experimentFor(variant),
             scene,
             width,
             height,
@@ -206,8 +215,8 @@ for (const scene of scenes) {
       await run(
         'bench-process.js',
         {
-          renderer: variant === 'sh-probes' ? 'three-new-light-probe' : 'three-new',
-          hierarchyExperiment: variant === 'sh-probes' ? 'baseline' : variant,
+          renderer: rendererFor(variant),
+          hierarchyExperiment: experimentFor(variant),
           scene,
           width,
           height,
@@ -248,8 +257,8 @@ for (const scene of scenes) {
       await run(
         'render-process.js',
         {
-          renderer: variant === 'sh-probes' ? 'three-new-light-probe' : 'three-new',
-          hierarchyExperiment: repeat || variant === 'sh-probes' ? 'baseline' : variant,
+          renderer: rendererFor(variant),
+          hierarchyExperiment: repeat ? 'baseline' : experimentFor(variant),
           scenes: [scene],
           frames,
           width: qualityWidth,
@@ -259,10 +268,7 @@ for (const scene of scenes) {
         },
         path.join(dir, `${variant}-quality.log`),
       );
-      const label = hierarchyImageName(
-        variant === 'sh-probes' ? 'three-new-light-probe' : 'three-new',
-        repeat || variant === 'sh-probes' ? 'baseline' : variant,
-      );
+      const label = hierarchyImageName(rendererFor(variant), repeat ? 'baseline' : experimentFor(variant));
       const imagePath = path.join(output, scene, 'beauty', `${label}.avif`);
       const image = await readRgb(imagePath);
       captures[variant] = image;

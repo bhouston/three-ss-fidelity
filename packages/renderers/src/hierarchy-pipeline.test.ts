@@ -218,7 +218,7 @@ it('replaces SSGI and its denoisers with probe lighting while retaining SSR', as
       width: 161,
       height: 121,
     },
-    true,
+    'light-probe',
   );
   expect(bakeProbeGrid).toHaveBeenCalledTimes(1);
   expect(ssgi).not.toHaveBeenCalled();
@@ -236,7 +236,7 @@ it('does not add probes to a direct-only pass', async () => {
       width: 161,
       height: 121,
     },
-    true,
+    'light-probe',
   );
   expect(bakeProbeGrid).not.toHaveBeenCalled();
   live.dispose();

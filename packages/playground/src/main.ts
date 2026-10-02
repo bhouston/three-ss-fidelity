@@ -192,6 +192,13 @@ function instrument(time: number, interval: number, cpu: number) {
   }
   if (time - lastInstrumentUpdate < 250) return;
   lastInstrumentUpdate = time;
+  const bake = current?.live.lightBake;
+  element('bake-status').hidden = !bake;
+  element('bake-status').textContent = bake
+    ? bake.phase === 'converged'
+      ? 'Indirect lighting baked'
+      : `Baking indirect lighting · ${Math.round(bake.progress * 100)}%`
+    : '';
   if (rollingIntervals.length) {
     const timing = statistics(rollingIntervals);
     element('gauge-fps').textContent = (1000 / timing.mean).toFixed(1);

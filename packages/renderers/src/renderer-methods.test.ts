@@ -114,3 +114,10 @@ it('dispatches the DDGI extension without changing the basic probe mode', () => 
   createRenderer('three-new-light-probe-ddgi', {} as HTMLCanvasElement, setup, options);
   expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'light-probe-ddgi');
 });
+
+it('dispatches progressive surface baking independently of probe lighting', () => {
+  const setup = { effects: {} } as SceneSetup;
+  const options = { width: 640, height: 480 };
+  createRenderer('three-new-light-bake', {} as HTMLCanvasElement, setup, options);
+  expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'light-bake');
+});

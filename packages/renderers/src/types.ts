@@ -4,6 +4,7 @@ import type { LivePipeline } from '@ss-fidelity/runtime';
 
 export const rendererNames = [
   'three-new',
+  'three-new-light-bake',
   'three-new-light-probe',
   'three-new-light-probe-ddgi',
   'three-current',
@@ -82,6 +83,8 @@ export interface LiveRenderer extends LivePipeline {
   readonly renderer: WebGPURenderer | WebGLRenderer;
   /** Pipeline frames (screen-space renderers) or accumulated path-traced samples (three-gpu-pathtracer). */
   readonly frames: number;
+  /** Surface baking progresses independently of camera history. */
+  readonly lightBake?: { phase: string; samples: number; maxSamples: number; progress: number };
   /** Renders one frame / one full-frame sample to the canvas. */
   /** Resizes the drawing buffer and the camera aspect. */
   setSize(width: number, height: number): void;

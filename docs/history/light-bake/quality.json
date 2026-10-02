@@ -1,0 +1,600 @@
+{
+  "renderer": "three-new-light-bake",
+  "date": "2026-10-02",
+  "baseline": "three-new",
+  "captureFrames": 192,
+  "samplesPerTexel": 1024,
+  "bakePasses": 64,
+  "thresholdDb": 0.1,
+  "referenceProvenance": "Existing tracked beauty references; candidate captured on this branch with native Dawn WebGPU.",
+  "references": {
+    "blender": {
+      "passed": 39,
+      "compared": 40,
+      "missing": ["gi-probe-thick-wall", "gi-probe-thin-wall"],
+      "rows": [
+        {
+          "scene": "gi-emitter-corner",
+          "baselinePsnrDb": 25.97448732664894,
+          "candidatePsnrDb": 52.05519854833959,
+          "psnrDropDb": -26.08071122169065,
+          "passes": true
+        },
+        {
+          "scene": "gi-emitter-corner-dense",
+          "baselinePsnrDb": 26.724233652616217,
+          "candidatePsnrDb": 52.08595554733088,
+          "psnrDropDb": -25.361721894714666,
+          "passes": true
+        },
+        {
+          "scene": "gi-emitter-corner-thick",
+          "baselinePsnrDb": 26.11338848521789,
+          "candidatePsnrDb": 52.07459866340476,
+          "psnrDropDb": -25.961210178186867,
+          "passes": true
+        },
+        {
+          "scene": "gi-emitter-enclosure-crop",
+          "baselinePsnrDb": 5.3963922655509675,
+          "candidatePsnrDb": null,
+          "psnrDropDb": null,
+          "passes": true
+        },
+        {
+          "scene": "gi-emitter-enclosure-wide",
+          "baselinePsnrDb": 10.885075105386058,
+          "candidatePsnrDb": 62.18498556476776,
+          "psnrDropDb": -51.2999104593817,
+          "passes": true
+        },
+        {
+          "scene": "gi-hierarchy-discontinuity",
+          "baselinePsnrDb": 44.49839547279673,
+          "candidatePsnrDb": 45.2429257694879,
+          "psnrDropDb": -0.7445302966911669,
+          "passes": true
+        },
+        {
+          "scene": "gi-room-high-albedo",
+          "baselinePsnrDb": 9.663207910458599,
+          "candidatePsnrDb": 25.927352415150953,
+          "psnrDropDb": -16.264144504692354,
+          "passes": true
+        },
+        {
+          "scene": "gi-room-low-albedo",
+          "baselinePsnrDb": 32.13736968435072,
+          "candidatePsnrDb": 50.336283445146115,
+          "psnrDropDb": -18.198913760795392,
+          "passes": true
+        },
+        {
+          "scene": "gi-room-open-high-albedo",
+          "baselinePsnrDb": 24.652477323484806,
+          "candidatePsnrDb": 42.29276983779806,
+          "psnrDropDb": -17.640292514313256,
+          "passes": true
+        },
+        {
+          "scene": "gi-room-open-low-albedo",
+          "baselinePsnrDb": 44.65505299469048,
+          "candidatePsnrDb": 57.90242611418173,
+          "psnrDropDb": -13.24737311949125,
+          "passes": true
+        },
+        {
+          "scene": "gltf-coffeemat",
+          "baselinePsnrDb": 26.20125553750188,
+          "candidatePsnrDb": 27.675846073463497,
+          "psnrDropDb": -1.4745905359616174,
+          "passes": true
+        },
+        {
+          "scene": "gltf-damaged-helmet",
+          "baselinePsnrDb": 7.611033266061435,
+          "candidatePsnrDb": 7.56959684399787,
+          "psnrDropDb": 0.04143642206356546,
+          "passes": true
+        },
+        {
+          "scene": "gltf-littlest-tokyo",
+          "baselinePsnrDb": 6.26960399550172,
+          "candidatePsnrDb": 6.2277981862516905,
+          "psnrDropDb": 0.041805809250029746,
+          "passes": true
+        },
+        {
+          "scene": "higharc_dogwood",
+          "baselinePsnrDb": 15.416592928264308,
+          "candidatePsnrDb": 14.441682886083491,
+          "psnrDropDb": 0.9749100421808166,
+          "passes": false
+        },
+        {
+          "scene": "ssgi-animated",
+          "baselinePsnrDb": 24.845258211550355,
+          "candidatePsnrDb": 29.62112034196148,
+          "psnrDropDb": -4.775862130411124,
+          "passes": true
+        },
+        {
+          "scene": "ssgi-animated-visible-walls",
+          "baselinePsnrDb": 25.187543786593196,
+          "candidatePsnrDb": 29.750837250761116,
+          "psnrDropDb": -4.56329346416792,
+          "passes": true
+        },
+        {
+          "scene": "ssgi-basic",
+          "baselinePsnrDb": 22.452404537359474,
+          "candidatePsnrDb": 28.36383485020192,
+          "psnrDropDb": -5.911430312842445,
+          "passes": true
+        },
+        {
+          "scene": "ssgi-basic-oblique",
+          "baselinePsnrDb": 16.14504805631756,
+          "candidatePsnrDb": 29.263155717657657,
+          "psnrDropDb": -13.118107661340098,
+          "passes": true
+        },
+        {
+          "scene": "ssgi-metallic",
+          "baselinePsnrDb": 23.32097222520565,
+          "candidatePsnrDb": 27.117244353582215,
+          "psnrDropDb": -3.7962721283765646,
+          "passes": true
+        },
+        {
+          "scene": "ssgi-rounded",
+          "baselinePsnrDb": 24.258765711228534,
+          "candidatePsnrDb": 29.2850511608983,
+          "psnrDropDb": -5.026285449669764,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-dielectric-0",
+          "baselinePsnrDb": 37.505677965393865,
+          "candidatePsnrDb": 37.52647624781423,
+          "psnrDropDb": -0.02079828242036541,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-dielectric-30",
+          "baselinePsnrDb": 37.758617384916995,
+          "candidatePsnrDb": 37.72719038825518,
+          "psnrDropDb": 0.031426996661814144,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-grazing",
+          "baselinePsnrDb": 39.58933581138966,
+          "candidatePsnrDb": 39.67467404185476,
+          "psnrDropDb": -0.08533823046509781,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-metal-hit",
+          "baselinePsnrDb": 32.46373073467939,
+          "candidatePsnrDb": 32.76319539402903,
+          "psnrDropDb": -0.2994646593496455,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-mirror",
+          "baselinePsnrDb": 40.04942356013133,
+          "candidatePsnrDb": 40.04998654044556,
+          "psnrDropDb": -0.0005629803142284118,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-occlusion",
+          "baselinePsnrDb": 45.8947536964018,
+          "candidatePsnrDb": 45.98976823705432,
+          "psnrDropDb": -0.0950145406525209,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-odd-size",
+          "baselinePsnrDb": 46.70152520226357,
+          "candidatePsnrDb": 46.82668818040146,
+          "psnrDropDb": -0.1251629781378938,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-offscreen",
+          "baselinePsnrDb": 31.401699417571113,
+          "candidatePsnrDb": 31.402878966320404,
+          "psnrDropDb": -0.0011795487492918255,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-rough-10",
+          "baselinePsnrDb": 40.546077114819425,
+          "candidatePsnrDb": 40.50843617958766,
+          "psnrDropDb": 0.037640935231763706,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-rough-30",
+          "baselinePsnrDb": 42.740703677767684,
+          "candidatePsnrDb": 42.847993852351614,
+          "psnrDropDb": -0.10729017458393031,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-rough-60",
+          "baselinePsnrDb": 38.92477601486027,
+          "candidatePsnrDb": 39.14626795564466,
+          "psnrDropDb": -0.22149194078438939,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-sphere",
+          "baselinePsnrDb": 24.769710637619326,
+          "candidatePsnrDb": 24.767811628975018,
+          "psnrDropDb": 0.0018990086443082532,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-wall",
+          "baselinePsnrDb": 23.393743332512145,
+          "candidatePsnrDb": 23.391612994370732,
+          "psnrDropDb": 0.0021303381414128353,
+          "passes": true
+        },
+        {
+          "scene": "ssr-steampunk-camera",
+          "baselinePsnrDb": 23.13522506620224,
+          "candidatePsnrDb": 23.254328492995523,
+          "psnrDropDb": -0.11910342679328423,
+          "passes": true
+        },
+        {
+          "scene": "ssr-steampunk-camera-roughness-0",
+          "baselinePsnrDb": 20.253250957042525,
+          "candidatePsnrDb": 20.274671414051678,
+          "psnrDropDb": -0.021420457009153182,
+          "passes": true
+        },
+        {
+          "scene": "ssr-steampunk-camera-roughness-100",
+          "baselinePsnrDb": 23.130588105049668,
+          "candidatePsnrDb": 23.250214164889,
+          "psnrDropDb": -0.11962605983933372,
+          "passes": true
+        },
+        {
+          "scene": "ssr-steampunk-camera-roughness-25",
+          "baselinePsnrDb": 20.824167434427025,
+          "candidatePsnrDb": 20.862843943097914,
+          "psnrDropDb": -0.03867650867088912,
+          "passes": true
+        },
+        {
+          "scene": "ssr-steampunk-camera-roughness-50",
+          "baselinePsnrDb": 21.978111586707616,
+          "candidatePsnrDb": 22.026484347620755,
+          "psnrDropDb": -0.048372760913139246,
+          "passes": true
+        },
+        {
+          "scene": "traa-checker",
+          "baselinePsnrDb": 18.36226452868956,
+          "candidatePsnrDb": 18.362012359772486,
+          "psnrDropDb": 0.0002521689170755792,
+          "passes": true
+        },
+        {
+          "scene": "traa-disocclusion",
+          "baselinePsnrDb": 18.064491595521762,
+          "candidatePsnrDb": 18.055671735894038,
+          "psnrDropDb": 0.008819859627724469,
+          "passes": true
+        }
+      ]
+    },
+    "three-gpu-pathtracer": {
+      "passed": 38,
+      "compared": 42,
+      "missing": [],
+      "rows": [
+        {
+          "scene": "gi-emitter-corner",
+          "baselinePsnrDb": 25.416033326618688,
+          "candidatePsnrDb": 41.731225994987255,
+          "psnrDropDb": -16.315192668368567,
+          "passes": true
+        },
+        {
+          "scene": "gi-emitter-corner-dense",
+          "baselinePsnrDb": 26.10781653225507,
+          "candidatePsnrDb": 41.731225994987255,
+          "psnrDropDb": -15.623409462732184,
+          "passes": true
+        },
+        {
+          "scene": "gi-emitter-corner-thick",
+          "baselinePsnrDb": 25.54348611878335,
+          "candidatePsnrDb": 41.731225994987255,
+          "psnrDropDb": -16.187739876203906,
+          "passes": true
+        },
+        {
+          "scene": "gi-emitter-enclosure-crop",
+          "baselinePsnrDb": 5.33329265131409,
+          "candidatePsnrDb": 48.13570726861271,
+          "psnrDropDb": -42.80241461729862,
+          "passes": true
+        },
+        {
+          "scene": "gi-emitter-enclosure-wide",
+          "baselinePsnrDb": 10.805111998740507,
+          "candidatePsnrDb": 49.92593067288514,
+          "psnrDropDb": -39.12081867414463,
+          "passes": true
+        },
+        {
+          "scene": "gi-hierarchy-discontinuity",
+          "baselinePsnrDb": 35.1462378032902,
+          "candidatePsnrDb": 35.28366099950467,
+          "psnrDropDb": -0.13742319621447052,
+          "passes": true
+        },
+        {
+          "scene": "gi-probe-thick-wall",
+          "baselinePsnrDb": null,
+          "candidatePsnrDb": null,
+          "psnrDropDb": 0,
+          "passes": true
+        },
+        {
+          "scene": "gi-probe-thin-wall",
+          "baselinePsnrDb": null,
+          "candidatePsnrDb": null,
+          "psnrDropDb": 0,
+          "passes": true
+        },
+        {
+          "scene": "gi-room-high-albedo",
+          "baselinePsnrDb": 11.480710531824522,
+          "candidatePsnrDb": 36.25722380805933,
+          "psnrDropDb": -24.77651327623481,
+          "passes": true
+        },
+        {
+          "scene": "gi-room-low-albedo",
+          "baselinePsnrDb": 43.658505275114905,
+          "candidatePsnrDb": 34.12685696952979,
+          "psnrDropDb": 9.531648305585115,
+          "passes": false
+        },
+        {
+          "scene": "gi-room-open-high-albedo",
+          "baselinePsnrDb": 31.725908147687676,
+          "candidatePsnrDb": 29.893632871119166,
+          "psnrDropDb": 1.8322752765685095,
+          "passes": false
+        },
+        {
+          "scene": "gi-room-open-low-albedo",
+          "baselinePsnrDb": 37.32358697093379,
+          "candidatePsnrDb": 34.65791011732169,
+          "psnrDropDb": 2.665676853612098,
+          "passes": false
+        },
+        {
+          "scene": "gltf-coffeemat",
+          "baselinePsnrDb": 26.86818425383092,
+          "candidatePsnrDb": 28.43264943213928,
+          "psnrDropDb": -1.5644651783083603,
+          "passes": true
+        },
+        {
+          "scene": "gltf-damaged-helmet",
+          "baselinePsnrDb": 27.390592859074733,
+          "candidatePsnrDb": 28.380219046940084,
+          "psnrDropDb": -0.9896261878653512,
+          "passes": true
+        },
+        {
+          "scene": "gltf-littlest-tokyo",
+          "baselinePsnrDb": 24.082943700910594,
+          "candidatePsnrDb": 23.824232331695473,
+          "psnrDropDb": 0.2587113692151206,
+          "passes": false
+        },
+        {
+          "scene": "higharc_dogwood",
+          "baselinePsnrDb": 21.755402756924468,
+          "candidatePsnrDb": 21.694014112070587,
+          "psnrDropDb": 0.0613886448538814,
+          "passes": true
+        },
+        {
+          "scene": "ssgi-animated",
+          "baselinePsnrDb": 28.142932425684165,
+          "candidatePsnrDb": 30.11405508416301,
+          "psnrDropDb": -1.9711226584788442,
+          "passes": true
+        },
+        {
+          "scene": "ssgi-animated-visible-walls",
+          "baselinePsnrDb": 27.780542478073727,
+          "candidatePsnrDb": 29.724854873976547,
+          "psnrDropDb": -1.94431239590282,
+          "passes": true
+        },
+        {
+          "scene": "ssgi-basic",
+          "baselinePsnrDb": 27.481138484406348,
+          "candidatePsnrDb": 30.677881415280538,
+          "psnrDropDb": -3.1967429308741906,
+          "passes": true
+        },
+        {
+          "scene": "ssgi-basic-oblique",
+          "baselinePsnrDb": 19.24785484982535,
+          "candidatePsnrDb": 31.868443067367316,
+          "psnrDropDb": -12.620588217541965,
+          "passes": true
+        },
+        {
+          "scene": "ssgi-metallic",
+          "baselinePsnrDb": 27.626608888490484,
+          "candidatePsnrDb": 29.822639837272327,
+          "psnrDropDb": -2.196030948781843,
+          "passes": true
+        },
+        {
+          "scene": "ssgi-rounded",
+          "baselinePsnrDb": 29.347669394359702,
+          "candidatePsnrDb": 30.050134000895046,
+          "psnrDropDb": -0.7024646065353437,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-dielectric-0",
+          "baselinePsnrDb": 40.06945549700796,
+          "candidatePsnrDb": 40.09378572488042,
+          "psnrDropDb": -0.024330227872461307,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-dielectric-30",
+          "baselinePsnrDb": 40.3411208666853,
+          "candidatePsnrDb": 40.38067358870294,
+          "psnrDropDb": -0.03955272201763904,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-grazing",
+          "baselinePsnrDb": 34.21029811108766,
+          "candidatePsnrDb": 34.24962706068953,
+          "psnrDropDb": -0.039328949601866725,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-metal-hit",
+          "baselinePsnrDb": 31.945230435876418,
+          "candidatePsnrDb": 32.20772088730626,
+          "psnrDropDb": -0.26249045142984073,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-mirror",
+          "baselinePsnrDb": 36.584615217883126,
+          "candidatePsnrDb": 36.57667232945097,
+          "psnrDropDb": 0.007942888432154405,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-occlusion",
+          "baselinePsnrDb": 36.632211016456885,
+          "candidatePsnrDb": 36.649697518528605,
+          "psnrDropDb": -0.0174865020717192,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-odd-size",
+          "baselinePsnrDb": 37.976115200954816,
+          "candidatePsnrDb": 37.98681896767384,
+          "psnrDropDb": -0.01070376671902551,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-offscreen",
+          "baselinePsnrDb": 29.99268875908431,
+          "candidatePsnrDb": 29.987362407942722,
+          "psnrDropDb": 0.005326351141587082,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-rough-10",
+          "baselinePsnrDb": 36.77039093275087,
+          "candidatePsnrDb": 36.76913434571036,
+          "psnrDropDb": 0.0012565870405083501,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-rough-30",
+          "baselinePsnrDb": 37.123640120104675,
+          "candidatePsnrDb": 37.221543157684074,
+          "psnrDropDb": -0.09790303757939967,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-rough-60",
+          "baselinePsnrDb": 26.034626295175265,
+          "candidatePsnrDb": 26.11445788772647,
+          "psnrDropDb": -0.07983159255120498,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-sphere",
+          "baselinePsnrDb": 24.576038897528733,
+          "candidatePsnrDb": 24.575210207793077,
+          "psnrDropDb": 0.0008286897356555301,
+          "passes": true
+        },
+        {
+          "scene": "ssr-diag-wall",
+          "baselinePsnrDb": 23.081615923780767,
+          "candidatePsnrDb": 23.080766904560548,
+          "psnrDropDb": 0.0008490192202188496,
+          "passes": true
+        },
+        {
+          "scene": "ssr-steampunk-camera",
+          "baselinePsnrDb": 22.962197941466307,
+          "candidatePsnrDb": 22.999839947295012,
+          "psnrDropDb": -0.03764200582870458,
+          "passes": true
+        },
+        {
+          "scene": "ssr-steampunk-camera-roughness-0",
+          "baselinePsnrDb": 20.564338805214007,
+          "candidatePsnrDb": 20.53710917479976,
+          "psnrDropDb": 0.027229630414247197,
+          "passes": true
+        },
+        {
+          "scene": "ssr-steampunk-camera-roughness-100",
+          "baselinePsnrDb": 22.96384024978814,
+          "candidatePsnrDb": 23.001404010212095,
+          "psnrDropDb": -0.037563760423953596,
+          "passes": true
+        },
+        {
+          "scene": "ssr-steampunk-camera-roughness-25",
+          "baselinePsnrDb": 21.050612783233717,
+          "candidatePsnrDb": 21.03888492799127,
+          "psnrDropDb": 0.011727855242448015,
+          "passes": true
+        },
+        {
+          "scene": "ssr-steampunk-camera-roughness-50",
+          "baselinePsnrDb": 21.85005157988634,
+          "candidatePsnrDb": 21.857874836481095,
+          "psnrDropDb": -0.007823256594754469,
+          "passes": true
+        },
+        {
+          "scene": "traa-checker",
+          "baselinePsnrDb": 28.232160244236123,
+          "candidatePsnrDb": 28.316917134556746,
+          "psnrDropDb": -0.08475689032062306,
+          "passes": true
+        },
+        {
+          "scene": "traa-disocclusion",
+          "baselinePsnrDb": 29.25771339505042,
+          "candidatePsnrDb": 29.427188424127003,
+          "psnrDropDb": -0.16947502907658318,
+          "passes": true
+        }
+      ]
+    }
+  }
+}

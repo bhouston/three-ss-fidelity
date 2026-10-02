@@ -10,6 +10,8 @@ Two screen-space renderers are scored against `three-gpu-pathtracer`:
 Both always anti-alias with TRAA. SMAA was removed: it is not temporal, so it cannot integrate the per-frame noise
 of stochastic SSGI/SSR. The fork's `PreviousFrameGeometry` also crashed under SMAA on the first frame.
 
+The experimental [`three-new-light-bake`](LIGHT_BAKE.md) renderer retains SSR and TRAA while replacing SSGI with progressive BVH diffuse lightmaps. Its validation report records the remaining quality regressions.
+
 This page describes `three-new` as it is now. The experiments that produced it, including the ones that were rejected,
 are logged in [history/](history/). Those logs use the names of the renderers they compared (`three-new-ssgi`,
 `three-new-ssr`, `-fast`, `-ssgi-fast`, `-rt`). All of them have been folded into `three-new`.

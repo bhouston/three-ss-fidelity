@@ -10,6 +10,8 @@ export default defineConfig({
       '@ss-fidelity/scenes': source('scenes'),
     },
   },
+  // Keep one TSL stack/runtime: prebundling BVH can embed a second copy of the linked Three.js fork.
+  optimizeDeps: { exclude: ['three', 'three-mesh-bvh', 'three-gpu-pathtracer'] },
   publicDir: fileURLToPath(new URL('../../submodules/three.js/examples/', import.meta.url)),
   server: { host: '127.0.0.1', port: 5173, fs: { allow: [fileURLToPath(new URL('../../', import.meta.url))] } },
   // The playground is a local development tool; don't duplicate the large examples asset library in builds.

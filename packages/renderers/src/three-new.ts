@@ -216,7 +216,13 @@ function createPipeline(
       reflectNonMetals: true,
       stochastic: true,
       temporalFilter: true,
-      temporalProfile: ssrTemporalProfile,
+      temporalProfile:
+        ssrTemporalProfile ??
+        (hierarchyExperiment === 'ssr-temporal-validated'
+          ? 'validated'
+          : hierarchyExperiment === 'ssr-temporal-gaussian'
+            ? 'gaussian'
+            : 'baseline'),
       velocityNode: prePassVelocity,
       debugView: ssrDebug ?? null,
       backDepthNode: backPass.getTextureNode('depth'),

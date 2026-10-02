@@ -109,7 +109,16 @@ The existing [TRAA diagnostics](history/TRAA_TESTS.md) identify bilinear-history
 | `validated`          | Per-tap validation and coverage-weighted history length | Uniform 3x3         |
 | `gaussian`           | Same as `validated`                                     | Gaussian 9x9        |
 
-The live viewer's default remains `baseline`. These profiles are exposed through the renderer API and research runner; they are not added to the viewer's hierarchy experiment selector.
+The default remains `baseline`. The live viewer exposes `ssr-temporal-validated` and `ssr-temporal-gaussian` in its experiment selector; these select the corresponding temporal profiles with the baseline tracing and radiance settings. The fidelity-kit viewer exposes matching renderers alongside `three-new`. Native-resolution SSR beauty captures use 128 frames, matching the suite's settled-capture protocol. They show settled appearance, not continuous-motion stability.
+
+Regenerate the viewer captures with:
+
+```sh
+pnpm cli render --scenes 'ssr-*' --renderers 'three-new-ssr-temporal-*' --frames 128
+pnpm fidelity:dev
+```
+
+For movement diagnostics use the runner below, or select the same experiment in `pnpm live` and orbit the scene.
 
 Build first, then run:
 

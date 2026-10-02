@@ -1,8 +1,27 @@
 import { fileURLToPath } from 'node:url';
+import { createReadStream } from 'node:fs';
 import { defineConfig } from 'vite';
 
 const source = (name: string) => fileURLToPath(new URL(`../${name}/src/index.ts`, import.meta.url));
 export default defineConfig({
+  plugins: [
+    {
+      name: 'suite-assets',
+      configureServer(server) {
+        server.middlewares.use('/suite-assets', (request, response, next) => {
+          const asset = request.url?.split('?')[0];
+          if (!asset || !/^\/complex-scenes\/[a-z0-9-]+\.glb$/.test(asset)) return next();
+          const stream = createReadStream(fileURLToPath(new URL(`../../assets${asset}`, import.meta.url)));
+          stream.on('error', () => {
+            if (!response.headersSent) next();
+            else response.destroy();
+          });
+          response.setHeader('Content-Type', 'model/gltf-binary');
+          stream.pipe(response);
+        });
+      },
+    },
+  ],
   resolve: {
     alias: {
       '@ss-fidelity/runtime': source('runtime'),

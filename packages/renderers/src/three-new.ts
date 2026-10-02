@@ -44,6 +44,7 @@ import { ssgi } from './ssgi-fast/SSGINode.js';
 import { newSSR } from './ssr/NewSSRNode.js';
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import type { LiveRenderer, RendererOptions } from './types.js';
+import { bakeProbeGrid } from './probe-grid.js';
 import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
 
 // The fork's TSL nodes are ahead of @types/three; the graph is built exactly as in the examples, so it is typed loosely.
@@ -74,6 +75,7 @@ function createPipeline(
   ssrDebug: RendererOptions['ssrDebug'],
   hierarchyExperiment: RendererOptions['hierarchyExperiment'],
   ssrTemporalProfile: RendererOptions['ssrTemporalProfile'],
+  useProbes = false,
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const resolutionScale = effects.resolutionScale ?? 1;
@@ -150,7 +152,7 @@ function createPipeline(
 
   let giPass: AnyNode = null;
   let sharedRadiance: AnyNode = null;
-  if (effects.ssgi) {
+  if (effects.ssgi && !useProbes) {
     // SSGINode samples the radiance ~32 times per pixel, each a dependent velocity + previous-frame fetch pair;
     // reprojecting it once into an RG11B10 texture (at SSGI's resolution) replaces that with one fetch per sample
     const giRadianceSource: AnyNode = rtt(previousRadiance.sample(screenUV), null, null, {
@@ -292,6 +294,7 @@ export async function createThreeNewRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
   { width, height, trackTimestamp = false, ssrDebug, hierarchyExperiment, ssrTemporalProfile }: RendererOptions,
+  useProbes = false,
 ): Promise<LiveRenderer> {
   const setup = sceneSetup;
   const { camera, effects } = setup;
@@ -312,13 +315,23 @@ export async function createThreeNewRenderer(
     },
   });
 
-  const renderPipeline = createPipeline(renderer, setup, ssrDebug, hierarchyExperiment, ssrTemporalProfile);
+  let releaseProbes: (() => void) | undefined;
+  let renderPipeline: RenderPipeline;
+  try {
+    if (useProbes && effects.ssgi) releaseProbes = await bakeProbeGrid(renderer, setup.scene);
+    renderPipeline = createPipeline(renderer, setup, ssrDebug, hierarchyExperiment, ssrTemporalProfile, useProbes);
+  } catch (error) {
+    releaseProbes?.();
+    releaseScene();
+    renderer.dispose();
+    throw error;
+  }
   const progressive = (renderPipeline as AnyNode).progressiveTRAA;
   let frames = 0;
   let sceneSignature = 0;
 
   const handle: LiveRenderer = {
-    name: 'three-new',
+    name: useProbes ? 'three-new-light-probe' : 'three-new',
     renderer,
     get frames() {
       return frames;
@@ -344,6 +357,7 @@ export async function createThreeNewRenderer(
       // RenderPipeline.dispose() and Renderer.dispose() don't reach the rtt() render targets (see docs/history/SSGI_FAST.md)
       for (const disposable of (renderPipeline as AnyNode).rttDisposables) disposable.dispose();
       renderPipeline.dispose();
+      releaseProbes?.();
       releaseScene();
       renderer.dispose();
     },

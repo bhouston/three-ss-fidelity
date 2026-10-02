@@ -6,6 +6,7 @@ This viewer compares [three.js](https://threejs.org/) screen-space effects again
 - `blender` — Reference path tracer — [Blender Cycles](https://www.blender.org/), providing an additional reference renderer.
 - `three-current` — Rasterizer — Stock [three.js](https://threejs.org/) with its screen-space effects, used as the baseline.
 - `three-new` — Rasterizer — The [experimental three.js pipeline](https://github.com/bhouston/three-ss-fidelity/blob/main/docs/THREE-NEW.md), with improvements to SSGI, SSR, and temporal filtering.
+- `three-new-light-probe` — Rasterizer with an automatically fitted, static SH diffuse probe grid replacing SSGI. See [probe research](https://github.com/bhouston/three-ss-fidelity/blob/main/docs/LIGHT_PROBE_RESEARCH.md) for bake cost, quality and limitations.
 - `three-new-ssr-temporal-validated` — Experimental SSR reconstruction with per-tap history validation.
 - `three-new-ssr-temporal-gaussian` — The same validation with a wider Gaussian clipping neighborhood.
 - `three-gpu-pathtracer-webgpu` — Path tracer — The experimental [WebGPU path tracer](https://github.com/bhouston/three-gpu-pathtracer), for comparison with the reference renderers.

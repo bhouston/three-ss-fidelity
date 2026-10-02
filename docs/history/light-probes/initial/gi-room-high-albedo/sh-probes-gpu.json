@@ -1,0 +1,1871 @@
+{
+  "entry": {
+    "scene": "gi-room-high-albedo",
+    "renderer": "three-new",
+    "experiment": "sh-probes",
+    "workload": {
+      "width": 1920,
+      "height": 1080,
+      "seed": 1,
+      "motion": "static",
+      "orbitDegrees": 30,
+      "settings": {
+        "ssgi": {
+          "sliceCount": 2,
+          "stepCount": 8,
+          "giIntensity": 4.934802200544679
+        },
+        "temporalDenoise": true,
+        "toneMapping": 0,
+        "toneMappingExposure": 1,
+        "frames": 128
+      },
+      "history": "fresh-session-then-warmup"
+    },
+    "runs": [
+      {
+        "options": {
+          "protocol": "profile",
+          "durationMs": 1000,
+          "warmupFrames": 20,
+          "batchSize": 1,
+          "cycleFrames": 1,
+          "stepSeconds": 0.016666666666666666,
+          "measureFrames": 30
+        },
+        "elapsedMs": 353.2676670000001,
+        "frames": 30,
+        "fps": 84.92144286728622,
+        "metrics": [
+          {
+            "descriptor": {
+              "id": "cpu.submit",
+              "label": "CPU update + submit",
+              "unit": "ms",
+              "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 4.605125000000044
+              },
+              {
+                "frame": 21,
+                "value": 4.082417000001442
+              },
+              {
+                "frame": 22,
+                "value": 2.164167000000816
+              },
+              {
+                "frame": 23,
+                "value": 5.584333000000697
+              },
+              {
+                "frame": 24,
+                "value": 4.650207999999111
+              },
+              {
+                "frame": 25,
+                "value": 4.44629200000054
+              },
+              {
+                "frame": 26,
+                "value": 4.383292000000438
+              },
+              {
+                "frame": 27,
+                "value": 5.091500000000451
+              },
+              {
+                "frame": 28,
+                "value": 4.302917000000889
+              },
+              {
+                "frame": 29,
+                "value": 5.844750000000204
+              },
+              {
+                "frame": 30,
+                "value": 4.623541999999361
+              },
+              {
+                "frame": 31,
+                "value": 4.686417000000802
+              },
+              {
+                "frame": 32,
+                "value": 4.602291999999579
+              },
+              {
+                "frame": 33,
+                "value": 4.487750000000233
+              },
+              {
+                "frame": 34,
+                "value": 3.217500000000655
+              },
+              {
+                "frame": 35,
+                "value": 5.66204099999959
+              },
+              {
+                "frame": 36,
+                "value": 2.353624999999738
+              },
+              {
+                "frame": 37,
+                "value": 4.113000000001193
+              },
+              {
+                "frame": 38,
+                "value": 3.9798329999994166
+              },
+              {
+                "frame": 39,
+                "value": 3.7753330000014103
+              },
+              {
+                "frame": 40,
+                "value": 5.2242910000004485
+              },
+              {
+                "frame": 41,
+                "value": 3.978541000000405
+              },
+              {
+                "frame": 42,
+                "value": 5.346584000000803
+              },
+              {
+                "frame": 43,
+                "value": 4.437542000001486
+              },
+              {
+                "frame": 44,
+                "value": 4.042875000001004
+              },
+              {
+                "frame": 45,
+                "value": 3.7090420000004087
+              },
+              {
+                "frame": 46,
+                "value": 4.487916000000041
+              },
+              {
+                "frame": 47,
+                "value": 3.9019590000007156
+              },
+              {
+                "frame": 48,
+                "value": 4.043042000001151
+              },
+              {
+                "frame": 49,
+                "value": 3.55212500000016
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 4.312675033333774,
+              "stddev": 0.8392463033634351,
+              "median": 4.410417000000962,
+              "p95": 5.66204099999959,
+              "min": 2.164167000000816,
+              "max": 5.844750000000204
+            }
+          },
+          {
+            "descriptor": {
+              "id": "profile.frame",
+              "label": "Synchronized profile ms/frame",
+              "unit": "ms",
+              "description": "Instrumented frame including query resolution and completion; changes CPU/GPU overlap."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 14.50891700000102
+              },
+              {
+                "frame": 21,
+                "value": 13.501541999999972
+              },
+              {
+                "frame": 22,
+                "value": 13.151334000000134
+              },
+              {
+                "frame": 23,
+                "value": 11.629249999999956
+              },
+              {
+                "frame": 24,
+                "value": 13.140166000001045
+              },
+              {
+                "frame": 25,
+                "value": 10.508083000000624
+              },
+              {
+                "frame": 26,
+                "value": 10.753208000000086
+              },
+              {
+                "frame": 27,
+                "value": 12.311750000000757
+              },
+              {
+                "frame": 28,
+                "value": 10.508499999999913
+              },
+              {
+                "frame": 29,
+                "value": 14.902957999998762
+              },
+              {
+                "frame": 30,
+                "value": 10.315875000000233
+              },
+              {
+                "frame": 31,
+                "value": 17.15229200000067
+              },
+              {
+                "frame": 32,
+                "value": 12.144209000000046
+              },
+              {
+                "frame": 33,
+                "value": 13.70770900000025
+              },
+              {
+                "frame": 34,
+                "value": 10.038916999999856
+              },
+              {
+                "frame": 35,
+                "value": 15.612499999999272
+              },
+              {
+                "frame": 36,
+                "value": 9.037500000000364
+              },
+              {
+                "frame": 37,
+                "value": 14.236958999999842
+              },
+              {
+                "frame": 38,
+                "value": 12.194542000001093
+              },
+              {
+                "frame": 39,
+                "value": 9.41558299999997
+              },
+              {
+                "frame": 40,
+                "value": 12.178207999999358
+              },
+              {
+                "frame": 41,
+                "value": 9.610709000000497
+              },
+              {
+                "frame": 42,
+                "value": 13.416790999999648
+              },
+              {
+                "frame": 43,
+                "value": 10.529708000000028
+              },
+              {
+                "frame": 44,
+                "value": 10.697709000000032
+              },
+              {
+                "frame": 45,
+                "value": 7.211374999998952
+              },
+              {
+                "frame": 46,
+                "value": 9.017749999999069
+              },
+              {
+                "frame": 47,
+                "value": 6.163541999998415
+              },
+              {
+                "frame": 48,
+                "value": 8.283457999999882
+              },
+              {
+                "frame": 49,
+                "value": 6.565375000000131
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 11.414880633333329,
+              "stddev": 2.666043199313595,
+              "median": 11.191229000000021,
+              "p95": 15.612499999999272,
+              "min": 6.163541999998415,
+              "max": 17.15229200000067
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass-sum",
+              "label": "GPU pass duration sum",
+              "unit": "ms",
+              "description": "Sum of render/compute query intervals; not a whole-frame GPU span or a serial time budget."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 20.054015999999997
+              },
+              {
+                "frame": 21,
+                "value": 16.515072
+              },
+              {
+                "frame": 22,
+                "value": 9.8304
+              },
+              {
+                "frame": 23,
+                "value": 13.107199999999999
+              },
+              {
+                "frame": 24,
+                "value": 18.743296
+              },
+              {
+                "frame": 25,
+                "value": 12.976128
+              },
+              {
+                "frame": 26,
+                "value": 13.107199999999999
+              },
+              {
+                "frame": 27,
+                "value": 16.646144
+              },
+              {
+                "frame": 28,
+                "value": 13.828095999999999
+              },
+              {
+                "frame": 29,
+                "value": 18.67776
+              },
+              {
+                "frame": 30,
+                "value": 12.386303999999999
+              },
+              {
+                "frame": 31,
+                "value": 12.713984
+              },
+              {
+                "frame": 32,
+                "value": 14.155776
+              },
+              {
+                "frame": 33,
+                "value": 22.282239999999998
+              },
+              {
+                "frame": 34,
+                "value": 13.041663999999997
+              },
+              {
+                "frame": 35,
+                "value": 15.400959999999998
+              },
+              {
+                "frame": 36,
+                "value": 13.238272
+              },
+              {
+                "frame": 37,
+                "value": 20.250624000000002
+              },
+              {
+                "frame": 38,
+                "value": 17.891328
+              },
+              {
+                "frame": 39,
+                "value": 10.81344
+              },
+              {
+                "frame": 40,
+                "value": 13.500416
+              },
+              {
+                "frame": 41,
+                "value": 12.255232
+              },
+              {
+                "frame": 42,
+                "value": 17.104896
+              },
+              {
+                "frame": 43,
+                "value": 14.09024
+              },
+              {
+                "frame": 44,
+                "value": 3.080192
+              },
+              {
+                "frame": 45,
+                "value": 5.8982399999999995
+              },
+              {
+                "frame": 46,
+                "value": 6.88128
+              },
+              {
+                "frame": 47,
+                "value": 3.866624
+              },
+              {
+                "frame": 48,
+                "value": 6.88128
+              },
+              {
+                "frame": 49,
+                "value": 5.505024
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 13.157444266666664,
+              "stddev": 4.940511071943195,
+              "median": 13.172736,
+              "p95": 20.250624000000002,
+              "min": 3.080192,
+              "max": 22.282239999999998
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Render Pipeline",
+              "label": "Render Pipeline",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 7.995392
+              },
+              {
+                "frame": 21,
+                "value": 7.405568
+              },
+              {
+                "frame": 22,
+                "value": 3.407872
+              },
+              {
+                "frame": 23,
+                "value": 4.58752
+              },
+              {
+                "frame": 24,
+                "value": 7.602176
+              },
+              {
+                "frame": 25,
+                "value": 5.177344
+              },
+              {
+                "frame": 26,
+                "value": 4.980736
+              },
+              {
+                "frame": 27,
+                "value": 5.636096
+              },
+              {
+                "frame": 28,
+                "value": 5.046272
+              },
+              {
+                "frame": 29,
+                "value": 5.046272
+              },
+              {
+                "frame": 30,
+                "value": 4.194304
+              },
+              {
+                "frame": 31,
+                "value": 4.784128
+              },
+              {
+                "frame": 32,
+                "value": 5.24288
+              },
+              {
+                "frame": 33,
+                "value": 8.51968
+              },
+              {
+                "frame": 34,
+                "value": 4.9152
+              },
+              {
+                "frame": 35,
+                "value": 4.9152
+              },
+              {
+                "frame": 36,
+                "value": 5.111808
+              },
+              {
+                "frame": 37,
+                "value": 8.650752
+              },
+              {
+                "frame": 38,
+                "value": 7.471104
+              },
+              {
+                "frame": 39,
+                "value": 3.407872
+              },
+              {
+                "frame": 40,
+                "value": 5.046272
+              },
+              {
+                "frame": 41,
+                "value": 4.58752
+              },
+              {
+                "frame": 42,
+                "value": 7.077888
+              },
+              {
+                "frame": 43,
+                "value": 5.24288
+              },
+              {
+                "frame": 44,
+                "value": 0.589824
+              },
+              {
+                "frame": 45,
+                "value": 1.900544
+              },
+              {
+                "frame": 46,
+                "value": 2.424832
+              },
+              {
+                "frame": 47,
+                "value": 1.441792
+              },
+              {
+                "frame": 48,
+                "value": 2.555904
+              },
+              {
+                "frame": 49,
+                "value": 2.097152
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 4.902092799999999,
+              "stddev": 2.0912397765698105,
+              "median": 5.013504,
+              "p95": 8.51968,
+              "min": 0.589824,
+              "max": 8.650752
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Pre-Pass",
+              "label": "Pre-Pass",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.524288
+              },
+              {
+                "frame": 21,
+                "value": 0.589824
+              },
+              {
+                "frame": 22,
+                "value": 0.524288
+              },
+              {
+                "frame": 23,
+                "value": 0.589824
+              },
+              {
+                "frame": 24,
+                "value": 0.524288
+              },
+              {
+                "frame": 25,
+                "value": 0.524288
+              },
+              {
+                "frame": 26,
+                "value": 0.524288
+              },
+              {
+                "frame": 27,
+                "value": 1.703936
+              },
+              {
+                "frame": 28,
+                "value": 0.524288
+              },
+              {
+                "frame": 29,
+                "value": 4.849664
+              },
+              {
+                "frame": 30,
+                "value": 0.524288
+              },
+              {
+                "frame": 31,
+                "value": 0.786432
+              },
+              {
+                "frame": 32,
+                "value": 0.524288
+              },
+              {
+                "frame": 33,
+                "value": 0.589824
+              },
+              {
+                "frame": 34,
+                "value": 0.524288
+              },
+              {
+                "frame": 35,
+                "value": 0.458752
+              },
+              {
+                "frame": 36,
+                "value": 0.524288
+              },
+              {
+                "frame": 37,
+                "value": 0.524288
+              },
+              {
+                "frame": 38,
+                "value": 0.524288
+              },
+              {
+                "frame": 39,
+                "value": 0.524288
+              },
+              {
+                "frame": 40,
+                "value": 0.524288
+              },
+              {
+                "frame": 41,
+                "value": 0.458752
+              },
+              {
+                "frame": 42,
+                "value": 0.524288
+              },
+              {
+                "frame": 43,
+                "value": 0.524288
+              },
+              {
+                "frame": 44,
+                "value": 0.393216
+              },
+              {
+                "frame": 45,
+                "value": 0.196608
+              },
+              {
+                "frame": 46,
+                "value": 0.589824
+              },
+              {
+                "frame": 47,
+                "value": 0.196608
+              },
+              {
+                "frame": 48,
+                "value": 0.65536
+              },
+              {
+                "frame": 49,
+                "value": 0.32768
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.6924970666666667,
+              "stddev": 0.8228183344008163,
+              "median": 0.524288,
+              "p95": 1.703936,
+              "min": 0.196608,
+              "max": 4.849664
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Point Light Shadow [ ID: 24 ] - Face 1",
+              "label": "Point Light Shadow [ ID: 24 ] - Face 1",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.524288
+              },
+              {
+                "frame": 21,
+                "value": 0
+              },
+              {
+                "frame": 22,
+                "value": 0
+              },
+              {
+                "frame": 23,
+                "value": 0
+              },
+              {
+                "frame": 24,
+                "value": 0.065536
+              },
+              {
+                "frame": 25,
+                "value": 0
+              },
+              {
+                "frame": 26,
+                "value": 0
+              },
+              {
+                "frame": 27,
+                "value": 0
+              },
+              {
+                "frame": 28,
+                "value": 0.196608
+              },
+              {
+                "frame": 29,
+                "value": 0
+              },
+              {
+                "frame": 30,
+                "value": 0.32768
+              },
+              {
+                "frame": 31,
+                "value": 0
+              },
+              {
+                "frame": 32,
+                "value": 0.32768
+              },
+              {
+                "frame": 33,
+                "value": 0.065536
+              },
+              {
+                "frame": 34,
+                "value": 0.065536
+              },
+              {
+                "frame": 35,
+                "value": 0.065536
+              },
+              {
+                "frame": 36,
+                "value": 0.065536
+              },
+              {
+                "frame": 37,
+                "value": 0
+              },
+              {
+                "frame": 38,
+                "value": 0.065536
+              },
+              {
+                "frame": 39,
+                "value": 0
+              },
+              {
+                "frame": 40,
+                "value": 0.065536
+              },
+              {
+                "frame": 41,
+                "value": 0
+              },
+              {
+                "frame": 42,
+                "value": 0
+              },
+              {
+                "frame": 43,
+                "value": 0.524288
+              },
+              {
+                "frame": 44,
+                "value": 0
+              },
+              {
+                "frame": 45,
+                "value": 0.065536
+              },
+              {
+                "frame": 46,
+                "value": 0
+              },
+              {
+                "frame": 47,
+                "value": 0
+              },
+              {
+                "frame": 48,
+                "value": 0
+              },
+              {
+                "frame": 49,
+                "value": 0
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.08082773333333333,
+              "stddev": 0.14873315012601998,
+              "median": 0,
+              "p95": 0.524288,
+              "min": 0,
+              "max": 0.524288
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Point Light Shadow [ ID: 24 ] - Face 2",
+              "label": "Point Light Shadow [ ID: 24 ] - Face 2",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.065536
+              },
+              {
+                "frame": 21,
+                "value": 0
+              },
+              {
+                "frame": 22,
+                "value": 0
+              },
+              {
+                "frame": 23,
+                "value": 0.131072
+              },
+              {
+                "frame": 24,
+                "value": 0
+              },
+              {
+                "frame": 25,
+                "value": 0.065536
+              },
+              {
+                "frame": 26,
+                "value": 0.065536
+              },
+              {
+                "frame": 27,
+                "value": 0
+              },
+              {
+                "frame": 28,
+                "value": 0.065536
+              },
+              {
+                "frame": 29,
+                "value": 0.065536
+              },
+              {
+                "frame": 30,
+                "value": 0.065536
+              },
+              {
+                "frame": 31,
+                "value": 0
+              },
+              {
+                "frame": 32,
+                "value": 0.065536
+              },
+              {
+                "frame": 33,
+                "value": 0
+              },
+              {
+                "frame": 34,
+                "value": 0.131072
+              },
+              {
+                "frame": 35,
+                "value": 0
+              },
+              {
+                "frame": 36,
+                "value": 0.131072
+              },
+              {
+                "frame": 37,
+                "value": 0.131072
+              },
+              {
+                "frame": 38,
+                "value": 0
+              },
+              {
+                "frame": 39,
+                "value": 0
+              },
+              {
+                "frame": 40,
+                "value": 0
+              },
+              {
+                "frame": 41,
+                "value": 0.065536
+              },
+              {
+                "frame": 42,
+                "value": 0
+              },
+              {
+                "frame": 43,
+                "value": 0.131072
+              },
+              {
+                "frame": 44,
+                "value": 0
+              },
+              {
+                "frame": 45,
+                "value": 0.65536
+              },
+              {
+                "frame": 46,
+                "value": 0.065536
+              },
+              {
+                "frame": 47,
+                "value": 0
+              },
+              {
+                "frame": 48,
+                "value": 0
+              },
+              {
+                "frame": 49,
+                "value": 0
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.06335146666666668,
+              "stddev": 0.12228408576632428,
+              "median": 0.032768,
+              "p95": 0.131072,
+              "min": 0,
+              "max": 0.65536
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Point Light Shadow [ ID: 24 ] - Face 3",
+              "label": "Point Light Shadow [ ID: 24 ] - Face 3",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.065536
+              },
+              {
+                "frame": 21,
+                "value": 0
+              },
+              {
+                "frame": 22,
+                "value": 0
+              },
+              {
+                "frame": 23,
+                "value": 0
+              },
+              {
+                "frame": 24,
+                "value": 0.065536
+              },
+              {
+                "frame": 25,
+                "value": 0
+              },
+              {
+                "frame": 26,
+                "value": 0.065536
+              },
+              {
+                "frame": 27,
+                "value": 0
+              },
+              {
+                "frame": 28,
+                "value": 0.131072
+              },
+              {
+                "frame": 29,
+                "value": 0.065536
+              },
+              {
+                "frame": 30,
+                "value": 0
+              },
+              {
+                "frame": 31,
+                "value": 0
+              },
+              {
+                "frame": 32,
+                "value": 0
+              },
+              {
+                "frame": 33,
+                "value": 0.065536
+              },
+              {
+                "frame": 34,
+                "value": 0
+              },
+              {
+                "frame": 35,
+                "value": 0.065536
+              },
+              {
+                "frame": 36,
+                "value": 0
+              },
+              {
+                "frame": 37,
+                "value": 0.196608
+              },
+              {
+                "frame": 38,
+                "value": 0.131072
+              },
+              {
+                "frame": 39,
+                "value": 0
+              },
+              {
+                "frame": 40,
+                "value": 0
+              },
+              {
+                "frame": 41,
+                "value": 0.065536
+              },
+              {
+                "frame": 42,
+                "value": 0.065536
+              },
+              {
+                "frame": 43,
+                "value": 0.065536
+              },
+              {
+                "frame": 44,
+                "value": 0
+              },
+              {
+                "frame": 45,
+                "value": 0.131072
+              },
+              {
+                "frame": 46,
+                "value": 0.131072
+              },
+              {
+                "frame": 47,
+                "value": 0
+              },
+              {
+                "frame": 48,
+                "value": 0
+              },
+              {
+                "frame": 49,
+                "value": 0
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.04369066666666667,
+              "stddev": 0.055324328205612214,
+              "median": 0,
+              "p95": 0.131072,
+              "min": 0,
+              "max": 0.196608
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Point Light Shadow [ ID: 24 ] - Face 4",
+              "label": "Point Light Shadow [ ID: 24 ] - Face 4",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.065536
+              },
+              {
+                "frame": 21,
+                "value": 0
+              },
+              {
+                "frame": 22,
+                "value": 0
+              },
+              {
+                "frame": 23,
+                "value": 0
+              },
+              {
+                "frame": 24,
+                "value": 0.065536
+              },
+              {
+                "frame": 25,
+                "value": 0
+              },
+              {
+                "frame": 26,
+                "value": 0
+              },
+              {
+                "frame": 27,
+                "value": 0
+              },
+              {
+                "frame": 28,
+                "value": 0.065536
+              },
+              {
+                "frame": 29,
+                "value": 0.065536
+              },
+              {
+                "frame": 30,
+                "value": 0.065536
+              },
+              {
+                "frame": 31,
+                "value": 0.065536
+              },
+              {
+                "frame": 32,
+                "value": 0.065536
+              },
+              {
+                "frame": 33,
+                "value": 0
+              },
+              {
+                "frame": 34,
+                "value": 0.065536
+              },
+              {
+                "frame": 35,
+                "value": 0.065536
+              },
+              {
+                "frame": 36,
+                "value": 0.065536
+              },
+              {
+                "frame": 37,
+                "value": 0.131072
+              },
+              {
+                "frame": 38,
+                "value": 0.196608
+              },
+              {
+                "frame": 39,
+                "value": 0
+              },
+              {
+                "frame": 40,
+                "value": 0.065536
+              },
+              {
+                "frame": 41,
+                "value": 0.065536
+              },
+              {
+                "frame": 42,
+                "value": 0.131072
+              },
+              {
+                "frame": 43,
+                "value": 0.065536
+              },
+              {
+                "frame": 44,
+                "value": 0
+              },
+              {
+                "frame": 45,
+                "value": 0.131072
+              },
+              {
+                "frame": 46,
+                "value": 0
+              },
+              {
+                "frame": 47,
+                "value": 0
+              },
+              {
+                "frame": 48,
+                "value": 0
+              },
+              {
+                "frame": 49,
+                "value": 0
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.04805973333333334,
+              "stddev": 0.05144020600520056,
+              "median": 0.065536,
+              "p95": 0.131072,
+              "min": 0,
+              "max": 0.196608
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Point Light Shadow [ ID: 24 ] - Face 5",
+              "label": "Point Light Shadow [ ID: 24 ] - Face 5",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.065536
+              },
+              {
+                "frame": 21,
+                "value": 0
+              },
+              {
+                "frame": 22,
+                "value": 0.065536
+              },
+              {
+                "frame": 23,
+                "value": 0
+              },
+              {
+                "frame": 24,
+                "value": 0
+              },
+              {
+                "frame": 25,
+                "value": 0
+              },
+              {
+                "frame": 26,
+                "value": 0.065536
+              },
+              {
+                "frame": 27,
+                "value": 0.065536
+              },
+              {
+                "frame": 28,
+                "value": 0.131072
+              },
+              {
+                "frame": 29,
+                "value": 0.065536
+              },
+              {
+                "frame": 30,
+                "value": 0.065536
+              },
+              {
+                "frame": 31,
+                "value": 0
+              },
+              {
+                "frame": 32,
+                "value": 0.065536
+              },
+              {
+                "frame": 33,
+                "value": 0
+              },
+              {
+                "frame": 34,
+                "value": 0.065536
+              },
+              {
+                "frame": 35,
+                "value": 0
+              },
+              {
+                "frame": 36,
+                "value": 0.131072
+              },
+              {
+                "frame": 37,
+                "value": 0.065536
+              },
+              {
+                "frame": 38,
+                "value": 0.065536
+              },
+              {
+                "frame": 39,
+                "value": 0
+              },
+              {
+                "frame": 40,
+                "value": 0
+              },
+              {
+                "frame": 41,
+                "value": 0.065536
+              },
+              {
+                "frame": 42,
+                "value": 0
+              },
+              {
+                "frame": 43,
+                "value": 0
+              },
+              {
+                "frame": 44,
+                "value": 0.065536
+              },
+              {
+                "frame": 45,
+                "value": 0.065536
+              },
+              {
+                "frame": 46,
+                "value": 0
+              },
+              {
+                "frame": 47,
+                "value": 0
+              },
+              {
+                "frame": 48,
+                "value": 0
+              },
+              {
+                "frame": 49,
+                "value": 0.065536
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.039321600000000005,
+              "stddev": 0.04072770543719974,
+              "median": 0.065536,
+              "p95": 0.131072,
+              "min": 0,
+              "max": 0.131072
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Point Light Shadow [ ID: 24 ] - Face 6",
+              "label": "Point Light Shadow [ ID: 24 ] - Face 6",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.065536
+              },
+              {
+                "frame": 21,
+                "value": 0.131072
+              },
+              {
+                "frame": 22,
+                "value": 0
+              },
+              {
+                "frame": 23,
+                "value": 0
+              },
+              {
+                "frame": 24,
+                "value": 0
+              },
+              {
+                "frame": 25,
+                "value": 0
+              },
+              {
+                "frame": 26,
+                "value": 0
+              },
+              {
+                "frame": 27,
+                "value": 0.720896
+              },
+              {
+                "frame": 28,
+                "value": 0.065536
+              },
+              {
+                "frame": 29,
+                "value": 0.065536
+              },
+              {
+                "frame": 30,
+                "value": 0.065536
+              },
+              {
+                "frame": 31,
+                "value": 0
+              },
+              {
+                "frame": 32,
+                "value": 0
+              },
+              {
+                "frame": 33,
+                "value": 0.065536
+              },
+              {
+                "frame": 34,
+                "value": 0.065536
+              },
+              {
+                "frame": 35,
+                "value": 0.262144
+              },
+              {
+                "frame": 36,
+                "value": 0.065536
+              },
+              {
+                "frame": 37,
+                "value": 0.065536
+              },
+              {
+                "frame": 38,
+                "value": 0
+              },
+              {
+                "frame": 39,
+                "value": 0
+              },
+              {
+                "frame": 40,
+                "value": 0.065536
+              },
+              {
+                "frame": 41,
+                "value": 0.065536
+              },
+              {
+                "frame": 42,
+                "value": 0.065536
+              },
+              {
+                "frame": 43,
+                "value": 0.131072
+              },
+              {
+                "frame": 44,
+                "value": 0
+              },
+              {
+                "frame": 45,
+                "value": 0
+              },
+              {
+                "frame": 46,
+                "value": 0
+              },
+              {
+                "frame": 47,
+                "value": 0
+              },
+              {
+                "frame": 48,
+                "value": 0.065536
+              },
+              {
+                "frame": 49,
+                "value": 0
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.06772053333333333,
+              "stddev": 0.1360435714208765,
+              "median": 0.065536,
+              "p95": 0.262144,
+              "min": 0,
+              "max": 0.720896
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.r:9:8",
+              "label": "r:9:8",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 3.342336
+              },
+              {
+                "frame": 21,
+                "value": 3.473408
+              },
+              {
+                "frame": 22,
+                "value": 2.883584
+              },
+              {
+                "frame": 23,
+                "value": 3.538944
+              },
+              {
+                "frame": 24,
+                "value": 3.473408
+              },
+              {
+                "frame": 25,
+                "value": 2.94912
+              },
+              {
+                "frame": 26,
+                "value": 3.145728
+              },
+              {
+                "frame": 27,
+                "value": 3.801088
+              },
+              {
+                "frame": 28,
+                "value": 3.080192
+              },
+              {
+                "frame": 29,
+                "value": 3.93216
+              },
+              {
+                "frame": 30,
+                "value": 3.014656
+              },
+              {
+                "frame": 31,
+                "value": 3.080192
+              },
+              {
+                "frame": 32,
+                "value": 3.211264
+              },
+              {
+                "frame": 33,
+                "value": 5.636096
+              },
+              {
+                "frame": 34,
+                "value": 2.94912
+              },
+              {
+                "frame": 35,
+                "value": 4.653056
+              },
+              {
+                "frame": 36,
+                "value": 2.818048
+              },
+              {
+                "frame": 37,
+                "value": 3.538944
+              },
+              {
+                "frame": 38,
+                "value": 3.145728
+              },
+              {
+                "frame": 39,
+                "value": 2.818048
+              },
+              {
+                "frame": 40,
+                "value": 3.342336
+              },
+              {
+                "frame": 41,
+                "value": 2.818048
+              },
+              {
+                "frame": 42,
+                "value": 2.94912
+              },
+              {
+                "frame": 43,
+                "value": 3.014656
+              },
+              {
+                "frame": 44,
+                "value": 1.179648
+              },
+              {
+                "frame": 45,
+                "value": 1.048576
+              },
+              {
+                "frame": 46,
+                "value": 1.572864
+              },
+              {
+                "frame": 47,
+                "value": 0.98304
+              },
+              {
+                "frame": 48,
+                "value": 1.507328
+              },
+              {
+                "frame": 49,
+                "value": 1.245184
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 2.9381973333333335,
+              "stddev": 1.0355121846287347,
+              "median": 3.047424,
+              "p95": 4.653056,
+              "min": 0.98304,
+              "max": 5.636096
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.TRAA",
+              "label": "TRAA",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 7.340032
+              },
+              {
+                "frame": 21,
+                "value": 4.9152
+              },
+              {
+                "frame": 22,
+                "value": 2.94912
+              },
+              {
+                "frame": 23,
+                "value": 4.25984
+              },
+              {
+                "frame": 24,
+                "value": 6.946816
+              },
+              {
+                "frame": 25,
+                "value": 4.25984
+              },
+              {
+                "frame": 26,
+                "value": 4.25984
+              },
+              {
+                "frame": 27,
+                "value": 4.718592
+              },
+              {
+                "frame": 28,
+                "value": 4.521984
+              },
+              {
+                "frame": 29,
+                "value": 4.521984
+              },
+              {
+                "frame": 30,
+                "value": 4.063232
+              },
+              {
+                "frame": 31,
+                "value": 3.997696
+              },
+              {
+                "frame": 32,
+                "value": 4.653056
+              },
+              {
+                "frame": 33,
+                "value": 7.340032
+              },
+              {
+                "frame": 34,
+                "value": 4.25984
+              },
+              {
+                "frame": 35,
+                "value": 4.9152
+              },
+              {
+                "frame": 36,
+                "value": 4.325376
+              },
+              {
+                "frame": 37,
+                "value": 6.946816
+              },
+              {
+                "frame": 38,
+                "value": 6.291456
+              },
+              {
+                "frame": 39,
+                "value": 4.063232
+              },
+              {
+                "frame": 40,
+                "value": 4.390912
+              },
+              {
+                "frame": 41,
+                "value": 4.063232
+              },
+              {
+                "frame": 42,
+                "value": 6.291456
+              },
+              {
+                "frame": 43,
+                "value": 4.390912
+              },
+              {
+                "frame": 44,
+                "value": 0.851968
+              },
+              {
+                "frame": 45,
+                "value": 1.703936
+              },
+              {
+                "frame": 46,
+                "value": 2.097152
+              },
+              {
+                "frame": 47,
+                "value": 1.245184
+              },
+              {
+                "frame": 48,
+                "value": 2.097152
+              },
+              {
+                "frame": 49,
+                "value": 1.769472
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 4.281685333333332,
+              "stddev": 1.7394910588307406,
+              "median": 4.2926079999999995,
+              "p95": 7.340032,
+              "min": 0.851968,
+              "max": 7.340032
+            }
+          }
+        ],
+        "profiling": {
+          "status": "supported",
+          "invalidSamples": 0
+        }
+      }
+    ]
+  },
+  "adapter": {
+    "subgroupMatrixConfigs": []
+  }
+}

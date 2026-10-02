@@ -4,6 +4,7 @@ import type { LivePipeline } from '@ss-fidelity/runtime';
 
 export const rendererNames = [
   'three-new',
+  'three-new-light-probe',
   'three-current',
   'three-gpu-pathtracer',
   'three-gpu-pathtracer-webgpu',

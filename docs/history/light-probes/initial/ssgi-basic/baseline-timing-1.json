@@ -1,0 +1,348 @@
+{
+  "entry": {
+    "scene": "ssgi-basic",
+    "renderer": "three-new",
+    "experiment": "baseline",
+    "workload": {
+      "width": 1920,
+      "height": 1080,
+      "seed": 1,
+      "motion": "static",
+      "orbitDegrees": 30,
+      "settings": {
+        "ssgi": {
+          "sliceCount": 8,
+          "stepCount": 32,
+          "radius": 32,
+          "thickness": 4,
+          "giIntensity": 4.934802200544679
+        },
+        "ssr": {
+          "maxDistance": 20
+        },
+        "temporalDenoise": true,
+        "toneMapping": 0,
+        "toneMappingExposure": 1,
+        "frames": 128
+      },
+      "history": "fresh-session-then-warmup"
+    },
+    "runs": [
+      {
+        "options": {
+          "protocol": "throughput",
+          "durationMs": 1000,
+          "warmupFrames": 30,
+          "batchSize": 20,
+          "cycleFrames": 1,
+          "stepSeconds": 0.016666666666666666,
+          "measureFrames": 60
+        },
+        "elapsedMs": 12794.755666000001,
+        "frames": 60,
+        "fps": 4.689421319661486,
+        "metrics": [
+          {
+            "descriptor": {
+              "id": "cpu.submit",
+              "label": "CPU update + submit",
+              "unit": "ms",
+              "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 30,
+                "value": 3.0665829999998095
+              },
+              {
+                "frame": 31,
+                "value": 146.83279200000106
+              },
+              {
+                "frame": 32,
+                "value": 196.92679099999987
+              },
+              {
+                "frame": 33,
+                "value": 181.84733400000005
+              },
+              {
+                "frame": 34,
+                "value": 189.40645799999947
+              },
+              {
+                "frame": 35,
+                "value": 203.8267080000005
+              },
+              {
+                "frame": 36,
+                "value": 209.52687499999956
+              },
+              {
+                "frame": 37,
+                "value": 214.60933400000067
+              },
+              {
+                "frame": 38,
+                "value": 225.14729200000147
+              },
+              {
+                "frame": 39,
+                "value": 233.6382080000003
+              },
+              {
+                "frame": 40,
+                "value": 235.89424999999937
+              },
+              {
+                "frame": 41,
+                "value": 234.3970420000005
+              },
+              {
+                "frame": 42,
+                "value": 238.10762500000055
+              },
+              {
+                "frame": 43,
+                "value": 233.60704200000146
+              },
+              {
+                "frame": 44,
+                "value": 229.86562499999854
+              },
+              {
+                "frame": 45,
+                "value": 226.90108300000065
+              },
+              {
+                "frame": 46,
+                "value": 228.11241599999994
+              },
+              {
+                "frame": 47,
+                "value": 225.73458299999947
+              },
+              {
+                "frame": 48,
+                "value": 225.23666699999922
+              },
+              {
+                "frame": 49,
+                "value": 220.02133299999878
+              },
+              {
+                "frame": 50,
+                "value": 2.5609999999996944
+              },
+              {
+                "frame": 51,
+                "value": 161.1320420000011
+              },
+              {
+                "frame": 52,
+                "value": 212.72500000000036
+              },
+              {
+                "frame": 53,
+                "value": 214.84920899999997
+              },
+              {
+                "frame": 54,
+                "value": 217.2791249999991
+              },
+              {
+                "frame": 55,
+                "value": 209.59779200000048
+              },
+              {
+                "frame": 56,
+                "value": 214.54004200000054
+              },
+              {
+                "frame": 57,
+                "value": 215.24795799999993
+              },
+              {
+                "frame": 58,
+                "value": 215.15350000000035
+              },
+              {
+                "frame": 59,
+                "value": 220.39020899999923
+              },
+              {
+                "frame": 60,
+                "value": 236.84649999999965
+              },
+              {
+                "frame": 61,
+                "value": 237.05041700000038
+              },
+              {
+                "frame": 62,
+                "value": 214.73679099999936
+              },
+              {
+                "frame": 63,
+                "value": 192.229292
+              },
+              {
+                "frame": 64,
+                "value": 196.32029100000182
+              },
+              {
+                "frame": 65,
+                "value": 191.10770799999955
+              },
+              {
+                "frame": 66,
+                "value": 234.5922079999982
+              },
+              {
+                "frame": 67,
+                "value": 217.42125000000306
+              },
+              {
+                "frame": 68,
+                "value": 244.3664170000011
+              },
+              {
+                "frame": 69,
+                "value": 197.42595900000015
+              },
+              {
+                "frame": 70,
+                "value": 2.700250000001688
+              },
+              {
+                "frame": 71,
+                "value": 134.4808750000011
+              },
+              {
+                "frame": 72,
+                "value": 217.30762499999764
+              },
+              {
+                "frame": 73,
+                "value": 240.38983400000143
+              },
+              {
+                "frame": 74,
+                "value": 223.7909159999981
+              },
+              {
+                "frame": 75,
+                "value": 210.1730839999982
+              },
+              {
+                "frame": 76,
+                "value": 202.898250000002
+              },
+              {
+                "frame": 77,
+                "value": 231.3895420000008
+              },
+              {
+                "frame": 78,
+                "value": 220.88679200000115
+              },
+              {
+                "frame": 79,
+                "value": 209.58941700000287
+              },
+              {
+                "frame": 80,
+                "value": 210.49037500000122
+              },
+              {
+                "frame": 81,
+                "value": 209.17145900000105
+              },
+              {
+                "frame": 82,
+                "value": 200.95445800000016
+              },
+              {
+                "frame": 83,
+                "value": 188.2854580000021
+              },
+              {
+                "frame": 84,
+                "value": 244.9252919999999
+              },
+              {
+                "frame": 85,
+                "value": 198.28616700000202
+              },
+              {
+                "frame": 86,
+                "value": 182.00191600000107
+              },
+              {
+                "frame": 87,
+                "value": 194.8506669999988
+              },
+              {
+                "frame": 88,
+                "value": 194.24491599999965
+              },
+              {
+                "frame": 89,
+                "value": 188.53087500000038
+              }
+            ],
+            "statistics": {
+              "n": 60,
+              "mean": 200.8937819833336,
+              "stddev": 50.82314408602916,
+              "median": 214.5746880000006,
+              "p95": 238.10762500000055,
+              "min": 2.5609999999996944,
+              "max": 244.9252919999999
+            }
+          },
+          {
+            "descriptor": {
+              "id": "throughput.frame",
+              "label": "Completed-work ms/frame",
+              "unit": "ms",
+              "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+            },
+            "sampleUnit": "batch",
+            "samples": [
+              {
+                "frame": 30,
+                "value": 218.49065000000002
+              },
+              {
+                "frame": 50,
+                "value": 213.92194165
+              },
+              {
+                "frame": 70,
+                "value": 207.29821459999985
+              }
+            ],
+            "statistics": {
+              "n": 3,
+              "mean": 213.23693541666663,
+              "stddev": 5.627572984917513,
+              "median": 213.92194165,
+              "p95": 218.49065000000002,
+              "min": 207.29821459999985,
+              "max": 218.49065000000002
+            }
+          }
+        ],
+        "profiling": {
+          "status": "disabled",
+          "invalidSamples": 0
+        }
+      }
+    ]
+  },
+  "adapter": {
+    "subgroupMatrixConfigs": []
+  }
+}

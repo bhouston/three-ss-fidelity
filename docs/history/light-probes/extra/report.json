@@ -1,0 +1,288 @@
+{
+  "metadata": {
+    "date": "2026-10-02T11:42:28.901Z",
+    "revision": "3d3677f1582a1d0e0539cba1256c87472bbc7a33",
+    "dirty": true,
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpu": "Apple M3",
+    "node": "v26.3.0",
+    "timing": {
+      "enabled": false,
+      "width": 1920,
+      "height": 1080,
+      "warmup": 60,
+      "measure": 120,
+      "repeats": 3,
+      "method": "median GPU-synchronized batch wall time; separate timestamp run"
+    },
+    "quality": {
+      "enabled": true,
+      "frames": 128,
+      "dimensions": "native scene dimensions",
+      "encoding": "AVIF quality 90, 4:4:4; decoded sRGB RGB8 metrics",
+      "maxPsnrDropDb": 0.1
+    }
+  },
+  "scenes": {
+    "ssgi-rounded": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 29.350883286096273
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "sh-probes": {
+          "reference": {
+            "psnr": 28.928129395727744
+          },
+          "baseline": {
+            "psnr": 27.31563064937675
+          },
+          "psnrDropDb": 0.4227538903685293,
+          "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-light-probe.avif",
+          "passesReferenceGate": false
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 29.350883286096273
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "ssgi-rounded/repeat/ssgi-rounded/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssgi-rounded/beauty/three-gpu-pathtracer.avif",
+        "sha256": "505d0b20d9ff66a3eecd8a787c431be47b9395a2b936d5e00759fcef58035e93"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "ssgi-animated": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 28.145645091578523
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "ssgi-animated/images/ssgi-animated/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "sh-probes": {
+          "reference": {
+            "psnr": 29.686382295091526
+          },
+          "baseline": {
+            "psnr": 26.732160538869994
+          },
+          "psnrDropDb": -1.5407372035130038,
+          "image": "ssgi-animated/images/ssgi-animated/beauty/three-new-light-probe.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 28.144428753447407
+          },
+          "baseline": {
+            "psnr": 50.46846201989116
+          },
+          "psnrDropDb": 0.0012163381311154353,
+          "image": "ssgi-animated/repeat/ssgi-animated/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssgi-animated/beauty/three-gpu-pathtracer.avif",
+        "sha256": "412ce4c9dcd4a8cd29c61694999d02f5a7e13e700ab591ecfa01df1ff32a76c2"
+      },
+      "baselineRepeatPsnrDb": 50.46846201989116
+    },
+    "gi-emitter-corner-thick": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 25.545334353238527
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "gi-emitter-corner-thick/images/gi-emitter-corner-thick/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "sh-probes": {
+          "reference": {
+            "psnr": 37.17338883871512
+          },
+          "baseline": {
+            "psnr": 26.10713735687917
+          },
+          "psnrDropDb": -11.628054485476593,
+          "image": "gi-emitter-corner-thick/images/gi-emitter-corner-thick/beauty/three-new-light-probe.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 25.545334353238527
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "gi-emitter-corner-thick/repeat/gi-emitter-corner-thick/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/gi-emitter-corner-thick/beauty/three-gpu-pathtracer.avif",
+        "sha256": "1f0c4ccd7d4e15434935f2db390d6902954c9894c175999388ce065e9f225ff3"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "gi-room-open-high-albedo": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 31.726338351381415
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "sh-probes": {
+          "reference": {
+            "psnr": 31.422595733520396
+          },
+          "baseline": {
+            "psnr": 26.255465515977786
+          },
+          "psnrDropDb": 0.30374261786101897,
+          "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-light-probe.avif",
+          "passesReferenceGate": false
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 31.726338351381415
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "gi-room-open-high-albedo/repeat/gi-room-open-high-albedo/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/gi-room-open-high-albedo/beauty/three-gpu-pathtracer.avif",
+        "sha256": "7f7dfe4a1d848f8599889bb670d3f80e7ef446cdd8e4168bf77ce0276b5d6ef2"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "gi-room-low-albedo": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 43.658505275114905
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "gi-room-low-albedo/images/gi-room-low-albedo/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "sh-probes": {
+          "reference": {
+            "psnr": 33.85004745444652
+          },
+          "baseline": {
+            "psnr": 32.111810605767516
+          },
+          "psnrDropDb": 9.808457820668387,
+          "image": "gi-room-low-albedo/images/gi-room-low-albedo/beauty/three-new-light-probe.avif",
+          "passesReferenceGate": false
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 43.658505275114905
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "gi-room-low-albedo/repeat/gi-room-low-albedo/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/gi-room-low-albedo/beauty/three-gpu-pathtracer.avif",
+        "sha256": "ba86b16819c4ac1f8611b2b365fb036d42a190ed995658dfe4c7654728100c59"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "gltf-coffeemat": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 26.869430534574388
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "gltf-coffeemat/images/gltf-coffeemat/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "sh-probes": {
+          "reference": {
+            "psnr": 29.05783191578061
+          },
+          "baseline": {
+            "psnr": 30.319813931231785
+          },
+          "psnrDropDb": -2.188401381206223,
+          "image": "gltf-coffeemat/images/gltf-coffeemat/beauty/three-new-light-probe.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 26.8699764522718
+          },
+          "baseline": {
+            "psnr": 49.109740217001004
+          },
+          "psnrDropDb": -0.0005459176974120794,
+          "image": "gltf-coffeemat/repeat/gltf-coffeemat/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/gltf-coffeemat/beauty/three-gpu-pathtracer.avif",
+        "sha256": "7348e0edbe6bc9e0610f55d58dbff30a7ce54658f5a0da80f9f4bed2ce4aada7"
+      },
+      "baselineRepeatPsnrDb": 49.109740217001004
+    }
+  },
+  "ok": false
+}

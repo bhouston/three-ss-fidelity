@@ -78,6 +78,8 @@ export function createRenderer(
     // unmodified three.js r186 from npm, not the fork (see three-current.ts)
     case 'three-current':
       return instrument(createCurrentRenderer(canvas, setup, options));
+    case 'three-new-light-probe':
+      return instrument(createThreeNewRenderer(canvas, setup, options, true));
     case 'three-new':
       return instrument(createThreeNewRenderer(canvas, setup, options));
     default:

@@ -39,7 +39,7 @@ import {
 } from 'three/tsl';
 import { recurrentDenoise } from 'three/addons/tsl/display/RecurrentDenoiseNode.js';
 import { previousFrameGeometry, temporalReproject } from 'three/addons/tsl/display/TemporalReprojectNode.js';
-import { traa } from 'three/addons/tsl/display/TRAANode.js';
+import { traa } from './traa/TRAANode.js';
 import { ssgi } from './ssgi-fast/SSGINode.js';
 import { newSSR } from './ssr/NewSSRNode.js';
 import type { SceneSetup } from '@ss-fidelity/scenes';

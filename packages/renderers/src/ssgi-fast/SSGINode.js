@@ -660,16 +660,18 @@ class SSGINode extends Node {
             clamp(along.div(sqrt(along.mul(along).add(elevation.mul(elevation)))), -1, 1),
           )
             .mul(sign(elevation).max(0))
-            .div(PI);
-          frontBackHorizon = directionIsRight.select(frontBackHorizon, frontBackHorizon.oneMinus());
-          frontBackHorizon = directionIsRight.select(frontBackHorizon.yx, frontBackHorizon.xy); // Front/Back get inverted depending on angle
+            .div(PI)
+            .toConst();
+          // Materialize each stage before selecting: nested selects otherwise duplicate the
+          // acos expression in every branch of the emitted shader.
+          frontBackHorizon = directionIsRight.select(frontBackHorizon, frontBackHorizon.oneMinus()).toConst();
+          frontBackHorizon = directionIsRight.select(frontBackHorizon.yx, frontBackHorizon.xy).toConst(); // Front/Back get inverted depending on angle
 
           const minHorizon = frontBackHorizon.x.toConst();
           const maxHorizon = frontBackHorizon.y.toConst();
 
-          const currentOccludedBitfield = sectorBitfield(minHorizon, maxHorizon)
-            .bitAnd(globalOccludedBitfield.bitNot())
-            .toConst();
+          const sampleBitfield = sectorBitfield(minHorizon, maxHorizon).toConst();
+          const currentOccludedBitfield = sampleBitfield.bitAnd(globalOccludedBitfield.bitNot()).toConst();
 
           globalOccludedBitfield.assign(globalOccludedBitfield.bitOr(currentOccludedBitfield));
 
@@ -688,7 +690,7 @@ class SSGINode extends Node {
           )
             .bitAnd(globalLitBitfield.bitNot())
             .toConst();
-          const litBitfield = sectorBitfield(minHorizon, maxHorizon).bitAnd(globalLitBitfield.bitNot()).toVar();
+          const litBitfield = sampleBitfield.bitAnd(globalLitBitfield.bitNot()).toVar();
 
           const facesAway = bool(false).toVar();
 
@@ -835,36 +837,26 @@ class SSGINode extends Node {
         globalOccludedBitfield.assign(0);
         globalLitBitfield.assign(0);
 
-        color.addAssign(
-          horizonSampling(
-            bool(true),
-            stepRadius,
-            radiusVS,
-            viewPosition,
-            slideDirTexelSize,
-            initialRayStep,
-            uvNode,
-            viewDir,
-            viewNormal,
-            sliceTangent,
-            sliceNormal,
-          ),
-        );
-        color.addAssign(
-          horizonSampling(
-            bool(false),
-            stepRadius,
-            radiusVS,
-            viewPosition,
-            slideDirTexelSize,
-            initialRayStep,
-            uvNode,
-            viewDir,
-            viewNormal,
-            sliceTangent,
-            sliceNormal,
-          ),
-        );
+        // Keep the horizon search as one shader body. Two calls inline the full search twice,
+        // even though the slice and step loops already use shader loops. Visit right then left
+        // so accumulation and the shared visibility bitfields keep their existing order.
+        Loop({ start: uint(0), end: uint(2), type: 'uint', condition: '<' }, ({ i: side }) => {
+          color.addAssign(
+            horizonSampling(
+              side.equal(uint(0)),
+              stepRadius,
+              radiusVS,
+              viewPosition,
+              slideDirTexelSize,
+              initialRayStep,
+              uvNode,
+              viewDir,
+              viewNormal,
+              sliceTangent,
+              sliceNormal,
+            ),
+          );
+        });
 
         ao.addAssign(float(countOneBits(globalOccludedBitfield)).div(float(MAX_RAY)));
       });

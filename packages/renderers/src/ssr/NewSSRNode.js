@@ -5,6 +5,7 @@ import {
   If,
   Loop,
   abs,
+  array,
   bool,
   cross,
   distance,
@@ -103,7 +104,7 @@ const halfFloatTarget = (name) => {
 /** World position -> UV in the frame of a view-projection matrix ((-1, -1) behind the camera). */
 const projectToUV = (world, viewProjection) => {
   const clip = viewProjection.mul(vec4(world, 1)).toVar();
-  const screen = clip.xy.div(clip.w).mul(0.5).add(0.5);
+  const screen = clip.xy.div(clip.w).mul(0.5).add(0.5).toVar();
   return clip.w.greaterThan(0).select(vec2(screen.x, screen.y.oneMinus()), vec2(-1));
 };
 
@@ -695,10 +696,15 @@ class NewSSRNode extends Node {
       // with resolutionScale < 1: the filtered result upsampled to full resolution, depth/normal aware
       this._upsampleTarget = halfFloatTarget('NewSSRNode.Upsample');
       this._upsampleMaterial = new NodeMaterial();
+      this._upsampleMaterial.name = 'NewSSRNode.Upsample';
       this._spatialMaterial = new NodeMaterial();
+      this._spatialMaterial.name = 'NewSSRNode.Spatial';
       this._temporalMaterial = new NodeMaterial();
+      this._temporalMaterial.name = 'NewSSRNode.Temporal';
       this._historyCopyMaterial = new NodeMaterial();
+      this._historyCopyMaterial.name = 'NewSSRNode.HistoryCopy';
       this._geometryMaterial = new NodeMaterial();
+      this._geometryMaterial.name = 'NewSSRNode.Geometry';
       this._previousViewProjection = uniform(new Matrix4());
       this._currentViewProjection = uniform(new Matrix4());
       this._previousCameraPosition = uniform(new Vector3());
@@ -1259,8 +1265,8 @@ class NewSSRNode extends Node {
     // pixel sees a low-discrepancy sequence over frames with no correlation between dimensions (unlike the
     // analytic R² tile noise, whose four components derive from one scalar per pixel).
     const sampleMarchNoise = (uvCoord, frameIndex, salt = 0) => {
-      const pixel = uvCoord.mul(this._resolution).floor();
-      const seed = pixel.x.add(pixel.y.mul(this._resolution.x)).mul(4).add(salt);
+      const pixel = uvCoord.mul(this._resolution).floor().toVar();
+      const seed = pixel.x.add(pixel.y.mul(this._resolution.x)).mul(4).add(salt).toVar();
       const rotation = vec4(hash(seed), hash(seed.add(1)), hash(seed.add(2)), hash(seed.add(3)));
       const g = 1.1673039782614187; // x^5 = x + 1
       const alpha = vec4(1 / g, 1 / g ** 2, 1 / g ** 3, 1 / g ** 4);
@@ -1466,7 +1472,7 @@ class NewSSRNode extends Node {
         const Vcam = vPHit.normalize().negate();
         const Vray = viewReflectDir.negate();
         const NdotVcam = dot(Nh, Vcam).clamp(1e-4, 1);
-        const NdotVray = dot(Nh, Vray);
+        const NdotVray = dot(Nh, Vray).toVar();
         const fss = (NdotV) => {
           const dfg = DFGLUT({ roughness: hitRoughness, dotNV: NdotV });
           return hitSpecular.rgb.mul(dfg.x).add(hitSpecular.a.mul(dfg.y));
@@ -1669,7 +1675,7 @@ class NewSSRNode extends Node {
             const sy = abs(yLen).greaterThan(1e-5).select(boundary.y.sub(d0.y).div(yLen), float(1e9));
             const sNext = min(sx, sy).add(epsilon).toVar();
             // mip sizes round down: a cell past the last full one isn't in the pyramid, so it is never skipped
-            const levelSize = this._resolution.div(cellSize).floor().max(1);
+            const levelSize = this._resolution.div(cellSize).floor().max(1).toVar();
             const covered = cell.x.lessThan(levelSize.x).and(cell.y.lessThan(levelSize.y));
             const coord = ivec2(cell.clamp(vec2(0), levelSize.sub(1)));
             const nearest = float(0).toVar();
@@ -2075,10 +2081,12 @@ class NewSSRNode extends Node {
       // (a 3x3 footprint, clamped), so every source texel is covered
       const downsample = (source, sourceLevel) =>
         Fn(() => {
-          const sourceSize = ivec2(textureSize(textureLoad(source), int(sourceLevel)));
+          const sourceSize = ivec2(textureSize(textureLoad(source), int(sourceLevel))).toVar();
           const size = sourceSize.div(2).max(1);
-          const base = ivec2(uvNode.mul(vec2(size)).floor()).mul(2);
-          const last = sourceSize.sub(1);
+          const base = ivec2(uvNode.mul(vec2(size)).floor())
+            .mul(2)
+            .toVar();
+          const last = sourceSize.sub(1).toVar();
           const tap = (x, y) => textureLoad(source, base.add(ivec2(x, y)).min(last), int(sourceLevel)).r;
           const nearest = min(min(tap(0, 0), tap(1, 0)), min(tap(0, 1), tap(1, 1))).toVar();
           if (this._tightHiZ) {
@@ -2156,23 +2164,25 @@ class NewSSRNode extends Node {
       If(radius.greaterThan(0.5), () => {
         const pixel = uvNode.mul(resolution).floor();
         const seed = pixel.x.add(pixel.y.mul(resolution.x));
-        const rotation = fract(hash(seed.mul(3).add(1)).add(float(this._frameIndex).mul(0.618034))).mul(Math.PI * 2);
+        const rotation = fract(hash(seed.mul(3).add(1)).add(float(this._frameIndex).mul(0.618034)))
+          .mul(Math.PI * 2)
+          .toVar();
         const TAPS = 8;
-        for (let i = 0; i < TAPS; i++) {
-          const angle = rotation.add(i * 2.399963);
-          const uvTap = snap(
-            uvNode.add(
-              vec2(cos(angle), sin(angle))
-                .mul(radius.mul(Math.sqrt((i + 0.5) / TAPS)))
-                .mul(texel),
-            ),
-          );
+        // Preserve the original JavaScript-computed float constants while indexing one loop body.
+        const tapParameters = array(
+          Array.from({ length: TAPS }, (_, i) => vec2(i * 2.399963, Math.sqrt((i + 0.5) / TAPS))),
+        );
+        // Keep one sampling body in the generated shader instead of expanding eight copies.
+        Loop(TAPS, ({ i }) => {
+          const parameters = tapParameters.element(i).toVar();
+          const angle = rotation.add(parameters.x).toVar();
+          const uvTap = snap(uvNode.add(vec2(cos(angle), sin(angle)).mul(radius.mul(parameters.y)).mul(texel))).toVar();
           const inside = uvTap.x
             .greaterThan(0)
             .and(uvTap.x.lessThan(1))
             .and(uvTap.y.greaterThan(0))
             .and(uvTap.y.lessThan(1));
-          const tapDepth = sampleDepth(uvTap);
+          const tapDepth = sampleDepth(uvTap).toVar();
           const planeDistance = abs(dot(N, viewPositionAt(uvTap, tapDepth).sub(P))).div(abs(P.z).mul(0.01).add(1e-4));
           const weight = float(1)
             .sub(planeDistance)
@@ -2190,7 +2200,7 @@ class NewSSRNode extends Node {
           numerator.addAssign(tap.rgb.mul(weight));
           denominator.addAssign(tap.a.mul(weight));
           distanceSum.addAssign(tap.a.mul(weight).mul(distanceTexture.sample(uvTap).r));
-        }
+        });
       });
       const inverse = float(1).div(denominator.max(1e-8));
       return vec4(numerator.mul(inverse), distanceSum.mul(inverse));
@@ -2215,21 +2225,21 @@ class NewSSRNode extends Node {
 
       const m1 = vec3(0).toVar();
       const m2 = vec3(0).toVar();
-      for (let y = -1; y <= 1; y++) {
-        for (let x = -1; x <= 1; x++) {
-          const c = toYCoCg(spatialTexture.sample(uvNode.add(vec2(x, y).mul(texel))).rgb).toVar();
+      // Both neighborhood reductions use the same ordered 3x3 footprint.
+      const motion = float(0).toVar();
+      Loop(
+        { name: 'y', start: -1, end: 1, condition: '<=' },
+        { name: 'x', start: -1, end: 1, condition: '<=' },
+        ({ x, y }) => {
+          const uvTap = uvNode.add(vec2(x, y).mul(texel)).toVar();
+          const c = toYCoCg(spatialTexture.sample(uvTap).rgb).toVar();
           m1.addAssign(c);
           m2.addAssign(c.mul(c));
-        }
-      }
+          // dilated: the largest hit-object motion around this pixel
+          motion.assign(max(motion, distanceTexture.sample(uvTap).g));
+        },
+      );
       const mean = m1.div(9).toVar();
-      // dilated: the largest hit-object motion around this pixel
-      const motion = float(0).toVar();
-      for (let y = -1; y <= 1; y++) {
-        for (let x = -1; x <= 1; x++) {
-          motion.assign(max(motion, distanceTexture.sample(uvNode.add(vec2(x, y).mul(texel))).g));
-        }
-      }
       const dynamic = motion.smoothstep(0.1, 1).toVar();
       const sigma = sqrt(m2.div(9).sub(mean.mul(mean)).max(0)).toVar();
 
@@ -2244,9 +2254,9 @@ class NewSSRNode extends Node {
         .and(abs(geometrySurface.w.sub(previousDistance)).lessThan(previousDistance.mul(0.05)));
 
       const viewDirection = worldPosition.sub(cameraPosition).normalize();
-      const virtualPoint = cameraPosition.add(
-        viewDirection.mul(distance(cameraPosition, worldPosition).add(current.a)),
-      );
+      const virtualPoint = cameraPosition
+        .add(viewDirection.mul(distance(cameraPosition, worldPosition).add(current.a)))
+        .toVar();
       // like the velocity buffer: the virtual point's motion between the two unjittered cameras, applied to this pixel,
       // so TRAA's sub-pixel jitter doesn't resample (blur) the history every frame
       const uvVirtual = uvNode
@@ -2269,8 +2279,9 @@ class NewSSRNode extends Node {
         dynamic,
       );
       const frames = valid.select(history.a.add(1), float(1)).min(maxFrames).toVar();
-      const box = sigma.mul(mix(this.clipGamma, this.dynamicClipGamma, dynamic));
-      const clipped = fromYCoCg(toYCoCg(history.rgb).clamp(mean.sub(box), mean.add(box)));
+      const box = sigma.mul(mix(this.clipGamma, this.dynamicClipGamma, dynamic)).toVar();
+      const clippedYCoCg = toYCoCg(history.rgb).clamp(mean.sub(box), mean.add(box)).toVar();
+      const clipped = fromYCoCg(clippedYCoCg);
       return vec4(mix(clipped, current.rgb, float(1).div(frames)), frames);
     });
     this._temporalMaterial.fragmentNode = temporal();
@@ -2302,19 +2313,15 @@ class NewSSRNode extends Node {
       const f = coord.sub(base).toVar();
       const sum = vec3(0).toVar();
       const weightSum = float(0).toVar();
-      for (const [x, y] of [
-        [0, 0],
-        [1, 0],
-        [0, 1],
-        [1, 1],
-      ]) {
+      Loop({ name: 'y', start: 0, end: 2 }, { name: 'x', start: 0, end: 2 }, ({ x, y }) => {
         const uvTap = base
           .add(vec2(x, y))
           .add(0.5)
           .mul(texel)
-          .clamp(texel.mul(0.5), vec2(1).sub(texel.mul(0.5)));
-        const tapDepth = sampleDepth(uvTap);
-        const bilinear = (x ? f.x : f.x.oneMinus()).mul(y ? f.y : f.y.oneMinus());
+          .clamp(texel.mul(0.5), vec2(1).sub(texel.mul(0.5)))
+          .toVar();
+        const tapDepth = sampleDepth(uvTap).toVar();
+        const bilinear = x.equal(1).select(f.x, f.x.oneMinus()).mul(y.equal(1).select(f.y, f.y.oneMinus()));
         const plane = abs(dot(N, viewPositionAt(uvTap, tapDepth).sub(P))).div(abs(P.z).mul(0.01).add(1e-4));
         const weight = bilinear
           .add(1e-3)
@@ -2324,7 +2331,7 @@ class NewSSRNode extends Node {
           .toVar();
         sum.addAssign(temporalTexture.sample(uvTap).rgb.mul(weight));
         weightSum.addAssign(weight);
-      }
+      });
       // no compatible texel (thin feature): nearest
       return vec4(weightSum.greaterThan(1e-4).select(sum.div(weightSum), temporalTexture.sample(uvNode).rgb), 1);
     })();

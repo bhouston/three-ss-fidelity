@@ -160,16 +160,18 @@ Merging to `main` deploys `site/` to GitHub Pages at <https://ss-fidelity.ben3d.
 
 Use `pnpm cli render --missing-only` to fill gaps across all renderers, including every hierarchy variant, without overwriting existing images. Select complete renderer names with `--renderers`; comma-separated names and globs such as `'three-new-*'` work. The render command uses these names:
 
-| Renderer name                                                                                              | Output image                            |
-| ---------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| `three-new-baseline`                                                                                       | `three-new.avif`                        |
-| `three-new-ssr-hiz-tight`                                                                                  | `three-new-ssr-hiz-tight.avif`          |
-| `three-new-ssr-radiance-mips`                                                                              | `three-new-ssr-radiance-mips.avif`      |
-| `three-new-ssgi-radiance-mips`                                                                             | `three-new-ssgi-radiance-mips.avif`     |
-| `three-new-hierarchy-combined`                                                                             | `three-new-hierarchy-combined.avif`     |
-| `three-new-ssr-temporal-validated`                                                                         | `three-new-ssr-temporal-validated.avif` |
-| `three-new-ssr-temporal-gaussian`                                                                          | `three-new-ssr-temporal-gaussian.avif`  |
-| `three-new-light-probe`, `three-current`, `three-gpu-pathtracer`, `three-gpu-pathtracer-webgpu`, `blender` | `<renderer>.avif`                       |
+| Renderer name                                                                     | Output image                            |
+| --------------------------------------------------------------------------------- | --------------------------------------- |
+| `three-new-baseline`                                                              | `three-new.avif`                        |
+| `three-new-ssr-hiz-tight`                                                         | `three-new-ssr-hiz-tight.avif`          |
+| `three-new-ssr-radiance-mips`                                                     | `three-new-ssr-radiance-mips.avif`      |
+| `three-new-ssgi-radiance-mips`                                                    | `three-new-ssgi-radiance-mips.avif`     |
+| `three-new-hierarchy-combined`                                                    | `three-new-hierarchy-combined.avif`     |
+| `three-new-ssr-temporal-validated`                                                | `three-new-ssr-temporal-validated.avif` |
+| `three-new-ssr-temporal-gaussian`                                                 | `three-new-ssr-temporal-gaussian.avif`  |
+| `three-new-ssgi-half`                                                             | `three-new-ssgi-half.avif`              |
+| `three-new-ssgi-third`                                                            | `three-new-ssgi-third.avif`             |
+| `three-current`, `three-gpu-pathtracer`, `three-gpu-pathtracer-webgpu`, `blender` | `<renderer>.avif`                       |
 
 `pnpm cli render --renderers three-new-light-probe` captures the basic SH probe renderer. The same renderer name is available in the live lab and `cli bench`. It bakes about 2,000 probes before rendering; moving lights and geometry need a new scene session. See [probe research](docs/LIGHT_PROBE_RESEARCH.md).
 

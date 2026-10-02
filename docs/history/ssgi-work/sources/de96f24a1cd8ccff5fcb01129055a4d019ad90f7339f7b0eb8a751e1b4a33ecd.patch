@@ -1,0 +1,286 @@
+--- /dev/null
++++ b/scripts/ssgi-work-experiments.mjs
+@@ -0,0 +1,283 @@
++#!/usr/bin/env node
++// Run after pnpm build. One fresh GPU process per job; never time GPU jobs concurrently.
++import { spawn, execFileSync } from 'node:child_process';
++import { createHash } from 'node:crypto';
++import { mkdir, readFile, writeFile } from 'node:fs/promises';
++import { existsSync } from 'node:fs';
++import { createRequire } from 'node:module';
++import os from 'node:os';
++import path from 'node:path';
++import { fileURLToPath } from 'node:url';
++import { parseArgs } from 'node:util';
++import { ssgiWorkExperiments, hierarchyImageName } from '../packages/renderers/dist/types.js';
++import { compareRgb, readRgb, psnrDrop } from '../packages/cli/dist/compare.js';
++const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
++const sharp = createRequire(new URL('../packages/cli/package.json', import.meta.url))('sharp');
++const { values } = parseArgs({
++  options: {
++    out: { type: 'string', default: '.output/ssgi-work' },
++    mode: { type: 'string', default: 'quality' },
++    scenes: { type: 'string', default: 'ssgi-basic' },
++    variants: { type: 'string', default: Object.keys(ssgiWorkExperiments).join(',') },
++    references: { type: 'string', default: 'results' },
++    frames: { type: 'string', default: '128' },
++    width: { type: 'string', default: '960' },
++    height: { type: 'string', default: '540' },
++    warmup: { type: 'string', default: '90' },
++    measure: { type: 'string', default: '80' },
++    repeats: { type: 'string', default: '3' },
++    threshold: { type: 'string', default: '0.1' },
++  },
++});
++if (!['quality', 'timing', 'motion', 'resolution'].includes(values.mode)) throw new Error('Unknown mode');
++const positive = (name) => {
++  const n = Number(values[name]);
++  if (!Number.isSafeInteger(n) || n < 1) throw new Error(`Invalid --${name}`);
++  return n;
++};
++const frames = positive('frames'),
++  width = positive('width'),
++  height = positive('height');
++const warmup = positive('warmup'),
++  measure = positive('measure'),
++  repeats = positive('repeats');
++const threshold = Number(values.threshold);
++if (!Number.isFinite(threshold) || threshold < 0) throw new Error('Invalid --threshold');
++const control = 'hierarchy-combined';
++const variants = values.variants.split(',');
++for (const name of variants) if (!Object.hasOwn(ssgiWorkExperiments, name)) throw new Error(`Unknown variant ${name}`);
++if (new Set(variants).size !== variants.length) throw new Error('Duplicate variants');
++const scenes = values.scenes.split(',');
++const out = path.resolve(root, values.out);
++await mkdir(out, { recursive: true });
++const sources = [
++  'packages/renderers/src/types.ts',
++  'packages/renderers/src/three-new.ts',
++  'packages/renderers/src/ssgi-fast/SSGINode.js',
++  'scripts/ssgi-work-experiments.mjs',
++];
++const sourceHashes = Object.fromEntries(
++  await Promise.all(
++    sources.map(async (file) => [
++      file,
++      createHash('sha256')
++        .update(await readFile(path.join(root, file)))
++        .digest('hex'),
++    ]),
++  ),
++);
++// Preserve the exact experiment sources beside ignored captures and timing traces.
++for (const file of sources) {
++  const saved = path.join(out, 'sources', file);
++  await mkdir(path.dirname(saved), { recursive: true });
++  if (existsSync(saved) && (await readFile(saved, 'utf8')) !== (await readFile(path.join(root, file), 'utf8'))) {
++    throw new Error('Experiment sources changed; choose a fresh output directory');
++  }
++  await writeFile(saved, await readFile(path.join(root, file)));
++}
++const report = {
++  metadata: {
++    date: new Date().toISOString(),
++    mode: values.mode,
++    control,
++    variants,
++    frames,
++    width,
++    height,
++    warmup,
++    measure,
++    repeats,
++    maxReferencePsnrDropDb: threshold,
++    cpu: os.cpus()[0]?.model,
++    platform: os.platform(),
++    node: process.version,
++    revision: execFileSync('git-dedup', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
++    submodules: execFileSync('git-dedup', ['submodule', 'status'], { cwd: root, encoding: 'utf8' }).trim(),
++    sourceHashes,
++    variantSettings: Object.fromEntries(variants.map((name) => [name, ssgiWorkExperiments[name]])),
++    timing: 'GPU-completed batches; CPU submission excludes GPU waits; instrumented pass intervals are not used',
++    quality: 'decoded sRGB RGB8 from AVIF quality 90, 4:4:4; reference gate versus fresh combined control',
++    motion: { degrees: 20, moveFrames: 16, captures: [0, 4, 16, 64] },
++  },
++  scenes: {},
++};
++const persist = () => writeFile(path.join(out, 'report.json'), JSON.stringify(report, null, 2) + '\n');
++async function job(entry, input, log) {
++  const signature = JSON.stringify({ entry, input, sourceHashes, submodules: report.metadata.submodules });
++  const receipt = `${log}.job.json`;
++  if (existsSync(receipt)) {
++    if ((await readFile(receipt, 'utf8')) !== signature)
++      throw new Error(`Job changed; choose a fresh output directory: ${log}`);
++    return;
++  }
++  const chunks = [];
++  const code = await new Promise((resolve, reject) => {
++    const child = spawn(process.execPath, [path.join(root, 'packages/cli/dist', entry), JSON.stringify(input)], {
++      cwd: root,
++    });
++    child.stdout.on('data', (data) => chunks.push(data));
++    child.stderr.on('data', (data) => chunks.push(data));
++    child.on('error', reject);
++    child.on('exit', resolve);
++  });
++  await writeFile(log, Buffer.concat(chunks));
++  if (code !== 0) throw new Error(`GPU job failed (${code}); see ${log}`);
++  await writeFile(receipt, signature);
++}
++const median = (numbers) => {
++  const sorted = numbers.toSorted((a, b) => a - b);
++  const i = Math.floor(sorted.length / 2);
++  return sorted.length % 2 ? sorted[i] : (sorted[i - 1] + sorted[i]) / 2;
++};
++for (const scene of scenes) {
++  const dir = path.join(out, scene);
++  await mkdir(dir, { recursive: true });
++  const row = { quality: {}, timing: {} };
++  report.scenes[scene] = row;
++  const names = [control, ...variants];
++  if (values.mode === 'timing') {
++    for (let repeat = 0; repeat < repeats; repeat++) {
++      // Bracket every candidate with controls. Alternating candidate order exposes drift.
++      const candidates = repeat % 2 ? variants.toReversed() : variants;
++      const order = [control, ...candidates.flatMap((name) => [name, control])];
++      for (let orderIndex = 0; orderIndex < order.length; orderIndex++) {
++        const variant = order[orderIndex];
++        const file = path.join(dir, `${variant}-${repeat}-${orderIndex}.json`);
++        console.log(
++          `${scene} ${variant}: throughput ${repeat + 1}/${repeats}, position ${orderIndex + 1}/${order.length}`,
++        );
++        await job(
++          'bench-process.js',
++          {
++            renderer: 'three-new',
++            hierarchyExperiment: variant,
++            scene,
++            width,
++            height,
++            seed: 1,
++            motion: 'static',
++            orbitDegrees: 30,
++            options: {
++              protocol: 'throughput',
++              durationMs: 1000,
++              warmupFrames: warmup,
++              measureFrames: measure,
++              batchSize: 20,
++              cycleFrames: 1,
++              stepSeconds: 1 / 60,
++            },
++            out: file,
++          },
++          `${file}.log`,
++        );
++        const result = JSON.parse(await readFile(file, 'utf8'));
++        const run = result.entry.runs[0];
++        (row.timing[variant] ??= { runs: [] }).runs.push({ repeat, orderIndex, adapter: result.adapter, run });
++        await persist();
++      }
++    }
++    for (const timing of Object.values(row.timing)) {
++      const times = timing.runs.map(
++        (r) => r.run.metrics.find((m) => m.descriptor.id === 'throughput.frame').statistics.mean,
++      );
++      timing.medianMs = median(times);
++      timing.rangeMs = [Math.min(...times), Math.max(...times)];
++      timing.cpuMedianMs = median(
++        timing.runs.map((r) => r.run.metrics.find((m) => m.descriptor.id === 'cpu.submit').statistics.mean),
++      );
++    }
++    const controls = row.timing[control];
++    row.controlRangeRatio = controls.rangeMs[1] / controls.rangeMs[0];
++    row.performanceClaimStatus =
++      row.controlRangeRatio > 1.1
++        ? 'exploratory: control drift exceeds 10%; do not claim a validated speedup'
++        : 'exploratory: controls within 10%; finite runs, no statistical confidence claim';
++    for (const timing of Object.values(row.timing)) timing.exploratorySpeedup = controls.medianMs / timing.medianMs;
++    for (const [name, timing] of Object.entries(row.timing)) {
++      if (name === control) continue;
++      timing.bracketed = timing.runs.map((sample) => {
++        const neighbors = controls.runs.filter(
++          (c) => c.repeat === sample.repeat && Math.abs(c.orderIndex - sample.orderIndex) === 1,
++        );
++        const meanMs = (item) => item.run.metrics.find((m) => m.descriptor.id === 'throughput.frame').statistics.mean;
++        const before = neighbors.find((c) => c.orderIndex < sample.orderIndex);
++        const after = neighbors.find((c) => c.orderIndex > sample.orderIndex);
++        const beforeMs = meanMs(before),
++          afterMs = meanMs(after),
++          candidateMs = meanMs(sample);
++        return {
++          repeat: sample.repeat,
++          beforeMs,
++          afterMs,
++          candidateMs,
++          controlDriftRatio: Math.max(beforeMs, afterMs) / Math.min(beforeMs, afterMs),
++          exploratorySpeedup: (beforeMs + afterMs) / 2 / candidateMs,
++        };
++      });
++    }
++  } else {
++    const referencePath = path.resolve(root, values.references, scene, 'beauty/three-gpu-pathtracer.avif');
++    const reference = values.mode === 'quality' ? await readRgb(referencePath) : undefined;
++    if (reference)
++      row.reference = {
++        path: path.relative(root, referencePath),
++        sha256: createHash('sha256')
++          .update(await readFile(referencePath))
++          .digest('hex'),
++      };
++    const images = {};
++    for (const name of [...names, 'control-repeat']) {
++      const variant = name === 'control-repeat' ? control : name;
++      const output = path.join(dir, name === 'control-repeat' ? 'repeat' : 'images');
++      console.log(`${scene} ${name}: ${values.mode}, ${frames} frames`);
++      await job(
++        'render-process.js',
++        {
++          renderer: 'three-new',
++          hierarchyExperiment: variant,
++          scenes: [scene],
++          frames,
++          samples: 4096,
++          outDir: output,
++          ...(values.mode === 'resolution' ? { width, height } : {}),
++          ...(values.mode === 'motion' ? { motion: report.metadata.motion } : {}),
++        },
++        path.join(dir, `${name}.log`),
++      );
++      row.quality[name] = {};
++      for (const frame of values.mode === 'motion' ? report.metadata.motion.captures : [null]) {
++        const key = frame === null ? 'settled' : `m${frame}`;
++        const suffix = frame === null ? '' : `@m${frame}`;
++        const file = path.join(output, scene, 'beauty', `${hierarchyImageName('three-new', variant)}${suffix}.avif`);
++        const image = await readRgb(file);
++        (images[name] ??= {})[key] = image;
++        const againstControl = compareRgb(images[control][key], image);
++        const delta = path.join(dir, `${name}-${key}-delta.png`);
++        await sharp(againstControl.delta.data, { raw: { width: image.width, height: image.height, channels: 3 } })
++          .png()
++          .toFile(delta);
++        const metrics = {
++          width: image.width,
++          height: image.height,
++          image: path.relative(out, file),
++          delta: path.relative(out, delta),
++          control: againstControl.metrics,
++        };
++        if (reference) {
++          metrics.reference = compareRgb(reference, image).metrics;
++          metrics.psnrDropDb = psnrDrop(row.quality[control][key]?.reference ?? metrics.reference, metrics.reference);
++          metrics.passesReferenceGate = metrics.psnrDropDb <= threshold;
++        }
++        row.quality[name][key] = metrics;
++      }
++      await persist();
++    }
++  }
++  await persist();
++}
++report.withinQualityAllowance = Object.values(report.scenes).every((row) =>
++  Object.values(row.quality).every((v) => Object.values(v).every((m) => m.passesReferenceGate !== false)),
++);
++report.ok = true; // Quality allowance is advisory. GPU job failures still throw.
++await persist();
++console.log(`Report: ${path.join(out, 'report.json')}`);

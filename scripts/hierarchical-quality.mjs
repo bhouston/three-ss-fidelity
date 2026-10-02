@@ -45,6 +45,10 @@ const cases = [
   ['ssr-diag-rough-60', 'hierarchy-combined'],
   ['gi-hierarchy-discontinuity', 'hierarchy-combined'],
   ['ssgi-metallic', 'hierarchy-combined'],
+  ['ssgi-basic', 'ssgi-half'],
+  ['ssgi-basic', 'ssgi-third'],
+  ['gi-hierarchy-discontinuity', 'ssgi-half'],
+  ['gi-hierarchy-discontinuity', 'ssgi-third'],
 ];
 async function run(job, log) {
   const chunks = [];

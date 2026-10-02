@@ -41,9 +41,11 @@ import { recurrentDenoise } from 'three/addons/tsl/display/RecurrentDenoiseNode.
 import { previousFrameGeometry, temporalReproject } from 'three/addons/tsl/display/TemporalReprojectNode.js';
 import { traa } from './traa/TRAANode.js';
 import { ssgi } from './ssgi-fast/SSGINode.js';
+import { bilateralUpsample } from './ssgi-fast/bilateralUpsample.js';
 import { newSSR } from './ssr/NewSSRNode.js';
 import type { SceneSetup } from '@ss-fidelity/scenes';
-import type { LiveRenderer, RendererOptions } from './types.js';
+import { ssgiWorkExperiments } from './types.js';
+import type { LiveRenderer, RendererOptions, SSGIWorkExperiment } from './types.js';
 import { bakeProbeGrid } from './probe-grid.js';
 import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
 
@@ -79,7 +81,14 @@ function createPipeline(
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const resolutionScale = effects.resolutionScale ?? 1;
-  const combined = hierarchyExperiment === 'hierarchy-combined';
+  const work: SSGIWorkExperiment | undefined =
+    hierarchyExperiment && Object.hasOwn(ssgiWorkExperiments, hierarchyExperiment)
+      ? ssgiWorkExperiments[hierarchyExperiment as keyof typeof ssgiWorkExperiments]
+      : undefined;
+  const combined = hierarchyExperiment === 'hierarchy-combined' || work !== undefined;
+  const reducedGI = hierarchyExperiment === 'ssgi-half' || hierarchyExperiment === 'ssgi-third';
+  const giResolutionScale =
+    resolutionScale / (hierarchyExperiment === 'ssgi-half' ? 2 : hierarchyExperiment === 'ssgi-third' ? 3 : 1);
   const giRadianceMips = combined || hierarchyExperiment === 'ssgi-radiance-mips';
   const ssrRadianceMips = combined || hierarchyExperiment === 'ssr-radiance-mips';
   const tightHiZ = combined || hierarchyExperiment === 'ssr-hiz-tight';
@@ -134,7 +143,7 @@ function createPipeline(
   // See docs/SCREEN_SPACE_ALGORITHMS.md: this is not an exact NRD or SVGF port.
   const temporal = effects.temporalDenoise;
   const sharedPreviousFrame = temporal ? previousFrameGeometry(prePassDepth, prePassNormal) : null;
-  const temporalDenoise = (signal: AnyNode): AnyNode => {
+  const temporalDenoise = (signal: AnyNode, scale = resolutionScale): AnyNode => {
     const reprojected = (temporalReproject as AnyNode)(signal, prePassDepth, prePassNormal, prePassVelocity, camera, {
       previousFrameGeometry: sharedPreviousFrame,
     });
@@ -146,7 +155,7 @@ function createPipeline(
     denoised.alphaSource = 'none';
     denoised.useTemporalFiltering = true;
     reprojected.setHistoryTexture(denoised);
-    reprojected.resolutionScale = denoised.resolutionScale = resolutionScale;
+    reprojected.resolutionScale = denoised.resolutionScale = scale;
     return denoised.getTextureNode();
   };
 
@@ -156,7 +165,7 @@ function createPipeline(
     // SSGINode samples the radiance ~32 times per pixel, each a dependent velocity + previous-frame fetch pair;
     // reprojecting it once into an RG11B10 texture (at SSGI's resolution) replaces that with one fetch per sample
     const giRadianceSource: AnyNode = rtt(previousRadiance.sample(screenUV), null, null, {
-      resolutionScale,
+      resolutionScale: giResolutionScale,
       type: UnsignedInt101111Type,
       format: RGBFormat,
     });
@@ -172,11 +181,13 @@ function createPipeline(
     giPass.radianceMips = giRadianceMips;
     giPass.loopInvariantInitialStep = true;
     giPass.useSolidAngleWeighting.value = true;
-    giPass.sliceCount.value = effects.ssgi.sliceCount;
-    giPass.stepCount.value = effects.ssgi.stepCount;
+    giPass.earlyExit = work?.earlyExit ?? false;
+    giPass.reuseDuplicateTexels = work?.reuseDuplicateTexels ?? false;
+    giPass.sliceCount.value = Math.max(1, Math.floor(effects.ssgi.sliceCount * (work?.sliceScale ?? 1)));
+    giPass.stepCount.value = Math.max(1, Math.floor(effects.ssgi.stepCount * (work?.stepScale ?? 1)));
     giPass.giIntensity.value = effects.ssgi.giIntensity;
     giPass.useTemporalFiltering = temporal;
-    giPass.resolutionScale = resolutionScale;
+    giPass.resolutionScale = giResolutionScale;
     const { radius, thickness, aoIntensity, useScreenSpaceSampling } = effects.ssgi;
     if (radius !== undefined) giPass.radius.value = radius;
     if (thickness !== undefined) giPass.thickness.value = thickness;
@@ -269,8 +280,18 @@ function createPipeline(
         getRadiance: (inputNode: AnyNode) => (inputNode !== null ? inputNode.add(reflections) : reflections),
       });
   if (giPass) {
-    let ao: AnyNode = (temporal ? temporalDenoise(giPass.getAONode()) : giPass.getAONode()).sample(screenUV).r;
-    let gi: AnyNode = (temporal ? temporalDenoise(giPass.getGINode()) : giPass.getGINode()).sample(screenUV).rgb;
+    const aoSignal = temporal ? temporalDenoise(giPass.getAONode(), giResolutionScale) : giPass.getAONode();
+    const giSignal = temporal ? temporalDenoise(giPass.getGINode(), giResolutionScale) : giPass.getGINode();
+    let ao: AnyNode = aoSignal.sample(screenUV).r;
+    let gi: AnyNode = giSignal.sample(screenUV).rgb;
+    if (reducedGI) {
+      // Material lighting samples this many times, so reconstruct once in a full-size packed target.
+      const reconstructed: AnyNode = rtt(bilateralUpsample(giSignal, aoSignal, prePassDepth, prePassNormal, camera));
+      reconstructed.name = 'SSGI Bilateral Upsample';
+      rttDisposables.push(reconstructed);
+      ao = reconstructed.sample(screenUV).a;
+      gi = reconstructed.sample(screenUV).rgb;
+    }
     const fadeRange = effects.ssgi?.fade;
     if (fadeRange) {
       // fade AO/GI out in the distance (webgpu_higharc_ao)

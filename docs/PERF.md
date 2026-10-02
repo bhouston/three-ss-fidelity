@@ -61,6 +61,8 @@ Statistics use sample standard deviation and nearest-rank p95. A single repetiti
 
 Browser cadence follows refresh and can hide a 10→7 ms improvement at 60 Hz. Use completed-work throughput to study rendering cost. Browser throughput remains subject to browser scheduling and differs from native Dawn; compare runs from the same environment.
 
+The opt-in SSGI work and sample-budget experiments, quality results, and pending speed assessment are documented in [SSGI-WORK-EXPERIMENTS.md](SSGI-WORK-EXPERIMENTS.md).
+
 ## GPU profiling
 
 GPU profiling is opt-in and uses a different protocol. Timestamp queries are resolved per measured frame, then the GPU completion boundary is awaited. This serializes CPU/GPU work. It is an initial diagnostic implementation, not a buffered continuous profiler. Unsupported capabilities and invalid samples are explicit in reports.

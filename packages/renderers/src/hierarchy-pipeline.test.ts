@@ -2,7 +2,7 @@ import { beforeEach, expect, it, vi } from 'vitest';
 import { NoToneMapping, PerspectiveCamera, Scene, Vector3 } from 'three';
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import { createThreeNewRenderer } from './three-new.js';
-import { hierarchyExperiments } from './types.js';
+import { hierarchyExperiments, ssgiWorkExperiments } from './types.js';
 import { ssgi } from './ssgi-fast/SSGINode.js';
 import { newSSR } from './ssr/NewSSRNode.js';
 
@@ -75,7 +75,7 @@ it('combines all three techniques while preserving the independent profiles', as
           ? 'gaussian'
           : 'baseline',
     );
-    const combined = experiment === 'hierarchy-combined';
+    const combined = experiment === 'hierarchy-combined' || Object.hasOwn(ssgiWorkExperiments, experiment);
     expect(gi.radianceMips).toBe(combined || experiment === 'ssgi-radiance-mips');
     expect(reflections._tightHiZ).toBe(combined || experiment === 'ssr-hiz-tight');
     expect(reflections._radianceMipNode !== null).toBe(combined || experiment === 'ssr-radiance-mips');
@@ -85,7 +85,10 @@ it('combines all three techniques while preserving the independent profiles', as
       // Perfect mirrors and secondary bounces retain the original, unquantized history source.
       expect(reflections.colorNode).not.toBe(gi.beautyNode);
     }
-    expect(state.targets).toHaveLength(experiment === 'ssr-radiance-mips' ? 2 : 1);
+    const reduced = experiment === 'ssgi-half' || experiment === 'ssgi-third';
+    expect(gi.resolutionScale).toBe(experiment === 'ssgi-half' ? 0.5 : experiment === 'ssgi-third' ? 1 / 3 : 1);
+    expect(reflections.resolutionScale).toBe(1);
+    expect(state.targets).toHaveLength(experiment === 'ssr-radiance-mips' || reduced ? 2 : 1);
     const disposals = state.targets.map((target) => vi.spyOn(target, 'dispose'));
     live.dispose();
     disposals.forEach((dispose) => expect(dispose).toHaveBeenCalledTimes(1));
@@ -107,6 +110,38 @@ it('keeps full-resolution SSR radiance when GI renders at half resolution', asyn
   live.dispose();
 });
 
+it.each(['ssgi-half', 'ssgi-third'] as const)('scales only GI and its radiance source for %s', async (experiment) => {
+  const live = await createThreeNewRenderer({} as HTMLCanvasElement, setup(0.5), {
+    width: 161,
+    height: 121,
+    hierarchyExperiment: experiment,
+  });
+  const gi = vi.mocked(ssgi).mock.results[0]!.value;
+  const scale = experiment === 'ssgi-half' ? 0.25 : 1 / 6;
+  expect(gi.resolutionScale).toBe(scale);
+  expect(gi.beautyNode.getResolutionScale()).toBe(scale);
+  expect(vi.mocked(newSSR).mock.results[0]!.value.resolutionScale).toBe(0.5);
+  gi.setSize(161, 121);
+  expect(gi._ssgiRenderTarget.width).toBe(Math.round(161 * scale));
+  expect(gi._ssgiRenderTarget.height).toBe(Math.round(121 * scale));
+  gi.setSize(1, 1);
+  expect(gi._ssgiRenderTarget.width).toBe(1);
+  expect(gi._ssgiRenderTarget.height).toBe(1);
+  expect(state.targets).toHaveLength(2);
+  live.dispose();
+});
+
+it('skips reduced-resolution resources for an SSR-only scene', async () => {
+  const live = await createThreeNewRenderer({} as HTMLCanvasElement, setup(1, false), {
+    width: 161,
+    height: 121,
+    hierarchyExperiment: 'ssgi-half',
+  });
+  expect(ssgi).not.toHaveBeenCalled();
+  expect(state.targets).toHaveLength(0);
+  live.dispose();
+});
+
 it.each([
   [true, false],
   [false, true],
@@ -119,6 +154,58 @@ it.each([
   expect(state.targets).toHaveLength(1);
   expect(ssgi).toHaveBeenCalledTimes(gi ? 1 : 0);
   expect(newSSR).toHaveBeenCalledTimes(ssr ? 1 : 0);
+  live.dispose();
+});
+
+it('scales scene sample budgets independently and keeps work flags opt-in', async () => {
+  const expected = [
+    ['hierarchy-combined', 8, 32, false, false],
+    ['ssgi-early-exit', 8, 32, true, false],
+    ['ssgi-reuse-texels', 8, 32, false, true],
+    ['ssgi-redundant-work', 8, 32, true, true],
+    ['ssgi-4x32', 4, 32, false, false],
+    ['ssgi-8x16', 8, 16, false, false],
+    ['ssgi-4x16', 4, 16, false, false],
+    ['ssgi-2x16', 2, 16, false, false],
+    ['ssgi-2x8', 2, 8, false, false],
+    ['ssgi-6x32', 6, 32, false, false],
+    ['ssgi-8x24', 8, 24, false, false],
+    ['ssgi-6x24', 6, 24, false, false],
+    ['ssgi-7x32', 7, 32, false, false],
+    ['ssgi-8x28', 8, 28, false, false],
+  ] as const;
+  for (const [experiment, slices, steps, earlyExit, reuse] of expected) {
+    vi.clearAllMocks();
+    const scene = setup();
+    scene.effects.ssgi!.sliceCount = 8;
+    scene.effects.ssgi!.stepCount = 32;
+    const live = await createThreeNewRenderer({} as HTMLCanvasElement, scene, {
+      width: 160,
+      height: 120,
+      hierarchyExperiment: experiment,
+    });
+    const gi = vi.mocked(ssgi).mock.results[0]!.value;
+    expect([gi.sliceCount.value, gi.stepCount.value, gi.earlyExit, gi.reuseDuplicateTexels]).toEqual([
+      slices,
+      steps,
+      earlyExit,
+      reuse,
+    ]);
+    expect(scene.effects.ssgi!.sliceCount).toBe(8);
+    expect(scene.effects.ssgi!.stepCount).toBe(32);
+    live.dispose();
+  }
+  vi.clearAllMocks();
+  const scene = setup();
+  scene.effects.ssgi!.sliceCount = 1;
+  scene.effects.ssgi!.stepCount = 1;
+  const live = await createThreeNewRenderer({} as HTMLCanvasElement, scene, {
+    width: 160,
+    height: 120,
+    hierarchyExperiment: 'ssgi-2x8',
+  });
+  const gi = vi.mocked(ssgi).mock.results[0]!.value;
+  expect([gi.sliceCount.value, gi.stepCount.value]).toEqual([1, 1]);
   live.dispose();
 });
 

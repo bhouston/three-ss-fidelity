@@ -70,3 +70,5 @@ Native-resolution 128-frame captures under the final `three-new-light-probe` nam
 | gltf-coffeemat           |  26.87 dB |    29.06 dB |  +2.19 dB |
 
 Three additional scenes improve and three regress. In particular the closed low-albedo room loses about 9.81 dB, despite its small indirect term. The basic implementation does **not** meet a universal same-or-better-quality target and should not replace the default pipeline. Its faster runtime and the improved emitter/high-albedo controls justify keeping it as a separate experimental renderer while testing visibility and relocation independently. No automatic quality gate is waived or presented as passed: the report explicitly records the failed per-scene 0.1 dB gates. CI checks implementation correctness, not approval of this quality tradeoff.
+
+The basic experiment was measured on base revision `3d3677f1582` before concurrent SSGI resolution/work and TRAA changes landed on main. Those changes are preserved by the integration merge and covered by the final implementation checks. Archived timing/quality claims refer to the recorded earlier revision; rerun the commands to compare against the latest pipeline.

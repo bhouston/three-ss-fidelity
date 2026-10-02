@@ -163,6 +163,10 @@ class SSGINode extends Node {
     // Opt-in: filter only radiance at distant gathers. Depth, normals and sector visibility stay full resolution.
     this.radianceMips = false;
 
+    // Opt-in work experiments. Rebuild the material when changing these flags.
+    this.earlyExit = false;
+    this.reuseDuplicateTexels = false;
+
     /**
      * perf(three-new-ssgi-fast): evaluate the per-pixel initial ray step once instead of re-emitting it (a
      * sin, a mod and spatialOffsets()) inside every horizon-search step. `false` reproduces the fork's
@@ -623,7 +627,21 @@ class SSGINode extends Node {
         const previousFrontHorizon = directionIsRight.select(float(0), float(1)).toVar();
         const previousPosition = vec3(viewPosition).toVar();
 
+        // Cache only geometry. Repeated texels must still update the gap/previous-surface state:
+        // skipping a complete step changes it for back-facing samples.
+        const cachedUV = this.reuseDuplicateTexels ? vec2(-1).toVar() : null;
+        const cachedPosition = this.reuseDuplicateTexels ? vec3(0).toVar() : null;
+        const cachedNormal = this.reuseDuplicateTexels ? vec3(0).toVar() : null;
+        const cachedNormalValid = this.reuseDuplicateTexels ? bool(false).toVar() : null;
+
         Loop({ start: uint(0), end: STEP_COUNT, type: 'uint', condition: '<' }, ({ i }) => {
+          if (this.earlyExit) {
+            // AO and GI claim sectors independently. Both masks must be full before later
+            // samples are guaranteed unable to change either output.
+            If(globalOccludedBitfield.equal(uint(0xffffffff)).and(globalLitBitfield.equal(uint(0xffffffff))), () => {
+              Break();
+            });
+          }
           const offset = pow(abs(mul(stepRadius, float(i).add(initialRayStep)).div(radiusVS)), EXP_FACTOR)
             .mul(radiusVS)
             .toConst();
@@ -646,11 +664,31 @@ class SSGINode extends Node {
             },
           );
 
-          const sampleViewPosition = getViewPosition(
-            sampleUV,
-            sampleDepth(sampleUV),
-            this._cameraProjectionMatrixInverse,
-          ).toConst();
+          let sampleViewPosition;
+          if (this.reuseDuplicateTexels) {
+            If(sampleUV.x.notEqual(cachedUV.x).or(sampleUV.y.notEqual(cachedUV.y)), () => {
+              cachedPosition.assign(
+                getViewPosition(sampleUV, sampleDepth(sampleUV), this._cameraProjectionMatrixInverse),
+              );
+              cachedUV.assign(sampleUV);
+              cachedNormalValid.assign(false);
+            });
+            sampleViewPosition = cachedPosition.toConst();
+          } else {
+            sampleViewPosition = getViewPosition(
+              sampleUV,
+              sampleDepth(sampleUV),
+              this._cameraProjectionMatrixInverse,
+            ).toConst();
+          }
+          const lightNormal = () => {
+            if (!this.reuseDuplicateTexels) return sampleLightNormal(sampleUV);
+            If(cachedNormalValid.not(), () => {
+              cachedNormal.assign(sampleLightNormal(sampleUV));
+              cachedNormalValid.assign(true);
+            });
+            return cachedNormal;
+          };
           const pixelToSample = sampleViewPosition.sub(viewPosition).normalize().toConst();
           const linearThicknessMultiplier = this.useLinearThickness.select(
             sampleViewPosition.z.negate().div(this._cameraFar).clamp().mul(100),
@@ -708,7 +746,7 @@ class SSGINode extends Node {
           const facesAway = bool(false).toVar();
 
           If(gapLitBitfield.notEqual(litBitfield), () => {
-            const gapSampleNormal = sampleLightNormal(sampleUV).toConst();
+            const gapSampleNormal = lightNormal().toConst();
             const surfaceThickness = THICKNESS.mul(linearThicknessMultiplier);
             const sameSurface = abs(dot(gapSampleNormal, previousPosition.sub(sampleViewPosition))).lessThan(
               surfaceThickness,
@@ -746,7 +784,7 @@ class SSGINode extends Node {
               If(normalDotLightDirection.greaterThan(0.001), () => {
                 // Continue if light is facing surface normal
 
-                const lightNormalVS = sampleLightNormal(sampleUV);
+                const lightNormalVS = lightNormal();
 
                 // The beauty pass holds the radiance leaving the sample, which a diffuse surface emits evenly in all
                 // directions, and the occluded sectors already measure its foreshortening. So only whether its front

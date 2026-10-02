@@ -1,0 +1,122 @@
+{
+  "metadata": {
+    "date": "2026-10-01T18:55:30.616Z",
+    "mode": "resolution",
+    "control": "hierarchy-combined",
+    "variants": ["ssgi-reuse-texels", "ssgi-4x32", "ssgi-6x32", "ssgi-8x24"],
+    "frames": 128,
+    "width": 960,
+    "height": 540,
+    "warmup": 90,
+    "measure": 80,
+    "repeats": 3,
+    "referencePsnrReviewAllowanceDb": 0.1,
+    "cpu": "Apple M3",
+    "platform": "darwin",
+    "node": "v26.3.0",
+    "revision": "7fc477ab4e23e5a67dbeb6874b904c47514c1485",
+    "submodules": "96a36865c7a1e5124730a1dc743d7bc98c1a3933 submodules/fidelity-kit-blender (heads/main)\n 9cd15bd3579cc9d480a3579fc6c1b019a4e37128 submodules/fidelity-kit-three-gpu-pathtracer (remotes/origin/feat/pinned-esm-pathtracer)\n 2cbb31e973a7ce074279831bc2ac6d468973978d submodules/three-gpu-pathtracer (v0.0.24-1239-g2cbb31e973a)\n 83c310af72715ae558beea12d169f00c62ea48eb submodules/three.js (r40-46670-g83c310af727)",
+    "sourceHashes": {
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e",
+      "scripts/ssgi-work-experiments.mjs": "ac2ae1635ae1a30ecab17a0a293cd54739ddeeb1b847ea9db1d43ebc3be7d0ba"
+    },
+    "variantSettings": {
+      "ssgi-reuse-texels": {
+        "reuseDuplicateTexels": true
+      },
+      "ssgi-4x32": {
+        "sliceScale": 0.5
+      },
+      "ssgi-6x32": {
+        "sliceScale": 0.75
+      },
+      "ssgi-8x24": {
+        "stepScale": 0.75
+      }
+    },
+    "timing": "GPU-completed batches; CPU submission excludes GPU waits; instrumented pass intervals are not used",
+    "quality": "decoded sRGB RGB8 from AVIF quality 90, 4:4:4; allowance is advisory, compared with fresh combined control",
+    "motion": {
+      "degrees": 20,
+      "moveFrames": 16,
+      "captures": [0, 4, 16, 64]
+    }
+  },
+  "scenes": {
+    "ssgi-basic": {
+      "quality": {
+        "hierarchy-combined": {
+          "settled": {
+            "width": 960,
+            "height": 540,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-hierarchy-combined.avif",
+            "delta": "ssgi-basic/hierarchy-combined-settled-delta.png",
+            "control": {
+              "psnr": null
+            }
+          }
+        },
+        "ssgi-reuse-texels": {
+          "settled": {
+            "width": 960,
+            "height": 540,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-reuse-texels.avif",
+            "delta": "ssgi-basic/ssgi-reuse-texels-settled-delta.png",
+            "control": {
+              "psnr": null
+            }
+          }
+        },
+        "ssgi-4x32": {
+          "settled": {
+            "width": 960,
+            "height": 540,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-4x32.avif",
+            "delta": "ssgi-basic/ssgi-4x32-settled-delta.png",
+            "control": {
+              "psnr": 39.9161354564367
+            }
+          }
+        },
+        "ssgi-6x32": {
+          "settled": {
+            "width": 960,
+            "height": 540,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-6x32.avif",
+            "delta": "ssgi-basic/ssgi-6x32-settled-delta.png",
+            "control": {
+              "psnr": 46.48163244906874
+            }
+          }
+        },
+        "ssgi-8x24": {
+          "settled": {
+            "width": 960,
+            "height": 540,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-8x24.avif",
+            "delta": "ssgi-basic/ssgi-8x24-settled-delta.png",
+            "control": {
+              "psnr": 41.15683722750663
+            }
+          }
+        },
+        "control-repeat": {
+          "settled": {
+            "width": 960,
+            "height": 540,
+            "image": "ssgi-basic/repeat/ssgi-basic/beauty/three-new-hierarchy-combined.avif",
+            "delta": "ssgi-basic/control-repeat-settled-delta.png",
+            "control": {
+              "psnr": null
+            }
+          }
+        }
+      },
+      "timing": {}
+    }
+  },
+  "withinQualityAllowance": true,
+  "ok": true
+}

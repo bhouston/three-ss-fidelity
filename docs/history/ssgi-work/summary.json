@@ -1,0 +1,547 @@
+{
+  "date": "2026-10-01",
+  "control": "hierarchy-combined",
+  "qualityAllowance": "0.1 dB review flag, not a hard acceptance limit",
+  "performanceStatus": "No accepted speed conclusions: confirmed interfering background tasks. Initial timing sweep rejected for control drift; second run interrupted.",
+  "stages": {
+    "sweep": {
+      "report": "sweep.json",
+      "mode": "quality",
+      "frames": 128,
+      "scenes": ["ssgi-basic"]
+    },
+    "fine-sweep": {
+      "report": "fine-sweep.json",
+      "mode": "quality",
+      "frames": 128,
+      "scenes": ["ssgi-basic"]
+    },
+    "broader-quality": {
+      "report": "broader-quality.json",
+      "mode": "quality",
+      "frames": 128,
+      "scenes": [
+        "ssgi-rounded",
+        "ssgi-metallic",
+        "gi-emitter-corner-dense",
+        "gi-hierarchy-discontinuity",
+        "gi-room-open-high-albedo"
+      ]
+    },
+    "fine-broader-quality": {
+      "report": "fine-broader-quality.json",
+      "mode": "quality",
+      "frames": 128,
+      "scenes": [
+        "ssgi-rounded",
+        "ssgi-metallic",
+        "gi-emitter-corner-dense",
+        "gi-hierarchy-discontinuity",
+        "gi-room-open-high-albedo"
+      ]
+    },
+    "motion": {
+      "report": "motion.json",
+      "mode": "motion",
+      "frames": 128,
+      "scenes": ["ssgi-basic", "gi-hierarchy-discontinuity"]
+    },
+    "resolution": {
+      "report": "resolution.json",
+      "mode": "resolution",
+      "frames": 128,
+      "scenes": ["ssgi-basic"]
+    },
+    "convergence-512": {
+      "report": "convergence-512.json",
+      "mode": "quality",
+      "frames": 512,
+      "scenes": ["ssgi-basic"]
+    },
+    "finalist-motion": {
+      "report": "finalist-motion.json",
+      "mode": "motion",
+      "frames": 128,
+      "scenes": ["ssgi-basic", "gi-hierarchy-discontinuity"]
+    },
+    "finalist-resolution": {
+      "report": "finalist-resolution.json",
+      "mode": "resolution",
+      "frames": 128,
+      "scenes": ["ssgi-basic"]
+    },
+    "timing-sweep": {
+      "report": "timing-sweep.json",
+      "mode": "timing",
+      "frames": 128,
+      "scenes": ["ssgi-basic"]
+    },
+    "quiet-timing": {
+      "report": "quiet-timing.json",
+      "mode": "timing",
+      "frames": 128,
+      "scenes": ["ssgi-basic"]
+    }
+  },
+  "staticQuality": {
+    "ssgi-basic": {
+      "hierarchy-combined": {
+        "referencePsnrDb": 27.679954190924963,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-early-exit": {
+        "referencePsnrDb": 27.679954190924963,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-reuse-texels": {
+        "referencePsnrDb": 27.679954190924963,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-redundant-work": {
+        "referencePsnrDb": 27.679954190924963,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-4x32": {
+        "referencePsnrDb": 26.885225871209787,
+        "referencePsnrLossDb": 0.7947283197151762,
+        "controlComparisonPsnrDb": 38.422382590869795,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x16": {
+        "referencePsnrDb": 26.565402795157432,
+        "referencePsnrLossDb": 1.1145513957675313,
+        "controlComparisonPsnrDb": 32.5901372120292,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-4x16": {
+        "referencePsnrDb": 25.597766374772306,
+        "referencePsnrLossDb": 2.0821878161526577,
+        "controlComparisonPsnrDb": 30.190363990278563,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-2x16": {
+        "referencePsnrDb": 23.597524550927336,
+        "referencePsnrLossDb": 4.082429639997628,
+        "controlComparisonPsnrDb": 26.446078179570918,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-2x8": {
+        "referencePsnrDb": 20.523046854313215,
+        "referencePsnrLossDb": 7.156907336611749,
+        "controlComparisonPsnrDb": 21.791607545607764,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-6x32": {
+        "referencePsnrDb": 27.469012808129882,
+        "referencePsnrLossDb": 0.210941382795081,
+        "controlComparisonPsnrDb": 45.0329475836877,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x24": {
+        "referencePsnrDb": 27.521586000831128,
+        "referencePsnrLossDb": 0.15836819009383518,
+        "controlComparisonPsnrDb": 40.7056124338895,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-6x24": {
+        "referencePsnrDb": 27.240733526142034,
+        "referencePsnrLossDb": 0.43922066478292976,
+        "controlComparisonPsnrDb": 38.374115012302134,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-7x32": {
+        "referencePsnrDb": 27.604396025771273,
+        "referencePsnrLossDb": 0.07555816515369074,
+        "controlComparisonPsnrDb": 47.58732262043962,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x28": {
+        "referencePsnrDb": 27.63364098816048,
+        "referencePsnrLossDb": 0.04631320276448392,
+        "controlComparisonPsnrDb": 45.67570638311699,
+        "scenePreset": [8, 32]
+      }
+    },
+    "ssgi-rounded": {
+      "hierarchy-combined": {
+        "referencePsnrDb": 29.544698662600855,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-early-exit": {
+        "referencePsnrDb": 29.544698662600855,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-reuse-texels": {
+        "referencePsnrDb": 29.544698662600855,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-redundant-work": {
+        "referencePsnrDb": 29.544698662600855,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-4x32": {
+        "referencePsnrDb": 29.515684430488754,
+        "referencePsnrLossDb": 0.029014232112100302,
+        "controlComparisonPsnrDb": 40.030384960557114,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x16": {
+        "referencePsnrDb": 29.054798164139513,
+        "referencePsnrLossDb": 0.489900498461342,
+        "controlComparisonPsnrDb": 34.111150364786326,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-6x32": {
+        "referencePsnrDb": 29.638633540105225,
+        "referencePsnrLossDb": -0.09393487750437046,
+        "controlComparisonPsnrDb": 45.718954045207376,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x24": {
+        "referencePsnrDb": 29.56697664824879,
+        "referencePsnrLossDb": -0.022277985647935594,
+        "controlComparisonPsnrDb": 42.592132618905005,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-7x32": {
+        "referencePsnrDb": 29.597279482829627,
+        "referencePsnrLossDb": -0.05258082022877275,
+        "controlComparisonPsnrDb": 47.78352185190528,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x28": {
+        "referencePsnrDb": 29.555480131759758,
+        "referencePsnrLossDb": -0.010781469158903434,
+        "controlComparisonPsnrDb": 46.727231270667886,
+        "scenePreset": [8, 32]
+      }
+    },
+    "ssgi-metallic": {
+      "hierarchy-combined": {
+        "referencePsnrDb": 27.828106100356077,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-early-exit": {
+        "referencePsnrDb": 27.828106100356077,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-reuse-texels": {
+        "referencePsnrDb": 27.828106100356077,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-redundant-work": {
+        "referencePsnrDb": 27.828106100356077,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-4x32": {
+        "referencePsnrDb": 27.707016601452604,
+        "referencePsnrLossDb": 0.12108949890347276,
+        "controlComparisonPsnrDb": 40.18945925702902,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x16": {
+        "referencePsnrDb": 27.736392032744735,
+        "referencePsnrLossDb": 0.09171406761134193,
+        "controlComparisonPsnrDb": 34.82068173273129,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-6x32": {
+        "referencePsnrDb": 27.860175429011885,
+        "referencePsnrLossDb": -0.03206932865580825,
+        "controlComparisonPsnrDb": 45.58957105423993,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x24": {
+        "referencePsnrDb": 27.913876478361427,
+        "referencePsnrLossDb": -0.08577037800534981,
+        "controlComparisonPsnrDb": 43.110738554911364,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-7x32": {
+        "referencePsnrDb": 27.84783144591462,
+        "referencePsnrLossDb": -0.019725345558541107,
+        "controlComparisonPsnrDb": 47.588973695450186,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x28": {
+        "referencePsnrDb": 27.85777702606601,
+        "referencePsnrLossDb": -0.029670925709933016,
+        "controlComparisonPsnrDb": 47.00280725699935,
+        "scenePreset": [8, 32]
+      }
+    },
+    "gi-emitter-corner-dense": {
+      "hierarchy-combined": {
+        "referencePsnrDb": 26.09113102424157,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-early-exit": {
+        "referencePsnrDb": 26.09113102424157,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-reuse-texels": {
+        "referencePsnrDb": 26.09113102424157,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-redundant-work": {
+        "referencePsnrDb": 26.09113102424157,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-4x32": {
+        "referencePsnrDb": 26.064240315202902,
+        "referencePsnrLossDb": 0.026890709038667637,
+        "controlComparisonPsnrDb": 58.930464584900555,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x16": {
+        "referencePsnrDb": 26.003959820986786,
+        "referencePsnrLossDb": 0.08717120325478334,
+        "controlComparisonPsnrDb": 53.0392764009433,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-6x32": {
+        "referencePsnrDb": 26.083422534029044,
+        "referencePsnrLossDb": 0.0077084902125257315,
+        "controlComparisonPsnrDb": 61.13106206993439,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x24": {
+        "referencePsnrDb": 26.058932225987004,
+        "referencePsnrLossDb": 0.03219879825456573,
+        "controlComparisonPsnrDb": 58.512254966511684,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-7x32": {
+        "referencePsnrDb": 26.08550090906168,
+        "referencePsnrLossDb": 0.005630115179890538,
+        "controlComparisonPsnrDb": 61.00113206024788,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x28": {
+        "referencePsnrDb": 26.077189141029788,
+        "referencePsnrLossDb": 0.013941883211781914,
+        "controlComparisonPsnrDb": 60.49756377479558,
+        "scenePreset": [8, 32]
+      }
+    },
+    "gi-hierarchy-discontinuity": {
+      "hierarchy-combined": {
+        "referencePsnrDb": 35.09829331569884,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-early-exit": {
+        "referencePsnrDb": 35.09829331569884,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-reuse-texels": {
+        "referencePsnrDb": 35.09829331569884,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-redundant-work": {
+        "referencePsnrDb": 35.09829331569884,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-4x32": {
+        "referencePsnrDb": 35.04218572504437,
+        "referencePsnrLossDb": 0.05610759065447013,
+        "controlComparisonPsnrDb": 54.415884785487364,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x16": {
+        "referencePsnrDb": 34.99169018032989,
+        "referencePsnrLossDb": 0.10660313536894961,
+        "controlComparisonPsnrDb": 50.38298771959619,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-6x32": {
+        "referencePsnrDb": 35.080851852027955,
+        "referencePsnrLossDb": 0.017441463670884616,
+        "controlComparisonPsnrDb": 55.85300744032342,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x24": {
+        "referencePsnrDb": 35.089387487528775,
+        "referencePsnrLossDb": 0.008905828170064467,
+        "controlComparisonPsnrDb": 54.224123291136976,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-7x32": {
+        "referencePsnrDb": 35.09103180902418,
+        "referencePsnrLossDb": 0.0072615066746593016,
+        "controlComparisonPsnrDb": 56.661452361599494,
+        "scenePreset": [8, 32]
+      },
+      "ssgi-8x28": {
+        "referencePsnrDb": 35.09926777009174,
+        "referencePsnrLossDb": -0.0009744543929031124,
+        "controlComparisonPsnrDb": 55.72230778596442,
+        "scenePreset": [8, 32]
+      }
+    },
+    "gi-room-open-high-albedo": {
+      "hierarchy-combined": {
+        "referencePsnrDb": 31.689614914255113,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [2, 8]
+      },
+      "ssgi-early-exit": {
+        "referencePsnrDb": 31.689614914255113,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [2, 8]
+      },
+      "ssgi-reuse-texels": {
+        "referencePsnrDb": 31.689614914255113,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [2, 8]
+      },
+      "ssgi-redundant-work": {
+        "referencePsnrDb": 31.689614914255113,
+        "referencePsnrLossDb": 0,
+        "controlComparisonPsnrDb": null,
+        "scenePreset": [2, 8]
+      },
+      "ssgi-4x32": {
+        "referencePsnrDb": 30.423911464498403,
+        "referencePsnrLossDb": 1.2657034497567103,
+        "controlComparisonPsnrDb": 41.81892105331583,
+        "scenePreset": [2, 8]
+      },
+      "ssgi-8x16": {
+        "referencePsnrDb": 30.643551836753886,
+        "referencePsnrLossDb": 1.046063077501227,
+        "controlComparisonPsnrDb": 44.30506790966039,
+        "scenePreset": [2, 8]
+      },
+      "ssgi-6x32": {
+        "referencePsnrDb": 30.423911464498403,
+        "referencePsnrLossDb": 1.2657034497567103,
+        "controlComparisonPsnrDb": 41.81892105331583,
+        "scenePreset": [2, 8]
+      },
+      "ssgi-8x24": {
+        "referencePsnrDb": 31.528551430378894,
+        "referencePsnrLossDb": 0.1610634838762195,
+        "controlComparisonPsnrDb": 54.029184623519285,
+        "scenePreset": [2, 8]
+      },
+      "ssgi-7x32": {
+        "referencePsnrDb": 30.423911464498403,
+        "referencePsnrLossDb": 1.2657034497567103,
+        "controlComparisonPsnrDb": 41.81892105331583,
+        "scenePreset": [2, 8]
+      },
+      "ssgi-8x28": {
+        "referencePsnrDb": 31.6507331236306,
+        "referencePsnrLossDb": 0.03888179062451158,
+        "controlComparisonPsnrDb": 56.42129738798425,
+        "scenePreset": [2, 8]
+      }
+    }
+  },
+  "sourceArchives": {
+    "fine-sweep": {
+      "scripts/ssgi-work-experiments.mjs": "2d18247cf0e663f8b9bda0b7f322caa78c93310779828a8a30663709fe19c7ec",
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e"
+    },
+    "broader-quality": {
+      "scripts/ssgi-work-experiments.mjs": "de96f24a1cd8ccff5fcb01129055a4d019ad90f7339f7b0eb8a751e1b4a33ecd",
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e"
+    },
+    "fine-broader-quality": {
+      "scripts/ssgi-work-experiments.mjs": "ac2ae1635ae1a30ecab17a0a293cd54739ddeeb1b847ea9db1d43ebc3be7d0ba",
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e"
+    },
+    "motion": {
+      "scripts/ssgi-work-experiments.mjs": "4c96968afbf9a22bd0ea3c413e49f571cfe7992d62475c0a54d2cfe3b8a6b0b7",
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e"
+    },
+    "resolution": {
+      "scripts/ssgi-work-experiments.mjs": "ac2ae1635ae1a30ecab17a0a293cd54739ddeeb1b847ea9db1d43ebc3be7d0ba",
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e"
+    },
+    "convergence-512": {
+      "scripts/ssgi-work-experiments.mjs": "ac2ae1635ae1a30ecab17a0a293cd54739ddeeb1b847ea9db1d43ebc3be7d0ba",
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e"
+    },
+    "finalist-motion": {
+      "scripts/ssgi-work-experiments.mjs": "ac2ae1635ae1a30ecab17a0a293cd54739ddeeb1b847ea9db1d43ebc3be7d0ba",
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e"
+    },
+    "finalist-resolution": {
+      "scripts/ssgi-work-experiments.mjs": "ac2ae1635ae1a30ecab17a0a293cd54739ddeeb1b847ea9db1d43ebc3be7d0ba",
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e"
+    },
+    "quiet-timing": {
+      "scripts/ssgi-work-experiments.mjs": "4c96968afbf9a22bd0ea3c413e49f571cfe7992d62475c0a54d2cfe3b8a6b0b7",
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e"
+    }
+  },
+  "notes": [
+    "Source patches apply individually to the recorded origin/main revision 7fc477ab4e2. Each stage maps source files to SHA256 patches.",
+    "Earlier sweeps predate automatic source snapshots. Their SSGI and pipeline sources match the later captures; their type registry had fewer variants.",
+    "Raw report ok/allowance fields from early stages are retained historically; exceeding an allowance does not reject a quality tradeoff.",
+    "Image paths in reports are relative to their stage output directory, preserved in the local .output/ssgi-work tree.",
+    "Decoded RGB8 image equality is not proof of HDR or floating-point equality."
+  ]
+}

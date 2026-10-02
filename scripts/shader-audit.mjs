@@ -53,7 +53,12 @@ const width = 256,
   height = 256;
 const canvas = headless.createCanvas(width, height);
 const start = performance.now();
-const live = await createRenderer(name, canvas, setup, { width, height });
+const live = await createRenderer(name, canvas, setup, {
+  width,
+  height,
+  ssrDebug: process.env.SHADER_AUDIT_DEBUG,
+  hierarchyExperiment: process.env.SHADER_AUDIT_EXPERIMENT,
+});
 const initializedMs = performance.now() - start;
 const advance = createRendererFrameDriver(live.renderer);
 advance({ index: 0, timeSeconds: 0, deltaSeconds: 1 / 60, phase: 'warmup' });

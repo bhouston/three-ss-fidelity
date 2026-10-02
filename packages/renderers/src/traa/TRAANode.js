@@ -586,7 +586,8 @@ class TRAANode extends Node {
     const resolve = Fn(() => {
       const uvNode = uv();
       const textureSize = this.beautyNode.size(); // Assumes all the buffers share the same size.
-      const positionTexel = uvNode.mul(textureSize);
+      // Reuse the center texel across both neighborhood loops without rebuilding it per tap.
+      const positionTexel = uvNode.mul(textureSize).toVar();
 
       // sample the closest and farthest depths in the current buffer
 

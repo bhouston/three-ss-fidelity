@@ -44,7 +44,8 @@ import { ssgi } from './ssgi-fast/SSGINode.js';
 import { bilateralUpsample } from './ssgi-fast/bilateralUpsample.js';
 import { newSSR } from './ssr/NewSSRNode.js';
 import type { SceneSetup } from '@ss-fidelity/scenes';
-import type { LiveRenderer, RendererOptions } from './types.js';
+import { ssgiWorkExperiments } from './types.js';
+import type { LiveRenderer, RendererOptions, SSGIWorkExperiment } from './types.js';
 import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
 
 // The fork's TSL nodes are ahead of @types/three; the graph is built exactly as in the examples, so it is typed loosely.
@@ -78,10 +79,14 @@ function createPipeline(
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const resolutionScale = effects.resolutionScale ?? 1;
+  const work: SSGIWorkExperiment | undefined =
+    hierarchyExperiment && Object.hasOwn(ssgiWorkExperiments, hierarchyExperiment)
+      ? ssgiWorkExperiments[hierarchyExperiment as keyof typeof ssgiWorkExperiments]
+      : undefined;
+  const combined = hierarchyExperiment === 'hierarchy-combined' || work !== undefined;
   const reducedGI = hierarchyExperiment === 'ssgi-half' || hierarchyExperiment === 'ssgi-third';
   const giResolutionScale =
     resolutionScale / (hierarchyExperiment === 'ssgi-half' ? 2 : hierarchyExperiment === 'ssgi-third' ? 3 : 1);
-  const combined = hierarchyExperiment === 'hierarchy-combined';
   const giRadianceMips = combined || hierarchyExperiment === 'ssgi-radiance-mips';
   const ssrRadianceMips = combined || hierarchyExperiment === 'ssr-radiance-mips';
   const tightHiZ = combined || hierarchyExperiment === 'ssr-hiz-tight';
@@ -174,8 +179,10 @@ function createPipeline(
     giPass.radianceMips = giRadianceMips;
     giPass.loopInvariantInitialStep = true;
     giPass.useSolidAngleWeighting.value = true;
-    giPass.sliceCount.value = effects.ssgi.sliceCount;
-    giPass.stepCount.value = effects.ssgi.stepCount;
+    giPass.earlyExit = work?.earlyExit ?? false;
+    giPass.reuseDuplicateTexels = work?.reuseDuplicateTexels ?? false;
+    giPass.sliceCount.value = Math.max(1, Math.floor(effects.ssgi.sliceCount * (work?.sliceScale ?? 1)));
+    giPass.stepCount.value = Math.max(1, Math.floor(effects.ssgi.stepCount * (work?.stepScale ?? 1)));
     giPass.giIntensity.value = effects.ssgi.giIntensity;
     giPass.useTemporalFiltering = temporal;
     giPass.resolutionScale = giResolutionScale;

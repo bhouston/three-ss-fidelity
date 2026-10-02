@@ -220,3 +220,7 @@ profiles included, it also gates the combined result against each individual res
 Throughput uses fresh seeded processes and alternating order; timestamp profiles
 run separately. Performance is scene and device dependent. See
 [COMBINED-HIERARCHY.md](COMBINED-HIERARCHY.md) for measured evidence and limitations.
+
+## SSGI work experiments
+
+Early termination, repeated-texel geometry reuse, and reduced slice/step budgets are available as opt-in combined-pipeline experiments. See [SSGI-WORK-EXPERIMENTS.md](SSGI-WORK-EXPERIMENTS.md) for the quality record, sample-budget semantics, timing limitations, and reproduction commands. The existing presets remain unchanged.

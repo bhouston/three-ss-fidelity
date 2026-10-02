@@ -9,7 +9,7 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { hierarchyExperiments, hierarchyImageName } from '../packages/renderers/dist/types.js';
+import { hierarchyExperiments, hierarchyImageName, ssgiWorkExperiments } from '../packages/renderers/dist/types.js';
 import { compareRgb, readRgb, psnrDrop } from '../packages/cli/dist/compare.js';
 import { createRequire } from 'node:module';
 const sharp = createRequire(new URL('../packages/cli/package.json', import.meta.url))('sharp');
@@ -19,7 +19,12 @@ const { values } = parseArgs({
   options: {
     out: { type: 'string', default: '.output/hierarchy' },
     references: { type: 'string', default: 'results' },
-    experiments: { type: 'string', default: hierarchyExperiments.filter((name) => name !== 'baseline').join(',') },
+    experiments: {
+      type: 'string',
+      default: hierarchyExperiments
+        .filter((name) => name !== 'baseline' && !Object.hasOwn(ssgiWorkExperiments, name))
+        .join(','),
+    },
     scenes: { type: 'string' },
     repeats: { type: 'string', default: '3' },
     width: { type: 'string', default: '1920' },
@@ -72,6 +77,7 @@ const definitions = {
   ],
 };
 definitions['hierarchy-combined'] = [...new Set(Object.values(definitions).flat()), 'ssgi-metallic'];
+for (const name of Object.keys(ssgiWorkExperiments)) definitions[name] = definitions['ssgi-radiance-mips'];
 definitions['ssgi-half'] = [...definitions['ssgi-radiance-mips'], 'ssgi-metallic'];
 definitions['ssgi-third'] = definitions['ssgi-half'];
 definitions['ssr-temporal-validated'] = [

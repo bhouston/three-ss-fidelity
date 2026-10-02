@@ -183,6 +183,23 @@ test('combined hierarchy renders both effects, survives resize and camera motion
   expect(errors).toEqual([]);
 });
 
+test('SSGI work experiments render and survive URL restoration', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  for (const experiment of ['ssgi-early-exit', 'ssgi-reuse-texels', 'ssgi-redundant-work', 'ssgi-4x32']) {
+    await page.goto(`/?scene=ssgi-basic&renderer=three-new&experiment=${experiment}&width=160&height=120`);
+    await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
+    await expect(page.locator('#experiment')).toHaveValue(experiment);
+    await expect(page.locator('#gauge-cpu')).toContainText('ms');
+    const pixels = await sharp(await page.locator('#viewport canvas').screenshot()).stats();
+    expect(pixels.channels[0]!.stdev).toBeGreaterThan(5);
+  }
+  await page.reload();
+  await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
+  await expect(page.locator('#experiment')).toHaveValue('ssgi-4x32');
+  expect(errors).toEqual([]);
+});
+
 test('switching scenes resets the camera despite movement before loading', async ({ page }) => {
   const vector = (name: string) => new URL(page.url()).searchParams.get(name)?.split(',').map(Number);
   const expectVector = (name: string, expected: number[]) => {

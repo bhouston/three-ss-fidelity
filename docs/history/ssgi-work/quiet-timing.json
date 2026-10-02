@@ -1,0 +1,4257 @@
+{
+  "metadata": {
+    "date": "2026-10-01T18:51:31.453Z",
+    "mode": "timing",
+    "control": "hierarchy-combined",
+    "variants": [
+      "ssgi-early-exit",
+      "ssgi-reuse-texels",
+      "ssgi-redundant-work",
+      "ssgi-4x32",
+      "ssgi-6x32",
+      "ssgi-8x24",
+      "ssgi-7x32",
+      "ssgi-8x28"
+    ],
+    "frames": 128,
+    "width": 960,
+    "height": 540,
+    "warmup": 60,
+    "measure": 60,
+    "repeats": 3,
+    "maxReferencePsnrDropDb": 0.1,
+    "cpu": "Apple M3",
+    "platform": "darwin",
+    "node": "v26.3.0",
+    "revision": "7fc477ab4e23e5a67dbeb6874b904c47514c1485",
+    "submodules": "96a36865c7a1e5124730a1dc743d7bc98c1a3933 submodules/fidelity-kit-blender (heads/main)\n 9cd15bd3579cc9d480a3579fc6c1b019a4e37128 submodules/fidelity-kit-three-gpu-pathtracer (remotes/origin/feat/pinned-esm-pathtracer)\n 2cbb31e973a7ce074279831bc2ac6d468973978d submodules/three-gpu-pathtracer (v0.0.24-1239-g2cbb31e973a)\n 83c310af72715ae558beea12d169f00c62ea48eb submodules/three.js (r40-46670-g83c310af727)",
+    "sourceHashes": {
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e",
+      "scripts/ssgi-work-experiments.mjs": "4c96968afbf9a22bd0ea3c413e49f571cfe7992d62475c0a54d2cfe3b8a6b0b7"
+    },
+    "variantSettings": {
+      "ssgi-early-exit": {
+        "earlyExit": true
+      },
+      "ssgi-reuse-texels": {
+        "reuseDuplicateTexels": true
+      },
+      "ssgi-redundant-work": {
+        "earlyExit": true,
+        "reuseDuplicateTexels": true
+      },
+      "ssgi-4x32": {
+        "sliceScale": 0.5
+      },
+      "ssgi-6x32": {
+        "sliceScale": 0.75
+      },
+      "ssgi-8x24": {
+        "stepScale": 0.75
+      },
+      "ssgi-7x32": {
+        "sliceScale": 0.875
+      },
+      "ssgi-8x28": {
+        "stepScale": 0.875
+      }
+    },
+    "timing": "GPU-completed batches; CPU submission excludes GPU waits; instrumented pass intervals are not used",
+    "quality": "decoded sRGB RGB8 from AVIF quality 90, 4:4:4; reference gate versus fresh combined control",
+    "motion": {
+      "degrees": 20,
+      "moveFrames": 16,
+      "captures": [0, 4, 16, 64]
+    },
+    "interrupted": true,
+    "performanceClaimStatus": "Rejected for speed conclusions: user confirmed interfering background tasks; run stopped."
+  },
+  "scenes": {
+    "ssgi-basic": {
+      "quality": {},
+      "timing": {
+        "hierarchy-combined": {
+          "runs": [
+            {
+              "repeat": 0,
+              "orderIndex": 0,
+              "adapter": {
+                "subgroupMatrixConfigs": []
+              },
+              "run": {
+                "options": {
+                  "protocol": "throughput",
+                  "durationMs": 1000,
+                  "warmupFrames": 60,
+                  "batchSize": 20,
+                  "cycleFrames": 1,
+                  "stepSeconds": 0.016666666666666666,
+                  "measureFrames": 60
+                },
+                "elapsedMs": 2043.2167909999998,
+                "frames": 60,
+                "fps": 29.365459536300378,
+                "metrics": [
+                  {
+                    "descriptor": {
+                      "id": "cpu.submit",
+                      "label": "CPU update + submit",
+                      "unit": "ms",
+                      "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+                    },
+                    "sampleUnit": "frame",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 7.22045799999978
+                      },
+                      {
+                        "frame": 61,
+                        "value": 20.640207999999802
+                      },
+                      {
+                        "frame": 62,
+                        "value": 33.170750000000226
+                      },
+                      {
+                        "frame": 63,
+                        "value": 32.97829200000024
+                      },
+                      {
+                        "frame": 64,
+                        "value": 32.78166699999974
+                      },
+                      {
+                        "frame": 65,
+                        "value": 30.1111249999999
+                      },
+                      {
+                        "frame": 66,
+                        "value": 31.205457999999908
+                      },
+                      {
+                        "frame": 67,
+                        "value": 31.902333
+                      },
+                      {
+                        "frame": 68,
+                        "value": 31.05483299999969
+                      },
+                      {
+                        "frame": 69,
+                        "value": 33.7621250000002
+                      },
+                      {
+                        "frame": 70,
+                        "value": 32.10816700000032
+                      },
+                      {
+                        "frame": 71,
+                        "value": 31.892291999999998
+                      },
+                      {
+                        "frame": 72,
+                        "value": 39.20899999999983
+                      },
+                      {
+                        "frame": 73,
+                        "value": 30.853458000000046
+                      },
+                      {
+                        "frame": 74,
+                        "value": 40.199540999999954
+                      },
+                      {
+                        "frame": 75,
+                        "value": 21.360999999999876
+                      },
+                      {
+                        "frame": 76,
+                        "value": 32.40950000000021
+                      },
+                      {
+                        "frame": 77,
+                        "value": 32.18995899999982
+                      },
+                      {
+                        "frame": 78,
+                        "value": 33.72687500000029
+                      },
+                      {
+                        "frame": 79,
+                        "value": 31.17904099999987
+                      },
+                      {
+                        "frame": 80,
+                        "value": 9.698957999999948
+                      },
+                      {
+                        "frame": 81,
+                        "value": 24.006832999999915
+                      },
+                      {
+                        "frame": 82,
+                        "value": 34.540958000000046
+                      },
+                      {
+                        "frame": 83,
+                        "value": 28.02929099999983
+                      },
+                      {
+                        "frame": 84,
+                        "value": 31.774917000000187
+                      },
+                      {
+                        "frame": 85,
+                        "value": 31.41095899999982
+                      },
+                      {
+                        "frame": 86,
+                        "value": 32.055083000000195
+                      },
+                      {
+                        "frame": 87,
+                        "value": 31.390333000000282
+                      },
+                      {
+                        "frame": 88,
+                        "value": 31.023959000000104
+                      },
+                      {
+                        "frame": 89,
+                        "value": 32.41750000000002
+                      },
+                      {
+                        "frame": 90,
+                        "value": 33.49104100000022
+                      },
+                      {
+                        "frame": 91,
+                        "value": 31.551416999999674
+                      },
+                      {
+                        "frame": 92,
+                        "value": 31.70866599999954
+                      },
+                      {
+                        "frame": 93,
+                        "value": 30.881500000000415
+                      },
+                      {
+                        "frame": 94,
+                        "value": 31.790250000000015
+                      },
+                      {
+                        "frame": 95,
+                        "value": 32.52866699999959
+                      },
+                      {
+                        "frame": 96,
+                        "value": 33.177708000000166
+                      },
+                      {
+                        "frame": 97,
+                        "value": 31.052333999999973
+                      },
+                      {
+                        "frame": 98,
+                        "value": 33.07616599999983
+                      },
+                      {
+                        "frame": 99,
+                        "value": 33.92512499999975
+                      },
+                      {
+                        "frame": 100,
+                        "value": 9.75708399999985
+                      },
+                      {
+                        "frame": 101,
+                        "value": 26.006374999999935
+                      },
+                      {
+                        "frame": 102,
+                        "value": 29.73204100000021
+                      },
+                      {
+                        "frame": 103,
+                        "value": 30.549458000000413
+                      },
+                      {
+                        "frame": 104,
+                        "value": 33.15470800000003
+                      },
+                      {
+                        "frame": 105,
+                        "value": 32.281292000000576
+                      },
+                      {
+                        "frame": 106,
+                        "value": 33.46483400000034
+                      },
+                      {
+                        "frame": 107,
+                        "value": 35.29333300000053
+                      },
+                      {
+                        "frame": 108,
+                        "value": 36.38304199999948
+                      },
+                      {
+                        "frame": 109,
+                        "value": 27.603833000000122
+                      },
+                      {
+                        "frame": 110,
+                        "value": 32.81425000000036
+                      },
+                      {
+                        "frame": 111,
+                        "value": 36.82024999999976
+                      },
+                      {
+                        "frame": 112,
+                        "value": 29.32312499999989
+                      },
+                      {
+                        "frame": 113,
+                        "value": 33.27949999999964
+                      },
+                      {
+                        "frame": 114,
+                        "value": 32.58358399999997
+                      },
+                      {
+                        "frame": 115,
+                        "value": 31.532584000000497
+                      },
+                      {
+                        "frame": 116,
+                        "value": 33.04962499999965
+                      },
+                      {
+                        "frame": 117,
+                        "value": 33.915750000000116
+                      },
+                      {
+                        "frame": 118,
+                        "value": 33.29370800000015
+                      },
+                      {
+                        "frame": 119,
+                        "value": 32.327792000000045
+                      }
+                    ],
+                    "statistics": {
+                      "n": 60,
+                      "mean": 30.710898583333346,
+                      "stddev": 5.993432879857059,
+                      "median": 32.08162500000026,
+                      "p95": 36.38304199999948,
+                      "min": 7.22045799999978,
+                      "max": 40.199540999999954
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "id": "throughput.frame",
+                      "label": "Completed-work ms/frame",
+                      "unit": "ms",
+                      "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+                    },
+                    "sampleUnit": "batch",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 32.59413749999999
+                      },
+                      {
+                        "frame": 80,
+                        "value": 32.580677050000006
+                      },
+                      {
+                        "frame": 100,
+                        "value": 36.95097085000002
+                      }
+                    ],
+                    "statistics": {
+                      "n": 3,
+                      "mean": 34.04192846666667,
+                      "stddev": 2.5193135944044114,
+                      "median": 32.59413749999999,
+                      "p95": 36.95097085000002,
+                      "min": 32.580677050000006,
+                      "max": 36.95097085000002
+                    }
+                  }
+                ],
+                "profiling": {
+                  "status": "disabled",
+                  "invalidSamples": 0
+                }
+              }
+            },
+            {
+              "repeat": 0,
+              "orderIndex": 2,
+              "adapter": {
+                "subgroupMatrixConfigs": []
+              },
+              "run": {
+                "options": {
+                  "protocol": "throughput",
+                  "durationMs": 1000,
+                  "warmupFrames": 60,
+                  "batchSize": 20,
+                  "cycleFrames": 1,
+                  "stepSeconds": 0.016666666666666666,
+                  "measureFrames": 60
+                },
+                "elapsedMs": 2017.2159159999997,
+                "frames": 60,
+                "fps": 29.74396519683221,
+                "metrics": [
+                  {
+                    "descriptor": {
+                      "id": "cpu.submit",
+                      "label": "CPU update + submit",
+                      "unit": "ms",
+                      "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+                    },
+                    "sampleUnit": "frame",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 3.790124999999989
+                      },
+                      {
+                        "frame": 61,
+                        "value": 21.150792000000365
+                      },
+                      {
+                        "frame": 62,
+                        "value": 31.36304199999995
+                      },
+                      {
+                        "frame": 63,
+                        "value": 32.27887499999997
+                      },
+                      {
+                        "frame": 64,
+                        "value": 31.67308299999968
+                      },
+                      {
+                        "frame": 65,
+                        "value": 32.07383299999992
+                      },
+                      {
+                        "frame": 66,
+                        "value": 31.472999999999956
+                      },
+                      {
+                        "frame": 67,
+                        "value": 31.15724999999975
+                      },
+                      {
+                        "frame": 68,
+                        "value": 31.57091700000001
+                      },
+                      {
+                        "frame": 69,
+                        "value": 32.53141600000026
+                      },
+                      {
+                        "frame": 70,
+                        "value": 32.335207999999966
+                      },
+                      {
+                        "frame": 71,
+                        "value": 32.26808399999982
+                      },
+                      {
+                        "frame": 72,
+                        "value": 32.5786250000001
+                      },
+                      {
+                        "frame": 73,
+                        "value": 32.326166000000285
+                      },
+                      {
+                        "frame": 74,
+                        "value": 32.698457999999846
+                      },
+                      {
+                        "frame": 75,
+                        "value": 33.108208000000104
+                      },
+                      {
+                        "frame": 76,
+                        "value": 31.875292000000172
+                      },
+                      {
+                        "frame": 77,
+                        "value": 32.24570799999992
+                      },
+                      {
+                        "frame": 78,
+                        "value": 32.46070800000007
+                      },
+                      {
+                        "frame": 79,
+                        "value": 33.57854199999974
+                      },
+                      {
+                        "frame": 80,
+                        "value": 4.490583999999217
+                      },
+                      {
+                        "frame": 81,
+                        "value": 21.861041999999543
+                      },
+                      {
+                        "frame": 82,
+                        "value": 31.844500000000153
+                      },
+                      {
+                        "frame": 83,
+                        "value": 31.867750000000342
+                      },
+                      {
+                        "frame": 84,
+                        "value": 33.3037919999997
+                      },
+                      {
+                        "frame": 85,
+                        "value": 33.94745800000055
+                      },
+                      {
+                        "frame": 86,
+                        "value": 32.88383300000078
+                      },
+                      {
+                        "frame": 87,
+                        "value": 33.96812500000033
+                      },
+                      {
+                        "frame": 88,
+                        "value": 33.54504100000031
+                      },
+                      {
+                        "frame": 89,
+                        "value": 32.350915999999415
+                      },
+                      {
+                        "frame": 90,
+                        "value": 34.39216699999997
+                      },
+                      {
+                        "frame": 91,
+                        "value": 32.09154200000012
+                      },
+                      {
+                        "frame": 92,
+                        "value": 33.58729200000016
+                      },
+                      {
+                        "frame": 93,
+                        "value": 34.363292
+                      },
+                      {
+                        "frame": 94,
+                        "value": 32.60408300000017
+                      },
+                      {
+                        "frame": 95,
+                        "value": 34.67937499999971
+                      },
+                      {
+                        "frame": 96,
+                        "value": 33.00083300000006
+                      },
+                      {
+                        "frame": 97,
+                        "value": 34.60016700000051
+                      },
+                      {
+                        "frame": 98,
+                        "value": 33.381083999999646
+                      },
+                      {
+                        "frame": 99,
+                        "value": 32.70229200000085
+                      },
+                      {
+                        "frame": 100,
+                        "value": 4.438916999999492
+                      },
+                      {
+                        "frame": 101,
+                        "value": 21.05358299999989
+                      },
+                      {
+                        "frame": 102,
+                        "value": 32.43266700000004
+                      },
+                      {
+                        "frame": 103,
+                        "value": 32.569124999999985
+                      },
+                      {
+                        "frame": 104,
+                        "value": 33.82470899999953
+                      },
+                      {
+                        "frame": 105,
+                        "value": 32.993083999999726
+                      },
+                      {
+                        "frame": 106,
+                        "value": 32.980749999999716
+                      },
+                      {
+                        "frame": 107,
+                        "value": 32.44541699999991
+                      },
+                      {
+                        "frame": 108,
+                        "value": 34.247707999999875
+                      },
+                      {
+                        "frame": 109,
+                        "value": 32.74804200000017
+                      },
+                      {
+                        "frame": 110,
+                        "value": 35.10045799999989
+                      },
+                      {
+                        "frame": 111,
+                        "value": 33.595250000000306
+                      },
+                      {
+                        "frame": 112,
+                        "value": 32.143457999999555
+                      },
+                      {
+                        "frame": 113,
+                        "value": 33.656041999999616
+                      },
+                      {
+                        "frame": 114,
+                        "value": 32.16924999999992
+                      },
+                      {
+                        "frame": 115,
+                        "value": 33.3329590000003
+                      },
+                      {
+                        "frame": 116,
+                        "value": 33.48887500000001
+                      },
+                      {
+                        "frame": 117,
+                        "value": 32.15141700000004
+                      },
+                      {
+                        "frame": 118,
+                        "value": 33.83150000000023
+                      },
+                      {
+                        "frame": 119,
+                        "value": 33.762666999999965
+                      }
+                    ],
+                    "statistics": {
+                      "n": 60,
+                      "mean": 30.88280629999999,
+                      "stddev": 6.722159536995933,
+                      "median": 32.573875000000044,
+                      "p95": 34.39216699999997,
+                      "min": 3.790124999999989,
+                      "max": 35.10045799999989
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "id": "throughput.frame",
+                      "label": "Completed-work ms/frame",
+                      "unit": "ms",
+                      "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+                    },
+                    "sampleUnit": "batch",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 32.33419789999998
+                      },
+                      {
+                        "frame": 80,
+                        "value": 33.44021455000002
+                      },
+                      {
+                        "frame": 100,
+                        "value": 35.07905419999997
+                      }
+                    ],
+                    "statistics": {
+                      "n": 3,
+                      "mean": 33.61782221666666,
+                      "stddev": 1.3810204159810566,
+                      "median": 33.44021455000002,
+                      "p95": 35.07905419999997,
+                      "min": 32.33419789999998,
+                      "max": 35.07905419999997
+                    }
+                  }
+                ],
+                "profiling": {
+                  "status": "disabled",
+                  "invalidSamples": 0
+                }
+              }
+            },
+            {
+              "repeat": 0,
+              "orderIndex": 4,
+              "adapter": {
+                "subgroupMatrixConfigs": []
+              },
+              "run": {
+                "options": {
+                  "protocol": "throughput",
+                  "durationMs": 1000,
+                  "warmupFrames": 60,
+                  "batchSize": 20,
+                  "cycleFrames": 1,
+                  "stepSeconds": 0.016666666666666666,
+                  "measureFrames": 60
+                },
+                "elapsedMs": 2098.8068329999996,
+                "frames": 60,
+                "fps": 28.587671364799682,
+                "metrics": [
+                  {
+                    "descriptor": {
+                      "id": "cpu.submit",
+                      "label": "CPU update + submit",
+                      "unit": "ms",
+                      "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+                    },
+                    "sampleUnit": "frame",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 4.6290829999998095
+                      },
+                      {
+                        "frame": 61,
+                        "value": 20.840999999999894
+                      },
+                      {
+                        "frame": 62,
+                        "value": 32.420708000000104
+                      },
+                      {
+                        "frame": 63,
+                        "value": 31.925374999999804
+                      },
+                      {
+                        "frame": 64,
+                        "value": 32.06470800000034
+                      },
+                      {
+                        "frame": 65,
+                        "value": 32.232124999999996
+                      },
+                      {
+                        "frame": 66,
+                        "value": 31.715500000000247
+                      },
+                      {
+                        "frame": 67,
+                        "value": 32.902458000000024
+                      },
+                      {
+                        "frame": 68,
+                        "value": 32.32504199999994
+                      },
+                      {
+                        "frame": 69,
+                        "value": 32.87783300000001
+                      },
+                      {
+                        "frame": 70,
+                        "value": 34.58029099999976
+                      },
+                      {
+                        "frame": 71,
+                        "value": 32.447541999999885
+                      },
+                      {
+                        "frame": 72,
+                        "value": 32.53712500000029
+                      },
+                      {
+                        "frame": 73,
+                        "value": 32.508749999999964
+                      },
+                      {
+                        "frame": 74,
+                        "value": 34.15395899999976
+                      },
+                      {
+                        "frame": 75,
+                        "value": 33.164332999999715
+                      },
+                      {
+                        "frame": 76,
+                        "value": 34.19116699999995
+                      },
+                      {
+                        "frame": 77,
+                        "value": 32.46208299999989
+                      },
+                      {
+                        "frame": 78,
+                        "value": 48.922250000000076
+                      },
+                      {
+                        "frame": 79,
+                        "value": 23.5495420000002
+                      },
+                      {
+                        "frame": 80,
+                        "value": 5.121708000000126
+                      },
+                      {
+                        "frame": 81,
+                        "value": 21.260041
+                      },
+                      {
+                        "frame": 82,
+                        "value": 33.91854199999989
+                      },
+                      {
+                        "frame": 83,
+                        "value": 32.65512499999977
+                      },
+                      {
+                        "frame": 84,
+                        "value": 34.19212499999958
+                      },
+                      {
+                        "frame": 85,
+                        "value": 44.26487499999985
+                      },
+                      {
+                        "frame": 86,
+                        "value": 69.8120829999998
+                      },
+                      {
+                        "frame": 87,
+                        "value": 23.91775000000007
+                      },
+                      {
+                        "frame": 88,
+                        "value": 33.76783299999988
+                      },
+                      {
+                        "frame": 89,
+                        "value": 32.973083999999744
+                      },
+                      {
+                        "frame": 90,
+                        "value": 33.5824590000002
+                      },
+                      {
+                        "frame": 91,
+                        "value": 49.80295799999976
+                      },
+                      {
+                        "frame": 92,
+                        "value": 28.259292000000187
+                      },
+                      {
+                        "frame": 93,
+                        "value": 31.800958000000264
+                      },
+                      {
+                        "frame": 94,
+                        "value": 32.45054100000016
+                      },
+                      {
+                        "frame": 95,
+                        "value": 35.64829200000031
+                      },
+                      {
+                        "frame": 96,
+                        "value": 31.364708000000064
+                      },
+                      {
+                        "frame": 97,
+                        "value": 33.47033300000021
+                      },
+                      {
+                        "frame": 98,
+                        "value": 32.371916999999485
+                      },
+                      {
+                        "frame": 99,
+                        "value": 34.46008299999994
+                      },
+                      {
+                        "frame": 100,
+                        "value": 7.549624999999651
+                      },
+                      {
+                        "frame": 101,
+                        "value": 19.529790999999932
+                      },
+                      {
+                        "frame": 102,
+                        "value": 33.68775000000005
+                      },
+                      {
+                        "frame": 103,
+                        "value": 37.16479100000015
+                      },
+                      {
+                        "frame": 104,
+                        "value": 30.804584000000432
+                      },
+                      {
+                        "frame": 105,
+                        "value": 34.064541999999165
+                      },
+                      {
+                        "frame": 106,
+                        "value": 33.966207999999824
+                      },
+                      {
+                        "frame": 107,
+                        "value": 35.931916999999885
+                      },
+                      {
+                        "frame": 108,
+                        "value": 35.113374999999905
+                      },
+                      {
+                        "frame": 109,
+                        "value": 34.57970800000021
+                      },
+                      {
+                        "frame": 110,
+                        "value": 33.32208300000002
+                      },
+                      {
+                        "frame": 111,
+                        "value": 33.49354099999982
+                      },
+                      {
+                        "frame": 112,
+                        "value": 33.42012500000055
+                      },
+                      {
+                        "frame": 113,
+                        "value": 32.95908299999974
+                      },
+                      {
+                        "frame": 114,
+                        "value": 32.675999999999476
+                      },
+                      {
+                        "frame": 115,
+                        "value": 34.32666700000027
+                      },
+                      {
+                        "frame": 116,
+                        "value": 33.860499999999774
+                      },
+                      {
+                        "frame": 117,
+                        "value": 35.29554199999984
+                      },
+                      {
+                        "frame": 118,
+                        "value": 32.875332999999955
+                      },
+                      {
+                        "frame": 119,
+                        "value": 32.776082999999744
+                      }
+                    ],
+                    "statistics": {
+                      "n": 60,
+                      "mean": 32.24904714999995,
+                      "stddev": 9.16227760011354,
+                      "median": 32.93077049999988,
+                      "p95": 44.26487499999985,
+                      "min": 4.6290829999998095,
+                      "max": 69.8120829999998
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "id": "throughput.frame",
+                      "label": "Completed-work ms/frame",
+                      "unit": "ms",
+                      "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+                    },
+                    "sampleUnit": "batch",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 33.26070625
+                      },
+                      {
+                        "frame": 80,
+                        "value": 35.85061250000001
+                      },
+                      {
+                        "frame": 100,
+                        "value": 35.819039599999996
+                      }
+                    ],
+                    "statistics": {
+                      "n": 3,
+                      "mean": 34.976786116666666,
+                      "stddev": 1.486252600868246,
+                      "median": 35.819039599999996,
+                      "p95": 35.85061250000001,
+                      "min": 33.26070625,
+                      "max": 35.85061250000001
+                    }
+                  }
+                ],
+                "profiling": {
+                  "status": "disabled",
+                  "invalidSamples": 0
+                }
+              }
+            },
+            {
+              "repeat": 0,
+              "orderIndex": 6,
+              "adapter": {
+                "subgroupMatrixConfigs": []
+              },
+              "run": {
+                "options": {
+                  "protocol": "throughput",
+                  "durationMs": 1000,
+                  "warmupFrames": 60,
+                  "batchSize": 20,
+                  "cycleFrames": 1,
+                  "stepSeconds": 0.016666666666666666,
+                  "measureFrames": 60
+                },
+                "elapsedMs": 2046.0106249999994,
+                "frames": 60,
+                "fps": 29.32536090813312,
+                "metrics": [
+                  {
+                    "descriptor": {
+                      "id": "cpu.submit",
+                      "label": "CPU update + submit",
+                      "unit": "ms",
+                      "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+                    },
+                    "sampleUnit": "frame",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 9.41354199999978
+                      },
+                      {
+                        "frame": 61,
+                        "value": 19.176874999999654
+                      },
+                      {
+                        "frame": 62,
+                        "value": 34.893167000000176
+                      },
+                      {
+                        "frame": 63,
+                        "value": 35.327124999999796
+                      },
+                      {
+                        "frame": 64,
+                        "value": 34.43175000000019
+                      },
+                      {
+                        "frame": 65,
+                        "value": 33.48337500000025
+                      },
+                      {
+                        "frame": 66,
+                        "value": 34.00045799999998
+                      },
+                      {
+                        "frame": 67,
+                        "value": 32.556290999999874
+                      },
+                      {
+                        "frame": 68,
+                        "value": 32.70404099999996
+                      },
+                      {
+                        "frame": 69,
+                        "value": 33.765625
+                      },
+                      {
+                        "frame": 70,
+                        "value": 33.653749999999945
+                      },
+                      {
+                        "frame": 71,
+                        "value": 34.189167
+                      },
+                      {
+                        "frame": 72,
+                        "value": 34.1076250000001
+                      },
+                      {
+                        "frame": 73,
+                        "value": 34.66954200000009
+                      },
+                      {
+                        "frame": 74,
+                        "value": 33.066417
+                      },
+                      {
+                        "frame": 75,
+                        "value": 33.92329100000006
+                      },
+                      {
+                        "frame": 76,
+                        "value": 33.8628749999998
+                      },
+                      {
+                        "frame": 77,
+                        "value": 33.58524999999963
+                      },
+                      {
+                        "frame": 78,
+                        "value": 34.87554200000022
+                      },
+                      {
+                        "frame": 79,
+                        "value": 35.042625000000044
+                      },
+                      {
+                        "frame": 80,
+                        "value": 5.4142079999996895
+                      },
+                      {
+                        "frame": 81,
+                        "value": 20.67783300000019
+                      },
+                      {
+                        "frame": 82,
+                        "value": 33.463582999999744
+                      },
+                      {
+                        "frame": 83,
+                        "value": 35.04429200000004
+                      },
+                      {
+                        "frame": 84,
+                        "value": 34.85891700000002
+                      },
+                      {
+                        "frame": 85,
+                        "value": 32.905874999999924
+                      },
+                      {
+                        "frame": 86,
+                        "value": 34.041707999999744
+                      },
+                      {
+                        "frame": 87,
+                        "value": 34.21550000000025
+                      },
+                      {
+                        "frame": 88,
+                        "value": 32.717291999999816
+                      },
+                      {
+                        "frame": 89,
+                        "value": 34.61566600000015
+                      },
+                      {
+                        "frame": 90,
+                        "value": 33.34687499999973
+                      },
+                      {
+                        "frame": 91,
+                        "value": 33.73445900000024
+                      },
+                      {
+                        "frame": 92,
+                        "value": 34.009000000000015
+                      },
+                      {
+                        "frame": 93,
+                        "value": 32.59333400000014
+                      },
+                      {
+                        "frame": 94,
+                        "value": 34.363708000000315
+                      },
+                      {
+                        "frame": 95,
+                        "value": 34.63012500000059
+                      },
+                      {
+                        "frame": 96,
+                        "value": 33.60624999999982
+                      },
+                      {
+                        "frame": 97,
+                        "value": 34.52083300000049
+                      },
+                      {
+                        "frame": 98,
+                        "value": 32.476707999999235
+                      },
+                      {
+                        "frame": 99,
+                        "value": 35.23970899999949
+                      },
+                      {
+                        "frame": 100,
+                        "value": 4.719124999999622
+                      },
+                      {
+                        "frame": 101,
+                        "value": 21.773333000000093
+                      },
+                      {
+                        "frame": 102,
+                        "value": 34.728000000000065
+                      },
+                      {
+                        "frame": 103,
+                        "value": 33.05183400000078
+                      },
+                      {
+                        "frame": 104,
+                        "value": 35.13879100000031
+                      },
+                      {
+                        "frame": 105,
+                        "value": 34.141082999999526
+                      },
+                      {
+                        "frame": 106,
+                        "value": 33.007416999999805
+                      },
+                      {
+                        "frame": 107,
+                        "value": 34.13995799999975
+                      },
+                      {
+                        "frame": 108,
+                        "value": 35.0317500000001
+                      },
+                      {
+                        "frame": 109,
+                        "value": 32.87212499999987
+                      },
+                      {
+                        "frame": 110,
+                        "value": 36.032749999999396
+                      },
+                      {
+                        "frame": 111,
+                        "value": 33.37575000000015
+                      },
+                      {
+                        "frame": 112,
+                        "value": 33.71799999999985
+                      },
+                      {
+                        "frame": 113,
+                        "value": 34.44262500000059
+                      },
+                      {
+                        "frame": 114,
+                        "value": 33.72141699999975
+                      },
+                      {
+                        "frame": 115,
+                        "value": 33.640708000000814
+                      },
+                      {
+                        "frame": 116,
+                        "value": 34.53454099999999
+                      },
+                      {
+                        "frame": 117,
+                        "value": 33.621791000000485
+                      },
+                      {
+                        "frame": 118,
+                        "value": 33.587500000000546
+                      },
+                      {
+                        "frame": 119,
+                        "value": 34.59479199999987
+                      }
+                    ],
+                    "statistics": {
+                      "n": 60,
+                      "mean": 31.951291633333344,
+                      "stddev": 6.649789190488737,
+                      "median": 33.8142499999999,
+                      "p95": 35.13879100000031,
+                      "min": 4.719124999999622,
+                      "max": 36.032749999999396
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "id": "throughput.frame",
+                      "label": "Completed-work ms/frame",
+                      "unit": "ms",
+                      "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+                    },
+                    "sampleUnit": "batch",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 34.186785399999984
+                      },
+                      {
+                        "frame": 80,
+                        "value": 33.97391039999998
+                      },
+                      {
+                        "frame": 100,
+                        "value": 34.133856249999965
+                      }
+                    ],
+                    "statistics": {
+                      "n": 3,
+                      "mean": 34.09818401666664,
+                      "stddev": 0.11083015194201741,
+                      "median": 34.133856249999965,
+                      "p95": 34.186785399999984,
+                      "min": 33.97391039999998,
+                      "max": 34.186785399999984
+                    }
+                  }
+                ],
+                "profiling": {
+                  "status": "disabled",
+                  "invalidSamples": 0
+                }
+              }
+            },
+            {
+              "repeat": 0,
+              "orderIndex": 8,
+              "adapter": {
+                "subgroupMatrixConfigs": []
+              },
+              "run": {
+                "options": {
+                  "protocol": "throughput",
+                  "durationMs": 1000,
+                  "warmupFrames": 60,
+                  "batchSize": 20,
+                  "cycleFrames": 1,
+                  "stepSeconds": 0.016666666666666666,
+                  "measureFrames": 60
+                },
+                "elapsedMs": 2075.543125,
+                "frames": 60,
+                "fps": 28.90809604353559,
+                "metrics": [
+                  {
+                    "descriptor": {
+                      "id": "cpu.submit",
+                      "label": "CPU update + submit",
+                      "unit": "ms",
+                      "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+                    },
+                    "sampleUnit": "frame",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 4.652082999999948
+                      },
+                      {
+                        "frame": 61,
+                        "value": 22.303415999999743
+                      },
+                      {
+                        "frame": 62,
+                        "value": 34.211207999999715
+                      },
+                      {
+                        "frame": 63,
+                        "value": 32.545250000000124
+                      },
+                      {
+                        "frame": 64,
+                        "value": 32.72758299999987
+                      },
+                      {
+                        "frame": 65,
+                        "value": 31.299332999999933
+                      },
+                      {
+                        "frame": 66,
+                        "value": 34.13612499999999
+                      },
+                      {
+                        "frame": 67,
+                        "value": 31.335667000000285
+                      },
+                      {
+                        "frame": 68,
+                        "value": 33.9066670000002
+                      },
+                      {
+                        "frame": 69,
+                        "value": 34.59900000000016
+                      },
+                      {
+                        "frame": 70,
+                        "value": 32.83095899999989
+                      },
+                      {
+                        "frame": 71,
+                        "value": 32.51191599999993
+                      },
+                      {
+                        "frame": 72,
+                        "value": 36.13316699999996
+                      },
+                      {
+                        "frame": 73,
+                        "value": 34.45658400000002
+                      },
+                      {
+                        "frame": 74,
+                        "value": 34.06699999999955
+                      },
+                      {
+                        "frame": 75,
+                        "value": 34.400125000000116
+                      },
+                      {
+                        "frame": 76,
+                        "value": 34.44658299999992
+                      },
+                      {
+                        "frame": 77,
+                        "value": 34.1376250000003
+                      },
+                      {
+                        "frame": 78,
+                        "value": 33.438208999999915
+                      },
+                      {
+                        "frame": 79,
+                        "value": 33.68333299999995
+                      },
+                      {
+                        "frame": 80,
+                        "value": 4.673999999999978
+                      },
+                      {
+                        "frame": 81,
+                        "value": 21.49354200000016
+                      },
+                      {
+                        "frame": 82,
+                        "value": 34.295416999999816
+                      },
+                      {
+                        "frame": 83,
+                        "value": 33.67808300000024
+                      },
+                      {
+                        "frame": 84,
+                        "value": 36.52233400000023
+                      },
+                      {
+                        "frame": 85,
+                        "value": 35.5871659999998
+                      },
+                      {
+                        "frame": 86,
+                        "value": 35.802999999999884
+                      },
+                      {
+                        "frame": 87,
+                        "value": 34.416999999999916
+                      },
+                      {
+                        "frame": 88,
+                        "value": 32.64741700000013
+                      },
+                      {
+                        "frame": 89,
+                        "value": 34.065042000000176
+                      },
+                      {
+                        "frame": 90,
+                        "value": 33.71908399999984
+                      },
+                      {
+                        "frame": 91,
+                        "value": 33.32500000000027
+                      },
+                      {
+                        "frame": 92,
+                        "value": 33.85479200000009
+                      },
+                      {
+                        "frame": 93,
+                        "value": 32.76474999999982
+                      },
+                      {
+                        "frame": 94,
+                        "value": 34.77566700000034
+                      },
+                      {
+                        "frame": 95,
+                        "value": 35.07316700000001
+                      },
+                      {
+                        "frame": 96,
+                        "value": 34.24079099999972
+                      },
+                      {
+                        "frame": 97,
+                        "value": 34.4662500000004
+                      },
+                      {
+                        "frame": 98,
+                        "value": 34.07391599999983
+                      },
+                      {
+                        "frame": 99,
+                        "value": 32.50891700000011
+                      },
+                      {
+                        "frame": 100,
+                        "value": 4.311416999999892
+                      },
+                      {
+                        "frame": 101,
+                        "value": 20.49604199999976
+                      },
+                      {
+                        "frame": 102,
+                        "value": 33.01900000000023
+                      },
+                      {
+                        "frame": 103,
+                        "value": 33.78725000000031
+                      },
+                      {
+                        "frame": 104,
+                        "value": 31.6284169999999
+                      },
+                      {
+                        "frame": 105,
+                        "value": 32.09700000000066
+                      },
+                      {
+                        "frame": 106,
+                        "value": 31.849707999999737
+                      },
+                      {
+                        "frame": 107,
+                        "value": 35.39241700000002
+                      },
+                      {
+                        "frame": 108,
+                        "value": 32.942041999999674
+                      },
+                      {
+                        "frame": 109,
+                        "value": 34.805333000000246
+                      },
+                      {
+                        "frame": 110,
+                        "value": 33.890292000000045
+                      },
+                      {
+                        "frame": 111,
+                        "value": 33.10045899999932
+                      },
+                      {
+                        "frame": 112,
+                        "value": 34.562166000000616
+                      },
+                      {
+                        "frame": 113,
+                        "value": 35.463166999999885
+                      },
+                      {
+                        "frame": 114,
+                        "value": 36.72200000000066
+                      },
+                      {
+                        "frame": 115,
+                        "value": 34.2242499999993
+                      },
+                      {
+                        "frame": 116,
+                        "value": 33.36962499999936
+                      },
+                      {
+                        "frame": 117,
+                        "value": 35.506209000000126
+                      },
+                      {
+                        "frame": 118,
+                        "value": 33.72320799999943
+                      },
+                      {
+                        "frame": 119,
+                        "value": 34.953583000000435
+                      }
+                    ],
+                    "statistics": {
+                      "n": 60,
+                      "mean": 31.827512549999998,
+                      "stddev": 6.982378432172607,
+                      "median": 33.87254200000007,
+                      "p95": 35.802999999999884,
+                      "min": 4.311416999999892,
+                      "max": 36.72200000000066
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "id": "throughput.frame",
+                      "label": "Completed-work ms/frame",
+                      "unit": "ms",
+                      "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+                    },
+                    "sampleUnit": "batch",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 33.765625
+                      },
+                      {
+                        "frame": 80,
+                        "value": 35.98977709999999
+                      },
+                      {
+                        "frame": 100,
+                        "value": 34.01471455000001
+                      }
+                    ],
+                    "statistics": {
+                      "n": 3,
+                      "mean": 34.590038883333335,
+                      "stddev": 1.218590048940852,
+                      "median": 34.01471455000001,
+                      "p95": 35.98977709999999,
+                      "min": 33.765625,
+                      "max": 35.98977709999999
+                    }
+                  }
+                ],
+                "profiling": {
+                  "status": "disabled",
+                  "invalidSamples": 0
+                }
+              }
+            },
+            {
+              "repeat": 0,
+              "orderIndex": 10,
+              "adapter": {
+                "subgroupMatrixConfigs": []
+              },
+              "run": {
+                "options": {
+                  "protocol": "throughput",
+                  "durationMs": 1000,
+                  "warmupFrames": 60,
+                  "batchSize": 20,
+                  "cycleFrames": 1,
+                  "stepSeconds": 0.016666666666666666,
+                  "measureFrames": 60
+                },
+                "elapsedMs": 2105.132917,
+                "frames": 60,
+                "fps": 28.501763245194653,
+                "metrics": [
+                  {
+                    "descriptor": {
+                      "id": "cpu.submit",
+                      "label": "CPU update + submit",
+                      "unit": "ms",
+                      "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+                    },
+                    "sampleUnit": "frame",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 4.188458000000082
+                      },
+                      {
+                        "frame": 61,
+                        "value": 22.31287499999962
+                      },
+                      {
+                        "frame": 62,
+                        "value": 33.67808299999979
+                      },
+                      {
+                        "frame": 63,
+                        "value": 32.68454100000008
+                      },
+                      {
+                        "frame": 64,
+                        "value": 34.09462500000018
+                      },
+                      {
+                        "frame": 65,
+                        "value": 34.934792000000016
+                      },
+                      {
+                        "frame": 66,
+                        "value": 33.022500000000036
+                      },
+                      {
+                        "frame": 67,
+                        "value": 33.71958300000006
+                      },
+                      {
+                        "frame": 68,
+                        "value": 34.048583000000235
+                      },
+                      {
+                        "frame": 69,
+                        "value": 34.8332919999998
+                      },
+                      {
+                        "frame": 70,
+                        "value": 34.14366699999982
+                      },
+                      {
+                        "frame": 71,
+                        "value": 33.67333400000007
+                      },
+                      {
+                        "frame": 72,
+                        "value": 35.056375000000116
+                      },
+                      {
+                        "frame": 73,
+                        "value": 34.80904099999998
+                      },
+                      {
+                        "frame": 74,
+                        "value": 32.9704999999999
+                      },
+                      {
+                        "frame": 75,
+                        "value": 33.18212500000027
+                      },
+                      {
+                        "frame": 76,
+                        "value": 32.82479199999989
+                      },
+                      {
+                        "frame": 77,
+                        "value": 34.19354199999998
+                      },
+                      {
+                        "frame": 78,
+                        "value": 35.983208000000104
+                      },
+                      {
+                        "frame": 79,
+                        "value": 34.94833299999982
+                      },
+                      {
+                        "frame": 80,
+                        "value": 5.115458000000217
+                      },
+                      {
+                        "frame": 81,
+                        "value": 22.38020800000004
+                      },
+                      {
+                        "frame": 82,
+                        "value": 33.26929100000007
+                      },
+                      {
+                        "frame": 83,
+                        "value": 33.917791999999736
+                      },
+                      {
+                        "frame": 84,
+                        "value": 34.94075000000021
+                      },
+                      {
+                        "frame": 85,
+                        "value": 35.2222499999998
+                      },
+                      {
+                        "frame": 86,
+                        "value": 33.13875000000007
+                      },
+                      {
+                        "frame": 87,
+                        "value": 33.10162500000024
+                      },
+                      {
+                        "frame": 88,
+                        "value": 34.677459
+                      },
+                      {
+                        "frame": 89,
+                        "value": 33.75475000000006
+                      },
+                      {
+                        "frame": 90,
+                        "value": 33.035917000000154
+                      },
+                      {
+                        "frame": 91,
+                        "value": 34.29229200000009
+                      },
+                      {
+                        "frame": 92,
+                        "value": 33.33304100000032
+                      },
+                      {
+                        "frame": 93,
+                        "value": 33.21675000000005
+                      },
+                      {
+                        "frame": 94,
+                        "value": 32.99204099999997
+                      },
+                      {
+                        "frame": 95,
+                        "value": 33.6197089999996
+                      },
+                      {
+                        "frame": 96,
+                        "value": 34.90620900000022
+                      },
+                      {
+                        "frame": 97,
+                        "value": 34.50554199999988
+                      },
+                      {
+                        "frame": 98,
+                        "value": 36.04408300000023
+                      },
+                      {
+                        "frame": 99,
+                        "value": 36.29112500000065
+                      },
+                      {
+                        "frame": 100,
+                        "value": 3.772041000000172
+                      },
+                      {
+                        "frame": 101,
+                        "value": 24.36408300000039
+                      },
+                      {
+                        "frame": 102,
+                        "value": 33.08429100000012
+                      },
+                      {
+                        "frame": 103,
+                        "value": 33.214625000000524
+                      },
+                      {
+                        "frame": 104,
+                        "value": 36.550624999999854
+                      },
+                      {
+                        "frame": 105,
+                        "value": 32.13970900000004
+                      },
+                      {
+                        "frame": 106,
+                        "value": 33.28675000000021
+                      },
+                      {
+                        "frame": 107,
+                        "value": 32.85875000000033
+                      },
+                      {
+                        "frame": 108,
+                        "value": 32.329665999999634
+                      },
+                      {
+                        "frame": 109,
+                        "value": 35.67437500000051
+                      },
+                      {
+                        "frame": 110,
+                        "value": 33.78941699999996
+                      },
+                      {
+                        "frame": 111,
+                        "value": 46.57233300000007
+                      },
+                      {
+                        "frame": 112,
+                        "value": 25.884750000000167
+                      },
+                      {
+                        "frame": 113,
+                        "value": 32.18266700000004
+                      },
+                      {
+                        "frame": 114,
+                        "value": 33.049167000000125
+                      },
+                      {
+                        "frame": 115,
+                        "value": 34.681249999999636
+                      },
+                      {
+                        "frame": 116,
+                        "value": 35.616916999999376
+                      },
+                      {
+                        "frame": 117,
+                        "value": 34.4653330000001
+                      },
+                      {
+                        "frame": 118,
+                        "value": 33.48962500000016
+                      },
+                      {
+                        "frame": 119,
+                        "value": 33.64591699999983
+                      }
+                    ],
+                    "statistics": {
+                      "n": 60,
+                      "mean": 32.028493033333376,
+                      "stddev": 7.191984250611588,
+                      "median": 33.65962549999995,
+                      "p95": 36.04408300000023,
+                      "min": 3.772041000000172,
+                      "max": 46.57233300000007
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "id": "throughput.frame",
+                      "label": "Completed-work ms/frame",
+                      "unit": "ms",
+                      "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+                    },
+                    "sampleUnit": "batch",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 34.18959170000001
+                      },
+                      {
+                        "frame": 80,
+                        "value": 36.8796521
+                      },
+                      {
+                        "frame": 100,
+                        "value": 34.17770834999997
+                      }
+                    ],
+                    "statistics": {
+                      "n": 3,
+                      "mean": 35.082317383333326,
+                      "stddev": 1.5565488640910907,
+                      "median": 34.18959170000001,
+                      "p95": 36.8796521,
+                      "min": 34.17770834999997,
+                      "max": 36.8796521
+                    }
+                  }
+                ],
+                "profiling": {
+                  "status": "disabled",
+                  "invalidSamples": 0
+                }
+              }
+            },
+            {
+              "repeat": 0,
+              "orderIndex": 12,
+              "adapter": {
+                "subgroupMatrixConfigs": []
+              },
+              "run": {
+                "options": {
+                  "protocol": "throughput",
+                  "durationMs": 1000,
+                  "warmupFrames": 60,
+                  "batchSize": 20,
+                  "cycleFrames": 1,
+                  "stepSeconds": 0.016666666666666666,
+                  "measureFrames": 60
+                },
+                "elapsedMs": 2293.2460410000003,
+                "frames": 60,
+                "fps": 26.163786583421377,
+                "metrics": [
+                  {
+                    "descriptor": {
+                      "id": "cpu.submit",
+                      "label": "CPU update + submit",
+                      "unit": "ms",
+                      "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+                    },
+                    "sampleUnit": "frame",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 12.12237499999992
+                      },
+                      {
+                        "frame": 61,
+                        "value": 21.85895900000014
+                      },
+                      {
+                        "frame": 62,
+                        "value": 40.81491700000015
+                      },
+                      {
+                        "frame": 63,
+                        "value": 58.03941699999996
+                      },
+                      {
+                        "frame": 64,
+                        "value": 42.898291999999856
+                      },
+                      {
+                        "frame": 65,
+                        "value": 93.83525000000009
+                      },
+                      {
+                        "frame": 66,
+                        "value": 43.375
+                      },
+                      {
+                        "frame": 67,
+                        "value": 37.15816700000005
+                      },
+                      {
+                        "frame": 68,
+                        "value": 45.58575000000019
+                      },
+                      {
+                        "frame": 69,
+                        "value": 32.179667000000336
+                      },
+                      {
+                        "frame": 70,
+                        "value": 17.80208300000004
+                      },
+                      {
+                        "frame": 71,
+                        "value": 33.88187499999958
+                      },
+                      {
+                        "frame": 72,
+                        "value": 32.365999999999985
+                      },
+                      {
+                        "frame": 73,
+                        "value": 37.547207999999955
+                      },
+                      {
+                        "frame": 74,
+                        "value": 44.64045900000019
+                      },
+                      {
+                        "frame": 75,
+                        "value": 33.238374999999905
+                      },
+                      {
+                        "frame": 76,
+                        "value": 34.1393750000002
+                      },
+                      {
+                        "frame": 77,
+                        "value": 41.691833999999744
+                      },
+                      {
+                        "frame": 78,
+                        "value": 36.96208299999989
+                      },
+                      {
+                        "frame": 79,
+                        "value": 34.386708
+                      },
+                      {
+                        "frame": 80,
+                        "value": 13.816541999999572
+                      },
+                      {
+                        "frame": 81,
+                        "value": 19.10137500000019
+                      },
+                      {
+                        "frame": 82,
+                        "value": 34.358999999999924
+                      },
+                      {
+                        "frame": 83,
+                        "value": 34.49158299999999
+                      },
+                      {
+                        "frame": 84,
+                        "value": 36.860541999999896
+                      },
+                      {
+                        "frame": 85,
+                        "value": 43.930624999999964
+                      },
+                      {
+                        "frame": 86,
+                        "value": 31.61145899999974
+                      },
+                      {
+                        "frame": 87,
+                        "value": 36.785375000000386
+                      },
+                      {
+                        "frame": 88,
+                        "value": 38.561249999999745
+                      },
+                      {
+                        "frame": 89,
+                        "value": 37.14837499999976
+                      },
+                      {
+                        "frame": 90,
+                        "value": 32.44850000000042
+                      },
+                      {
+                        "frame": 91,
+                        "value": 36.248334000000796
+                      },
+                      {
+                        "frame": 92,
+                        "value": 34.494957999999315
+                      },
+                      {
+                        "frame": 93,
+                        "value": 36.77333300000009
+                      },
+                      {
+                        "frame": 94,
+                        "value": 35.09741699999995
+                      },
+                      {
+                        "frame": 95,
+                        "value": 35.77191599999969
+                      },
+                      {
+                        "frame": 96,
+                        "value": 35.98633299999983
+                      },
+                      {
+                        "frame": 97,
+                        "value": 37.24708299999929
+                      },
+                      {
+                        "frame": 98,
+                        "value": 38.85029200000008
+                      },
+                      {
+                        "frame": 99,
+                        "value": 34.35216700000001
+                      },
+                      {
+                        "frame": 100,
+                        "value": 3.90454199999931
+                      },
+                      {
+                        "frame": 101,
+                        "value": 22.79608300000018
+                      },
+                      {
+                        "frame": 102,
+                        "value": 32.638457999999446
+                      },
+                      {
+                        "frame": 103,
+                        "value": 32.205541999999696
+                      },
+                      {
+                        "frame": 104,
+                        "value": 32.363124999999854
+                      },
+                      {
+                        "frame": 105,
+                        "value": 39.08099999999922
+                      },
+                      {
+                        "frame": 106,
+                        "value": 29.2242499999993
+                      },
+                      {
+                        "frame": 107,
+                        "value": 31.876624999999876
+                      },
+                      {
+                        "frame": 108,
+                        "value": 34.055208000000675
+                      },
+                      {
+                        "frame": 109,
+                        "value": 36.085000000000036
+                      },
+                      {
+                        "frame": 110,
+                        "value": 35.02637499999946
+                      },
+                      {
+                        "frame": 111,
+                        "value": 39.072540999999546
+                      },
+                      {
+                        "frame": 112,
+                        "value": 34.51579200000015
+                      },
+                      {
+                        "frame": 113,
+                        "value": 31.97333299999991
+                      },
+                      {
+                        "frame": 114,
+                        "value": 34.01224999999977
+                      },
+                      {
+                        "frame": 115,
+                        "value": 35.24458400000003
+                      },
+                      {
+                        "frame": 116,
+                        "value": 34.80150000000049
+                      },
+                      {
+                        "frame": 117,
+                        "value": 35.245750000000044
+                      },
+                      {
+                        "frame": 118,
+                        "value": 34.204916000000594
+                      },
+                      {
+                        "frame": 119,
+                        "value": 34.52054099999987
+                      }
+                    ],
+                    "statistics": {
+                      "n": 60,
+                      "mean": 35.021794466666606,
+                      "stddev": 11.284011945423831,
+                      "median": 34.66102050000018,
+                      "p95": 44.64045900000019,
+                      "min": 3.90454199999931,
+                      "max": 93.83525000000009
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "id": "throughput.frame",
+                      "label": "Completed-work ms/frame",
+                      "unit": "ms",
+                      "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+                    },
+                    "sampleUnit": "batch",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 40.21657915000001
+                      },
+                      {
+                        "frame": 80,
+                        "value": 39.99957705000001
+                      },
+                      {
+                        "frame": 100,
+                        "value": 34.42963749999999
+                      }
+                    ],
+                    "statistics": {
+                      "n": 3,
+                      "mean": 38.21526456666667,
+                      "stddev": 3.2802441515473553,
+                      "median": 39.99957705000001,
+                      "p95": 40.21657915000001,
+                      "min": 34.42963749999999,
+                      "max": 40.21657915000001
+                    }
+                  }
+                ],
+                "profiling": {
+                  "status": "disabled",
+                  "invalidSamples": 0
+                }
+              }
+            }
+          ]
+        },
+        "ssgi-early-exit": {
+          "runs": [
+            {
+              "repeat": 0,
+              "orderIndex": 1,
+              "adapter": {
+                "subgroupMatrixConfigs": []
+              },
+              "run": {
+                "options": {
+                  "protocol": "throughput",
+                  "durationMs": 1000,
+                  "warmupFrames": 60,
+                  "batchSize": 20,
+                  "cycleFrames": 1,
+                  "stepSeconds": 0.016666666666666666,
+                  "measureFrames": 60
+                },
+                "elapsedMs": 2032.0352079999998,
+                "frames": 60,
+                "fps": 29.5270474467094,
+                "metrics": [
+                  {
+                    "descriptor": {
+                      "id": "cpu.submit",
+                      "label": "CPU update + submit",
+                      "unit": "ms",
+                      "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+                    },
+                    "sampleUnit": "frame",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 9.53387500000008
+                      },
+                      {
+                        "frame": 61,
+                        "value": 17.734040999999706
+                      },
+                      {
+                        "frame": 62,
+                        "value": 34.76591700000017
+                      },
+                      {
+                        "frame": 63,
+                        "value": 31.71145800000022
+                      },
+                      {
+                        "frame": 64,
+                        "value": 32.661583000000064
+                      },
+                      {
+                        "frame": 65,
+                        "value": 32.94241599999987
+                      },
+                      {
+                        "frame": 66,
+                        "value": 32.12391699999989
+                      },
+                      {
+                        "frame": 67,
+                        "value": 32.28083300000026
+                      },
+                      {
+                        "frame": 68,
+                        "value": 30.996625000000222
+                      },
+                      {
+                        "frame": 69,
+                        "value": 33.16741699999966
+                      },
+                      {
+                        "frame": 70,
+                        "value": 32.246458000000075
+                      },
+                      {
+                        "frame": 71,
+                        "value": 33.58420800000022
+                      },
+                      {
+                        "frame": 72,
+                        "value": 32.74583399999983
+                      },
+                      {
+                        "frame": 73,
+                        "value": 32.39499999999998
+                      },
+                      {
+                        "frame": 74,
+                        "value": 33.83845799999972
+                      },
+                      {
+                        "frame": 75,
+                        "value": 33.21150000000034
+                      },
+                      {
+                        "frame": 76,
+                        "value": 32.06391600000006
+                      },
+                      {
+                        "frame": 77,
+                        "value": 32.69425000000001
+                      },
+                      {
+                        "frame": 78,
+                        "value": 32.435207999999875
+                      },
+                      {
+                        "frame": 79,
+                        "value": 33.17433400000027
+                      },
+                      {
+                        "frame": 80,
+                        "value": 7.795791999999892
+                      },
+                      {
+                        "frame": 81,
+                        "value": 19.212625000000116
+                      },
+                      {
+                        "frame": 82,
+                        "value": 32.92125000000033
+                      },
+                      {
+                        "frame": 83,
+                        "value": 32.33354200000031
+                      },
+                      {
+                        "frame": 84,
+                        "value": 34.198457999999846
+                      },
+                      {
+                        "frame": 85,
+                        "value": 33.38224999999966
+                      },
+                      {
+                        "frame": 86,
+                        "value": 31.65704099999948
+                      },
+                      {
+                        "frame": 87,
+                        "value": 33.898957999999766
+                      },
+                      {
+                        "frame": 88,
+                        "value": 33.01579200000015
+                      },
+                      {
+                        "frame": 89,
+                        "value": 34.58720799999992
+                      },
+                      {
+                        "frame": 90,
+                        "value": 34.817167000000154
+                      },
+                      {
+                        "frame": 91,
+                        "value": 33.50849999999991
+                      },
+                      {
+                        "frame": 92,
+                        "value": 32.87666700000045
+                      },
+                      {
+                        "frame": 93,
+                        "value": 34.29004200000054
+                      },
+                      {
+                        "frame": 94,
+                        "value": 33.420250000000124
+                      },
+                      {
+                        "frame": 95,
+                        "value": 34.387791999999536
+                      },
+                      {
+                        "frame": 96,
+                        "value": 38.30949999999939
+                      },
+                      {
+                        "frame": 97,
+                        "value": 30.672833000000537
+                      },
+                      {
+                        "frame": 98,
+                        "value": 35.36479200000031
+                      },
+                      {
+                        "frame": 99,
+                        "value": 35.95591700000023
+                      },
+                      {
+                        "frame": 100,
+                        "value": 8.797375000000102
+                      },
+                      {
+                        "frame": 101,
+                        "value": 23.093708000000333
+                      },
+                      {
+                        "frame": 102,
+                        "value": 30.334458000000268
+                      },
+                      {
+                        "frame": 103,
+                        "value": 33.04108300000007
+                      },
+                      {
+                        "frame": 104,
+                        "value": 34.72283300000072
+                      },
+                      {
+                        "frame": 105,
+                        "value": 34.3149999999996
+                      },
+                      {
+                        "frame": 106,
+                        "value": 36.810708999999406
+                      },
+                      {
+                        "frame": 107,
+                        "value": 31.594167000000198
+                      },
+                      {
+                        "frame": 108,
+                        "value": 33.21862500000043
+                      },
+                      {
+                        "frame": 109,
+                        "value": 33.09016700000029
+                      },
+                      {
+                        "frame": 110,
+                        "value": 34.251791000000594
+                      },
+                      {
+                        "frame": 111,
+                        "value": 34.249917000000096
+                      },
+                      {
+                        "frame": 112,
+                        "value": 32.90558400000009
+                      },
+                      {
+                        "frame": 113,
+                        "value": 34.44983400000001
+                      },
+                      {
+                        "frame": 114,
+                        "value": 33.98774999999932
+                      },
+                      {
+                        "frame": 115,
+                        "value": 34.063083000000006
+                      },
+                      {
+                        "frame": 116,
+                        "value": 42.44495800000004
+                      },
+                      {
+                        "frame": 117,
+                        "value": 27.345416999999543
+                      },
+                      {
+                        "frame": 118,
+                        "value": 33.547833999999966
+                      },
+                      {
+                        "frame": 119,
+                        "value": 36.709624999999505
+                      }
+                    ],
+                    "statistics": {
+                      "n": 60,
+                      "mean": 31.59812570000003,
+                      "stddev": 6.407170474667413,
+                      "median": 33.128791999999976,
+                      "p95": 36.709624999999505,
+                      "min": 7.795791999999892,
+                      "max": 42.44495800000004
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "id": "throughput.frame",
+                      "label": "Completed-work ms/frame",
+                      "unit": "ms",
+                      "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+                    },
+                    "sampleUnit": "batch",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 32.919745850000005
+                      },
+                      {
+                        "frame": 80,
+                        "value": 33.863224999999964
+                      },
+                      {
+                        "frame": 100,
+                        "value": 34.568129150000004
+                      }
+                    ],
+                    "statistics": {
+                      "n": 3,
+                      "mean": 33.78369999999999,
+                      "stddev": 0.8270641118731175,
+                      "median": 33.863224999999964,
+                      "p95": 34.568129150000004,
+                      "min": 32.919745850000005,
+                      "max": 34.568129150000004
+                    }
+                  }
+                ],
+                "profiling": {
+                  "status": "disabled",
+                  "invalidSamples": 0
+                }
+              }
+            }
+          ]
+        },
+        "ssgi-reuse-texels": {
+          "runs": [
+            {
+              "repeat": 0,
+              "orderIndex": 3,
+              "adapter": {
+                "subgroupMatrixConfigs": []
+              },
+              "run": {
+                "options": {
+                  "protocol": "throughput",
+                  "durationMs": 1000,
+                  "warmupFrames": 60,
+                  "batchSize": 20,
+                  "cycleFrames": 1,
+                  "stepSeconds": 0.016666666666666666,
+                  "measureFrames": 60
+                },
+                "elapsedMs": 2140.405708,
+                "frames": 60,
+                "fps": 28.032068768899027,
+                "metrics": [
+                  {
+                    "descriptor": {
+                      "id": "cpu.submit",
+                      "label": "CPU update + submit",
+                      "unit": "ms",
+                      "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+                    },
+                    "sampleUnit": "frame",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 4.385209000000032
+                      },
+                      {
+                        "frame": 61,
+                        "value": 20.01408399999991
+                      },
+                      {
+                        "frame": 62,
+                        "value": 31.653625000000375
+                      },
+                      {
+                        "frame": 63,
+                        "value": 32.39325000000008
+                      },
+                      {
+                        "frame": 64,
+                        "value": 33.856374999999844
+                      },
+                      {
+                        "frame": 65,
+                        "value": 31.95304199999964
+                      },
+                      {
+                        "frame": 66,
+                        "value": 35.281833000000006
+                      },
+                      {
+                        "frame": 67,
+                        "value": 33.46470799999997
+                      },
+                      {
+                        "frame": 68,
+                        "value": 32.977499999999964
+                      },
+                      {
+                        "frame": 69,
+                        "value": 33.691041999999925
+                      },
+                      {
+                        "frame": 70,
+                        "value": 32.89533399999982
+                      },
+                      {
+                        "frame": 71,
+                        "value": 33.394166999999925
+                      },
+                      {
+                        "frame": 72,
+                        "value": 34.44966699999986
+                      },
+                      {
+                        "frame": 73,
+                        "value": 34.090000000000146
+                      },
+                      {
+                        "frame": 74,
+                        "value": 32.2461659999999
+                      },
+                      {
+                        "frame": 75,
+                        "value": 33.56712500000003
+                      },
+                      {
+                        "frame": 76,
+                        "value": 33.038874999999734
+                      },
+                      {
+                        "frame": 77,
+                        "value": 35.036041999999725
+                      },
+                      {
+                        "frame": 78,
+                        "value": 36.16462499999989
+                      },
+                      {
+                        "frame": 79,
+                        "value": 32.16566700000021
+                      },
+                      {
+                        "frame": 80,
+                        "value": 5.589500000000044
+                      },
+                      {
+                        "frame": 81,
+                        "value": 20.98254100000031
+                      },
+                      {
+                        "frame": 82,
+                        "value": 34.128208000000086
+                      },
+                      {
+                        "frame": 83,
+                        "value": 31.30816700000014
+                      },
+                      {
+                        "frame": 84,
+                        "value": 32.933583
+                      },
+                      {
+                        "frame": 85,
+                        "value": 33.84275000000025
+                      },
+                      {
+                        "frame": 86,
+                        "value": 39.17270800000006
+                      },
+                      {
+                        "frame": 87,
+                        "value": 34.391625000000204
+                      },
+                      {
+                        "frame": 88,
+                        "value": 35.05995800000028
+                      },
+                      {
+                        "frame": 89,
+                        "value": 34.94345899999962
+                      },
+                      {
+                        "frame": 90,
+                        "value": 32.81925000000001
+                      },
+                      {
+                        "frame": 91,
+                        "value": 38.85295900000028
+                      },
+                      {
+                        "frame": 92,
+                        "value": 32.10366699999986
+                      },
+                      {
+                        "frame": 93,
+                        "value": 33.90216700000019
+                      },
+                      {
+                        "frame": 94,
+                        "value": 36.423541000000114
+                      },
+                      {
+                        "frame": 95,
+                        "value": 36.67812499999991
+                      },
+                      {
+                        "frame": 96,
+                        "value": 29.49375000000009
+                      },
+                      {
+                        "frame": 97,
+                        "value": 34.60600000000022
+                      },
+                      {
+                        "frame": 98,
+                        "value": 38.61345900000015
+                      },
+                      {
+                        "frame": 99,
+                        "value": 28.307000000000244
+                      },
+                      {
+                        "frame": 100,
+                        "value": 16.870499999999993
+                      },
+                      {
+                        "frame": 101,
+                        "value": 21.277750000000196
+                      },
+                      {
+                        "frame": 102,
+                        "value": 30.503125000000182
+                      },
+                      {
+                        "frame": 103,
+                        "value": 31.767541000000165
+                      },
+                      {
+                        "frame": 104,
+                        "value": 32.95745799999986
+                      },
+                      {
+                        "frame": 105,
+                        "value": 33.265958000000865
+                      },
+                      {
+                        "frame": 106,
+                        "value": 33.68162500000017
+                      },
+                      {
+                        "frame": 107,
+                        "value": 35.806000000000495
+                      },
+                      {
+                        "frame": 108,
+                        "value": 33.12970799999948
+                      },
+                      {
+                        "frame": 109,
+                        "value": 33.827124999999796
+                      },
+                      {
+                        "frame": 110,
+                        "value": 40.267125000000306
+                      },
+                      {
+                        "frame": 111,
+                        "value": 35.17479100000037
+                      },
+                      {
+                        "frame": 112,
+                        "value": 37.17191699999967
+                      },
+                      {
+                        "frame": 113,
+                        "value": 36.24354200000016
+                      },
+                      {
+                        "frame": 114,
+                        "value": 37.04770800000006
+                      },
+                      {
+                        "frame": 115,
+                        "value": 70.67920799999956
+                      },
+                      {
+                        "frame": 116,
+                        "value": 26.10808300000008
+                      },
+                      {
+                        "frame": 117,
+                        "value": 33.267000000000735
+                      },
+                      {
+                        "frame": 118,
+                        "value": 32.69566699999996
+                      },
+                      {
+                        "frame": 119,
+                        "value": 32.30925000000025
+                      }
+                    ],
+                    "statistics": {
+                      "n": 60,
+                      "mean": 32.582030566666724,
+                      "stddev": 8.30402330237528,
+                      "median": 33.42943749999995,
+                      "p95": 38.85295900000028,
+                      "min": 4.385209000000032,
+                      "max": 70.67920799999956
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "id": "throughput.frame",
+                      "label": "Completed-work ms/frame",
+                      "unit": "ms",
+                      "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+                    },
+                    "sampleUnit": "batch",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 33.482433349999994
+                      },
+                      {
+                        "frame": 80,
+                        "value": 34.61769585000002
+                      },
+                      {
+                        "frame": 100,
+                        "value": 38.839210449999975
+                      }
+                    ],
+                    "statistics": {
+                      "n": 3,
+                      "mean": 35.64644655,
+                      "stddev": 2.8226780239400107,
+                      "median": 34.61769585000002,
+                      "p95": 38.839210449999975,
+                      "min": 33.482433349999994,
+                      "max": 38.839210449999975
+                    }
+                  }
+                ],
+                "profiling": {
+                  "status": "disabled",
+                  "invalidSamples": 0
+                }
+              }
+            }
+          ]
+        },
+        "ssgi-redundant-work": {
+          "runs": [
+            {
+              "repeat": 0,
+              "orderIndex": 5,
+              "adapter": {
+                "subgroupMatrixConfigs": []
+              },
+              "run": {
+                "options": {
+                  "protocol": "throughput",
+                  "durationMs": 1000,
+                  "warmupFrames": 60,
+                  "batchSize": 20,
+                  "cycleFrames": 1,
+                  "stepSeconds": 0.016666666666666666,
+                  "measureFrames": 60
+                },
+                "elapsedMs": 2122.6305420000003,
+                "frames": 60,
+                "fps": 28.26681271789596,
+                "metrics": [
+                  {
+                    "descriptor": {
+                      "id": "cpu.submit",
+                      "label": "CPU update + submit",
+                      "unit": "ms",
+                      "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+                    },
+                    "sampleUnit": "frame",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 7.682709000000159
+                      },
+                      {
+                        "frame": 61,
+                        "value": 20.97520799999984
+                      },
+                      {
+                        "frame": 62,
+                        "value": 36.53962499999989
+                      },
+                      {
+                        "frame": 63,
+                        "value": 34.017875000000004
+                      },
+                      {
+                        "frame": 64,
+                        "value": 33.44370899999967
+                      },
+                      {
+                        "frame": 65,
+                        "value": 34.27320899999995
+                      },
+                      {
+                        "frame": 66,
+                        "value": 32.89474999999993
+                      },
+                      {
+                        "frame": 67,
+                        "value": 36.08420800000022
+                      },
+                      {
+                        "frame": 68,
+                        "value": 34.35954199999969
+                      },
+                      {
+                        "frame": 69,
+                        "value": 33.02375000000029
+                      },
+                      {
+                        "frame": 70,
+                        "value": 34.800792
+                      },
+                      {
+                        "frame": 71,
+                        "value": 35.09566700000005
+                      },
+                      {
+                        "frame": 72,
+                        "value": 38.53891700000031
+                      },
+                      {
+                        "frame": 73,
+                        "value": 34.08679200000006
+                      },
+                      {
+                        "frame": 74,
+                        "value": 36.49637500000017
+                      },
+                      {
+                        "frame": 75,
+                        "value": 34.78274999999985
+                      },
+                      {
+                        "frame": 76,
+                        "value": 33.27833299999975
+                      },
+                      {
+                        "frame": 77,
+                        "value": 34.66324999999961
+                      },
+                      {
+                        "frame": 78,
+                        "value": 33.600332999999864
+                      },
+                      {
+                        "frame": 79,
+                        "value": 36.19162499999993
+                      },
+                      {
+                        "frame": 80,
+                        "value": 8.873833000000104
+                      },
+                      {
+                        "frame": 81,
+                        "value": 18.62420899999961
+                      },
+                      {
+                        "frame": 82,
+                        "value": 32.84404200000017
+                      },
+                      {
+                        "frame": 83,
+                        "value": 31.736083000000235
+                      },
+                      {
+                        "frame": 84,
+                        "value": 33.88695800000005
+                      },
+                      {
+                        "frame": 85,
+                        "value": 33.728791999999885
+                      },
+                      {
+                        "frame": 86,
+                        "value": 34.23858300000029
+                      },
+                      {
+                        "frame": 87,
+                        "value": 34.037874999999985
+                      },
+                      {
+                        "frame": 88,
+                        "value": 32.678957999999966
+                      },
+                      {
+                        "frame": 89,
+                        "value": 33.736665999999786
+                      },
+                      {
+                        "frame": 90,
+                        "value": 33.72016699999995
+                      },
+                      {
+                        "frame": 91,
+                        "value": 35.16141599999992
+                      },
+                      {
+                        "frame": 92,
+                        "value": 33.674790999999914
+                      },
+                      {
+                        "frame": 93,
+                        "value": 35.19037500000013
+                      },
+                      {
+                        "frame": 94,
+                        "value": 35.69345800000019
+                      },
+                      {
+                        "frame": 95,
+                        "value": 33.696334000000206
+                      },
+                      {
+                        "frame": 96,
+                        "value": 35.753083999999944
+                      },
+                      {
+                        "frame": 97,
+                        "value": 33.85729100000026
+                      },
+                      {
+                        "frame": 98,
+                        "value": 33.89850000000024
+                      },
+                      {
+                        "frame": 99,
+                        "value": 34.029333000000406
+                      },
+                      {
+                        "frame": 100,
+                        "value": 13.76379199999974
+                      },
+                      {
+                        "frame": 101,
+                        "value": 23.181666000000405
+                      },
+                      {
+                        "frame": 102,
+                        "value": 32.740334000000075
+                      },
+                      {
+                        "frame": 103,
+                        "value": 33.75237500000003
+                      },
+                      {
+                        "frame": 104,
+                        "value": 33.82487499999934
+                      },
+                      {
+                        "frame": 105,
+                        "value": 33.77233299999989
+                      },
+                      {
+                        "frame": 106,
+                        "value": 34.55891699999938
+                      },
+                      {
+                        "frame": 107,
+                        "value": 33.54912500000046
+                      },
+                      {
+                        "frame": 108,
+                        "value": 35.06616699999995
+                      },
+                      {
+                        "frame": 109,
+                        "value": 35.03387500000008
+                      },
+                      {
+                        "frame": 110,
+                        "value": 36.428665999999794
+                      },
+                      {
+                        "frame": 111,
+                        "value": 31.333583000000544
+                      },
+                      {
+                        "frame": 112,
+                        "value": 33.74674999999934
+                      },
+                      {
+                        "frame": 113,
+                        "value": 34.74725000000035
+                      },
+                      {
+                        "frame": 114,
+                        "value": 33.031833999999435
+                      },
+                      {
+                        "frame": 115,
+                        "value": 34.24787500000002
+                      },
+                      {
+                        "frame": 116,
+                        "value": 35.58379100000002
+                      },
+                      {
+                        "frame": 117,
+                        "value": 33.76249999999982
+                      },
+                      {
+                        "frame": 118,
+                        "value": 36.208042000000205
+                      },
+                      {
+                        "frame": 119,
+                        "value": 36.05016599999999
+                      }
+                    ],
+                    "statistics": {
+                      "n": 60,
+                      "mean": 32.47123471666666,
+                      "stddev": 6.124636109794964,
+                      "median": 33.892729000000145,
+                      "p95": 36.428665999999794,
+                      "min": 7.682709000000159,
+                      "max": 38.53891700000031
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "id": "throughput.frame",
+                      "label": "Completed-work ms/frame",
+                      "unit": "ms",
+                      "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+                    },
+                    "sampleUnit": "batch",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 35.51763540000002
+                      },
+                      {
+                        "frame": 80,
+                        "value": 35.71056874999999
+                      },
+                      {
+                        "frame": 100,
+                        "value": 34.865854200000015
+                      }
+                    ],
+                    "statistics": {
+                      "n": 3,
+                      "mean": 35.364686116666675,
+                      "stddev": 0.44264068972424286,
+                      "median": 35.51763540000002,
+                      "p95": 35.71056874999999,
+                      "min": 34.865854200000015,
+                      "max": 35.71056874999999
+                    }
+                  }
+                ],
+                "profiling": {
+                  "status": "disabled",
+                  "invalidSamples": 0
+                }
+              }
+            }
+          ]
+        },
+        "ssgi-4x32": {
+          "runs": [
+            {
+              "repeat": 0,
+              "orderIndex": 7,
+              "adapter": {
+                "subgroupMatrixConfigs": []
+              },
+              "run": {
+                "options": {
+                  "protocol": "throughput",
+                  "durationMs": 1000,
+                  "warmupFrames": 60,
+                  "batchSize": 20,
+                  "cycleFrames": 1,
+                  "stepSeconds": 0.016666666666666666,
+                  "measureFrames": 60
+                },
+                "elapsedMs": 1380.8212090000002,
+                "frames": 60,
+                "fps": 43.45240325751688,
+                "metrics": [
+                  {
+                    "descriptor": {
+                      "id": "cpu.submit",
+                      "label": "CPU update + submit",
+                      "unit": "ms",
+                      "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+                    },
+                    "sampleUnit": "frame",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 4.554625000000215
+                      },
+                      {
+                        "frame": 61,
+                        "value": 12.105125000000044
+                      },
+                      {
+                        "frame": 62,
+                        "value": 22.990374999999858
+                      },
+                      {
+                        "frame": 63,
+                        "value": 24.143082999999933
+                      },
+                      {
+                        "frame": 64,
+                        "value": 23.140249999999924
+                      },
+                      {
+                        "frame": 65,
+                        "value": 22.287415999999666
+                      },
+                      {
+                        "frame": 66,
+                        "value": 22.604125000000295
+                      },
+                      {
+                        "frame": 67,
+                        "value": 22.52962499999967
+                      },
+                      {
+                        "frame": 68,
+                        "value": 22.935167000000092
+                      },
+                      {
+                        "frame": 69,
+                        "value": 22.410750000000007
+                      },
+                      {
+                        "frame": 70,
+                        "value": 22.87504200000012
+                      },
+                      {
+                        "frame": 71,
+                        "value": 22.491291999999703
+                      },
+                      {
+                        "frame": 72,
+                        "value": 22.5168749999998
+                      },
+                      {
+                        "frame": 73,
+                        "value": 23.789334000000053
+                      },
+                      {
+                        "frame": 74,
+                        "value": 22.66070800000034
+                      },
+                      {
+                        "frame": 75,
+                        "value": 22.817250000000058
+                      },
+                      {
+                        "frame": 76,
+                        "value": 22.89350000000013
+                      },
+                      {
+                        "frame": 77,
+                        "value": 22.688125000000127
+                      },
+                      {
+                        "frame": 78,
+                        "value": 23.26212499999974
+                      },
+                      {
+                        "frame": 79,
+                        "value": 22.779583000000002
+                      },
+                      {
+                        "frame": 80,
+                        "value": 4.549708999999893
+                      },
+                      {
+                        "frame": 81,
+                        "value": 11.953042000000096
+                      },
+                      {
+                        "frame": 82,
+                        "value": 22.480417000000216
+                      },
+                      {
+                        "frame": 83,
+                        "value": 22.879750000000058
+                      },
+                      {
+                        "frame": 84,
+                        "value": 22.432374999999865
+                      },
+                      {
+                        "frame": 85,
+                        "value": 22.70783399999982
+                      },
+                      {
+                        "frame": 86,
+                        "value": 22.546749999999975
+                      },
+                      {
+                        "frame": 87,
+                        "value": 22.613209000000097
+                      },
+                      {
+                        "frame": 88,
+                        "value": 22.857124999999996
+                      },
+                      {
+                        "frame": 89,
+                        "value": 23.471874999999727
+                      },
+                      {
+                        "frame": 90,
+                        "value": 22.826708999999937
+                      },
+                      {
+                        "frame": 91,
+                        "value": 23.05291699999998
+                      },
+                      {
+                        "frame": 92,
+                        "value": 22.540292000000136
+                      },
+                      {
+                        "frame": 93,
+                        "value": 23.355790999999954
+                      },
+                      {
+                        "frame": 94,
+                        "value": 22.563042000000223
+                      },
+                      {
+                        "frame": 95,
+                        "value": 22.741042000000107
+                      },
+                      {
+                        "frame": 96,
+                        "value": 23.187792000000172
+                      },
+                      {
+                        "frame": 97,
+                        "value": 22.53570800000034
+                      },
+                      {
+                        "frame": 98,
+                        "value": 22.35529200000019
+                      },
+                      {
+                        "frame": 99,
+                        "value": 23.43745799999988
+                      },
+                      {
+                        "frame": 100,
+                        "value": 3.7113329999997404
+                      },
+                      {
+                        "frame": 101,
+                        "value": 12.286000000000058
+                      },
+                      {
+                        "frame": 102,
+                        "value": 23.098457999999937
+                      },
+                      {
+                        "frame": 103,
+                        "value": 22.35287500000004
+                      },
+                      {
+                        "frame": 104,
+                        "value": 23.710708000000068
+                      },
+                      {
+                        "frame": 105,
+                        "value": 22.64458300000024
+                      },
+                      {
+                        "frame": 106,
+                        "value": 22.509000000000015
+                      },
+                      {
+                        "frame": 107,
+                        "value": 22.850000000000364
+                      },
+                      {
+                        "frame": 108,
+                        "value": 22.41104200000018
+                      },
+                      {
+                        "frame": 109,
+                        "value": 22.640292000000045
+                      },
+                      {
+                        "frame": 110,
+                        "value": 23.294750000000022
+                      },
+                      {
+                        "frame": 111,
+                        "value": 22.66424999999981
+                      },
+                      {
+                        "frame": 112,
+                        "value": 23.302999999999884
+                      },
+                      {
+                        "frame": 113,
+                        "value": 23.73783400000002
+                      },
+                      {
+                        "frame": 114,
+                        "value": 22.557749999999942
+                      },
+                      {
+                        "frame": 115,
+                        "value": 23.028749999999945
+                      },
+                      {
+                        "frame": 116,
+                        "value": 22.44270800000004
+                      },
+                      {
+                        "frame": 117,
+                        "value": 22.612375000000156
+                      },
+                      {
+                        "frame": 118,
+                        "value": 23.113083000000188
+                      },
+                      {
+                        "frame": 119,
+                        "value": 24.25783300000012
+                      }
+                    ],
+                    "statistics": {
+                      "n": 60,
+                      "mean": 21.413152133333355,
+                      "stddev": 4.637484046087281,
+                      "median": 22.67618749999997,
+                      "p95": 23.73783400000002,
+                      "min": 3.7113329999997404,
+                      "max": 24.25783300000012
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "id": "throughput.frame",
+                      "label": "Completed-work ms/frame",
+                      "unit": "ms",
+                      "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+                    },
+                    "sampleUnit": "batch",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 23.011695800000005
+                      },
+                      {
+                        "frame": 80,
+                        "value": 22.946681250000005
+                      },
+                      {
+                        "frame": 100,
+                        "value": 23.076760400000012
+                      }
+                    ],
+                    "statistics": {
+                      "n": 3,
+                      "mean": 23.01171248333334,
+                      "stddev": 0.06503957660479742,
+                      "median": 23.011695800000005,
+                      "p95": 23.076760400000012,
+                      "min": 22.946681250000005,
+                      "max": 23.076760400000012
+                    }
+                  }
+                ],
+                "profiling": {
+                  "status": "disabled",
+                  "invalidSamples": 0
+                }
+              }
+            }
+          ]
+        },
+        "ssgi-6x32": {
+          "runs": [
+            {
+              "repeat": 0,
+              "orderIndex": 9,
+              "adapter": {
+                "subgroupMatrixConfigs": []
+              },
+              "run": {
+                "options": {
+                  "protocol": "throughput",
+                  "durationMs": 1000,
+                  "warmupFrames": 60,
+                  "batchSize": 20,
+                  "cycleFrames": 1,
+                  "stepSeconds": 0.016666666666666666,
+                  "measureFrames": 60
+                },
+                "elapsedMs": 1822.0606669999997,
+                "frames": 60,
+                "fps": 32.929748765604636,
+                "metrics": [
+                  {
+                    "descriptor": {
+                      "id": "cpu.submit",
+                      "label": "CPU update + submit",
+                      "unit": "ms",
+                      "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+                    },
+                    "sampleUnit": "frame",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 4.4260840000001735
+                      },
+                      {
+                        "frame": 61,
+                        "value": 17.941749999999956
+                      },
+                      {
+                        "frame": 62,
+                        "value": 28.369666999999936
+                      },
+                      {
+                        "frame": 63,
+                        "value": 27.689292000000023
+                      },
+                      {
+                        "frame": 64,
+                        "value": 27.680499999999938
+                      },
+                      {
+                        "frame": 65,
+                        "value": 28.554000000000087
+                      },
+                      {
+                        "frame": 66,
+                        "value": 29.05533400000013
+                      },
+                      {
+                        "frame": 67,
+                        "value": 28.06750000000011
+                      },
+                      {
+                        "frame": 68,
+                        "value": 27.771958000000268
+                      },
+                      {
+                        "frame": 69,
+                        "value": 30.205291000000216
+                      },
+                      {
+                        "frame": 70,
+                        "value": 33.2238339999999
+                      },
+                      {
+                        "frame": 71,
+                        "value": 30.969708000000082
+                      },
+                      {
+                        "frame": 72,
+                        "value": 33.563166999999794
+                      },
+                      {
+                        "frame": 73,
+                        "value": 32.19466700000021
+                      },
+                      {
+                        "frame": 74,
+                        "value": 33.30887500000017
+                      },
+                      {
+                        "frame": 75,
+                        "value": 31.724208999999973
+                      },
+                      {
+                        "frame": 76,
+                        "value": 31.6271670000001
+                      },
+                      {
+                        "frame": 77,
+                        "value": 29.084041999999954
+                      },
+                      {
+                        "frame": 78,
+                        "value": 28.873499999999694
+                      },
+                      {
+                        "frame": 79,
+                        "value": 30.447749999999814
+                      },
+                      {
+                        "frame": 80,
+                        "value": 5.88641699999971
+                      },
+                      {
+                        "frame": 81,
+                        "value": 16.380709000000024
+                      },
+                      {
+                        "frame": 82,
+                        "value": 27.7521670000001
+                      },
+                      {
+                        "frame": 83,
+                        "value": 29.067540999999892
+                      },
+                      {
+                        "frame": 84,
+                        "value": 30.86974999999984
+                      },
+                      {
+                        "frame": 85,
+                        "value": 28.994959000000108
+                      },
+                      {
+                        "frame": 86,
+                        "value": 27.68816599999991
+                      },
+                      {
+                        "frame": 87,
+                        "value": 29.846709000000374
+                      },
+                      {
+                        "frame": 88,
+                        "value": 28.733208000000104
+                      },
+                      {
+                        "frame": 89,
+                        "value": 29.936167000000296
+                      },
+                      {
+                        "frame": 90,
+                        "value": 31.31112499999972
+                      },
+                      {
+                        "frame": 91,
+                        "value": 31.136124999999993
+                      },
+                      {
+                        "frame": 92,
+                        "value": 32.85533300000043
+                      },
+                      {
+                        "frame": 93,
+                        "value": 31.467916999999943
+                      },
+                      {
+                        "frame": 94,
+                        "value": 31.444749999999658
+                      },
+                      {
+                        "frame": 95,
+                        "value": 31.99758299999985
+                      },
+                      {
+                        "frame": 96,
+                        "value": 32.255333000000064
+                      },
+                      {
+                        "frame": 97,
+                        "value": 28.68666600000006
+                      },
+                      {
+                        "frame": 98,
+                        "value": 30.733250000000226
+                      },
+                      {
+                        "frame": 99,
+                        "value": 28.37804099999994
+                      },
+                      {
+                        "frame": 100,
+                        "value": 4.310790999999881
+                      },
+                      {
+                        "frame": 101,
+                        "value": 16.945334000000003
+                      },
+                      {
+                        "frame": 102,
+                        "value": 27.654625000000124
+                      },
+                      {
+                        "frame": 103,
+                        "value": 31.807333999999628
+                      },
+                      {
+                        "frame": 104,
+                        "value": 29.59704099999999
+                      },
+                      {
+                        "frame": 105,
+                        "value": 28.224416999999903
+                      },
+                      {
+                        "frame": 106,
+                        "value": 31.199791000000005
+                      },
+                      {
+                        "frame": 107,
+                        "value": 31.591874999999618
+                      },
+                      {
+                        "frame": 108,
+                        "value": 29.376083000000108
+                      },
+                      {
+                        "frame": 109,
+                        "value": 28.843332999999802
+                      },
+                      {
+                        "frame": 110,
+                        "value": 31.121166999999332
+                      },
+                      {
+                        "frame": 111,
+                        "value": 35.33787500000017
+                      },
+                      {
+                        "frame": 112,
+                        "value": 24.358291999999892
+                      },
+                      {
+                        "frame": 113,
+                        "value": 77.79091700000026
+                      },
+                      {
+                        "frame": 114,
+                        "value": 17.62516599999981
+                      },
+                      {
+                        "frame": 115,
+                        "value": 15.369916999999987
+                      },
+                      {
+                        "frame": 116,
+                        "value": 27.784083000000464
+                      },
+                      {
+                        "frame": 117,
+                        "value": 28.8026660000005
+                      },
+                      {
+                        "frame": 118,
+                        "value": 27.887499999999818
+                      },
+                      {
+                        "frame": 119,
+                        "value": 29.10058300000037
+                      }
+                    ],
+                    "statistics": {
+                      "n": 60,
+                      "mean": 28.415483350000006,
+                      "stddev": 9.30198245897938,
+                      "median": 29.075791499999923,
+                      "p95": 33.30887500000017,
+                      "min": 4.310790999999881,
+                      "max": 77.79091700000026
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "id": "throughput.frame",
+                      "label": "Completed-work ms/frame",
+                      "unit": "ms",
+                      "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+                    },
+                    "sampleUnit": "batch",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 30.239506249999998
+                      },
+                      {
+                        "frame": 80,
+                        "value": 30.179983300000004
+                      },
+                      {
+                        "frame": 100,
+                        "value": 30.674358350000013
+                      }
+                    ],
+                    "statistics": {
+                      "n": 3,
+                      "mean": 30.364615966666673,
+                      "stddev": 0.269890724959083,
+                      "median": 30.239506249999998,
+                      "p95": 30.674358350000013,
+                      "min": 30.179983300000004,
+                      "max": 30.674358350000013
+                    }
+                  }
+                ],
+                "profiling": {
+                  "status": "disabled",
+                  "invalidSamples": 0
+                }
+              }
+            }
+          ]
+        },
+        "ssgi-8x24": {
+          "runs": [
+            {
+              "repeat": 0,
+              "orderIndex": 11,
+              "adapter": {
+                "subgroupMatrixConfigs": []
+              },
+              "run": {
+                "options": {
+                  "protocol": "throughput",
+                  "durationMs": 1000,
+                  "warmupFrames": 60,
+                  "batchSize": 20,
+                  "cycleFrames": 1,
+                  "stepSeconds": 0.016666666666666666,
+                  "measureFrames": 60
+                },
+                "elapsedMs": 1830.9104169999996,
+                "frames": 60,
+                "fps": 32.77058202460378,
+                "metrics": [
+                  {
+                    "descriptor": {
+                      "id": "cpu.submit",
+                      "label": "CPU update + submit",
+                      "unit": "ms",
+                      "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+                    },
+                    "sampleUnit": "frame",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 4.377707999999984
+                      },
+                      {
+                        "frame": 61,
+                        "value": 17.209458000000268
+                      },
+                      {
+                        "frame": 62,
+                        "value": 28.452291999999943
+                      },
+                      {
+                        "frame": 63,
+                        "value": 27.878708000000188
+                      },
+                      {
+                        "frame": 64,
+                        "value": 28.94287499999973
+                      },
+                      {
+                        "frame": 65,
+                        "value": 27.6643339999996
+                      },
+                      {
+                        "frame": 66,
+                        "value": 27.750166999999692
+                      },
+                      {
+                        "frame": 67,
+                        "value": 29.967375000000175
+                      },
+                      {
+                        "frame": 68,
+                        "value": 28.51599999999962
+                      },
+                      {
+                        "frame": 69,
+                        "value": 29.580832999999984
+                      },
+                      {
+                        "frame": 70,
+                        "value": 30.333665999999994
+                      },
+                      {
+                        "frame": 71,
+                        "value": 29.393874999999753
+                      },
+                      {
+                        "frame": 72,
+                        "value": 29.16841599999998
+                      },
+                      {
+                        "frame": 73,
+                        "value": 29.64383299999963
+                      },
+                      {
+                        "frame": 74,
+                        "value": 28.66620899999998
+                      },
+                      {
+                        "frame": 75,
+                        "value": 30.233540999999605
+                      },
+                      {
+                        "frame": 76,
+                        "value": 28.56745899999987
+                      },
+                      {
+                        "frame": 77,
+                        "value": 29.670292000000245
+                      },
+                      {
+                        "frame": 78,
+                        "value": 29.80883300000005
+                      },
+                      {
+                        "frame": 79,
+                        "value": 28.72841699999981
+                      },
+                      {
+                        "frame": 80,
+                        "value": 5.342041000000336
+                      },
+                      {
+                        "frame": 81,
+                        "value": 16.83562499999971
+                      },
+                      {
+                        "frame": 82,
+                        "value": 28.140499999999975
+                      },
+                      {
+                        "frame": 83,
+                        "value": 29.84295899999961
+                      },
+                      {
+                        "frame": 84,
+                        "value": 28.871083
+                      },
+                      {
+                        "frame": 85,
+                        "value": 29.687625000000025
+                      },
+                      {
+                        "frame": 86,
+                        "value": 29.33374999999978
+                      },
+                      {
+                        "frame": 87,
+                        "value": 42.57233300000007
+                      },
+                      {
+                        "frame": 88,
+                        "value": 22.25416600000017
+                      },
+                      {
+                        "frame": 89,
+                        "value": 28.19420799999989
+                      },
+                      {
+                        "frame": 90,
+                        "value": 29.09954199999993
+                      },
+                      {
+                        "frame": 91,
+                        "value": 28.2573339999999
+                      },
+                      {
+                        "frame": 92,
+                        "value": 29.031750000000102
+                      },
+                      {
+                        "frame": 93,
+                        "value": 29.352915999999823
+                      },
+                      {
+                        "frame": 94,
+                        "value": 30.181166999999732
+                      },
+                      {
+                        "frame": 95,
+                        "value": 29.15033399999993
+                      },
+                      {
+                        "frame": 96,
+                        "value": 30.824208
+                      },
+                      {
+                        "frame": 97,
+                        "value": 30.948249999999916
+                      },
+                      {
+                        "frame": 98,
+                        "value": 29.478250000000116
+                      },
+                      {
+                        "frame": 99,
+                        "value": 29.349583000000166
+                      },
+                      {
+                        "frame": 100,
+                        "value": 5.112458999999944
+                      },
+                      {
+                        "frame": 101,
+                        "value": 17.08962500000007
+                      },
+                      {
+                        "frame": 102,
+                        "value": 28.682790999999725
+                      },
+                      {
+                        "frame": 103,
+                        "value": 29.95425000000023
+                      },
+                      {
+                        "frame": 104,
+                        "value": 30.64424999999983
+                      },
+                      {
+                        "frame": 105,
+                        "value": 29.672958000000108
+                      },
+                      {
+                        "frame": 106,
+                        "value": 29.583709
+                      },
+                      {
+                        "frame": 107,
+                        "value": 28.830790999999863
+                      },
+                      {
+                        "frame": 108,
+                        "value": 29.724292000000332
+                      },
+                      {
+                        "frame": 109,
+                        "value": 43.54216700000006
+                      },
+                      {
+                        "frame": 110,
+                        "value": 17.547999999999774
+                      },
+                      {
+                        "frame": 111,
+                        "value": 33.13874999999962
+                      },
+                      {
+                        "frame": 112,
+                        "value": 28.260749999999916
+                      },
+                      {
+                        "frame": 113,
+                        "value": 29.884291000000303
+                      },
+                      {
+                        "frame": 114,
+                        "value": 32.435333000000355
+                      },
+                      {
+                        "frame": 115,
+                        "value": 28.995999999999185
+                      },
+                      {
+                        "frame": 116,
+                        "value": 29.540541999999732
+                      },
+                      {
+                        "frame": 117,
+                        "value": 29.782333000000108
+                      },
+                      {
+                        "frame": 118,
+                        "value": 29.33416600000055
+                      },
+                      {
+                        "frame": 119,
+                        "value": 29.651458999999704
+                      }
+                    ],
+                    "statistics": {
+                      "n": 60,
+                      "mean": 27.71184718333328,
+                      "stddev": 6.763588770424173,
+                      "median": 29.333958000000166,
+                      "p95": 32.435333000000355,
+                      "min": 4.377707999999984,
+                      "max": 43.54216700000006
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "id": "throughput.frame",
+                      "label": "Completed-work ms/frame",
+                      "unit": "ms",
+                      "description": "Batch wall time divided by completed frames; p95 describes batches, not individual frames."
+                    },
+                    "sampleUnit": "batch",
+                    "samples": [
+                      {
+                        "frame": 60,
+                        "value": 29.218022900000005
+                      },
+                      {
+                        "frame": 80,
+                        "value": 29.7741229
+                      },
+                      {
+                        "frame": 100,
+                        "value": 32.546068749999996
+                      }
+                    ],
+                    "statistics": {
+                      "n": 3,
+                      "mean": 30.51273818333333,
+                      "stddev": 1.7827329293827858,
+                      "median": 29.7741229,
+                      "p95": 32.546068749999996,
+                      "min": 29.218022900000005,
+                      "max": 32.546068749999996
+                    }
+                  }
+                ],
+                "profiling": {
+                  "status": "disabled",
+                  "invalidSamples": 0
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "review": {
+    "performanceClaimStatus": "excluded from speed conclusions",
+    "reason": "User confirmed interfering background tasks; this run was stopped and is incomplete."
+  }
+}

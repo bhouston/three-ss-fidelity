@@ -1,0 +1,660 @@
+{
+  "metadata": {
+    "date": "2026-10-01T18:53:29.945Z",
+    "mode": "motion",
+    "control": "hierarchy-combined",
+    "variants": ["ssgi-early-exit", "ssgi-reuse-texels", "ssgi-redundant-work", "ssgi-4x32", "ssgi-6x32", "ssgi-8x24"],
+    "frames": 128,
+    "width": 960,
+    "height": 540,
+    "warmup": 90,
+    "measure": 80,
+    "repeats": 3,
+    "maxReferencePsnrDropDb": 0.1,
+    "cpu": "Apple M3",
+    "platform": "darwin",
+    "node": "v26.3.0",
+    "revision": "7fc477ab4e23e5a67dbeb6874b904c47514c1485",
+    "submodules": "96a36865c7a1e5124730a1dc743d7bc98c1a3933 submodules/fidelity-kit-blender (heads/main)\n 9cd15bd3579cc9d480a3579fc6c1b019a4e37128 submodules/fidelity-kit-three-gpu-pathtracer (remotes/origin/feat/pinned-esm-pathtracer)\n 2cbb31e973a7ce074279831bc2ac6d468973978d submodules/three-gpu-pathtracer (v0.0.24-1239-g2cbb31e973a)\n 83c310af72715ae558beea12d169f00c62ea48eb submodules/three.js (r40-46670-g83c310af727)",
+    "sourceHashes": {
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e",
+      "scripts/ssgi-work-experiments.mjs": "4c96968afbf9a22bd0ea3c413e49f571cfe7992d62475c0a54d2cfe3b8a6b0b7"
+    },
+    "variantSettings": {
+      "ssgi-early-exit": {
+        "earlyExit": true
+      },
+      "ssgi-reuse-texels": {
+        "reuseDuplicateTexels": true
+      },
+      "ssgi-redundant-work": {
+        "earlyExit": true,
+        "reuseDuplicateTexels": true
+      },
+      "ssgi-4x32": {
+        "sliceScale": 0.5
+      },
+      "ssgi-6x32": {
+        "sliceScale": 0.75
+      },
+      "ssgi-8x24": {
+        "stepScale": 0.75
+      }
+    },
+    "timing": "GPU-completed batches; CPU submission excludes GPU waits; instrumented pass intervals are not used",
+    "quality": "decoded sRGB RGB8 from AVIF quality 90, 4:4:4; reference gate versus fresh combined control",
+    "motion": {
+      "degrees": 20,
+      "moveFrames": 16,
+      "captures": [0, 4, 16, 64]
+    },
+    "recovery": "One child failed during a concurrent Three.js rebuild (temporary missing UniformsUtils export). Retried that capture and completed the control repeat after the build. Rendering sources and settings match the original snapshot. Failed log retained."
+  },
+  "scenes": {
+    "ssgi-basic": {
+      "quality": {
+        "hierarchy-combined": {
+          "m0": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-hierarchy-combined@m0.avif",
+            "delta": "ssgi-basic/hierarchy-combined-m0-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m4": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-hierarchy-combined@m4.avif",
+            "delta": "ssgi-basic/hierarchy-combined-m4-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m16": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-hierarchy-combined@m16.avif",
+            "delta": "ssgi-basic/hierarchy-combined-m16-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m64": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-hierarchy-combined@m64.avif",
+            "delta": "ssgi-basic/hierarchy-combined-m64-delta.png",
+            "control": {
+              "psnr": null
+            }
+          }
+        },
+        "ssgi-early-exit": {
+          "m0": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-early-exit@m0.avif",
+            "delta": "ssgi-basic/ssgi-early-exit-m0-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m4": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-early-exit@m4.avif",
+            "delta": "ssgi-basic/ssgi-early-exit-m4-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m16": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-early-exit@m16.avif",
+            "delta": "ssgi-basic/ssgi-early-exit-m16-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m64": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-early-exit@m64.avif",
+            "delta": "ssgi-basic/ssgi-early-exit-m64-delta.png",
+            "control": {
+              "psnr": null
+            }
+          }
+        },
+        "ssgi-reuse-texels": {
+          "m0": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-reuse-texels@m0.avif",
+            "delta": "ssgi-basic/ssgi-reuse-texels-m0-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m4": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-reuse-texels@m4.avif",
+            "delta": "ssgi-basic/ssgi-reuse-texels-m4-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m16": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-reuse-texels@m16.avif",
+            "delta": "ssgi-basic/ssgi-reuse-texels-m16-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m64": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-reuse-texels@m64.avif",
+            "delta": "ssgi-basic/ssgi-reuse-texels-m64-delta.png",
+            "control": {
+              "psnr": null
+            }
+          }
+        },
+        "ssgi-redundant-work": {
+          "m0": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-redundant-work@m0.avif",
+            "delta": "ssgi-basic/ssgi-redundant-work-m0-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m4": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-redundant-work@m4.avif",
+            "delta": "ssgi-basic/ssgi-redundant-work-m4-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m16": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-redundant-work@m16.avif",
+            "delta": "ssgi-basic/ssgi-redundant-work-m16-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m64": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-redundant-work@m64.avif",
+            "delta": "ssgi-basic/ssgi-redundant-work-m64-delta.png",
+            "control": {
+              "psnr": null
+            }
+          }
+        },
+        "ssgi-4x32": {
+          "m0": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-4x32@m0.avif",
+            "delta": "ssgi-basic/ssgi-4x32-m0-delta.png",
+            "control": {
+              "psnr": 39.32202721917638
+            }
+          },
+          "m4": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-4x32@m4.avif",
+            "delta": "ssgi-basic/ssgi-4x32-m4-delta.png",
+            "control": {
+              "psnr": 39.56331939711078
+            }
+          },
+          "m16": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-4x32@m16.avif",
+            "delta": "ssgi-basic/ssgi-4x32-m16-delta.png",
+            "control": {
+              "psnr": 39.79951240857139
+            }
+          },
+          "m64": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-4x32@m64.avif",
+            "delta": "ssgi-basic/ssgi-4x32-m64-delta.png",
+            "control": {
+              "psnr": 40.2483962132487
+            }
+          }
+        },
+        "ssgi-6x32": {
+          "m0": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-6x32@m0.avif",
+            "delta": "ssgi-basic/ssgi-6x32-m0-delta.png",
+            "control": {
+              "psnr": 45.691255748159
+            }
+          },
+          "m4": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-6x32@m4.avif",
+            "delta": "ssgi-basic/ssgi-6x32-m4-delta.png",
+            "control": {
+              "psnr": 45.830532651874954
+            }
+          },
+          "m16": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-6x32@m16.avif",
+            "delta": "ssgi-basic/ssgi-6x32-m16-delta.png",
+            "control": {
+              "psnr": 45.84071938425004
+            }
+          },
+          "m64": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-6x32@m64.avif",
+            "delta": "ssgi-basic/ssgi-6x32-m64-delta.png",
+            "control": {
+              "psnr": 46.04175477391718
+            }
+          }
+        },
+        "ssgi-8x24": {
+          "m0": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-8x24@m0.avif",
+            "delta": "ssgi-basic/ssgi-8x24-m0-delta.png",
+            "control": {
+              "psnr": 40.16483068503977
+            }
+          },
+          "m4": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-8x24@m4.avif",
+            "delta": "ssgi-basic/ssgi-8x24-m4-delta.png",
+            "control": {
+              "psnr": 40.209590342611115
+            }
+          },
+          "m16": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-8x24@m16.avif",
+            "delta": "ssgi-basic/ssgi-8x24-m16-delta.png",
+            "control": {
+              "psnr": 40.079331132559155
+            }
+          },
+          "m64": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-8x24@m64.avif",
+            "delta": "ssgi-basic/ssgi-8x24-m64-delta.png",
+            "control": {
+              "psnr": 40.10074268985874
+            }
+          }
+        },
+        "control-repeat": {
+          "m0": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/repeat/ssgi-basic/beauty/three-new-hierarchy-combined@m0.avif",
+            "delta": "ssgi-basic/control-repeat-m0-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m4": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/repeat/ssgi-basic/beauty/three-new-hierarchy-combined@m4.avif",
+            "delta": "ssgi-basic/control-repeat-m4-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m16": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/repeat/ssgi-basic/beauty/three-new-hierarchy-combined@m16.avif",
+            "delta": "ssgi-basic/control-repeat-m16-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m64": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-basic/repeat/ssgi-basic/beauty/three-new-hierarchy-combined@m64.avif",
+            "delta": "ssgi-basic/control-repeat-m64-delta.png",
+            "control": {
+              "psnr": null
+            }
+          }
+        }
+      },
+      "timing": {}
+    },
+    "gi-hierarchy-discontinuity": {
+      "quality": {
+        "hierarchy-combined": {
+          "m0": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-hierarchy-combined@m0.avif",
+            "delta": "gi-hierarchy-discontinuity/hierarchy-combined-m0-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m4": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-hierarchy-combined@m4.avif",
+            "delta": "gi-hierarchy-discontinuity/hierarchy-combined-m4-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m16": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-hierarchy-combined@m16.avif",
+            "delta": "gi-hierarchy-discontinuity/hierarchy-combined-m16-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m64": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-hierarchy-combined@m64.avif",
+            "delta": "gi-hierarchy-discontinuity/hierarchy-combined-m64-delta.png",
+            "control": {
+              "psnr": null
+            }
+          }
+        },
+        "ssgi-early-exit": {
+          "m0": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-early-exit@m0.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-early-exit-m0-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m4": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-early-exit@m4.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-early-exit-m4-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m16": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-early-exit@m16.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-early-exit-m16-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m64": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-early-exit@m64.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-early-exit-m64-delta.png",
+            "control": {
+              "psnr": null
+            }
+          }
+        },
+        "ssgi-reuse-texels": {
+          "m0": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-reuse-texels@m0.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-reuse-texels-m0-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m4": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-reuse-texels@m4.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-reuse-texels-m4-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m16": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-reuse-texels@m16.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-reuse-texels-m16-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m64": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-reuse-texels@m64.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-reuse-texels-m64-delta.png",
+            "control": {
+              "psnr": null
+            }
+          }
+        },
+        "ssgi-redundant-work": {
+          "m0": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-redundant-work@m0.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-redundant-work-m0-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m4": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-redundant-work@m4.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-redundant-work-m4-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m16": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-redundant-work@m16.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-redundant-work-m16-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m64": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-redundant-work@m64.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-redundant-work-m64-delta.png",
+            "control": {
+              "psnr": null
+            }
+          }
+        },
+        "ssgi-4x32": {
+          "m0": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-4x32@m0.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-4x32-m0-delta.png",
+            "control": {
+              "psnr": 54.452508068247155
+            }
+          },
+          "m4": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-4x32@m4.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-4x32-m4-delta.png",
+            "control": {
+              "psnr": 54.434801634821696
+            }
+          },
+          "m16": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-4x32@m16.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-4x32-m16-delta.png",
+            "control": {
+              "psnr": 54.67973736426576
+            }
+          },
+          "m64": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-4x32@m64.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-4x32-m64-delta.png",
+            "control": {
+              "psnr": 54.52800983218236
+            }
+          }
+        },
+        "ssgi-6x32": {
+          "m0": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-6x32@m0.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-6x32-m0-delta.png",
+            "control": {
+              "psnr": 55.38656114531818
+            }
+          },
+          "m4": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-6x32@m4.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-6x32-m4-delta.png",
+            "control": {
+              "psnr": 55.27393717593523
+            }
+          },
+          "m16": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-6x32@m16.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-6x32-m16-delta.png",
+            "control": {
+              "psnr": 55.695303839763106
+            }
+          },
+          "m64": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-6x32@m64.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-6x32-m64-delta.png",
+            "control": {
+              "psnr": 55.59014974517899
+            }
+          }
+        },
+        "ssgi-8x24": {
+          "m0": {
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-8x24@m0.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-8x24-m0-delta.png",
+            "control": {
+              "psnr": 53.92800459963056
+            }
+          },
+          "m4": {
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-8x24@m4.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-8x24-m4-delta.png",
+            "control": {
+              "psnr": 54.008415440895874
+            }
+          },
+          "m16": {
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-8x24@m16.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-8x24-m16-delta.png",
+            "control": {
+              "psnr": 54.04246516207053
+            }
+          },
+          "m64": {
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-8x24@m64.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-8x24-m64-delta.png",
+            "control": {
+              "psnr": 54.274023837411136
+            }
+          }
+        },
+        "control-repeat": {
+          "m0": {
+            "image": "gi-hierarchy-discontinuity/repeat/gi-hierarchy-discontinuity/beauty/three-new-hierarchy-combined@m0.avif",
+            "delta": "gi-hierarchy-discontinuity/control-repeat-m0-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m4": {
+            "image": "gi-hierarchy-discontinuity/repeat/gi-hierarchy-discontinuity/beauty/three-new-hierarchy-combined@m4.avif",
+            "delta": "gi-hierarchy-discontinuity/control-repeat-m4-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m16": {
+            "image": "gi-hierarchy-discontinuity/repeat/gi-hierarchy-discontinuity/beauty/three-new-hierarchy-combined@m16.avif",
+            "delta": "gi-hierarchy-discontinuity/control-repeat-m16-delta.png",
+            "control": {
+              "psnr": null
+            }
+          },
+          "m64": {
+            "image": "gi-hierarchy-discontinuity/repeat/gi-hierarchy-discontinuity/beauty/three-new-hierarchy-combined@m64.avif",
+            "delta": "gi-hierarchy-discontinuity/control-repeat-m64-delta.png",
+            "control": {
+              "psnr": null
+            }
+          }
+        }
+      },
+      "timing": {}
+    }
+  },
+  "ok": true
+}

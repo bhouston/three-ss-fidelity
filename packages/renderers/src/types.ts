@@ -10,6 +10,30 @@ export const rendererNames = [
 ] as const;
 export type RendererName = (typeof rendererNames)[number];
 
+export interface SSGIWorkExperiment {
+  earlyExit?: boolean;
+  reuseDuplicateTexels?: boolean;
+  sliceScale?: number;
+  stepScale?: number;
+}
+
+/** Work experiments inherit hierarchy-combined; sample budgets scale each scene's preset. */
+export const ssgiWorkExperiments = {
+  'ssgi-early-exit': { earlyExit: true },
+  'ssgi-reuse-texels': { reuseDuplicateTexels: true },
+  'ssgi-redundant-work': { earlyExit: true, reuseDuplicateTexels: true },
+  'ssgi-4x32': { sliceScale: 0.5 },
+  'ssgi-8x16': { stepScale: 0.5 },
+  'ssgi-4x16': { sliceScale: 0.5, stepScale: 0.5 },
+  'ssgi-2x16': { sliceScale: 0.25, stepScale: 0.5 },
+  'ssgi-2x8': { sliceScale: 0.25, stepScale: 0.25 },
+  'ssgi-6x32': { sliceScale: 0.75 },
+  'ssgi-8x24': { stepScale: 0.75 },
+  'ssgi-6x24': { sliceScale: 0.75, stepScale: 0.75 },
+  'ssgi-7x32': { sliceScale: 0.875 },
+  'ssgi-8x28': { stepScale: 0.875 },
+} as const satisfies Record<string, SSGIWorkExperiment>;
+
 /** Opt-in experiments, including a combined profile. The baseline leaves the production pipeline unchanged. */
 export const hierarchyExperiments = [
   'baseline',
@@ -17,6 +41,7 @@ export const hierarchyExperiments = [
   'ssr-radiance-mips',
   'ssgi-radiance-mips',
   'hierarchy-combined',
+  ...(Object.keys(ssgiWorkExperiments) as (keyof typeof ssgiWorkExperiments)[]),
   'ssgi-half',
   'ssgi-third',
   'ssr-temporal-validated',

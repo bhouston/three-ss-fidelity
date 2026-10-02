@@ -1,0 +1,410 @@
+{
+  "metadata": {
+    "date": "2026-10-01T18:57:38.671Z",
+    "mode": "quality",
+    "control": "hierarchy-combined",
+    "variants": ["ssgi-7x32", "ssgi-8x28"],
+    "frames": 128,
+    "width": 960,
+    "height": 540,
+    "warmup": 90,
+    "measure": 80,
+    "repeats": 3,
+    "referencePsnrReviewAllowanceDb": 0.1,
+    "cpu": "Apple M3",
+    "platform": "darwin",
+    "node": "v26.3.0",
+    "revision": "7fc477ab4e23e5a67dbeb6874b904c47514c1485",
+    "submodules": "96a36865c7a1e5124730a1dc743d7bc98c1a3933 submodules/fidelity-kit-blender (heads/main)\n 9cd15bd3579cc9d480a3579fc6c1b019a4e37128 submodules/fidelity-kit-three-gpu-pathtracer (remotes/origin/feat/pinned-esm-pathtracer)\n 2cbb31e973a7ce074279831bc2ac6d468973978d submodules/three-gpu-pathtracer (v0.0.24-1239-g2cbb31e973a)\n 83c310af72715ae558beea12d169f00c62ea48eb submodules/three.js (r40-46670-g83c310af727)",
+    "sourceHashes": {
+      "packages/renderers/src/types.ts": "67e177e6ac3bbd94a4b697704a6b7eaba7572f506c629c34a02fdcaa38986c99",
+      "packages/renderers/src/three-new.ts": "e8138b7b959f7d55e4538a908453e5db1a0cd0db296cd610282dfca07a78dacd",
+      "packages/renderers/src/ssgi-fast/SSGINode.js": "a3870a379278a023dad499b1346319126a168bd79010520ff3c2ae8b3eb00c6e",
+      "scripts/ssgi-work-experiments.mjs": "ac2ae1635ae1a30ecab17a0a293cd54739ddeeb1b847ea9db1d43ebc3be7d0ba"
+    },
+    "variantSettings": {
+      "ssgi-7x32": {
+        "sliceScale": 0.875
+      },
+      "ssgi-8x28": {
+        "stepScale": 0.875
+      }
+    },
+    "timing": "GPU-completed batches; CPU submission excludes GPU waits; instrumented pass intervals are not used",
+    "quality": "decoded sRGB RGB8 from AVIF quality 90, 4:4:4; allowance is advisory, compared with fresh combined control",
+    "motion": {
+      "degrees": 20,
+      "moveFrames": 16,
+      "captures": [0, 4, 16, 64]
+    }
+  },
+  "scenes": {
+    "ssgi-rounded": {
+      "quality": {
+        "hierarchy-combined": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-hierarchy-combined.avif",
+            "delta": "ssgi-rounded/hierarchy-combined-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 29.544698662600855
+            },
+            "psnrDropDb": 0,
+            "withinReferenceAllowance": true
+          }
+        },
+        "ssgi-7x32": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-ssgi-7x32.avif",
+            "delta": "ssgi-rounded/ssgi-7x32-settled-delta.png",
+            "control": {
+              "psnr": 47.78352185190528
+            },
+            "reference": {
+              "psnr": 29.597279482829627
+            },
+            "psnrDropDb": -0.05258082022877275,
+            "withinReferenceAllowance": true
+          }
+        },
+        "ssgi-8x28": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-ssgi-8x28.avif",
+            "delta": "ssgi-rounded/ssgi-8x28-settled-delta.png",
+            "control": {
+              "psnr": 46.727231270667886
+            },
+            "reference": {
+              "psnr": 29.555480131759758
+            },
+            "psnrDropDb": -0.010781469158903434,
+            "withinReferenceAllowance": true
+          }
+        },
+        "control-repeat": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-rounded/repeat/ssgi-rounded/beauty/three-new-hierarchy-combined.avif",
+            "delta": "ssgi-rounded/control-repeat-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 29.544698662600855
+            },
+            "psnrDropDb": 0,
+            "withinReferenceAllowance": true
+          }
+        }
+      },
+      "timing": {},
+      "reference": {
+        "path": "results/ssgi-rounded/beauty/three-gpu-pathtracer.avif",
+        "sha256": "505d0b20d9ff66a3eecd8a787c431be47b9395a2b936d5e00759fcef58035e93"
+      }
+    },
+    "ssgi-metallic": {
+      "quality": {
+        "hierarchy-combined": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-hierarchy-combined.avif",
+            "delta": "ssgi-metallic/hierarchy-combined-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 27.828106100356077
+            },
+            "psnrDropDb": 0,
+            "withinReferenceAllowance": true
+          }
+        },
+        "ssgi-7x32": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssgi-7x32.avif",
+            "delta": "ssgi-metallic/ssgi-7x32-settled-delta.png",
+            "control": {
+              "psnr": 47.588973695450186
+            },
+            "reference": {
+              "psnr": 27.84783144591462
+            },
+            "psnrDropDb": -0.019725345558541107,
+            "withinReferenceAllowance": true
+          }
+        },
+        "ssgi-8x28": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssgi-8x28.avif",
+            "delta": "ssgi-metallic/ssgi-8x28-settled-delta.png",
+            "control": {
+              "psnr": 47.00280725699935
+            },
+            "reference": {
+              "psnr": 27.85777702606601
+            },
+            "psnrDropDb": -0.029670925709933016,
+            "withinReferenceAllowance": true
+          }
+        },
+        "control-repeat": {
+          "settled": {
+            "width": 640,
+            "height": 480,
+            "image": "ssgi-metallic/repeat/ssgi-metallic/beauty/three-new-hierarchy-combined.avif",
+            "delta": "ssgi-metallic/control-repeat-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 27.828106100356077
+            },
+            "psnrDropDb": 0,
+            "withinReferenceAllowance": true
+          }
+        }
+      },
+      "timing": {},
+      "reference": {
+        "path": "results/ssgi-metallic/beauty/three-gpu-pathtracer.avif",
+        "sha256": "a0f2dad322585e40e468dbf91dd85403c1cc62d338af7f2320cd317faaada1a4"
+      }
+    },
+    "gi-emitter-corner-dense": {
+      "quality": {
+        "hierarchy-combined": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new-hierarchy-combined.avif",
+            "delta": "gi-emitter-corner-dense/hierarchy-combined-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 26.09113102424157
+            },
+            "psnrDropDb": 0,
+            "withinReferenceAllowance": true
+          }
+        },
+        "ssgi-7x32": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new-ssgi-7x32.avif",
+            "delta": "gi-emitter-corner-dense/ssgi-7x32-settled-delta.png",
+            "control": {
+              "psnr": 61.00113206024788
+            },
+            "reference": {
+              "psnr": 26.08550090906168
+            },
+            "psnrDropDb": 0.005630115179890538,
+            "withinReferenceAllowance": true
+          }
+        },
+        "ssgi-8x28": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-emitter-corner-dense/images/gi-emitter-corner-dense/beauty/three-new-ssgi-8x28.avif",
+            "delta": "gi-emitter-corner-dense/ssgi-8x28-settled-delta.png",
+            "control": {
+              "psnr": 60.49756377479558
+            },
+            "reference": {
+              "psnr": 26.077189141029788
+            },
+            "psnrDropDb": 0.013941883211781914,
+            "withinReferenceAllowance": true
+          }
+        },
+        "control-repeat": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-emitter-corner-dense/repeat/gi-emitter-corner-dense/beauty/three-new-hierarchy-combined.avif",
+            "delta": "gi-emitter-corner-dense/control-repeat-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 26.09113102424157
+            },
+            "psnrDropDb": 0,
+            "withinReferenceAllowance": true
+          }
+        }
+      },
+      "timing": {},
+      "reference": {
+        "path": "results/gi-emitter-corner-dense/beauty/three-gpu-pathtracer.avif",
+        "sha256": "1f0c4ccd7d4e15434935f2db390d6902954c9894c175999388ce065e9f225ff3"
+      }
+    },
+    "gi-hierarchy-discontinuity": {
+      "quality": {
+        "hierarchy-combined": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-hierarchy-combined.avif",
+            "delta": "gi-hierarchy-discontinuity/hierarchy-combined-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 35.09829331569884
+            },
+            "psnrDropDb": 0,
+            "withinReferenceAllowance": true
+          }
+        },
+        "ssgi-7x32": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-7x32.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-7x32-settled-delta.png",
+            "control": {
+              "psnr": 56.661452361599494
+            },
+            "reference": {
+              "psnr": 35.09103180902418
+            },
+            "psnrDropDb": 0.0072615066746593016,
+            "withinReferenceAllowance": true
+          }
+        },
+        "ssgi-8x28": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-8x28.avif",
+            "delta": "gi-hierarchy-discontinuity/ssgi-8x28-settled-delta.png",
+            "control": {
+              "psnr": 55.72230778596442
+            },
+            "reference": {
+              "psnr": 35.09926777009174
+            },
+            "psnrDropDb": -0.0009744543929031124,
+            "withinReferenceAllowance": true
+          }
+        },
+        "control-repeat": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-hierarchy-discontinuity/repeat/gi-hierarchy-discontinuity/beauty/three-new-hierarchy-combined.avif",
+            "delta": "gi-hierarchy-discontinuity/control-repeat-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 35.09829331569884
+            },
+            "psnrDropDb": 0,
+            "withinReferenceAllowance": true
+          }
+        }
+      },
+      "timing": {},
+      "reference": {
+        "path": "results/gi-hierarchy-discontinuity/beauty/three-gpu-pathtracer.avif",
+        "sha256": "2802343f1d02841ab7061f5e535059b6f6e2b377dbd4d55e9f7dd510d475bcd9"
+      }
+    },
+    "gi-room-open-high-albedo": {
+      "quality": {
+        "hierarchy-combined": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-hierarchy-combined.avif",
+            "delta": "gi-room-open-high-albedo/hierarchy-combined-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 31.689614914255113
+            },
+            "psnrDropDb": 0,
+            "withinReferenceAllowance": true
+          }
+        },
+        "ssgi-7x32": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-ssgi-7x32.avif",
+            "delta": "gi-room-open-high-albedo/ssgi-7x32-settled-delta.png",
+            "control": {
+              "psnr": 41.81892105331583
+            },
+            "reference": {
+              "psnr": 30.423911464498403
+            },
+            "psnrDropDb": 1.2657034497567103,
+            "withinReferenceAllowance": false
+          }
+        },
+        "ssgi-8x28": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-ssgi-8x28.avif",
+            "delta": "gi-room-open-high-albedo/ssgi-8x28-settled-delta.png",
+            "control": {
+              "psnr": 56.42129738798425
+            },
+            "reference": {
+              "psnr": 31.6507331236306
+            },
+            "psnrDropDb": 0.03888179062451158,
+            "withinReferenceAllowance": true
+          }
+        },
+        "control-repeat": {
+          "settled": {
+            "width": 480,
+            "height": 360,
+            "image": "gi-room-open-high-albedo/repeat/gi-room-open-high-albedo/beauty/three-new-hierarchy-combined.avif",
+            "delta": "gi-room-open-high-albedo/control-repeat-settled-delta.png",
+            "control": {
+              "psnr": null
+            },
+            "reference": {
+              "psnr": 31.689614914255113
+            },
+            "psnrDropDb": 0,
+            "withinReferenceAllowance": true
+          }
+        }
+      },
+      "timing": {},
+      "reference": {
+        "path": "results/gi-room-open-high-albedo/beauty/three-gpu-pathtracer.avif",
+        "sha256": "7f7dfe4a1d848f8599889bb670d3f80e7ef446cdd8e4168bf77ce0276b5d6ef2"
+      }
+    }
+  },
+  "withinQualityAllowance": false,
+  "ok": true
+}

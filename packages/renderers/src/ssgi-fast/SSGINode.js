@@ -80,6 +80,11 @@ let _rendererState;
  * Indirect diffuse samples include the spherical solid-angle weight of their slice direction.
  * The sampling radius and depth-buffer visibility still limit the lighting that can be recovered.
  *
+ * Algorithm/source map and our corrections: docs/SCREEN_SPACE_ALGORITHMS.md.
+ * The visibility-bitmask method is Therrien, Levesque & Gilet (arXiv 2023; journal 2022):
+ * https://arxiv.org/abs/2301.11376. Our Jacobian, tangent-horizon and gap-fill corrections
+ * are local adaptations, not claims that these particular changes appear in that paper.
+ *
  * References:
  * - {@link https://github.com/cdrinmatane/SSRT3}.
  * - {@link https://cdrinmatane.github.io/posts/ssaovb-code/}.
@@ -524,10 +529,11 @@ class SSGINode extends Node {
     const globalOccludedBitfield = uint(0);
     const globalLitBitfield = uint(0);
 
+    // Local sector-center quadrature correction; see docs/SCREEN_SPACE_ALGORITHMS.md (AO/SSGI).
     // the sectors whose centers lie between two horizons. Rounding both ends (instead of flooring the start and taking
     // the ceiling of the width) keeps a sample lying on the shading point's tangent plane, whose horizon interval is zero
     // up to depth/normal precision, from occluding a whole sector
-    const sectorBitfield = (minHorizon, maxHorizon) => {
+    const sectorBitfield = Fn(([minHorizon, maxHorizon]) => {
       const start = round(minHorizon.mul(float(MAX_RAY)));
       const width = uint(max(round(maxHorizon.mul(float(MAX_RAY))).sub(start), 0));
 
@@ -535,7 +541,14 @@ class SSGINode extends Node {
         .greaterThan(uint(0))
         .select(uint(shiftRight(uint(0xffffffff), uint(32).sub(width))), uint(0))
         .shiftLeft(uint(start));
-    };
+    }).setLayout({
+      name: 'ssgiSectorBitfield',
+      type: 'uint',
+      inputs: [
+        { name: 'minHorizon', type: 'float' },
+        { name: 'maxHorizon', type: 'float' },
+      ],
+    });
 
     const sampleDepth = (uv) => {
       const depth = this.depthNode.sample(uv).r;
@@ -698,16 +711,18 @@ class SSGINode extends Node {
             clamp(along.div(sqrt(along.mul(along).add(elevation.mul(elevation)))), -1, 1),
           )
             .mul(sign(elevation).max(0))
-            .div(PI);
-          frontBackHorizon = directionIsRight.select(frontBackHorizon, frontBackHorizon.oneMinus());
-          frontBackHorizon = directionIsRight.select(frontBackHorizon.yx, frontBackHorizon.xy); // Front/Back get inverted depending on angle
+            .div(PI)
+            .toConst();
+          // Materialize each stage before selecting: nested selects otherwise duplicate the
+          // acos expression in every branch of the emitted shader.
+          frontBackHorizon = directionIsRight.select(frontBackHorizon, frontBackHorizon.oneMinus()).toConst();
+          frontBackHorizon = directionIsRight.select(frontBackHorizon.yx, frontBackHorizon.xy).toConst(); // Front/Back get inverted depending on angle
 
           const minHorizon = frontBackHorizon.x.toConst();
           const maxHorizon = frontBackHorizon.y.toConst();
 
-          const currentOccludedBitfield = sectorBitfield(minHorizon, maxHorizon)
-            .bitAnd(globalOccludedBitfield.bitNot())
-            .toConst();
+          const sampleBitfield = sectorBitfield(minHorizon, maxHorizon).toConst();
+          const currentOccludedBitfield = sampleBitfield.bitAnd(globalOccludedBitfield.bitNot()).toConst();
 
           globalOccludedBitfield.assign(globalOccludedBitfield.bitOr(currentOccludedBitfield));
 
@@ -726,7 +741,7 @@ class SSGINode extends Node {
           )
             .bitAnd(globalLitBitfield.bitNot())
             .toConst();
-          const litBitfield = sectorBitfield(minHorizon, maxHorizon).bitAnd(globalLitBitfield.bitNot()).toVar();
+          const litBitfield = sampleBitfield.bitAnd(globalLitBitfield.bitNot()).toVar();
 
           const facesAway = bool(false).toVar();
 
@@ -781,6 +796,7 @@ class SSGINode extends Node {
                   .select(BACKFACE_LIGHTING, float(0));
                 const emission = facesShadingPoint.select(float(1), backfaceWeight);
 
+                // Local irradiance-measure correction derived in docs/history/GI-ESTIMATOR-FOLLOWUP.md.
                 // Equal slice-angle sectors do not subtend equal solid angles. Approximate the spherical
                 // Jacobian at the sample direction; the factor of two preserves the existing GI gain scale.
                 const solidAngleWeight = this.useSolidAngleWeighting.select(
@@ -873,36 +889,26 @@ class SSGINode extends Node {
         globalOccludedBitfield.assign(0);
         globalLitBitfield.assign(0);
 
-        color.addAssign(
-          horizonSampling(
-            bool(true),
-            stepRadius,
-            radiusVS,
-            viewPosition,
-            slideDirTexelSize,
-            initialRayStep,
-            uvNode,
-            viewDir,
-            viewNormal,
-            sliceTangent,
-            sliceNormal,
-          ),
-        );
-        color.addAssign(
-          horizonSampling(
-            bool(false),
-            stepRadius,
-            radiusVS,
-            viewPosition,
-            slideDirTexelSize,
-            initialRayStep,
-            uvNode,
-            viewDir,
-            viewNormal,
-            sliceTangent,
-            sliceNormal,
-          ),
-        );
+        // Keep the horizon search as one shader body. Two calls inline the full search twice,
+        // even though the slice and step loops already use shader loops. Visit right then left
+        // so accumulation and the shared visibility bitfields keep their existing order.
+        Loop({ start: uint(0), end: uint(2), type: 'uint', condition: '<' }, ({ i: side }) => {
+          color.addAssign(
+            horizonSampling(
+              side.equal(uint(0)),
+              stepRadius,
+              radiusVS,
+              viewPosition,
+              slideDirTexelSize,
+              initialRayStep,
+              uvNode,
+              viewDir,
+              viewNormal,
+              sliceTangent,
+              sliceNormal,
+            ),
+          );
+        });
 
         ao.addAssign(float(countOneBits(globalOccludedBitfield)).div(float(MAX_RAY)));
       });

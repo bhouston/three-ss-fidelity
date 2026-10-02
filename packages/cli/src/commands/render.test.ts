@@ -150,6 +150,8 @@ test('default missing-only includes every full renderer name and skips existing 
     ['three-new', 'ssgi-radiance-mips'],
     ['three-new', 'hierarchy-combined'],
     ...Object.keys(ssgiWorkExperiments).map((experiment) => ['three-new', experiment]),
+    ['three-new', 'ssr-temporal-validated'],
+    ['three-new', 'ssr-temporal-gaussian'],
     ['three-current', undefined],
     ['three-gpu-pathtracer', undefined],
     ['three-gpu-pathtracer-webgpu', undefined],
@@ -166,6 +168,8 @@ test('renderer globs and comma-separated names select complete configurations on
     ['three-new', 'ssgi-radiance-mips'],
     ['three-new', 'hierarchy-combined'],
     ...Object.keys(ssgiWorkExperiments).map((experiment) => ['three-new', experiment]),
+    ['three-new', 'ssr-temporal-validated'],
+    ['three-new', 'ssr-temporal-gaussian'],
     ['blender', undefined],
   ]);
 });

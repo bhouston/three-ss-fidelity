@@ -143,3 +143,15 @@ pnpm cli quality-gate three-current three-new --scenes ssgi-basic,ssgi-animated
 ```
 
 The quality gate compares existing PSNR scores against the path-tracer reference, with a default maximum drop of 0.1 dB. Measure speed at fixed effect settings and retain the quality/convergence checks when evaluating optimizations.
+
+## Live scene startup
+
+The live lab shows a **Scene startup** panel on every load. `Load scene` disposes the old renderer and creates a fresh scene, renderer, GPU device and pipeline graph. Pipelines used by that scene are recreated; browser/driver caches may reuse compiler work. There is currently no application-level pipeline cache across these loads.
+
+The panel separates page/JavaScript loading on the initial visit, previous-renderer cleanup, scene asset fetch/decode, renderer/environment setup, first-frame CPU setup/submission, GPU completion, and other UI/controls/scheduling work. It marks the scene interactive after the first completed frame. The total and sequential stage rows reconcile; shader generation and API durations are nested observations and must not be added to those stages.
+
+Expand **Shader and pipeline details** to see pass names, shader-generation CPU time, WebGPU pipeline-call time/count and fragment WGSL size. The capture includes the first four naturally rendered frames so history initialization is visible, then restores its hooks. Later early-frame GPU completion is reported separately from time to first frame. Benchmark runs use their existing measurement path without this startup instrumentation. WebGL exposes the scene/setup/submission/completion breakdown but not TSL/WebGPU pass details.
+
+**Exact GPU compiler time is unavailable in the browser.** `createRenderPipeline` often returns before driver compilation finishes. The GPU wait includes deferred compilation, uploads and rendering; pipeline API time is a dispatch observation, and repeated calls may hit caches. This display identifies whether assets, JavaScript generation, setup or deferred GPU work dominated a load without inventing compiler-only durations. No GPU timestamp queries are needed for startup capture.
+
+Use **Download startup JSON** to preserve the load's timings, settings, pass details and raw shader events/metrics. Failures include their message and stack when available. The UI clears the previous load's data on every attempt. See [the startup investigation](history/SHADER_STARTUP.md) for cache controls, native-versus-browser timing differences and Dawn repros.

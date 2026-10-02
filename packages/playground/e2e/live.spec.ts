@@ -199,3 +199,45 @@ test('SSGI work experiments render and survive URL restoration', async ({ page }
   await expect(page.locator('#experiment')).toHaveValue('ssgi-4x32');
   expect(errors).toEqual([]);
 });
+
+test('switching scenes resets the camera despite movement before loading', async ({ page }) => {
+  const vector = (name: string) => new URL(page.url()).searchParams.get(name)?.split(',').map(Number);
+  const expectVector = (name: string, expected: number[]) => {
+    const actual = vector(name)!;
+    expect(actual).toHaveLength(3);
+    expected.forEach((value, index) => expect(actual[index]).toBeCloseTo(value, 8));
+  };
+  await page.goto('/?scene=ssgi-basic&renderer=three-new&width=160&height=120&camera=1,10,30&target=0,7,0');
+  await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
+  expectVector('camera', [1, 10, 30]);
+  expectVector('target', [0, 7, 0]);
+
+  // Select a differently sized scene, then move the still-active old camera.
+  await page.locator('#scene').selectOption('ssr-steampunk-camera');
+  const box = (await page.locator('#viewport canvas').boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.wheel(0, 200);
+  await page.waitForTimeout(1200); // Allow the throttled camera URL update to run.
+  expect(vector('camera')).toBeUndefined();
+  expect(vector('target')).toBeUndefined();
+  await page.getByRole('button', { name: 'Load scene', exact: true }).click();
+  await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
+  await expect.poll(() => vector('camera')).toBeDefined();
+  expectVector('camera', [3, 2, 3]);
+  expectVector('target', [0, 0, 0]);
+
+  // Movement within this scene survives a renderer/settings reload.
+  await page.mouse.wheel(0, 200);
+  await expect.poll(() => vector('camera')).not.toEqual([3, 2, 3]);
+  const pose = vector('camera')!;
+  await page.locator('#live-gpu').check();
+  await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
+  expectVector('camera', pose);
+  expectVector('target', [0, 0, 0]);
+
+  await page.locator('#scene').selectOption('ssgi-basic');
+  await page.getByRole('button', { name: 'Load scene', exact: true }).click();
+  await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
+  await expect.poll(() => vector('camera')).toBeDefined();
+  expectVector('camera', [0, 10, 30]);
+});

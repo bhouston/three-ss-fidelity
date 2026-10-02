@@ -67,6 +67,13 @@ it('combines all three techniques while preserving the independent profiles', as
     });
     const gi = vi.mocked(ssgi).mock.results[0]!.value;
     const reflections = vi.mocked(newSSR).mock.results[0]!.value;
+    expect(reflections.temporalProfile).toBe(
+      experiment === 'ssr-temporal-validated'
+        ? 'validated'
+        : experiment === 'ssr-temporal-gaussian'
+          ? 'gaussian'
+          : 'baseline',
+    );
     const combined = experiment === 'hierarchy-combined' || Object.hasOwn(ssgiWorkExperiments, experiment);
     expect(gi.radianceMips).toBe(combined || experiment === 'ssgi-radiance-mips');
     expect(reflections._tightHiZ).toBe(combined || experiment === 'ssr-hiz-tight');

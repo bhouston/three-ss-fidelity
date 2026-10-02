@@ -14,6 +14,11 @@ This page describes `three-new` as it is now. The experiments that produced it, 
 are logged in [history/](history/). Those logs use the names of the renderers they compared (`three-new-ssgi`,
 `three-new-ssr`, `-fast`, `-ssgi-fast`, `-rt`). All of them have been folded into `three-new`.
 
+For source attribution and upstream PR preparation, see the
+[TRAA, SSR, SSGI and AO algorithm reference](SCREEN_SPACE_ALGORITHMS.md).
+The current reflection-stability experiments are documented in
+[GGX reflections and temporal reconstruction](SSR_TEMPORAL_RESEARCH.md).
+
 ## `three-new` pipeline, per displayed frame
 
 Each displayed frame runs one pipeline frame. There is no sub-frame accumulation loop. Everything converges over

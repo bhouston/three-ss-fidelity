@@ -1,0 +1,247 @@
+{
+  "baselineCommit": "75896df7c60",
+  "source": [
+    {
+      "passName": "SSGI / AO",
+      "beforeBytes": 22482,
+      "afterBytes": 13828,
+      "beforeLines": 830,
+      "afterLines": 522,
+      "beforeLoops": 3,
+      "afterLoops": 3
+    },
+    {
+      "passName": "SSR trace",
+      "beforeBytes": 60718,
+      "afterBytes": 60775,
+      "beforeLines": 1530,
+      "afterLines": 1532,
+      "beforeLoops": 4,
+      "afterLoops": 4
+    },
+    {
+      "passName": "SSR spatial",
+      "beforeBytes": 25341,
+      "afterBytes": 7674,
+      "beforeLines": 525,
+      "afterLines": 199,
+      "beforeLoops": 0,
+      "afterLoops": 1
+    },
+    {
+      "passName": "SSR temporal",
+      "beforeBytes": 15817,
+      "afterBytes": 9670,
+      "beforeLines": 307,
+      "afterLines": 245,
+      "beforeLoops": 0,
+      "afterLoops": 2
+    },
+    {
+      "passName": "TRAA",
+      "beforeBytes": 14233,
+      "afterBytes": 8896,
+      "beforeLines": 473,
+      "afterLines": 265,
+      "beforeLoops": 0,
+      "afterLoops": 3
+    },
+    {
+      "passName": "SSR upsample (half resolution)",
+      "beforeBytes": 9217,
+      "afterBytes": 4976
+    }
+  ],
+  "pairs": [
+    {
+      "backend": "CLI",
+      "pair": 1,
+      "baseline": {
+        "salt": "baselinePair0",
+        "firstFrameMs": 3707.3165000000004,
+        "initializedMs": 13.490291999999982,
+        "frameMs": 646.1783291500001,
+        "adapter": {
+          "vendor": "apple",
+          "architecture": "metal-3",
+          "device": "apple-m3",
+          "description": "Metal driver on macOS Version 27.0.1 (Build 26A434)"
+        },
+        "firstPipelineMs": {
+          "SSGI / AO": 200.78220899999997,
+          "SSR trace": 348.73508300000003,
+          "SSR spatial": 244.04399999999987,
+          "SSR temporal": 209.89033300000028,
+          "TRAA": 208.55516699999998
+        }
+      },
+      "optimized": {
+        "salt": "optimizedPair0",
+        "firstFrameMs": 3839.0058750000003,
+        "initializedMs": 19.21104200000002,
+        "frameMs": 649.2593041499999,
+        "adapter": {
+          "vendor": "apple",
+          "architecture": "metal-3",
+          "device": "apple-m3",
+          "description": "Metal driver on macOS Version 27.0.1 (Build 26A434)"
+        },
+        "firstPipelineMs": {
+          "SSGI / AO": 187.63654200000008,
+          "SSR trace": 341.8957499999997,
+          "SSR spatial": 184.06154199999992,
+          "SSR temporal": 195.45716600000014,
+          "TRAA": 185.3434589999997
+        }
+      }
+    },
+    {
+      "backend": "CLI",
+      "pair": 2,
+      "baseline": {
+        "salt": "baselinePair1",
+        "firstFrameMs": 3599.35125,
+        "initializedMs": 13.327208999999982,
+        "frameMs": 573.7529416499999,
+        "adapter": {
+          "vendor": "apple",
+          "architecture": "metal-3",
+          "device": "apple-m3",
+          "description": "Metal driver on macOS Version 27.0.1 (Build 26A434)"
+        },
+        "firstPipelineMs": {
+          "SSGI / AO": 202.89550000000008,
+          "SSR trace": 336.9869590000003,
+          "SSR spatial": 241.38808299999982,
+          "SSR temporal": 202.72062499999993,
+          "TRAA": 196.40770800000018
+        }
+      },
+      "optimized": {
+        "salt": "optimizedPair1",
+        "firstFrameMs": 3550.7506249999997,
+        "initializedMs": 12.768332999999984,
+        "frameMs": 254.74988545000002,
+        "adapter": {
+          "vendor": "apple",
+          "architecture": "metal-3",
+          "device": "apple-m3",
+          "description": "Metal driver on macOS Version 27.0.1 (Build 26A434)"
+        },
+        "firstPipelineMs": {
+          "SSGI / AO": 187.40191700000003,
+          "SSR trace": 337.6727499999997,
+          "SSR spatial": 190.76154199999974,
+          "SSR temporal": 190.60599999999977,
+          "TRAA": 194.1458749999997
+        }
+      }
+    },
+    {
+      "backend": "Chromium",
+      "pair": 1,
+      "baseline": {
+        "salt": "baselineBrowserFinal0",
+        "firstFrameMs": 3577.8000000002794,
+        "initializedMs": 92.20000000018626,
+        "frameMs": 250.75499999998138,
+        "adapter": {
+          "vendor": "apple",
+          "architecture": "metal-3",
+          "device": "",
+          "description": ""
+        }
+      },
+      "optimized": {
+        "salt": "optimizedBrowserFinal0",
+        "firstFrameMs": 3415.9000000003725,
+        "initializedMs": 5.6000000005587935,
+        "frameMs": 206.99500000001862,
+        "adapter": {
+          "vendor": "apple",
+          "architecture": "metal-3",
+          "device": "",
+          "description": ""
+        }
+      }
+    },
+    {
+      "backend": "Chromium",
+      "pair": 2,
+      "baseline": {
+        "salt": "baselineBrowserFinal1",
+        "firstFrameMs": 3640.7000000001863,
+        "initializedMs": 62.90000000037253,
+        "frameMs": 211.79000000003725,
+        "adapter": {
+          "vendor": "apple",
+          "architecture": "metal-3",
+          "device": "",
+          "description": ""
+        }
+      },
+      "optimized": {
+        "salt": "optimizedBrowserFinal1",
+        "firstFrameMs": 3541.2000000001863,
+        "initializedMs": 38.700000000186265,
+        "frameMs": 252.3,
+        "adapter": {
+          "vendor": "apple",
+          "architecture": "metal-3",
+          "device": "",
+          "description": ""
+        }
+      }
+    }
+  ],
+  "quality": [
+    {
+      "scene": "ssgi-basic",
+      "width": 256,
+      "height": 256,
+      "frames": 16,
+      "mae": 0.0923919677734375,
+      "maxDifference": 14,
+      "changedChannels": 17691,
+      "psnrDb": 57.95203178773204,
+      "beforeHash": "218d581b5ccc675b79243503bddcfbe8896cff5b68be439fb2872ef95a47a120",
+      "afterHash": "3ee66bb9edb65a2d15225835b19c1fe7fa84b5b7518f164cdefb9b04e5d04d0c"
+    },
+    {
+      "scene": "ssr-diag-rough-30",
+      "width": 256,
+      "height": 256,
+      "frames": 16,
+      "mae": 0.0,
+      "maxDifference": 0,
+      "changedChannels": 0,
+      "psnrDb": null,
+      "beforeHash": "9e69c414110a384413ccd250ab0d2a2efc108754838d1bbc8c3786ba8f0b926e",
+      "afterHash": "9e69c414110a384413ccd250ab0d2a2efc108754838d1bbc8c3786ba8f0b926e"
+    },
+    {
+      "scene": "traa-checker",
+      "width": 256,
+      "height": 256,
+      "frames": 16,
+      "mae": 0.0,
+      "maxDifference": 0,
+      "changedChannels": 0,
+      "psnrDb": null,
+      "beforeHash": "91f4addccb67f6ef4297563d66d498e10f94a7d20dbec7701f9c3908ec9843fc",
+      "afterHash": "91f4addccb67f6ef4297563d66d498e10f94a7d20dbec7701f9c3908ec9843fc"
+    },
+    {
+      "scene": "ssr-diag-rough-30 (half resolution)",
+      "width": 256,
+      "height": 256,
+      "frames": 16,
+      "mae": 1.52587890625e-5,
+      "maxDifference": 1,
+      "changedChannels": 3,
+      "psnrDb": 96.29560291491609,
+      "beforeHash": "9144abbe2a941d362b171cec15edc7eaac75ce305aac754d62d26ce97730ce87",
+      "afterHash": "549c51fee37ff98cac217619e2b3104318ad4f0078539256dc1c4e72ef23c92f"
+    }
+  ]
+}

@@ -134,7 +134,7 @@ after changing sources.
 
 ### Live lab
 
-Run `pnpm build` then `pnpm live` and open <http://127.0.0.1:5173/> for orbit interaction, converged PNG captures, fresh seeded benchmarks, and saved report inspection. The lab supports browser cadence, completed-work throughput, optional GPU profiling, and alternating stock/experimental comparisons. See [docs/PERF.md](docs/PERF.md) for protocols, report semantics, and custom pipeline helpers.
+Run `pnpm build` then `pnpm live` and open <http://127.0.0.1:5173/> for orbit interaction, converged PNG captures, fresh seeded benchmarks, and saved report inspection. The lab supports browser cadence, completed-work throughput, optional GPU profiling, and alternating stock/experimental comparisons. Each scene load also shows startup stages, shader-generation and pipeline-call details, and downloadable startup JSON. See [docs/PERF.md](docs/PERF.md) for protocols, report semantics, and custom pipeline helpers.
 
 ### Viewer
 
@@ -159,14 +159,18 @@ Merging to `main` deploys `site/` to GitHub Pages at <https://ss-fidelity.ben3d.
 
 Use `pnpm cli render --missing-only` to fill gaps across all renderers, including every hierarchy variant, without overwriting existing images. Select complete renderer names with `--renderers`; comma-separated names and globs such as `'three-new-*'` work. The render command uses these names:
 
-| Renderer name                                                                     | Output image                        |
-| --------------------------------------------------------------------------------- | ----------------------------------- |
-| `three-new-baseline`                                                              | `three-new.avif`                    |
-| `three-new-ssr-hiz-tight`                                                         | `three-new-ssr-hiz-tight.avif`      |
-| `three-new-ssr-radiance-mips`                                                     | `three-new-ssr-radiance-mips.avif`  |
-| `three-new-ssgi-radiance-mips`                                                    | `three-new-ssgi-radiance-mips.avif` |
-| `three-new-hierarchy-combined`                                                    | `three-new-hierarchy-combined.avif` |
-| `three-current`, `three-gpu-pathtracer`, `three-gpu-pathtracer-webgpu`, `blender` | `<renderer>.avif`                   |
+| Renderer name                                                                     | Output image                            |
+| --------------------------------------------------------------------------------- | --------------------------------------- |
+| `three-new-baseline`                                                              | `three-new.avif`                        |
+| `three-new-ssr-hiz-tight`                                                         | `three-new-ssr-hiz-tight.avif`          |
+| `three-new-ssr-radiance-mips`                                                     | `three-new-ssr-radiance-mips.avif`      |
+| `three-new-ssgi-radiance-mips`                                                    | `three-new-ssgi-radiance-mips.avif`     |
+| `three-new-hierarchy-combined`                                                    | `three-new-hierarchy-combined.avif`     |
+| `three-new-ssr-temporal-validated`                                                | `three-new-ssr-temporal-validated.avif` |
+| `three-new-ssr-temporal-gaussian`                                                 | `three-new-ssr-temporal-gaussian.avif`  |
+| `three-current`, `three-gpu-pathtracer`, `three-gpu-pathtracer-webgpu`, `blender` | `<renderer>.avif`                       |
+
+The `three-new-ssr-temporal-validated` and `three-new-ssr-temporal-gaussian` profiles compare validated reflection history and Gaussian clipping. Their captures appear in fidelity-kit; the same options are available in the live lab's experiment selector. Bare `pnpm cli render --missing-only` includes both profiles automatically. To fill only these profiles, use `pnpm cli render --missing-only --renderers 'three-new-ssr-temporal-*' --frames 128`. See [temporal research](docs/SSR_TEMPORAL_RESEARCH.md).
 
 For example, `pnpm cli render --missing-only --renderers three-new-hierarchy-combined` fills only combined hierarchy captures. `cli render` no longer accepts `--experiment`; select the full renderer name instead. Baseline images retain their existing `three-new.avif` filename and viewer ID.
 
@@ -207,6 +211,7 @@ Edit `results/README.md` to update the Markdown introduction above the compariso
 | [docs/PLAN.md](docs/PLAN.md)               | Original design: layout, scene contract, renderer and CLI plan.                                                          |
 | [docs/CONVERGENCE.md](docs/CONVERGENCE.md) | Move-then-stop convergence benchmark method and findings.                                                                |
 | [docs/PERF.md](docs/PERF.md)               | `cli bench` and GPU timing.                                                                                              |
+| [docs/TSL_GUIDE.md](docs/TSL_GUIDE.md)     | Writing compact TSL shaders: loops, materialization, reusable functions, and generated-code validation.                  |
 | [docs/history/](docs/history/)             | Experiment logs (SSGI estimator, SSR correctness/speed/real-time, SSGI speed, TRAA tests), under the old renderer names. |
 
 The JSON and PNG files in `docs/history/` are the data behind those logs. Most were produced by the scripts in `scripts/`.

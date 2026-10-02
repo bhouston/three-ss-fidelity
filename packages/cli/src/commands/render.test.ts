@@ -154,6 +154,7 @@ test('default missing-only includes every full renderer name and skips existing 
     ['three-new', 'ssgi-third'],
     ['three-new', 'ssr-temporal-validated'],
     ['three-new', 'ssr-temporal-gaussian'],
+    ['three-new-light-probe', undefined],
     ['three-current', undefined],
     ['three-gpu-pathtracer', undefined],
     ['three-gpu-pathtracer-webgpu', undefined],
@@ -174,6 +175,7 @@ test('renderer globs and comma-separated names select complete configurations on
     ['three-new', 'ssgi-third'],
     ['three-new', 'ssr-temporal-validated'],
     ['three-new', 'ssr-temporal-gaussian'],
+    ['three-new-light-probe', undefined],
     ['blender', undefined],
   ]);
 });

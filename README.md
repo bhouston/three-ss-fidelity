@@ -73,12 +73,13 @@ in `submodules/three.js`. There is only ever one copy of three.
 - `src/ssr/NewSSRNode.js` and `src/ssgi-fast/SSGINode.js` are vendored nodes. They are developed here instead of in
   the submodule.
 
-| Renderer                      | What it is                                                                                     |
-| ----------------------------- | ---------------------------------------------------------------------------------------------- |
-| `three-gpu-pathtracer`        | Ground truth (default 4096 spp, seeded).                                                       |
-| `three-gpu-pathtracer-webgpu` | Independent WebGPU path-traced reference from the path-tracer fork.                            |
-| `three-current`               | Unmodified three.js r186 from npm (`three@0.186.1`) with its stock SSGI/SSR example pipelines. |
-| `three-new`                   | The fork + vendored SSGI/SSR nodes, real-time, TRAA ([docs/THREE-NEW.md](docs/THREE-NEW.md)).  |
+| Renderer                      | What it is                                                                                                  |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `three-gpu-pathtracer`        | Ground truth (default 4096 spp, seeded).                                                                    |
+| `three-gpu-pathtracer-webgpu` | Independent WebGPU path-traced reference from the path-tracer fork.                                         |
+| `three-current`               | Unmodified three.js r186 from npm (`three@0.186.1`) with its stock SSGI/SSR example pipelines.              |
+| `three-new-light-probe`       | Automatically fitted baked SH diffuse probe grid replacing SSGI ([research](docs/LIGHT_PROBE_RESEARCH.md)). |
+| `three-new`                   | The fork + vendored SSGI/SSR nodes, real-time, TRAA ([docs/THREE-NEW.md](docs/THREE-NEW.md)).               |
 
 ### `packages/cli`
 
@@ -171,6 +172,8 @@ Use `pnpm cli render --missing-only` to fill gaps across all renderers, includin
 | `three-new-ssgi-half`                                                             | `three-new-ssgi-half.avif`              |
 | `three-new-ssgi-third`                                                            | `three-new-ssgi-third.avif`             |
 | `three-current`, `three-gpu-pathtracer`, `three-gpu-pathtracer-webgpu`, `blender` | `<renderer>.avif`                       |
+
+`pnpm cli render --renderers three-new-light-probe` captures the basic SH probe renderer. The same renderer name is available in the live lab and `cli bench`. It bakes about 2,000 probes before rendering; moving lights and geometry need a new scene session. See [probe research](docs/LIGHT_PROBE_RESEARCH.md).
 
 The `three-new-ssr-temporal-validated` and `three-new-ssr-temporal-gaussian` profiles compare validated reflection history and Gaussian clipping. Their captures appear in fidelity-kit; the same options are available in the live lab's experiment selector. Bare `pnpm cli render --missing-only` includes both profiles automatically. To fill only these profiles, use `pnpm cli render --missing-only --renderers 'three-new-ssr-temporal-*' --frames 128`. See [temporal research](docs/SSR_TEMPORAL_RESEARCH.md).
 

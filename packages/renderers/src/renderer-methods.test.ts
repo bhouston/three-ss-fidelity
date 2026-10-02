@@ -103,3 +103,10 @@ it('rejects unknown SSR temporal profiles before initializing a GPU', () => {
   ).toThrow('Unknown SSR temporal profile');
   expect(createThreeNewRenderer).not.toHaveBeenCalled();
 });
+
+it('dispatches the basic probe renderer as a separately named pipeline', () => {
+  const setup = { effects: {} } as SceneSetup;
+  const options = { width: 640, height: 480 };
+  createRenderer('three-new-light-probe', {} as HTMLCanvasElement, setup, options);
+  expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, true);
+});

@@ -7,3 +7,28 @@ declare module 'three/tsl' {
 declare module 'three/addons/tsl/display/TemporalReprojectNode.js' {
   export const previousFrameGeometry: (depthNode: unknown, normalNode: unknown) => unknown;
 }
+
+// WebGPU addon in the pinned fork; the published @types/three does not include it yet.
+declare module 'three/addons/lighting/LightProbeGrid.js' {
+  import { Light, Vector3 } from 'three';
+  import type { WebGPURenderer } from 'three/webgpu';
+  import type { Scene } from 'three';
+  export class LightProbeGrid extends Light {
+    constructor(width: number, height: number, depth: number, nx: number, ny: number, nz: number);
+    resolution: Vector3;
+    bake(
+      renderer: WebGPURenderer,
+      scene: Scene,
+      options: {
+        cubemapSize: number;
+        sampleCount: number;
+        near: number;
+        far: number;
+        start: number;
+        count: number;
+        pass: number;
+      },
+    ): void;
+    dispose(): void;
+  }
+}

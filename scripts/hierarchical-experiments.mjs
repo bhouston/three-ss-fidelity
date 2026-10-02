@@ -21,9 +21,10 @@ const { values } = parseArgs({
     references: { type: 'string', default: 'results' },
     experiments: {
       type: 'string',
-      default: hierarchyExperiments
-        .filter((name) => name !== 'baseline' && !Object.hasOwn(ssgiWorkExperiments, name))
-        .join(','),
+      default: [
+        ...hierarchyExperiments.filter((name) => name !== 'baseline' && !Object.hasOwn(ssgiWorkExperiments, name)),
+        'sh-probes',
+      ].join(','),
     },
     scenes: { type: 'string' },
     repeats: { type: 'string', default: '3' },
@@ -59,6 +60,17 @@ const threshold = Number(values.threshold);
 if (!Number.isFinite(threshold) || threshold < 0) throw new Error('--threshold must be finite and nonnegative');
 const out = path.resolve(root, values.out);
 const definitions = {
+  'sh-probes': [
+    'ssgi-basic',
+    'ssgi-rounded',
+    'ssgi-animated',
+    'gi-emitter-corner',
+    'gi-emitter-corner-thick',
+    'gi-room-open-high-albedo',
+    'gi-room-high-albedo',
+    'gi-room-low-albedo',
+    'gltf-coffeemat',
+  ],
   'ssr-hiz-tight': [
     'ssr-diag-mirror',
     'ssr-diag-grazing',
@@ -150,8 +162,8 @@ for (const scene of scenes) {
         await run(
           'bench-process.js',
           {
-            renderer: 'three-new',
-            hierarchyExperiment: variant,
+            renderer: variant === 'sh-probes' ? 'three-new-light-probe' : 'three-new',
+            hierarchyExperiment: variant === 'sh-probes' ? 'baseline' : variant,
             scene,
             width,
             height,
@@ -194,8 +206,8 @@ for (const scene of scenes) {
       await run(
         'bench-process.js',
         {
-          renderer: 'three-new',
-          hierarchyExperiment: variant,
+          renderer: variant === 'sh-probes' ? 'three-new-light-probe' : 'three-new',
+          hierarchyExperiment: variant === 'sh-probes' ? 'baseline' : variant,
           scene,
           width,
           height,
@@ -236,8 +248,8 @@ for (const scene of scenes) {
       await run(
         'render-process.js',
         {
-          renderer: 'three-new',
-          hierarchyExperiment: repeat ? 'baseline' : variant,
+          renderer: variant === 'sh-probes' ? 'three-new-light-probe' : 'three-new',
+          hierarchyExperiment: repeat || variant === 'sh-probes' ? 'baseline' : variant,
           scenes: [scene],
           frames,
           width: qualityWidth,
@@ -247,7 +259,10 @@ for (const scene of scenes) {
         },
         path.join(dir, `${variant}-quality.log`),
       );
-      const label = hierarchyImageName('three-new', repeat ? 'baseline' : variant);
+      const label = hierarchyImageName(
+        variant === 'sh-probes' ? 'three-new-light-probe' : 'three-new',
+        repeat || variant === 'sh-probes' ? 'baseline' : variant,
+      );
       const imagePath = path.join(output, scene, 'beauty', `${label}.avif`);
       const image = await readRgb(imagePath);
       captures[variant] = image;

@@ -1,0 +1,4256 @@
+{
+  "entry": {
+    "scene": "ssgi-basic",
+    "renderer": "three-new",
+    "experiment": "baseline",
+    "workload": {
+      "width": 1920,
+      "height": 1080,
+      "seed": 1,
+      "motion": "static",
+      "orbitDegrees": 30,
+      "settings": {
+        "ssgi": {
+          "sliceCount": 8,
+          "stepCount": 32,
+          "radius": 32,
+          "thickness": 4,
+          "giIntensity": 4.934802200544679
+        },
+        "ssr": {
+          "maxDistance": 20
+        },
+        "temporalDenoise": true,
+        "toneMapping": 0,
+        "toneMappingExposure": 1,
+        "frames": 128
+      },
+      "history": "fresh-session-then-warmup"
+    },
+    "runs": [
+      {
+        "options": {
+          "protocol": "profile",
+          "durationMs": 1000,
+          "warmupFrames": 20,
+          "batchSize": 1,
+          "cycleFrames": 1,
+          "stepSeconds": 0.016666666666666666,
+          "measureFrames": 30
+        },
+        "elapsedMs": 10309.047542,
+        "frames": 30,
+        "fps": 2.910065151778306,
+        "metrics": [
+          {
+            "descriptor": {
+              "id": "cpu.submit",
+              "label": "CPU update + submit",
+              "unit": "ms",
+              "description": "Wall time for workload update and render submission; excludes waiting for GPU completion."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 2.6157920000005106
+              },
+              {
+                "frame": 21,
+                "value": 2.941874999999527
+              },
+              {
+                "frame": 22,
+                "value": 3.2773749999996653
+              },
+              {
+                "frame": 23,
+                "value": 7.088792000000467
+              },
+              {
+                "frame": 24,
+                "value": 9.980792000000292
+              },
+              {
+                "frame": 25,
+                "value": 10.855250000000524
+              },
+              {
+                "frame": 26,
+                "value": 8.341750000001412
+              },
+              {
+                "frame": 27,
+                "value": 7.559499999999389
+              },
+              {
+                "frame": 28,
+                "value": 5.305959000001167
+              },
+              {
+                "frame": 29,
+                "value": 10.234916999999768
+              },
+              {
+                "frame": 30,
+                "value": 10.874499999999898
+              },
+              {
+                "frame": 31,
+                "value": 9.426916000000347
+              },
+              {
+                "frame": 32,
+                "value": 6.29754099999991
+              },
+              {
+                "frame": 33,
+                "value": 7.157333000001017
+              },
+              {
+                "frame": 34,
+                "value": 10.551625000000058
+              },
+              {
+                "frame": 35,
+                "value": 3.404333000000406
+              },
+              {
+                "frame": 36,
+                "value": 2.7632079999984853
+              },
+              {
+                "frame": 37,
+                "value": 2.954458000000159
+              },
+              {
+                "frame": 38,
+                "value": 2.6178749999999127
+              },
+              {
+                "frame": 39,
+                "value": 2.4825000000000728
+              },
+              {
+                "frame": 40,
+                "value": 2.788542000000234
+              },
+              {
+                "frame": 41,
+                "value": 2.5386670000007143
+              },
+              {
+                "frame": 42,
+                "value": 2.9414159999996627
+              },
+              {
+                "frame": 43,
+                "value": 14.347459000000526
+              },
+              {
+                "frame": 44,
+                "value": 8.679000000000087
+              },
+              {
+                "frame": 45,
+                "value": 5.593500000000859
+              },
+              {
+                "frame": 46,
+                "value": 7.2607090000001335
+              },
+              {
+                "frame": 47,
+                "value": 8.574290999997174
+              },
+              {
+                "frame": 48,
+                "value": 8.916791999999987
+              },
+              {
+                "frame": 49,
+                "value": 10.324290999997174
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 6.623231933333318,
+              "stddev": 3.4015659496275297,
+              "median": 7.123062500000742,
+              "p95": 10.874499999999898,
+              "min": 2.4825000000000728,
+              "max": 14.347459000000526
+            }
+          },
+          {
+            "descriptor": {
+              "id": "profile.frame",
+              "label": "Synchronized profile ms/frame",
+              "unit": "ms",
+              "description": "Instrumented frame including query resolution and completion; changes CPU/GPU overlap."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 220.8135000000002
+              },
+              {
+                "frame": 21,
+                "value": 212.58795800000007
+              },
+              {
+                "frame": 22,
+                "value": 270.0414580000006
+              },
+              {
+                "frame": 23,
+                "value": 522.1828330000008
+              },
+              {
+                "frame": 24,
+                "value": 300.16283399999884
+              },
+              {
+                "frame": 25,
+                "value": 511.54570799999965
+              },
+              {
+                "frame": 26,
+                "value": 397.9812500000007
+              },
+              {
+                "frame": 27,
+                "value": 334.72912499999984
+              },
+              {
+                "frame": 28,
+                "value": 518.9211670000004
+              },
+              {
+                "frame": 29,
+                "value": 339.61358299999847
+              },
+              {
+                "frame": 30,
+                "value": 340.23195900000064
+              },
+              {
+                "frame": 31,
+                "value": 432.0649999999987
+              },
+              {
+                "frame": 32,
+                "value": 391.73604199999863
+              },
+              {
+                "frame": 33,
+                "value": 347.3047920000008
+              },
+              {
+                "frame": 34,
+                "value": 320.8508750000001
+              },
+              {
+                "frame": 35,
+                "value": 326.39658299999974
+              },
+              {
+                "frame": 36,
+                "value": 296.1605410000011
+              },
+              {
+                "frame": 37,
+                "value": 240.16904199999954
+              },
+              {
+                "frame": 38,
+                "value": 232.84933300000012
+              },
+              {
+                "frame": 39,
+                "value": 230.4878750000007
+              },
+              {
+                "frame": 40,
+                "value": 215.22391700000117
+              },
+              {
+                "frame": 41,
+                "value": 217.62258400000064
+              },
+              {
+                "frame": 42,
+                "value": 274.5717910000003
+              },
+              {
+                "frame": 43,
+                "value": 478.627708
+              },
+              {
+                "frame": 44,
+                "value": 326.18733299999985
+              },
+              {
+                "frame": 45,
+                "value": 454.53804200000013
+              },
+              {
+                "frame": 46,
+                "value": 402.26508399999875
+              },
+              {
+                "frame": 47,
+                "value": 326.6546669999989
+              },
+              {
+                "frame": 48,
+                "value": 502.54308299999684
+              },
+              {
+                "frame": 49,
+                "value": 320.48099999999977
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 343.5182222333332,
+              "stddev": 98.2431931623933,
+              "median": 326.5256249999993,
+              "p95": 518.9211670000004,
+              "min": 212.58795800000007,
+              "max": 522.1828330000008
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass-sum",
+              "label": "GPU pass duration sum",
+              "unit": "ms",
+              "description": "Sum of render/compute query intervals; not a whole-frame GPU span or a serial time budget."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 2577.2687360000004
+              },
+              {
+                "frame": 21,
+                "value": 2980.90496
+              },
+              {
+                "frame": 22,
+                "value": 3661.49632
+              },
+              {
+                "frame": 23,
+                "value": 4077.8465280000005
+              },
+              {
+                "frame": 24,
+                "value": 3839.6231680000005
+              },
+              {
+                "frame": 25,
+                "value": 6173.753344000001
+              },
+              {
+                "frame": 26,
+                "value": 3861.2500480000003
+              },
+              {
+                "frame": 27,
+                "value": 3914.3997439999994
+              },
+              {
+                "frame": 28,
+                "value": 7124.7462399999995
+              },
+              {
+                "frame": 29,
+                "value": 4490.592256
+              },
+              {
+                "frame": 30,
+                "value": 3878.8136960000006
+              },
+              {
+                "frame": 31,
+                "value": 5090.967552
+              },
+              {
+                "frame": 32,
+                "value": 5691.473919999999
+              },
+              {
+                "frame": 33,
+                "value": 4874.633216
+              },
+              {
+                "frame": 34,
+                "value": 4332.9781760000005
+              },
+              {
+                "frame": 35,
+                "value": 4370.92352
+              },
+              {
+                "frame": 36,
+                "value": 2154.2338560000003
+              },
+              {
+                "frame": 37,
+                "value": 2903.7690879999996
+              },
+              {
+                "frame": 38,
+                "value": 3407.9375359999995
+              },
+              {
+                "frame": 39,
+                "value": 3417.04704
+              },
+              {
+                "frame": 40,
+                "value": 3160.014848
+              },
+              {
+                "frame": 41,
+                "value": 3255.6318719999995
+              },
+              {
+                "frame": 42,
+                "value": 3723.3623039999998
+              },
+              {
+                "frame": 43,
+                "value": 3162.374144
+              },
+              {
+                "frame": 44,
+                "value": 4361.486336000001
+              },
+              {
+                "frame": 45,
+                "value": 5422.907392
+              },
+              {
+                "frame": 46,
+                "value": 5425.856512
+              },
+              {
+                "frame": 47,
+                "value": 2727.739392
+              },
+              {
+                "frame": 48,
+                "value": 3712.94208
+              },
+              {
+                "frame": 49,
+                "value": 4237.361152
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 4067.1444991999992,
+              "stddev": 1117.143885512399,
+              "median": 3870.0318720000005,
+              "p95": 6173.753344000001,
+              "min": 2154.2338560000003,
+              "max": 7124.7462399999995
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Render Pipeline",
+              "label": "Render Pipeline",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 55.902208
+              },
+              {
+                "frame": 21,
+                "value": 45.416448
+              },
+              {
+                "frame": 22,
+                "value": 96.33792
+              },
+              {
+                "frame": 23,
+                "value": 210.632704
+              },
+              {
+                "frame": 24,
+                "value": 102.105088
+              },
+              {
+                "frame": 25,
+                "value": 221.51168
+              },
+              {
+                "frame": 26,
+                "value": 92.73344
+              },
+              {
+                "frame": 27,
+                "value": 112.39424
+              },
+              {
+                "frame": 28,
+                "value": 184.48384
+              },
+              {
+                "frame": 29,
+                "value": 120.127488
+              },
+              {
+                "frame": 30,
+                "value": 116.65408
+              },
+              {
+                "frame": 31,
+                "value": 93.519872
+              },
+              {
+                "frame": 32,
+                "value": 121.110528
+              },
+              {
+                "frame": 33,
+                "value": 148.963328
+              },
+              {
+                "frame": 34,
+                "value": 89.718784
+              },
+              {
+                "frame": 35,
+                "value": 109.44512
+              },
+              {
+                "frame": 36,
+                "value": 64.487424
+              },
+              {
+                "frame": 37,
+                "value": 62.91456
+              },
+              {
+                "frame": 38,
+                "value": 49.217536
+              },
+              {
+                "frame": 39,
+                "value": 58.32704
+              },
+              {
+                "frame": 40,
+                "value": 52.166656
+              },
+              {
+                "frame": 41,
+                "value": 51.380224
+              },
+              {
+                "frame": 42,
+                "value": 114.294784
+              },
+              {
+                "frame": 43,
+                "value": 153.35424
+              },
+              {
+                "frame": 44,
+                "value": 96.862208
+              },
+              {
+                "frame": 45,
+                "value": 160.23552
+              },
+              {
+                "frame": 46,
+                "value": 114.688
+              },
+              {
+                "frame": 47,
+                "value": 121.438208
+              },
+              {
+                "frame": 48,
+                "value": 181.993472
+              },
+              {
+                "frame": 49,
+                "value": 114.163712
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 110.55267840000003,
+              "stddev": 47.562680206704584,
+              "median": 110.91968,
+              "p95": 210.632704,
+              "min": 45.416448,
+              "max": 221.51168
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Pre-Pass",
+              "label": "Pre-Pass",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.262144
+              },
+              {
+                "frame": 21,
+                "value": 0.393216
+              },
+              {
+                "frame": 22,
+                "value": 0.851968
+              },
+              {
+                "frame": 23,
+                "value": 0.458752
+              },
+              {
+                "frame": 24,
+                "value": 0.786432
+              },
+              {
+                "frame": 25,
+                "value": 0.32768
+              },
+              {
+                "frame": 26,
+                "value": 1.507328
+              },
+              {
+                "frame": 27,
+                "value": 0.786432
+              },
+              {
+                "frame": 28,
+                "value": 2.62144
+              },
+              {
+                "frame": 29,
+                "value": 0.524288
+              },
+              {
+                "frame": 30,
+                "value": 0.720896
+              },
+              {
+                "frame": 31,
+                "value": 2.097152
+              },
+              {
+                "frame": 32,
+                "value": 0.458752
+              },
+              {
+                "frame": 33,
+                "value": 0.458752
+              },
+              {
+                "frame": 34,
+                "value": 0.458752
+              },
+              {
+                "frame": 35,
+                "value": 1.179648
+              },
+              {
+                "frame": 36,
+                "value": 0.32768
+              },
+              {
+                "frame": 37,
+                "value": 0.32768
+              },
+              {
+                "frame": 38,
+                "value": 0.32768
+              },
+              {
+                "frame": 39,
+                "value": 0.262144
+              },
+              {
+                "frame": 40,
+                "value": 0.393216
+              },
+              {
+                "frame": 41,
+                "value": 0.32768
+              },
+              {
+                "frame": 42,
+                "value": 0.262144
+              },
+              {
+                "frame": 43,
+                "value": 2.031616
+              },
+              {
+                "frame": 44,
+                "value": 1.31072
+              },
+              {
+                "frame": 45,
+                "value": 0.851968
+              },
+              {
+                "frame": 46,
+                "value": 0.720896
+              },
+              {
+                "frame": 47,
+                "value": 0.851968
+              },
+              {
+                "frame": 48,
+                "value": 2.097152
+              },
+              {
+                "frame": 49,
+                "value": 3.866624
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.9284266666666667,
+              "stddev": 0.8487604908828393,
+              "median": 0.622592,
+              "p95": 2.62144,
+              "min": 0.262144,
+              "max": 3.866624
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Point Light Shadow [ ID: 26 ] - Face 1",
+              "label": "Point Light Shadow [ ID: 26 ] - Face 1",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.065536
+              },
+              {
+                "frame": 21,
+                "value": 0.065536
+              },
+              {
+                "frame": 22,
+                "value": 0
+              },
+              {
+                "frame": 23,
+                "value": 0.458752
+              },
+              {
+                "frame": 24,
+                "value": 4.521984
+              },
+              {
+                "frame": 25,
+                "value": 0.196608
+              },
+              {
+                "frame": 26,
+                "value": 0.262144
+              },
+              {
+                "frame": 27,
+                "value": 0.131072
+              },
+              {
+                "frame": 28,
+                "value": 0.065536
+              },
+              {
+                "frame": 29,
+                "value": 0.131072
+              },
+              {
+                "frame": 30,
+                "value": 0.262144
+              },
+              {
+                "frame": 31,
+                "value": 2.359296
+              },
+              {
+                "frame": 32,
+                "value": 0
+              },
+              {
+                "frame": 33,
+                "value": 0.065536
+              },
+              {
+                "frame": 34,
+                "value": 4.980736
+              },
+              {
+                "frame": 35,
+                "value": 0.065536
+              },
+              {
+                "frame": 36,
+                "value": 1.245184
+              },
+              {
+                "frame": 37,
+                "value": 0.065536
+              },
+              {
+                "frame": 38,
+                "value": 0.065536
+              },
+              {
+                "frame": 39,
+                "value": 0
+              },
+              {
+                "frame": 40,
+                "value": 0.065536
+              },
+              {
+                "frame": 41,
+                "value": 0.196608
+              },
+              {
+                "frame": 42,
+                "value": 0
+              },
+              {
+                "frame": 43,
+                "value": 2.162688
+              },
+              {
+                "frame": 44,
+                "value": 4.325376
+              },
+              {
+                "frame": 45,
+                "value": 0.196608
+              },
+              {
+                "frame": 46,
+                "value": 0.32768
+              },
+              {
+                "frame": 47,
+                "value": 0.196608
+              },
+              {
+                "frame": 48,
+                "value": 2.228224
+              },
+              {
+                "frame": 49,
+                "value": 0.786432
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.8497834666666667,
+              "stddev": 1.4426631533276788,
+              "median": 0.196608,
+              "p95": 4.521984,
+              "min": 0,
+              "max": 4.980736
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Point Light Shadow [ ID: 26 ] - Face 2",
+              "label": "Point Light Shadow [ ID: 26 ] - Face 2",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.131072
+              },
+              {
+                "frame": 21,
+                "value": 0
+              },
+              {
+                "frame": 22,
+                "value": 0.065536
+              },
+              {
+                "frame": 23,
+                "value": 0.065536
+              },
+              {
+                "frame": 24,
+                "value": 0.196608
+              },
+              {
+                "frame": 25,
+                "value": 0
+              },
+              {
+                "frame": 26,
+                "value": 0.458752
+              },
+              {
+                "frame": 27,
+                "value": 0.262144
+              },
+              {
+                "frame": 28,
+                "value": 0.98304
+              },
+              {
+                "frame": 29,
+                "value": 0.196608
+              },
+              {
+                "frame": 30,
+                "value": 0.32768
+              },
+              {
+                "frame": 31,
+                "value": 1.6384
+              },
+              {
+                "frame": 32,
+                "value": 0.131072
+              },
+              {
+                "frame": 33,
+                "value": 0.065536
+              },
+              {
+                "frame": 34,
+                "value": 0.393216
+              },
+              {
+                "frame": 35,
+                "value": 3.080192
+              },
+              {
+                "frame": 36,
+                "value": 0.065536
+              },
+              {
+                "frame": 37,
+                "value": 0
+              },
+              {
+                "frame": 38,
+                "value": 0.065536
+              },
+              {
+                "frame": 39,
+                "value": 0.065536
+              },
+              {
+                "frame": 40,
+                "value": 0.065536
+              },
+              {
+                "frame": 41,
+                "value": 0.524288
+              },
+              {
+                "frame": 42,
+                "value": 0
+              },
+              {
+                "frame": 43,
+                "value": 0.196608
+              },
+              {
+                "frame": 44,
+                "value": 0.262144
+              },
+              {
+                "frame": 45,
+                "value": 0.196608
+              },
+              {
+                "frame": 46,
+                "value": 0.98304
+              },
+              {
+                "frame": 47,
+                "value": 0.262144
+              },
+              {
+                "frame": 48,
+                "value": 1.96608
+              },
+              {
+                "frame": 49,
+                "value": 0.786432
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.4478293333333332,
+              "stddev": 0.688441798183121,
+              "median": 0.196608,
+              "p95": 1.96608,
+              "min": 0,
+              "max": 3.080192
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Point Light Shadow [ ID: 26 ] - Face 3",
+              "label": "Point Light Shadow [ ID: 26 ] - Face 3",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.524288
+              },
+              {
+                "frame": 21,
+                "value": 0.196608
+              },
+              {
+                "frame": 22,
+                "value": 1.507328
+              },
+              {
+                "frame": 23,
+                "value": 0.065536
+              },
+              {
+                "frame": 24,
+                "value": 0.32768
+              },
+              {
+                "frame": 25,
+                "value": 0
+              },
+              {
+                "frame": 26,
+                "value": 0.98304
+              },
+              {
+                "frame": 27,
+                "value": 0.262144
+              },
+              {
+                "frame": 28,
+                "value": 1.572864
+              },
+              {
+                "frame": 29,
+                "value": 0.196608
+              },
+              {
+                "frame": 30,
+                "value": 0.262144
+              },
+              {
+                "frame": 31,
+                "value": 2.031616
+              },
+              {
+                "frame": 32,
+                "value": 0.065536
+              },
+              {
+                "frame": 33,
+                "value": 0.065536
+              },
+              {
+                "frame": 34,
+                "value": 0.458752
+              },
+              {
+                "frame": 35,
+                "value": 2.097152
+              },
+              {
+                "frame": 36,
+                "value": 0
+              },
+              {
+                "frame": 37,
+                "value": 0.065536
+              },
+              {
+                "frame": 38,
+                "value": 0.065536
+              },
+              {
+                "frame": 39,
+                "value": 0
+              },
+              {
+                "frame": 40,
+                "value": 0
+              },
+              {
+                "frame": 41,
+                "value": 0.065536
+              },
+              {
+                "frame": 42,
+                "value": 0.131072
+              },
+              {
+                "frame": 43,
+                "value": 0.458752
+              },
+              {
+                "frame": 44,
+                "value": 0.32768
+              },
+              {
+                "frame": 45,
+                "value": 0.32768
+              },
+              {
+                "frame": 46,
+                "value": 0.98304
+              },
+              {
+                "frame": 47,
+                "value": 0.262144
+              },
+              {
+                "frame": 48,
+                "value": 2.031616
+              },
+              {
+                "frame": 49,
+                "value": 1.376256
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.557056,
+              "stddev": 0.676214399952743,
+              "median": 0.262144,
+              "p95": 2.031616,
+              "min": 0,
+              "max": 2.097152
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Point Light Shadow [ ID: 26 ] - Face 4",
+              "label": "Point Light Shadow [ ID: 26 ] - Face 4",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.131072
+              },
+              {
+                "frame": 21,
+                "value": 0.131072
+              },
+              {
+                "frame": 22,
+                "value": 0.32768
+              },
+              {
+                "frame": 23,
+                "value": 0.131072
+              },
+              {
+                "frame": 24,
+                "value": 1.048576
+              },
+              {
+                "frame": 25,
+                "value": 0.196608
+              },
+              {
+                "frame": 26,
+                "value": 1.048576
+              },
+              {
+                "frame": 27,
+                "value": 0.262144
+              },
+              {
+                "frame": 28,
+                "value": 2.228224
+              },
+              {
+                "frame": 29,
+                "value": 0.32768
+              },
+              {
+                "frame": 30,
+                "value": 0.393216
+              },
+              {
+                "frame": 31,
+                "value": 2.097152
+              },
+              {
+                "frame": 32,
+                "value": 0.196608
+              },
+              {
+                "frame": 33,
+                "value": 0.196608
+              },
+              {
+                "frame": 34,
+                "value": 1.048576
+              },
+              {
+                "frame": 35,
+                "value": 1.835008
+              },
+              {
+                "frame": 36,
+                "value": 0.131072
+              },
+              {
+                "frame": 37,
+                "value": 0.851968
+              },
+              {
+                "frame": 38,
+                "value": 0.131072
+              },
+              {
+                "frame": 39,
+                "value": 0.196608
+              },
+              {
+                "frame": 40,
+                "value": 0.065536
+              },
+              {
+                "frame": 41,
+                "value": 0.131072
+              },
+              {
+                "frame": 42,
+                "value": 0.196608
+              },
+              {
+                "frame": 43,
+                "value": 0.720896
+              },
+              {
+                "frame": 44,
+                "value": 1.048576
+              },
+              {
+                "frame": 45,
+                "value": 0.393216
+              },
+              {
+                "frame": 46,
+                "value": 1.703936
+              },
+              {
+                "frame": 47,
+                "value": 0.393216
+              },
+              {
+                "frame": 48,
+                "value": 2.097152
+              },
+              {
+                "frame": 49,
+                "value": 3.866624
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.7842474666666666,
+              "stddev": 0.8948655264782268,
+              "median": 0.360448,
+              "p95": 2.228224,
+              "min": 0.065536,
+              "max": 3.866624
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Point Light Shadow [ ID: 26 ] - Face 5",
+              "label": "Point Light Shadow [ ID: 26 ] - Face 5",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.065536
+              },
+              {
+                "frame": 21,
+                "value": 0
+              },
+              {
+                "frame": 22,
+                "value": 0.131072
+              },
+              {
+                "frame": 23,
+                "value": 0.065536
+              },
+              {
+                "frame": 24,
+                "value": 0.917504
+              },
+              {
+                "frame": 25,
+                "value": 0.065536
+              },
+              {
+                "frame": 26,
+                "value": 1.31072
+              },
+              {
+                "frame": 27,
+                "value": 0.262144
+              },
+              {
+                "frame": 28,
+                "value": 2.752512
+              },
+              {
+                "frame": 29,
+                "value": 0.262144
+              },
+              {
+                "frame": 30,
+                "value": 0.065536
+              },
+              {
+                "frame": 31,
+                "value": 1.31072
+              },
+              {
+                "frame": 32,
+                "value": 0.32768
+              },
+              {
+                "frame": 33,
+                "value": 0.196608
+              },
+              {
+                "frame": 34,
+                "value": 0.98304
+              },
+              {
+                "frame": 35,
+                "value": 0.262144
+              },
+              {
+                "frame": 36,
+                "value": 0.065536
+              },
+              {
+                "frame": 37,
+                "value": 0.131072
+              },
+              {
+                "frame": 38,
+                "value": 0.065536
+              },
+              {
+                "frame": 39,
+                "value": 0.065536
+              },
+              {
+                "frame": 40,
+                "value": 0
+              },
+              {
+                "frame": 41,
+                "value": 0.065536
+              },
+              {
+                "frame": 42,
+                "value": 0.065536
+              },
+              {
+                "frame": 43,
+                "value": 0.917504
+              },
+              {
+                "frame": 44,
+                "value": 0.917504
+              },
+              {
+                "frame": 45,
+                "value": 0.262144
+              },
+              {
+                "frame": 46,
+                "value": 1.572864
+              },
+              {
+                "frame": 47,
+                "value": 0.262144
+              },
+              {
+                "frame": 48,
+                "value": 0.786432
+              },
+              {
+                "frame": 49,
+                "value": 0.32768
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.4827818666666665,
+              "stddev": 0.6235091456460421,
+              "median": 0.262144,
+              "p95": 1.572864,
+              "min": 0,
+              "max": 2.752512
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Point Light Shadow [ ID: 26 ] - Face 6",
+              "label": "Point Light Shadow [ ID: 26 ] - Face 6",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.065536
+              },
+              {
+                "frame": 21,
+                "value": 0.065536
+              },
+              {
+                "frame": 22,
+                "value": 0.524288
+              },
+              {
+                "frame": 23,
+                "value": 0.065536
+              },
+              {
+                "frame": 24,
+                "value": 0.196608
+              },
+              {
+                "frame": 25,
+                "value": 0.065536
+              },
+              {
+                "frame": 26,
+                "value": 0.524288
+              },
+              {
+                "frame": 27,
+                "value": 0.065536
+              },
+              {
+                "frame": 28,
+                "value": 0.393216
+              },
+              {
+                "frame": 29,
+                "value": 0.196608
+              },
+              {
+                "frame": 30,
+                "value": 0.065536
+              },
+              {
+                "frame": 31,
+                "value": 0.32768
+              },
+              {
+                "frame": 32,
+                "value": 0.131072
+              },
+              {
+                "frame": 33,
+                "value": 0.196608
+              },
+              {
+                "frame": 34,
+                "value": 0.131072
+              },
+              {
+                "frame": 35,
+                "value": 0.196608
+              },
+              {
+                "frame": 36,
+                "value": 0.065536
+              },
+              {
+                "frame": 37,
+                "value": 0.065536
+              },
+              {
+                "frame": 38,
+                "value": 0.065536
+              },
+              {
+                "frame": 39,
+                "value": 0.065536
+              },
+              {
+                "frame": 40,
+                "value": 0.131072
+              },
+              {
+                "frame": 41,
+                "value": 0.065536
+              },
+              {
+                "frame": 42,
+                "value": 0.065536
+              },
+              {
+                "frame": 43,
+                "value": 0.131072
+              },
+              {
+                "frame": 44,
+                "value": 0.196608
+              },
+              {
+                "frame": 45,
+                "value": 0.262144
+              },
+              {
+                "frame": 46,
+                "value": 0.262144
+              },
+              {
+                "frame": 47,
+                "value": 0.32768
+              },
+              {
+                "frame": 48,
+                "value": 0.524288
+              },
+              {
+                "frame": 49,
+                "value": 0.262144
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 0.1900544,
+              "stddev": 0.14739949262103288,
+              "median": 0.131072,
+              "p95": 0.524288,
+              "min": 0.065536,
+              "max": 0.524288
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.r:9:4",
+              "label": "r:9:4",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 54.329344
+              },
+              {
+                "frame": 21,
+                "value": 43.646976
+              },
+              {
+                "frame": 22,
+                "value": 86.441984
+              },
+              {
+                "frame": 23,
+                "value": 159.055872
+              },
+              {
+                "frame": 24,
+                "value": 86.769664
+              },
+              {
+                "frame": 25,
+                "value": 145.424384
+              },
+              {
+                "frame": 26,
+                "value": 75.759616
+              },
+              {
+                "frame": 27,
+                "value": 111.017984
+              },
+              {
+                "frame": 28,
+                "value": 184.48384
+              },
+              {
+                "frame": 29,
+                "value": 108.658688
+              },
+              {
+                "frame": 30,
+                "value": 104.660992
+              },
+              {
+                "frame": 31,
+                "value": 78.6432
+              },
+              {
+                "frame": 32,
+                "value": 116.3264
+              },
+              {
+                "frame": 33,
+                "value": 147.12832
+              },
+              {
+                "frame": 34,
+                "value": 86.441984
+              },
+              {
+                "frame": 35,
+                "value": 102.825984
+              },
+              {
+                "frame": 36,
+                "value": 62.2592
+              },
+              {
+                "frame": 37,
+                "value": 61.014016
+              },
+              {
+                "frame": 38,
+                "value": 47.84128
+              },
+              {
+                "frame": 39,
+                "value": 55.967744
+              },
+              {
+                "frame": 40,
+                "value": 49.938432
+              },
+              {
+                "frame": 41,
+                "value": 50.003968
+              },
+              {
+                "frame": 42,
+                "value": 103.612416
+              },
+              {
+                "frame": 43,
+                "value": 96.403456
+              },
+              {
+                "frame": 44,
+                "value": 87.097344
+              },
+              {
+                "frame": 45,
+                "value": 182.386688
+              },
+              {
+                "frame": 46,
+                "value": 101.384192
+              },
+              {
+                "frame": 47,
+                "value": 108.199936
+              },
+              {
+                "frame": 48,
+                "value": 148.373504
+              },
+              {
+                "frame": 49,
+                "value": 101.056512
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 98.23846400000001,
+              "stddev": 39.02107256928301,
+              "median": 98.729984,
+              "p95": 182.386688,
+              "min": 43.646976,
+              "max": 184.48384
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.TemporalReproject",
+              "label": "TemporalReproject",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 322.633728
+              },
+              {
+                "frame": 21,
+                "value": 312.9344
+              },
+              {
+                "frame": 22,
+                "value": 338.231296
+              },
+              {
+                "frame": 23,
+                "value": 432.078848
+              },
+              {
+                "frame": 24,
+                "value": 367.98464
+              },
+              {
+                "frame": 25,
+                "value": 509.935616
+              },
+              {
+                "frame": 26,
+                "value": 493.944832
+              },
+              {
+                "frame": 27,
+                "value": 432.996352
+              },
+              {
+                "frame": 28,
+                "value": 604.831744
+              },
+              {
+                "frame": 29,
+                "value": 423.36256000000003
+              },
+              {
+                "frame": 30,
+                "value": 454.81984
+              },
+              {
+                "frame": 31,
+                "value": 518.914048
+              },
+              {
+                "frame": 32,
+                "value": 540.9341440000001
+              },
+              {
+                "frame": 33,
+                "value": 404.02944
+              },
+              {
+                "frame": 34,
+                "value": 420.478976
+              },
+              {
+                "frame": 35,
+                "value": 410.320896
+              },
+              {
+                "frame": 36,
+                "value": 381.616128
+              },
+              {
+                "frame": 37,
+                "value": 355.5328
+              },
+              {
+                "frame": 38,
+                "value": 343.60524799999996
+              },
+              {
+                "frame": 39,
+                "value": 344.39168
+              },
+              {
+                "frame": 40,
+                "value": 323.813376
+              },
+              {
+                "frame": 41,
+                "value": 329.449472
+              },
+              {
+                "frame": 42,
+                "value": 337.707008
+              },
+              {
+                "frame": 43,
+                "value": 495.976448
+              },
+              {
+                "frame": 44,
+                "value": 414.64627199999995
+              },
+              {
+                "frame": 45,
+                "value": 440.7296
+              },
+              {
+                "frame": 46,
+                "value": 497.352704
+              },
+              {
+                "frame": 47,
+                "value": 404.02944
+              },
+              {
+                "frame": 48,
+                "value": 553.320448
+              },
+              {
+                "frame": 49,
+                "value": 397.213696
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 420.26052266666676,
+              "stddev": 78.01787582226329,
+              "median": 412.48358399999995,
+              "p95": 553.320448,
+              "min": 312.9344,
+              "max": 604.831744
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.RecurrentDenoise",
+              "label": "RecurrentDenoise",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 324.272128
+              },
+              {
+                "frame": 21,
+                "value": 321.1264
+              },
+              {
+                "frame": 22,
+                "value": 354.02547200000004
+              },
+              {
+                "frame": 23,
+                "value": 489.42284800000004
+              },
+              {
+                "frame": 24,
+                "value": 378.404864
+              },
+              {
+                "frame": 25,
+                "value": 611.5164159999999
+              },
+              {
+                "frame": 26,
+                "value": 558.891008
+              },
+              {
+                "frame": 27,
+                "value": 455.80288
+              },
+              {
+                "frame": 28,
+                "value": 709.09952
+              },
+              {
+                "frame": 29,
+                "value": 449.380352
+              },
+              {
+                "frame": 30,
+                "value": 481.099776
+              },
+              {
+                "frame": 31,
+                "value": 581.763072
+              },
+              {
+                "frame": 32,
+                "value": 592.510976
+              },
+              {
+                "frame": 33,
+                "value": 431.55456000000004
+              },
+              {
+                "frame": 34,
+                "value": 438.30476799999997
+              },
+              {
+                "frame": 35,
+                "value": 421.65862400000003
+              },
+              {
+                "frame": 36,
+                "value": 390.92224
+              },
+              {
+                "frame": 37,
+                "value": 365.428736
+              },
+              {
+                "frame": 38,
+                "value": 353.697792
+              },
+              {
+                "frame": 39,
+                "value": 352.58368
+              },
+              {
+                "frame": 40,
+                "value": 329.252864
+              },
+              {
+                "frame": 41,
+                "value": 335.08556799999997
+              },
+              {
+                "frame": 42,
+                "value": 354.22208
+              },
+              {
+                "frame": 43,
+                "value": 575.209472
+              },
+              {
+                "frame": 44,
+                "value": 440.598528
+              },
+              {
+                "frame": 45,
+                "value": 493.223936
+              },
+              {
+                "frame": 46,
+                "value": 569.4423039999999
+              },
+              {
+                "frame": 47,
+                "value": 404.291584
+              },
+              {
+                "frame": 48,
+                "value": 604.110848
+              },
+              {
+                "frame": 49,
+                "value": 408.158208
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 452.50205013333346,
+              "stddev": 104.88168098510354,
+              "median": 434.929664,
+              "p95": 611.5164159999999,
+              "min": 321.1264,
+              "max": 709.09952
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.SSGI",
+              "label": "SSGI",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 159.318016
+              },
+              {
+                "frame": 21,
+                "value": 152.174592
+              },
+              {
+                "frame": 22,
+                "value": 153.02656
+              },
+              {
+                "frame": 23,
+                "value": 179.109888
+              },
+              {
+                "frame": 24,
+                "value": 172.490752
+              },
+              {
+                "frame": 25,
+                "value": 194.183168
+              },
+              {
+                "frame": 26,
+                "value": 197.26336
+              },
+              {
+                "frame": 27,
+                "value": 198.049792
+              },
+              {
+                "frame": 28,
+                "value": 232.849408
+              },
+              {
+                "frame": 29,
+                "value": 196.083712
+              },
+              {
+                "frame": 30,
+                "value": 194.64192
+              },
+              {
+                "frame": 31,
+                "value": 226.361344
+              },
+              {
+                "frame": 32,
+                "value": 225.181696
+              },
+              {
+                "frame": 33,
+                "value": 178.782208
+              },
+              {
+                "frame": 34,
+                "value": 200.21248
+              },
+              {
+                "frame": 35,
+                "value": 194.31424
+              },
+              {
+                "frame": 36,
+                "value": 177.405952
+              },
+              {
+                "frame": 37,
+                "value": 170.917888
+              },
+              {
+                "frame": 38,
+                "value": 166.199296
+              },
+              {
+                "frame": 39,
+                "value": 167.641088
+              },
+              {
+                "frame": 40,
+                "value": 158.007296
+              },
+              {
+                "frame": 41,
+                "value": 159.842304
+              },
+              {
+                "frame": 42,
+                "value": 155.189248
+              },
+              {
+                "frame": 43,
+                "value": 198.90176
+              },
+              {
+                "frame": 44,
+                "value": 175.112192
+              },
+              {
+                "frame": 45,
+                "value": 187.170816
+              },
+              {
+                "frame": 46,
+                "value": 191.496192
+              },
+              {
+                "frame": 47,
+                "value": 195.231744
+              },
+              {
+                "frame": 48,
+                "value": 236.388352
+              },
+              {
+                "frame": 49,
+                "value": 191.168512
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 186.15719253333327,
+              "stddev": 23.330719088110747,
+              "median": 189.169664,
+              "p95": 232.849408,
+              "min": 152.174592,
+              "max": 236.388352
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.RTT",
+              "label": "RTT",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 0.65536
+              },
+              {
+                "frame": 21,
+                "value": 0.786432
+              },
+              {
+                "frame": 22,
+                "value": 1.179648
+              },
+              {
+                "frame": 23,
+                "value": 0.851968
+              },
+              {
+                "frame": 24,
+                "value": 2.555904
+              },
+              {
+                "frame": 25,
+                "value": 1.114112
+              },
+              {
+                "frame": 26,
+                "value": 2.162688
+              },
+              {
+                "frame": 27,
+                "value": 2.031616
+              },
+              {
+                "frame": 28,
+                "value": 3.670016
+              },
+              {
+                "frame": 29,
+                "value": 3.407872
+              },
+              {
+                "frame": 30,
+                "value": 0.851968
+              },
+              {
+                "frame": 31,
+                "value": 3.801088
+              },
+              {
+                "frame": 32,
+                "value": 0.851968
+              },
+              {
+                "frame": 33,
+                "value": 0.786432
+              },
+              {
+                "frame": 34,
+                "value": 2.94912
+              },
+              {
+                "frame": 35,
+                "value": 3.473408
+              },
+              {
+                "frame": 36,
+                "value": 0.65536
+              },
+              {
+                "frame": 37,
+                "value": 0.65536
+              },
+              {
+                "frame": 38,
+                "value": 0.32768
+              },
+              {
+                "frame": 39,
+                "value": 0.65536
+              },
+              {
+                "frame": 40,
+                "value": 0.786432
+              },
+              {
+                "frame": 41,
+                "value": 0.32768
+              },
+              {
+                "frame": 42,
+                "value": 1.245184
+              },
+              {
+                "frame": 43,
+                "value": 7.274496
+              },
+              {
+                "frame": 44,
+                "value": 2.752512
+              },
+              {
+                "frame": 45,
+                "value": 2.031616
+              },
+              {
+                "frame": 46,
+                "value": 2.359296
+              },
+              {
+                "frame": 47,
+                "value": 1.441792
+              },
+              {
+                "frame": 48,
+                "value": 2.490368
+              },
+              {
+                "frame": 49,
+                "value": 9.043968
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 2.1058901333333337,
+              "stddev": 1.9739536635421733,
+              "median": 1.343488,
+              "p95": 7.274496,
+              "min": 0.32768,
+              "max": 9.043968
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.SSR [ Hi-Z 0 ]",
+              "label": "SSR [ Hi-Z 0 ]",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 149.356544
+              },
+              {
+                "frame": 21,
+                "value": 163.708928
+              },
+              {
+                "frame": 22,
+                "value": 181.403648
+              },
+              {
+                "frame": 23,
+                "value": 22.413312
+              },
+              {
+                "frame": 24,
+                "value": 195.95264
+              },
+              {
+                "frame": 25,
+                "value": 320.667648
+              },
+              {
+                "frame": 26,
+                "value": 288.3584
+              },
+              {
+                "frame": 27,
+                "value": 55.902208
+              },
+              {
+                "frame": 28,
+                "value": 374.341632
+              },
+              {
+                "frame": 29,
+                "value": 233.897984
+              },
+              {
+                "frame": 30,
+                "value": 44.56448
+              },
+              {
+                "frame": 31,
+                "value": 307.757056
+              },
+              {
+                "frame": 32,
+                "value": 301.924352
+              },
+              {
+                "frame": 33,
+                "value": 237.961216
+              },
+              {
+                "frame": 34,
+                "value": 226.033664
+              },
+              {
+                "frame": 35,
+                "value": 217.841664
+              },
+              {
+                "frame": 36,
+                "value": 204.210176
+              },
+              {
+                "frame": 37,
+                "value": 173.211648
+              },
+              {
+                "frame": 38,
+                "value": 180.092928
+              },
+              {
+                "frame": 39,
+                "value": 179.175424
+              },
+              {
+                "frame": 40,
+                "value": 166.723584
+              },
+              {
+                "frame": 41,
+                "value": 170.000384
+              },
+              {
+                "frame": 42,
+                "value": 185.532416
+              },
+              {
+                "frame": 43,
+                "value": 303.300608
+              },
+              {
+                "frame": 44,
+                "value": 229.179392
+              },
+              {
+                "frame": 45,
+                "value": 277.807104
+              },
+              {
+                "frame": 46,
+                "value": 292.028416
+              },
+              {
+                "frame": 47,
+                "value": 28.50816
+              },
+              {
+                "frame": 48,
+                "value": 327.548928
+              },
+              {
+                "frame": 49,
+                "value": 210.436096
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 208.32802133333337,
+              "stddev": 89.55611065067292,
+              "median": 207.32313599999998,
+              "p95": 327.548928,
+              "min": 22.413312,
+              "max": 374.341632
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.SSR [ Hi-Z 1 ]",
+              "label": "SSR [ Hi-Z 1 ]",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 140.24704
+              },
+              {
+                "frame": 21,
+                "value": 163.84
+              },
+              {
+                "frame": 22,
+                "value": 182.51776
+              },
+              {
+                "frame": 23,
+                "value": 47.579136
+              },
+              {
+                "frame": 24,
+                "value": 195.821568
+              },
+              {
+                "frame": 25,
+                "value": 321.716224
+              },
+              {
+                "frame": 26,
+                "value": 288.620544
+              },
+              {
+                "frame": 27,
+                "value": 90.374144
+              },
+              {
+                "frame": 28,
+                "value": 376.045568
+              },
+              {
+                "frame": 29,
+                "value": 234.2912
+              },
+              {
+                "frame": 30,
+                "value": 82.640896
+              },
+              {
+                "frame": 31,
+                "value": 309.198848
+              },
+              {
+                "frame": 32,
+                "value": 302.44864
+              },
+              {
+                "frame": 33,
+                "value": 248.578048
+              },
+              {
+                "frame": 34,
+                "value": 226.230272
+              },
+              {
+                "frame": 35,
+                "value": 218.824704
+              },
+              {
+                "frame": 36,
+                "value": 205.78304
+              },
+              {
+                "frame": 37,
+                "value": 156.30336
+              },
+              {
+                "frame": 38,
+                "value": 179.765248
+              },
+              {
+                "frame": 39,
+                "value": 179.109888
+              },
+              {
+                "frame": 40,
+                "value": 166.46144
+              },
+              {
+                "frame": 41,
+                "value": 170.131456
+              },
+              {
+                "frame": 42,
+                "value": 185.860096
+              },
+              {
+                "frame": 43,
+                "value": 304.611328
+              },
+              {
+                "frame": 44,
+                "value": 229.507072
+              },
+              {
+                "frame": 45,
+                "value": 279.576576
+              },
+              {
+                "frame": 46,
+                "value": 292.356096
+              },
+              {
+                "frame": 47,
+                "value": 41.811968
+              },
+              {
+                "frame": 48,
+                "value": 328.66304
+              },
+              {
+                "frame": 49,
+                "value": 210.829312
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 211.9914837333334,
+              "stddev": 83.86067200683874,
+              "median": 208.306176,
+              "p95": 328.66304,
+              "min": 41.811968,
+              "max": 376.045568
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.SSR [ Hi-Z 2 ]",
+              "label": "SSR [ Hi-Z 2 ]",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 136.445952
+              },
+              {
+                "frame": 21,
+                "value": 163.708928
+              },
+              {
+                "frame": 22,
+                "value": 184.090624
+              },
+              {
+                "frame": 23,
+                "value": 57.933824
+              },
+              {
+                "frame": 24,
+                "value": 194.183168
+              },
+              {
+                "frame": 25,
+                "value": 322.961408
+              },
+              {
+                "frame": 26,
+                "value": 288.882688
+              },
+              {
+                "frame": 27,
+                "value": 116.65408
+              },
+              {
+                "frame": 28,
+                "value": 377.552896
+              },
+              {
+                "frame": 29,
+                "value": 234.225664
+              },
+              {
+                "frame": 30,
+                "value": 88.080384
+              },
+              {
+                "frame": 31,
+                "value": 310.902784
+              },
+              {
+                "frame": 32,
+                "value": 302.645248
+              },
+              {
+                "frame": 33,
+                "value": 250.281984
+              },
+              {
+                "frame": 34,
+                "value": 226.230272
+              },
+              {
+                "frame": 35,
+                "value": 219.152384
+              },
+              {
+                "frame": 36,
+                "value": 205.651968
+              },
+              {
+                "frame": 37,
+                "value": 155.97568
+              },
+              {
+                "frame": 38,
+                "value": 179.830784
+              },
+              {
+                "frame": 39,
+                "value": 179.175424
+              },
+              {
+                "frame": 40,
+                "value": 166.395904
+              },
+              {
+                "frame": 41,
+                "value": 170.06592
+              },
+              {
+                "frame": 42,
+                "value": 185.860096
+              },
+              {
+                "frame": 43,
+                "value": 299.237376
+              },
+              {
+                "frame": 44,
+                "value": 229.70368
+              },
+              {
+                "frame": 45,
+                "value": 279.969792
+              },
+              {
+                "frame": 46,
+                "value": 292.61824
+              },
+              {
+                "frame": 47,
+                "value": 77.66016
+              },
+              {
+                "frame": 48,
+                "value": 329.842688
+              },
+              {
+                "frame": 49,
+                "value": 211.222528
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 214.5714176,
+              "stddev": 79.60134758786624,
+              "median": 208.437248,
+              "p95": 329.842688,
+              "min": 57.933824,
+              "max": 377.552896
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.SSR [ Hi-Z 3 ]",
+              "label": "SSR [ Hi-Z 3 ]",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 135.9872
+              },
+              {
+                "frame": 21,
+                "value": 163.774464
+              },
+              {
+                "frame": 22,
+                "value": 184.15616
+              },
+              {
+                "frame": 23,
+                "value": 81.59232
+              },
+              {
+                "frame": 24,
+                "value": 194.117632
+              },
+              {
+                "frame": 25,
+                "value": 324.272128
+              },
+              {
+                "frame": 26,
+                "value": 289.144832
+              },
+              {
+                "frame": 27,
+                "value": 124.321792
+              },
+              {
+                "frame": 28,
+                "value": 379.12576
+              },
+              {
+                "frame": 29,
+                "value": 230.621184
+              },
+              {
+                "frame": 30,
+                "value": 96.272384
+              },
+              {
+                "frame": 31,
+                "value": 312.60672
+              },
+              {
+                "frame": 32,
+                "value": 302.972928
+              },
+              {
+                "frame": 33,
+                "value": 251.265024
+              },
+              {
+                "frame": 34,
+                "value": 226.295808
+              },
+              {
+                "frame": 35,
+                "value": 219.21792
+              },
+              {
+                "frame": 36,
+                "value": 28.83584
+              },
+              {
+                "frame": 37,
+                "value": 144.310272
+              },
+              {
+                "frame": 38,
+                "value": 179.89632
+              },
+              {
+                "frame": 39,
+                "value": 179.175424
+              },
+              {
+                "frame": 40,
+                "value": 166.46144
+              },
+              {
+                "frame": 41,
+                "value": 169.672704
+              },
+              {
+                "frame": 42,
+                "value": 185.925632
+              },
+              {
+                "frame": 43,
+                "value": 106.758144
+              },
+              {
+                "frame": 44,
+                "value": 229.769216
+              },
+              {
+                "frame": 45,
+                "value": 280.1664
+              },
+              {
+                "frame": 46,
+                "value": 292.880384
+              },
+              {
+                "frame": 47,
+                "value": 69.79584
+              },
+              {
+                "frame": 48,
+                "value": 95.944704
+              },
+              {
+                "frame": 49,
+                "value": 211.550208
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 195.22955946666664,
+              "stddev": 84.47264297420806,
+              "median": 185.040896,
+              "p95": 324.272128,
+              "min": 28.83584,
+              "max": 379.12576
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.SSR [ Hi-Z 4 ]",
+              "label": "SSR [ Hi-Z 4 ]",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 111.4112
+              },
+              {
+                "frame": 21,
+                "value": 163.708928
+              },
+              {
+                "frame": 22,
+                "value": 184.418304
+              },
+              {
+                "frame": 23,
+                "value": 89.194496
+              },
+              {
+                "frame": 24,
+                "value": 194.117632
+              },
+              {
+                "frame": 25,
+                "value": 325.517312
+              },
+              {
+                "frame": 26,
+                "value": 289.34144
+              },
+              {
+                "frame": 27,
+                "value": 137.756672
+              },
+              {
+                "frame": 28,
+                "value": 380.502016
+              },
+              {
+                "frame": 29,
+                "value": 230.68672
+              },
+              {
+                "frame": 30,
+                "value": 105.381888
+              },
+              {
+                "frame": 31,
+                "value": 314.114048
+              },
+              {
+                "frame": 32,
+                "value": 303.235072
+              },
+              {
+                "frame": 33,
+                "value": 253.034496
+              },
+              {
+                "frame": 34,
+                "value": 226.295808
+              },
+              {
+                "frame": 35,
+                "value": 219.21792
+              },
+              {
+                "frame": 36,
+                "value": 22.413312
+              },
+              {
+                "frame": 37,
+                "value": 144.1792
+              },
+              {
+                "frame": 38,
+                "value": 179.89632
+              },
+              {
+                "frame": 39,
+                "value": 179.109888
+              },
+              {
+                "frame": 40,
+                "value": 166.46144
+              },
+              {
+                "frame": 41,
+                "value": 169.73824
+              },
+              {
+                "frame": 42,
+                "value": 185.860096
+              },
+              {
+                "frame": 43,
+                "value": 101.384192
+              },
+              {
+                "frame": 44,
+                "value": 229.965824
+              },
+              {
+                "frame": 45,
+                "value": 281.346048
+              },
+              {
+                "frame": 46,
+                "value": 293.142528
+              },
+              {
+                "frame": 47,
+                "value": 65.339392
+              },
+              {
+                "frame": 48,
+                "value": 82.706432
+              },
+              {
+                "frame": 49,
+                "value": 211.877888
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 194.71182506666668,
+              "stddev": 85.9435287236021,
+              "median": 185.13920000000002,
+              "p95": 325.517312,
+              "min": 22.413312,
+              "max": 380.502016
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.SSR [ Hi-Z 5 ]",
+              "label": "SSR [ Hi-Z 5 ]",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 105.578496
+              },
+              {
+                "frame": 21,
+                "value": 163.774464
+              },
+              {
+                "frame": 22,
+                "value": 184.614912
+              },
+              {
+                "frame": 23,
+                "value": 90.636288
+              },
+              {
+                "frame": 24,
+                "value": 194.248704
+              },
+              {
+                "frame": 25,
+                "value": 326.631424
+              },
+              {
+                "frame": 26,
+                "value": 289.603584
+              },
+              {
+                "frame": 27,
+                "value": 137.756672
+              },
+              {
+                "frame": 28,
+                "value": 381.943808
+              },
+              {
+                "frame": 29,
+                "value": 231.079936
+              },
+              {
+                "frame": 30,
+                "value": 121.765888
+              },
+              {
+                "frame": 31,
+                "value": 315.686912
+              },
+              {
+                "frame": 32,
+                "value": 303.562752
+              },
+              {
+                "frame": 33,
+                "value": 253.231104
+              },
+              {
+                "frame": 34,
+                "value": 226.295808
+              },
+              {
+                "frame": 35,
+                "value": 219.21792
+              },
+              {
+                "frame": 36,
+                "value": 19.267584
+              },
+              {
+                "frame": 37,
+                "value": 131.858432
+              },
+              {
+                "frame": 38,
+                "value": 179.961856
+              },
+              {
+                "frame": 39,
+                "value": 178.5856
+              },
+              {
+                "frame": 40,
+                "value": 166.46144
+              },
+              {
+                "frame": 41,
+                "value": 169.73824
+              },
+              {
+                "frame": 42,
+                "value": 185.860096
+              },
+              {
+                "frame": 43,
+                "value": 34.930688
+              },
+              {
+                "frame": 44,
+                "value": 230.162432
+              },
+              {
+                "frame": 45,
+                "value": 282.329088
+              },
+              {
+                "frame": 46,
+                "value": 293.2736
+              },
+              {
+                "frame": 47,
+                "value": 57.99936
+              },
+              {
+                "frame": 48,
+                "value": 49.938432
+              },
+              {
+                "frame": 49,
+                "value": 212.140032
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 191.27118506666665,
+              "stddev": 91.57203599369436,
+              "median": 185.237504,
+              "p95": 326.631424,
+              "min": 19.267584,
+              "max": 381.943808
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.SSR [ Hi-Z 6 ]",
+              "label": "SSR [ Hi-Z 6 ]",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 102.105088
+              },
+              {
+                "frame": 21,
+                "value": 163.643392
+              },
+              {
+                "frame": 22,
+                "value": 184.745984
+              },
+              {
+                "frame": 23,
+                "value": 107.544576
+              },
+              {
+                "frame": 24,
+                "value": 194.31424
+              },
+              {
+                "frame": 25,
+                "value": 327.68
+              },
+              {
+                "frame": 26,
+                "value": 289.66912
+              },
+              {
+                "frame": 27,
+                "value": 137.756672
+              },
+              {
+                "frame": 28,
+                "value": 383.123456
+              },
+              {
+                "frame": 29,
+                "value": 231.34208
+              },
+              {
+                "frame": 30,
+                "value": 121.89696
+              },
+              {
+                "frame": 31,
+                "value": 315.752448
+              },
+              {
+                "frame": 32,
+                "value": 303.75936
+              },
+              {
+                "frame": 33,
+                "value": 253.29664
+              },
+              {
+                "frame": 34,
+                "value": 226.295808
+              },
+              {
+                "frame": 35,
+                "value": 219.21792
+              },
+              {
+                "frame": 36,
+                "value": 8.454144
+              },
+              {
+                "frame": 37,
+                "value": 131.72736
+              },
+              {
+                "frame": 38,
+                "value": 179.961856
+              },
+              {
+                "frame": 39,
+                "value": 178.651136
+              },
+              {
+                "frame": 40,
+                "value": 166.526976
+              },
+              {
+                "frame": 41,
+                "value": 169.672704
+              },
+              {
+                "frame": 42,
+                "value": 185.860096
+              },
+              {
+                "frame": 43,
+                "value": 19.267584
+              },
+              {
+                "frame": 44,
+                "value": 230.227968
+              },
+              {
+                "frame": 45,
+                "value": 283.705344
+              },
+              {
+                "frame": 46,
+                "value": 293.404672
+              },
+              {
+                "frame": 47,
+                "value": 43.384832
+              },
+              {
+                "frame": 48,
+                "value": 33.554432
+              },
+              {
+                "frame": 49,
+                "value": 212.467712
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 189.96701866666663,
+              "stddev": 94.63964026780788,
+              "median": 185.30304,
+              "p95": 327.68,
+              "min": 8.454144,
+              "max": 383.123456
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.SSR [ Reflections ]",
+              "label": "SSR [ Reflections ]",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 136.249344
+              },
+              {
+                "frame": 21,
+                "value": 199.950336
+              },
+              {
+                "frame": 22,
+                "value": 232.062976
+              },
+              {
+                "frame": 23,
+                "value": 318.83264
+              },
+              {
+                "frame": 24,
+                "value": 243.400704
+              },
+              {
+                "frame": 25,
+                "value": 381.026304
+              },
+              {
+                "frame": 26,
+                "value": 57.278464
+              },
+              {
+                "frame": 27,
+                "value": 295.763968
+              },
+              {
+                "frame": 28,
+                "value": 446.365696
+              },
+              {
+                "frame": 29,
+                "value": 279.052288
+              },
+              {
+                "frame": 30,
+                "value": 293.994496
+              },
+              {
+                "frame": 31,
+                "value": 376.50432
+              },
+              {
+                "frame": 32,
+                "value": 356.777984
+              },
+              {
+                "frame": 33,
+                "value": 316.2112
+              },
+              {
+                "frame": 34,
+                "value": 275.90656
+              },
+              {
+                "frame": 35,
+                "value": 276.496384
+              },
+              {
+                "frame": 36,
+                "value": 53.41184
+              },
+              {
+                "frame": 37,
+                "value": 158.9248
+              },
+              {
+                "frame": 38,
+                "value": 219.938816
+              },
+              {
+                "frame": 39,
+                "value": 217.57952
+              },
+              {
+                "frame": 40,
+                "value": 201.326592
+              },
+              {
+                "frame": 41,
+                "value": 206.76608
+              },
+              {
+                "frame": 42,
+                "value": 226.295808
+              },
+              {
+                "frame": 43,
+                "value": 50.397184
+              },
+              {
+                "frame": 44,
+                "value": 277.282816
+              },
+              {
+                "frame": 45,
+                "value": 337.83808
+              },
+              {
+                "frame": 46,
+                "value": 345.767936
+              },
+              {
+                "frame": 47,
+                "value": 197.656576
+              },
+              {
+                "frame": 48,
+                "value": 92.536832
+              },
+              {
+                "frame": 49,
+                "value": 271.384576
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 244.76603733333337,
+              "stddev": 99.96402947906924,
+              "median": 257.39264,
+              "p95": 381.026304,
+              "min": 50.397184,
+              "max": 446.365696
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.Back-Face Depth Pre-Pass",
+              "label": "Back-Face Depth Pre-Pass",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 29.032448
+              },
+              {
+                "frame": 21,
+                "value": 59.113472
+              },
+              {
+                "frame": 22,
+                "value": 39.714816
+              },
+              {
+                "frame": 23,
+                "value": 262.144
+              },
+              {
+                "frame": 24,
+                "value": 0.065536
+              },
+              {
+                "frame": 25,
+                "value": 48.300032
+              },
+              {
+                "frame": 26,
+                "value": 1.114112
+              },
+              {
+                "frame": 27,
+                "value": 138.805248
+              },
+              {
+                "frame": 28,
+                "value": 2.490368
+              },
+              {
+                "frame": 29,
+                "value": 70.909952
+              },
+              {
+                "frame": 30,
+                "value": 245.301248
+              },
+              {
+                "frame": 31,
+                "value": 1.769472
+              },
+              {
+                "frame": 32,
+                "value": 21.102592
+              },
+              {
+                "frame": 33,
+                "value": 55.508992
+              },
+              {
+                "frame": 34,
+                "value": 0.065536
+              },
+              {
+                "frame": 35,
+                "value": 0.720896
+              },
+              {
+                "frame": 36,
+                "value": 25.034752
+              },
+              {
+                "frame": 37,
+                "value": 19.136512
+              },
+              {
+                "frame": 38,
+                "value": 24.117248
+              },
+              {
+                "frame": 39,
+                "value": 24.641536
+              },
+              {
+                "frame": 40,
+                "value": 8.060928
+              },
+              {
+                "frame": 41,
+                "value": 43.450368
+              },
+              {
+                "frame": 42,
+                "value": 52.297728
+              },
+              {
+                "frame": 43,
+                "value": 0.065536
+              },
+              {
+                "frame": 44,
+                "value": 0.065536
+              },
+              {
+                "frame": 45,
+                "value": 0.65536
+              },
+              {
+                "frame": 46,
+                "value": 0.589824
+              },
+              {
+                "frame": 47,
+                "value": 38.535168
+              },
+              {
+                "frame": 48,
+                "value": 1.572864
+              },
+              {
+                "frame": 49,
+                "value": 2.359296
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 40.558045866666674,
+              "stddev": 65.38672821912236,
+              "median": 22.609920000000002,
+              "p95": 245.301248,
+              "min": 0.065536,
+              "max": 262.144
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.SSR [ Spatial Resolve ]",
+              "label": "SSR [ Spatial Resolve ]",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 138.477568
+              },
+              {
+                "frame": 21,
+                "value": 202.964992
+              },
+              {
+                "frame": 22,
+                "value": 239.140864
+              },
+              {
+                "frame": 23,
+                "value": 326.434816
+              },
+              {
+                "frame": 24,
+                "value": 250.609664
+              },
+              {
+                "frame": 25,
+                "value": 394.657792
+              },
+              {
+                "frame": 26,
+                "value": 64.55296
+              },
+              {
+                "frame": 27,
+                "value": 306.970624
+              },
+              {
+                "frame": 28,
+                "value": 453.640192
+              },
+              {
+                "frame": 29,
+                "value": 277.151744
+              },
+              {
+                "frame": 30,
+                "value": 297.467904
+              },
+              {
+                "frame": 31,
+                "value": 387.31776
+              },
+              {
+                "frame": 32,
+                "value": 361.627648
+              },
+              {
+                "frame": 33,
+                "value": 321.1264
+              },
+              {
+                "frame": 34,
+                "value": 281.214976
+              },
+              {
+                "frame": 35,
+                "value": 294.58432
+              },
+              {
+                "frame": 36,
+                "value": 57.802752
+              },
+              {
+                "frame": 37,
+                "value": 158.26944
+              },
+              {
+                "frame": 38,
+                "value": 221.970432
+              },
+              {
+                "frame": 39,
+                "value": 220.594176
+              },
+              {
+                "frame": 40,
+                "value": 203.948032
+              },
+              {
+                "frame": 41,
+                "value": 208.863232
+              },
+              {
+                "frame": 42,
+                "value": 233.177088
+              },
+              {
+                "frame": 43,
+                "value": 56.098816
+              },
+              {
+                "frame": 44,
+                "value": 284.229632
+              },
+              {
+                "frame": 45,
+                "value": 345.7024
+              },
+              {
+                "frame": 46,
+                "value": 353.763328
+              },
+              {
+                "frame": 47,
+                "value": 183.238656
+              },
+              {
+                "frame": 48,
+                "value": 100.92544
+              },
+              {
+                "frame": 49,
+                "value": 280.428544
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 250.2317397333333,
+              "stddev": 101.77228888835725,
+              "median": 263.88070400000004,
+              "p95": 394.657792,
+              "min": 56.098816,
+              "max": 453.640192
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.SSR [ Temporal ]",
+              "label": "SSR [ Temporal ]",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 139.329536
+              },
+              {
+                "frame": 21,
+                "value": 204.013568
+              },
+              {
+                "frame": 22,
+                "value": 245.497856
+              },
+              {
+                "frame": 23,
+                "value": 340.328448
+              },
+              {
+                "frame": 24,
+                "value": 255.787008
+              },
+              {
+                "frame": 25,
+                "value": 411.172864
+              },
+              {
+                "frame": 26,
+                "value": 66.51904
+              },
+              {
+                "frame": 27,
+                "value": 314.048512
+              },
+              {
+                "frame": 28,
+                "value": 470.679552
+              },
+              {
+                "frame": 29,
+                "value": 281.739264
+              },
+              {
+                "frame": 30,
+                "value": 301.596672
+              },
+              {
+                "frame": 31,
+                "value": 387.97312
+              },
+              {
+                "frame": 32,
+                "value": 369.62304
+              },
+              {
+                "frame": 33,
+                "value": 321.585152
+              },
+              {
+                "frame": 34,
+                "value": 284.622848
+              },
+              {
+                "frame": 35,
+                "value": 303.890432
+              },
+              {
+                "frame": 36,
+                "value": 59.047936
+              },
+              {
+                "frame": 37,
+                "value": 155.385856
+              },
+              {
+                "frame": 38,
+                "value": 223.739904
+              },
+              {
+                "frame": 39,
+                "value": 221.249536
+              },
+              {
+                "frame": 40,
+                "value": 204.537856
+              },
+              {
+                "frame": 41,
+                "value": 209.584128
+              },
+              {
+                "frame": 42,
+                "value": 242.4832
+              },
+              {
+                "frame": 43,
+                "value": 70.254592
+              },
+              {
+                "frame": 44,
+                "value": 290.717696
+              },
+              {
+                "frame": 45,
+                "value": 362.283008
+              },
+              {
+                "frame": 46,
+                "value": 359.989248
+              },
+              {
+                "frame": 47,
+                "value": 189.923328
+              },
+              {
+                "frame": 48,
+                "value": 117.30944
+              },
+              {
+                "frame": 49,
+                "value": 285.73696
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 256.35498666666666,
+              "stddev": 103.707643554988,
+              "median": 268.763136,
+              "p95": 411.172864,
+              "min": 59.047936,
+              "max": 470.679552
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.SSR [ History ]",
+              "label": "SSR [ History ]",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 139.526144
+              },
+              {
+                "frame": 21,
+                "value": 204.341248
+              },
+              {
+                "frame": 22,
+                "value": 246.284288
+              },
+              {
+                "frame": 23,
+                "value": 341.508096
+              },
+              {
+                "frame": 24,
+                "value": 256.442368
+              },
+              {
+                "frame": 25,
+                "value": 413.53216
+              },
+              {
+                "frame": 26,
+                "value": 68.222976
+              },
+              {
+                "frame": 27,
+                "value": 314.5728
+              },
+              {
+                "frame": 28,
+                "value": 484.245504
+              },
+              {
+                "frame": 29,
+                "value": 272.236544
+              },
+              {
+                "frame": 30,
+                "value": 302.055424
+              },
+              {
+                "frame": 31,
+                "value": 77.725696
+              },
+              {
+                "frame": 32,
+                "value": 371.58912
+              },
+              {
+                "frame": 33,
+                "value": 321.912832
+              },
+              {
+                "frame": 34,
+                "value": 284.819456
+              },
+              {
+                "frame": 35,
+                "value": 304.021504
+              },
+              {
+                "frame": 36,
+                "value": 60.555264
+              },
+              {
+                "frame": 37,
+                "value": 150.339584
+              },
+              {
+                "frame": 38,
+                "value": 224.13312
+              },
+              {
+                "frame": 39,
+                "value": 221.446144
+              },
+              {
+                "frame": 40,
+                "value": 205.258752
+              },
+              {
+                "frame": 41,
+                "value": 209.780736
+              },
+              {
+                "frame": 42,
+                "value": 243.007488
+              },
+              {
+                "frame": 43,
+                "value": 84.54144
+              },
+              {
+                "frame": 44,
+                "value": 291.110912
+              },
+              {
+                "frame": 45,
+                "value": 368.902144
+              },
+              {
+                "frame": 46,
+                "value": 361.496576
+              },
+              {
+                "frame": 47,
+                "value": 190.185472
+              },
+              {
+                "frame": 48,
+                "value": 118.095872
+              },
+              {
+                "frame": 49,
+                "value": 287.113216
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 247.30009599999997,
+              "stddev": 106.22982030599461,
+              "median": 251.363328,
+              "p95": 413.53216,
+              "min": 60.555264,
+              "max": 484.245504
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.SSR [ Previous Geometry ]",
+              "label": "SSR [ Previous Geometry ]",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 139.984896
+              },
+              {
+                "frame": 21,
+                "value": 42.991616
+              },
+              {
+                "frame": 22,
+                "value": 249.823232
+              },
+              {
+                "frame": 23,
+                "value": 357.302272
+              },
+              {
+                "frame": 24,
+                "value": 261.685248
+              },
+              {
+                "frame": 25,
+                "value": 416.088064
+              },
+              {
+                "frame": 26,
+                "value": 73.269248
+              },
+              {
+                "frame": 27,
+                "value": 317.587456
+              },
+              {
+                "frame": 28,
+                "value": 500.105216
+              },
+              {
+                "frame": 29,
+                "value": 268.828672
+              },
+              {
+                "frame": 30,
+                "value": 308.215808
+              },
+              {
+                "frame": 31,
+                "value": 76.414976
+              },
+              {
+                "frame": 32,
+                "value": 374.931456
+              },
+              {
+                "frame": 33,
+                "value": 329.777152
+              },
+              {
+                "frame": 34,
+                "value": 288.3584
+              },
+              {
+                "frame": 35,
+                "value": 304.218112
+              },
+              {
+                "frame": 36,
+                "value": 60.686336
+              },
+              {
+                "frame": 37,
+                "value": 144.441344
+              },
+              {
+                "frame": 38,
+                "value": 224.4608
+              },
+              {
+                "frame": 39,
+                "value": 221.642752
+              },
+              {
+                "frame": 40,
+                "value": 205.979648
+              },
+              {
+                "frame": 41,
+                "value": 209.977344
+              },
+              {
+                "frame": 42,
+                "value": 250.281984
+              },
+              {
+                "frame": 43,
+                "value": 94.830592
+              },
+              {
+                "frame": 44,
+                "value": 293.142528
+              },
+              {
+                "frame": 45,
+                "value": 378.601472
+              },
+              {
+                "frame": 46,
+                "value": 366.477312
+              },
+              {
+                "frame": 47,
+                "value": 192.937984
+              },
+              {
+                "frame": 48,
+                "value": 131.465216
+              },
+              {
+                "frame": 49,
+                "value": 292.749312
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 245.90854826666666,
+              "stddev": 114.3887485531183,
+              "median": 255.98361599999998,
+              "p95": 416.088064,
+              "min": 42.991616,
+              "max": 500.105216
+            }
+          },
+          {
+            "descriptor": {
+              "id": "gpu.pass.TRAA",
+              "label": "TRAA",
+              "unit": "ms",
+              "description": "GPU query duration, summed over all invocations of this pass within the frame."
+            },
+            "sampleUnit": "frame",
+            "samples": [
+              {
+                "frame": 20,
+                "value": 55.181312
+              },
+              {
+                "frame": 21,
+                "value": 44.433408
+              },
+              {
+                "frame": 22,
+                "value": 90.374144
+              },
+              {
+                "frame": 23,
+                "value": 161.939456
+              },
+              {
+                "frame": 24,
+                "value": 90.570752
+              },
+              {
+                "frame": 25,
+                "value": 154.99264
+              },
+              {
+                "frame": 26,
+                "value": 79.822848
+              },
+              {
+                "frame": 27,
+                "value": 111.804416
+              },
+              {
+                "frame": 28,
+                "value": 184.549376
+              },
+              {
+                "frame": 29,
+                "value": 111.673344
+              },
+              {
+                "frame": 30,
+                "value": 114.753536
+              },
+              {
+                "frame": 31,
+                "value": 82.378752
+              },
+              {
+                "frame": 32,
+                "value": 117.047296
+              },
+              {
+                "frame": 33,
+                "value": 148.373504
+              },
+              {
+                "frame": 34,
+                "value": 87.752704
+              },
+              {
+                "frame": 35,
+                "value": 103.54688
+              },
+              {
+                "frame": 36,
+                "value": 63.832064
+              },
+              {
+                "frame": 37,
+                "value": 61.734912
+              },
+              {
+                "frame": 38,
+                "value": 48.49664
+              },
+              {
+                "frame": 39,
+                "value": 56.68864
+              },
+              {
+                "frame": 40,
+                "value": 50.724864
+              },
+              {
+                "frame": 41,
+                "value": 50.724864
+              },
+              {
+                "frame": 42,
+                "value": 108.068864
+              },
+              {
+                "frame": 43,
+                "value": 102.957056
+              },
+              {
+                "frame": 44,
+                "value": 90.963968
+              },
+              {
+                "frame": 45,
+                "value": 195.756032
+              },
+              {
+                "frame": 46,
+                "value": 104.792064
+              },
+              {
+                "frame": 47,
+                "value": 113.573888
+              },
+              {
+                "frame": 48,
+                "value": 164.429824
+              },
+              {
+                "frame": 49,
+                "value": 104.988672
+              }
+            ],
+            "statistics": {
+              "n": 30,
+              "mean": 101.89755733333332,
+              "stddev": 41.125620690741755,
+              "median": 103.251968,
+              "p95": 184.549376,
+              "min": 44.433408,
+              "max": 195.756032
+            }
+          }
+        ],
+        "profiling": {
+          "status": "supported",
+          "invalidSamples": 0
+        }
+      }
+    ]
+  },
+  "adapter": {
+    "subgroupMatrixConfigs": []
+  }
+}

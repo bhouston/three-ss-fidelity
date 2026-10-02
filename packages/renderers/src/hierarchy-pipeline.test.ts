@@ -25,6 +25,7 @@ vi.mock('three/webgpu', async (original) => ({
     dispose() {}
   },
 }));
+vi.mock('./probe-grid.js', () => ({ bakeProbeGrid: vi.fn(async () => vi.fn()) }));
 vi.mock('./helpers.js', () => ({
   configureRenderer: vi.fn(),
   prepareScene: () => () => {},
@@ -205,5 +206,38 @@ it('scales scene sample budgets independently and keeps work flags opt-in', asyn
   });
   const gi = vi.mocked(ssgi).mock.results[0]!.value;
   expect([gi.sliceCount.value, gi.stepCount.value]).toEqual([1, 1]);
+  live.dispose();
+});
+
+it('replaces SSGI and its denoisers with probe lighting while retaining SSR', async () => {
+  const { bakeProbeGrid } = await import('./probe-grid.js');
+  const live = await createThreeNewRenderer(
+    {} as HTMLCanvasElement,
+    setup(),
+    {
+      width: 161,
+      height: 121,
+    },
+    true,
+  );
+  expect(bakeProbeGrid).toHaveBeenCalledTimes(1);
+  expect(ssgi).not.toHaveBeenCalled();
+  expect(newSSR).toHaveBeenCalledTimes(1);
+  expect(state.targets).toHaveLength(0);
+  live.dispose();
+  expect(await vi.mocked(bakeProbeGrid).mock.results[0]!.value).toHaveBeenCalledTimes(1);
+});
+it('does not add probes to a direct-only pass', async () => {
+  const { bakeProbeGrid } = await import('./probe-grid.js');
+  const live = await createThreeNewRenderer(
+    {} as HTMLCanvasElement,
+    setup(1, false),
+    {
+      width: 161,
+      height: 121,
+    },
+    true,
+  );
+  expect(bakeProbeGrid).not.toHaveBeenCalled();
   live.dispose();
 });

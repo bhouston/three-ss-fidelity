@@ -56,12 +56,39 @@ in `submodules/three.js`. There is only ever one copy of three.
   `ssgi.ts`, `ssr.ts` (steampunk), `ssr-diagnostics.ts` (`ssr-diag-*`), `gi-diagnostics.ts` and
   `gi-visible-walls.ts` (`gi-*`), `traa-diagnostics.ts` (`traa-*`), `gltf-examples.ts` (`gltf-*`), `higharc.ts`.
 - Assets (glTF, HDR) are loaded from paths relative to `submodules/three.js/examples/`. `src/node.ts` provides the
-  node-side `SceneContext`.
+  node-side `SceneContext`. Repository assets use the `suite-assets/` prefix, served by the playground from `assets/`.
 - **To add a scene:** add a `SceneDefinition` to the family file (or a new file), make sure it is spread into the
   registry in `index.ts`, add or extend the family's `*.test.ts`, then render the path-tracer reference.
 - `ssgi-basic-oblique` preserves the basic Cornell box and uses an elevated oblique camera captured in the live
   viewer at 960×540. Select it in the live lab or with `pnpm cli render --scenes ssgi-basic-oblique` to reproduce
   the screen-space artifact view with any renderer.
+
+### Complex glTF scenes and offline lightmap UVs
+
+`complex-models.ts` adds `khronos-transmission-test`, `model-bedroom`, `model-breakfast-room`, `model-coffee-maker`,
+`model-contemporary-bathroom`, `model-country-kitchen`, `model-grey-and-white-room`, and `model-headphone-with-stand`.
+Models retain their original dimensions, physical materials and embedded cameras. Daylight HDR and a warm,
+shadow-casting directional sun through each room's window light the interiors. Source window-emitter proxies are hidden
+to let sunlight enter, and transmissive glass does not cast opaque raster shadows. Studio HDR lights the products and
+transmission test. The headphone also has a glossy floor. Licenses, attribution, source hashes and preprocessing details
+live in [assets/complex-scenes](assets/complex-scenes/README.md).
+
+[glTF Transform](https://gltf-transform.dev/modules/functions/functions/unwrap) already provides an xatlas-based
+unwrap CLI and a separately installable core/transform SDK, so this suite uses it instead of adding another repository:
+
+```sh
+pnpm dlx @gltf-transform/cli unwrap input.glb output.glb --texcoord 1 --overwrite --group-by scene
+node scripts/preunwrap-scenes.mjs ../three-gpu-pathtracer-fidelity/submodules
+pnpm cli render --scenes 'model-*,khronos-transmission-test' --renderers three-gpu-pathtracer
+```
+
+The import script additionally splits mesh instances, configures atlas resolution and chart padding, and writes
+`scene.extras.lightmapAtlas = { version: 1, size: 2048, padding: 8 }`. Three.js loads `TEXCOORD_1` as `uv1` and the
+extras as `userData`. Rare collapsed UV triangles receive separate padded islands, with metadata reporting the
+conservative resulting gap (7 pixels on repaired assets). The baker validates the marked group's UVs and reserves its shared atlas as one tile, alongside
+any procedural geometry. It skips projection/chart generation for that group, while retaining the runtime unwrap
+for unmarked, invalid or repeated mesh geometry. A secondary UV channel alone is insufficient evidence of a shared,
+nonoverlapping lightmap atlas: it can also be used by material textures. Multiple imported groups get separate tiles.
 
 ### `packages/renderers`
 

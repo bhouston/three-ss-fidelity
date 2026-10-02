@@ -1,4 +1,4 @@
-import { DoubleSide, Matrix4, Mesh, Ray, Vector3, type Scene } from 'three';
+import { DoubleSide, Matrix4, Mesh, Ray, Vector3, type BufferGeometry, type Scene } from 'three';
 import { MeshBVH, StaticGeometryGenerator } from 'three-mesh-bvh';
 
 /** Snapshot visible, transformed, skinned/morphed and instanced triangles without changing borrowed meshes. */
@@ -25,10 +25,29 @@ export function geometrySnapshot(scene: Scene) {
       meshes.push(leaf);
     }
   });
-  const generator = new StaticGeometryGenerator(meshes);
-  generator.attributes = ['position'];
-  generator.useGroups = false;
-  const geometry = generator.generate();
+  // StaticGeometryGenerator requires uniform indexing. Add identity indices only to owned
+  // copies, retaining vertex order and skin/morph attributes for its world-space snapshot.
+  const indexedCopies = new Map<BufferGeometry, BufferGeometry>();
+  let geometry: BufferGeometry;
+  try {
+    for (const mesh of meshes) {
+      if (mesh.geometry.index) continue;
+      const source = mesh.geometry;
+      let copy = indexedCopies.get(source);
+      if (!copy) {
+        copy = source.clone();
+        indexedCopies.set(source, copy);
+        copy.setIndex(Array.from({ length: copy.attributes.position!.count }, (_, i) => i));
+      }
+      mesh.geometry = copy;
+    }
+    const generator = new StaticGeometryGenerator(meshes);
+    generator.attributes = ['position'];
+    generator.useGroups = false;
+    geometry = generator.generate();
+  } finally {
+    for (const copy of indexedCopies.values()) copy.dispose();
+  }
   // Positions are world space, so geometric winding normals and hit distances are world space too.
   const bvh = new MeshBVH(geometry);
   const ray = new Ray();

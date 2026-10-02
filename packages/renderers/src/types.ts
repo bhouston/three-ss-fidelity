@@ -8,7 +8,6 @@ export const rendererNames = [
   'three-new-light-probe-ddgi',
   'three-current',
   'three-gpu-pathtracer',
-  'three-gpu-pathtracer-webgpu',
 ] as const;
 export type RendererName = (typeof rendererNames)[number];
 

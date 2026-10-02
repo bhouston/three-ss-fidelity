@@ -39,7 +39,7 @@ function seedRandom(seed = 1): void {
   Math.random = seededRandom(seed);
 }
 
-/** The only WebGL renderers: everything else, including the WebGPU path tracer, runs on WebGPURenderer. Blender needs
+/** The only WebGL renderers: everything else runs on WebGPURenderer. Blender needs
  * a WebGL canvas too, only to bake `setup.environment` into a cube map before exporting it as an equirect EXR. */
 function usesWebGL(renderer: JobRendererName): boolean {
   return renderer === 'three-gpu-pathtracer' || renderer === 'blender';
@@ -47,7 +47,7 @@ function usesWebGL(renderer: JobRendererName): boolean {
 
 /** Path tracers report accumulated samples (job.samples); screen-space renderers report accumulated frames. */
 function usesSamples(renderer: JobRendererName): boolean {
-  return renderer === 'three-gpu-pathtracer' || renderer === 'three-gpu-pathtracer-webgpu';
+  return renderer === 'three-gpu-pathtracer';
 }
 
 async function main(job: RenderJob): Promise<void> {

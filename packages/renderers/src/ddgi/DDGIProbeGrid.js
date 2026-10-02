@@ -33,7 +33,7 @@ import { ATLAS_COLUMNS, DISTANCE_RESOLUTION, IRRADIANCE_RESOLUTION } from './vis
 
 const signNonzero = (value) => value.greaterThanEqual(0).select(1, -1);
 const encodeOct = (direction) => {
-  const p = direction.div(direction.abs().x.add(direction.abs().y).add(direction.abs().z));
+  const p = direction.div(direction.abs().x.add(direction.abs().y).add(direction.abs().z).max(1e-6));
   return p.z
     .lessThan(0)
     .select(vec2(p.y.abs().oneMinus().mul(signNonzero(p.x)), p.x.abs().oneMinus().mul(signNonzero(p.y))), p.xy)
@@ -109,7 +109,8 @@ export class DDGIProbeNode extends AnalyticLightNode {
           .div(variance.add(delta.mul(delta)))
           .pow(3)
           .toVar();
-        const toProbe = probePosition.sub(positionWorld).normalize();
+        const toProbeDelta = probePosition.sub(positionWorld).toVar();
+        const toProbe = toProbeDelta.div(toProbeDelta.length().max(1e-6));
         const wrap = normalWorld.dot(toProbe).mul(0.5).add(0.5).pow(2).add(0.2);
         const blend = offset.mul(alpha).add(offset.oneMinus().mul(alpha.oneMinus()));
         const weight = blend.x.mul(blend.y).mul(blend.z).mul(wrap).mul(visibility).mul(relocation.w).toVar();

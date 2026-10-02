@@ -77,4 +77,18 @@ Visibility preparation takes roughly 1.4–5.3 seconds on these scenes, dependin
 
 Build, type, lint and coverage tests pass. GPU captures cover all seven scenes above with both probe renderers. `pnpm audit --audit-level=high` reports the same three existing high Puppeteer-tooling advisories (extract-zip/basic-ftp); no dependency or lockfile changes. Existing shader lint and BVH/bundle build warnings remain.
 
-Steady-state timing results follow after the separate sequential benchmark run.
+## Measured steady-state performance
+
+The separate sequential run used 1920×1080, 60 warmup frames, 120 measured frames and three alternating-order repetitions on the same Apple M3. Values are median GPU-synchronized batch wall time per frame, excluding startup baking. Raw repetitions, separate timestamp profiles and logs are archived in `history/ddgi/timing/`. The report records base `b305673c43e` with the implementation uncommitted at run start; the measured code was committed as `575d2a8d64e`. A subsequent numerical guard prevents division by zero at coincident queries without changing the sampling algorithm.
+
+| Scene              | SSGI ms | Basic probes ms | DDGI probes ms | DDGI speedup vs SSGI |
+| ------------------ | ------: | --------------: | -------------: | -------------------: |
+| gi-probe-thin-wall |  42.767 |           7.692 |         11.832 |                3.61× |
+| gi-room-low-albedo |  29.177 |           2.900 |          3.474 |                8.40× |
+| ssgi-basic         | 192.550 |          38.554 |         39.298 |                4.90× |
+
+Basic probes were 4.99–10.06× faster than SSGI in these runs. DDGI's added visibility costs roughly 2–54% over the basic renderer, depending on the scene. These are exploratory workstation measurements, not controlled hardware guarantees: repetition ranges were wide, especially the low-albedo scene (SSGI 27.64–60.81 ms, basic 2.22–13.31 ms, DDGI 3.10–16.60 ms). Thin-wall DDGI ranged 10.93–12.48 ms; SSGI-example DDGI ranged 38.22–40.28 ms. Separate timestamp pass sums are diagnostic and must not be mistaken for whole-frame GPU time. The speed advantage also excludes the substantial initial bake and does not imply universally better image quality.
+
+```sh
+node scripts/hierarchical-experiments.mjs --experiments sh-probes,ddgi-probes --scenes gi-probe-thin-wall,gi-room-low-albedo,ssgi-basic --skip-quality --out .output/ddgi-timing --repeats 3 --width 1920 --height 1080 --warmup 60 --measure 120
+```

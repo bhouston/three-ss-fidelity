@@ -11,6 +11,7 @@ import {
   Vector3,
 } from 'three';
 import { extractLights } from './gltf-examples.js';
+import { makeMaterialsWhite } from './white-materials.js';
 import type { SceneContext, SceneDefinition, SceneSetup } from './types.js';
 
 const WIDTH = 640;
@@ -63,7 +64,7 @@ const models = [
   },
 ];
 
-async function createModel(entry: (typeof models)[number], ctx: SceneContext): Promise<SceneSetup> {
+async function createModel(entry: (typeof models)[number], ctx: SceneContext, white = false): Promise<SceneSetup> {
   const scene = new Scene();
   const gltf = await ctx.loadGLTF(`suite-assets/complex-scenes/${entry.file}.glb`);
   const model = gltf.scene;
@@ -142,6 +143,7 @@ async function createModel(entry: (typeof models)[number], ctx: SceneContext): P
     floor.receiveShadow = true;
     scene.add(floor);
   }
+  if (white) makeMaterialsWhite(scene);
   return {
     scene,
     camera,
@@ -164,10 +166,12 @@ async function createModel(entry: (typeof models)[number], ctx: SceneContext): P
   };
 }
 
-export const complexModelScenes: SceneDefinition[] = models.map((entry) => ({
-  name: entry.name,
-  description: entry.description,
-  width: WIDTH,
-  height: HEIGHT,
-  create: (ctx) => createModel(entry, ctx),
-}));
+export const complexModelScenes: SceneDefinition[] = models.flatMap((entry) =>
+  [false, true].map((white) => ({
+    name: entry.name + (white ? '-w' : ''),
+    description: entry.description + (white ? ' White materials with original transmission and surface detail.' : ''),
+    width: WIDTH,
+    height: HEIGHT,
+    create: (ctx) => createModel(entry, ctx, white),
+  })),
+);

@@ -2,11 +2,22 @@
 import { chromium } from '../packages/playground/node_modules/@playwright/test/index.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+if (process.env.SHADER_AUDIT_PROFILE === '1' && (process.argv[3] ?? 'three-new') !== 'three-new')
+  throw new Error('Startup builder profiling currently supports three-new');
 const out = process.argv[2];
 if (!out) throw new Error('Output directory required');
 await mkdir(out, { recursive: true });
 const salt = process.env.SHADER_AUDIT_SALT;
 if (salt && !/^[a-zA-Z][a-zA-Z0-9_]*$/.test(salt)) throw new Error('Salt must be a WGSL identifier');
+const warmupFrames = Number(process.env.SHADER_AUDIT_WARMUP ?? 16);
+const measureFrames = Number(process.env.SHADER_AUDIT_FRAMES ?? 20);
+if (
+  !Number.isSafeInteger(warmupFrames) ||
+  warmupFrames < 4 ||
+  !Number.isSafeInteger(measureFrames) ||
+  measureFrames < 1
+)
+  throw new Error('Warmup must be at least four frames; measurement needs positive integral frames');
 const browser = await chromium.launch({
   headless: process.env.SHADER_AUDIT_HEADED !== '1',
   args: [
@@ -23,7 +34,12 @@ try {
   );
   await page.goto((process.env.SHADER_AUDIT_URL ?? 'http://127.0.0.1:5174') + '/shader-audit.html');
   const report = await page.evaluate(
-    async ({ name, scene, root, salt: shaderSalt }) => {
+    async ({ name, scene, root, salt: shaderSalt, profiling, warmupFrames: warmup, measureFrames: measured }) => {
+      const profile = profiling
+        ? (await import('/@fs' + root + '/scripts/shader-startup-profiler.mjs')).installShaderStartupProfiler({
+            RendererClass: (await import('/@fs' + root + '/submodules/three.js/build/three.webgpu.js')).Renderer,
+          })
+        : null;
       const modules = [],
         pipelines = [];
       const originalModule = GPUDevice.prototype.createShaderModule;
@@ -56,35 +72,68 @@ try {
       canvas.width = canvas.height = 256;
       document.body.append(canvas);
       const start = performance.now();
-      const live = await createRenderer(name, canvas, setup, { width: 256, height: 256 });
+      profile?.setPhase('factory');
+      const factory = () => createRenderer(name, canvas, setup, { width: 256, height: 256 });
+      const live = await (profile ? profile.measure('factory', factory) : factory());
       const initializedMs = performance.now() - start;
       const advance = createRendererFrameDriver(live.renderer);
+      profile?.setPhase('first-frame');
       advance({ index: 0, timeSeconds: 0, deltaSeconds: 1 / 60, phase: 'warmup' });
-      live.render();
-      await completeRenderer(live.renderer);
+      if (profile) profile.measure('first-render', () => live.render());
+      else live.render();
+      await (profile
+        ? profile.measure('first-completion', () => completeRenderer(live.renderer))
+        : completeRenderer(live.renderer));
       const firstFrameMs = performance.now() - start;
-      for (let i = 1; i < 16; i++) {
+      profile?.setPhase('warmup');
+      for (let i = 1; i < warmup; i++) {
         advance({ index: i, timeSeconds: i / 60, deltaSeconds: 1 / 60, phase: 'warmup' });
         live.render();
         await completeRenderer(live.renderer);
       }
+      profile?.setPhase('measure');
       const runtimeStart = performance.now();
-      for (let i = 16; i < 36; i++) {
+      for (let i = warmup; i < warmup + measured; i++) {
         advance({ index: i, timeSeconds: i / 60, deltaSeconds: 1 / 60, phase: 'measure' });
         live.render();
       }
       await completeRenderer(live.renderer);
-      const frameMs = (performance.now() - runtimeStart) / 20;
+      const frameMs = (performance.now() - runtimeStart) / measured;
       const adapter = Object.fromEntries(
         ['vendor', 'architecture', 'device', 'description'].map((key) => [
           key,
           live.renderer.backend.device.adapterInfo[key],
         ]),
       );
+      let startup, trace;
+      if (profile) {
+        await profile.settled();
+        startup = await profile.reportAsync({ includeSource: true });
+        if (!startup.builders.length) throw new Error('No builder hooks captured: check Three.js module identity');
+        trace = profile.trace();
+        profile.restore();
+      }
       live.dispose();
-      return { name, scene, salt: shaderSalt, initializedMs, firstFrameMs, frameMs, adapter, modules, pipelines };
+      return {
+        name,
+        scene,
+        warmupFrames: warmup,
+        measureFrames: measured,
+        salt: shaderSalt,
+        initializedMs,
+        firstFrameMs,
+        frameMs,
+        adapter,
+        modules,
+        pipelines,
+        startup,
+        trace,
+      };
     },
     {
+      warmupFrames,
+      measureFrames,
+      profiling: process.env.SHADER_AUDIT_PROFILE === '1',
       salt,
       root: new URL('..', import.meta.url).pathname.replace(/\/$/, ''),
       name: process.argv[3] ?? 'three-new',
@@ -99,6 +148,17 @@ try {
     module.lines = module.code.split('\n').length;
     module.loops = (module.code.match(/\bfor\s*\(/g) ?? []).length;
     delete module.code;
+  }
+  if (report.startup) {
+    for (const source of report.startup.sources) {
+      source.file = source.id + '.wgsl';
+      await writeFile(join(out, source.file), source.code);
+      delete source.code;
+    }
+    await writeFile(join(out, 'startup.json'), JSON.stringify(report.startup, null, 2) + '\n');
+    await writeFile(join(out, 'startup-trace.json'), JSON.stringify(report.trace) + '\n');
+    delete report.startup;
+    delete report.trace;
   }
   await writeFile(join(out, 'report.json'), JSON.stringify(report, null, 2) + '\n');
   console.log(JSON.stringify(report));

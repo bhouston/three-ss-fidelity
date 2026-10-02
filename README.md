@@ -207,6 +207,7 @@ Edit `results/README.md` to update the Markdown introduction above the compariso
 | [docs/PLAN.md](docs/PLAN.md)               | Original design: layout, scene contract, renderer and CLI plan.                                                          |
 | [docs/CONVERGENCE.md](docs/CONVERGENCE.md) | Move-then-stop convergence benchmark method and findings.                                                                |
 | [docs/PERF.md](docs/PERF.md)               | `cli bench` and GPU timing.                                                                                              |
+| [docs/TSL_GUIDE.md](docs/TSL_GUIDE.md)     | Writing compact TSL shaders: loops, materialization, reusable functions, and generated-code validation.                  |
 | [docs/history/](docs/history/)             | Experiment logs (SSGI estimator, SSR correctness/speed/real-time, SSGI speed, TRAA tests), under the old renderer names. |
 
 The JSON and PNG files in `docs/history/` are the data behind those logs. Most were produced by the scripts in `scripts/`.

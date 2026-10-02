@@ -1,0 +1,300 @@
+{
+  "metadata": {
+    "date": "2026-10-01T22:06:09.069Z",
+    "revision": "75896df7c60752b626d9db0551cca63470ea9fe3",
+    "dirty": true,
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpu": "Apple M3",
+    "node": "v26.3.0",
+    "timing": {
+      "enabled": false,
+      "width": 1920,
+      "height": 1080,
+      "warmup": 60,
+      "measure": 120,
+      "repeats": 3,
+      "method": "median GPU-synchronized batch wall time; separate timestamp run"
+    },
+    "quality": {
+      "enabled": true,
+      "frames": 128,
+      "dimensions": "native scene dimensions",
+      "encoding": "AVIF quality 90, 4:4:4; decoded sRGB RGB8 metrics",
+      "maxPsnrDropDb": 0.1
+    }
+  },
+  "scenes": {
+    "ssgi-basic": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 27.481138484406348
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "ssgi-basic/images/ssgi-basic/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "ssgi-half": {
+          "reference": {
+            "psnr": 27.613263082983984
+          },
+          "baseline": {
+            "psnr": 38.64828909615068
+          },
+          "psnrDropDb": -0.13212459857763648,
+          "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-half.avif",
+          "passesReferenceGate": true
+        },
+        "ssgi-third": {
+          "reference": {
+            "psnr": 27.63245511377962
+          },
+          "baseline": {
+            "psnr": 39.82196032525306
+          },
+          "psnrDropDb": -0.15131662937327306,
+          "image": "ssgi-basic/images/ssgi-basic/beauty/three-new-ssgi-third.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 27.481138484406348
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "ssgi-basic/repeat/ssgi-basic/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssgi-basic/beauty/three-gpu-pathtracer.avif",
+        "sha256": "daf7fcd17a2dfd3d1dd44974ff49bdf5ace6cfad6af4585706a38f54bab6dd25"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "ssgi-rounded": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 29.347669394359702
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "ssgi-half": {
+          "reference": {
+            "psnr": 29.167506912024727
+          },
+          "baseline": {
+            "psnr": 39.66178128968186
+          },
+          "psnrDropDb": 0.18016248233497478,
+          "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-ssgi-half.avif",
+          "passesReferenceGate": false
+        },
+        "ssgi-third": {
+          "reference": {
+            "psnr": 29.353449631079215
+          },
+          "baseline": {
+            "psnr": 40.24899479798358
+          },
+          "psnrDropDb": -0.005780236719512999,
+          "image": "ssgi-rounded/images/ssgi-rounded/beauty/three-new-ssgi-third.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 29.347669394359702
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "ssgi-rounded/repeat/ssgi-rounded/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssgi-rounded/beauty/three-gpu-pathtracer.avif",
+        "sha256": "505d0b20d9ff66a3eecd8a787c431be47b9395a2b936d5e00759fcef58035e93"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "gi-hierarchy-discontinuity": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 35.1462378032902
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "ssgi-half": {
+          "reference": {
+            "psnr": 34.24206701676396
+          },
+          "baseline": {
+            "psnr": 40.641400495148176
+          },
+          "psnrDropDb": 0.9041707865262367,
+          "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-half.avif",
+          "passesReferenceGate": false
+        },
+        "ssgi-third": {
+          "reference": {
+            "psnr": 34.98261496905094
+          },
+          "baseline": {
+            "psnr": 49.13719708865621
+          },
+          "psnrDropDb": 0.1636228342392556,
+          "image": "gi-hierarchy-discontinuity/images/gi-hierarchy-discontinuity/beauty/three-new-ssgi-third.avif",
+          "passesReferenceGate": false
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 35.1462378032902
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "gi-hierarchy-discontinuity/repeat/gi-hierarchy-discontinuity/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/gi-hierarchy-discontinuity/beauty/three-gpu-pathtracer.avif",
+        "sha256": "2802343f1d02841ab7061f5e535059b6f6e2b377dbd4d55e9f7dd510d475bcd9"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "gi-room-open-high-albedo": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 31.725908147687676
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "ssgi-half": {
+          "reference": {
+            "psnr": 31.344733675142265
+          },
+          "baseline": {
+            "psnr": 43.23747805087963
+          },
+          "psnrDropDb": 0.3811744725454105,
+          "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-ssgi-half.avif",
+          "passesReferenceGate": false
+        },
+        "ssgi-third": {
+          "reference": {
+            "psnr": 31.69680352178527
+          },
+          "baseline": {
+            "psnr": 53.474445338640095
+          },
+          "psnrDropDb": 0.0291046259024057,
+          "image": "gi-room-open-high-albedo/images/gi-room-open-high-albedo/beauty/three-new-ssgi-third.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 31.725908147687676
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "gi-room-open-high-albedo/repeat/gi-room-open-high-albedo/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/gi-room-open-high-albedo/beauty/three-gpu-pathtracer.avif",
+        "sha256": "7f7dfe4a1d848f8599889bb670d3f80e7ef446cdd8e4168bf77ce0276b5d6ef2"
+      },
+      "baselineRepeatPsnrDb": null
+    },
+    "ssgi-metallic": {
+      "timing": {},
+      "quality": {
+        "baseline": {
+          "reference": {
+            "psnr": 27.626608888490484
+          },
+          "baseline": {
+            "psnr": null
+          },
+          "psnrDropDb": 0,
+          "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new.avif",
+          "passesReferenceGate": true
+        },
+        "ssgi-half": {
+          "reference": {
+            "psnr": 27.591490484017086
+          },
+          "baseline": {
+            "psnr": 39.29981204355898
+          },
+          "psnrDropDb": 0.035118404473397646,
+          "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssgi-half.avif",
+          "passesReferenceGate": true
+        },
+        "ssgi-third": {
+          "reference": {
+            "psnr": 27.588779193647305
+          },
+          "baseline": {
+            "psnr": 40.192906580356734
+          },
+          "psnrDropDb": 0.037829694843178885,
+          "image": "ssgi-metallic/images/ssgi-metallic/beauty/three-new-ssgi-third.avif",
+          "passesReferenceGate": true
+        },
+        "baseline-repeat": {
+          "reference": {
+            "psnr": 27.628666108868604
+          },
+          "baseline": {
+            "psnr": 50.77088708089213
+          },
+          "psnrDropDb": -0.0020572203781199505,
+          "image": "ssgi-metallic/repeat/ssgi-metallic/beauty/three-new.avif",
+          "passesReferenceGate": true
+        }
+      },
+      "reference": {
+        "path": "results/ssgi-metallic/beauty/three-gpu-pathtracer.avif",
+        "sha256": "a0f2dad322585e40e468dbf91dd85403c1cc62d338af7f2320cd317faaada1a4"
+      },
+      "baselineRepeatPsnrDb": 50.77088708089213
+    }
+  },
+  "ok": false
+}

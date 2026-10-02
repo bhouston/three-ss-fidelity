@@ -78,6 +78,8 @@ const definitions = {
 };
 definitions['hierarchy-combined'] = [...new Set(Object.values(definitions).flat()), 'ssgi-metallic'];
 for (const name of Object.keys(ssgiWorkExperiments)) definitions[name] = definitions['ssgi-radiance-mips'];
+definitions['ssgi-half'] = [...definitions['ssgi-radiance-mips'], 'ssgi-metallic'];
+definitions['ssgi-third'] = definitions['ssgi-half'];
 definitions['ssr-temporal-validated'] = [
   'ssr-diag-mirror',
   'ssr-diag-rough-30',

@@ -42,6 +42,8 @@ export const hierarchyExperiments = [
   'ssgi-radiance-mips',
   'hierarchy-combined',
   ...(Object.keys(ssgiWorkExperiments) as (keyof typeof ssgiWorkExperiments)[]),
+  'ssgi-half',
+  'ssgi-third',
   'ssr-temporal-validated',
   'ssr-temporal-gaussian',
 ] as const;

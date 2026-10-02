@@ -81,6 +81,7 @@ function vectorParam(name: string): number[] | undefined {
   const values = params.get(name)?.split(',').map(Number);
   return values?.length === 3 && values.every(Number.isFinite) ? values : undefined;
 }
+let savedScene = select('scene').value;
 let savedPosition = vectorParam('camera');
 let savedTarget = vectorParam('target');
 function saveState(mode: 'push' | 'replace') {
@@ -92,8 +93,11 @@ function saveState(mode: 'push' | 'replace') {
       node instanceof HTMLInputElement && node.type === 'checkbox' ? (node.checked ? '1' : '0') : node.value,
     );
   }
-  if (savedPosition) next.set('camera', savedPosition.join(','));
-  if (savedTarget) next.set('target', savedTarget.join(','));
+  // The previous scene can still emit OrbitControls changes before the next load.
+  if (savedScene === select('scene').value) {
+    if (savedPosition) next.set('camera', savedPosition.join(','));
+    if (savedTarget) next.set('target', savedTarget.join(','));
+  }
   const url = `?${next}`;
   if (url === location.search) return;
   history[mode === 'push' ? 'pushState' : 'replaceState'](null, '', url + location.hash);
@@ -373,14 +377,16 @@ async function load() {
     const config = configuration();
     active = await session(config, input('live-gpu').checked, 'static');
     resetInstruments();
-    if (savedPosition) active.setup.camera.position.fromArray(savedPosition);
+    const restoreCamera = savedScene === config.scene;
+    if (restoreCamera && savedPosition) active.setup.camera.position.fromArray(savedPosition);
     controls = new OrbitControls(active.setup.camera, active.canvas);
-    controls.target.fromArray(savedTarget ?? active.setup.target.toArray());
+    controls.target.fromArray((restoreCamera && savedTarget) || active.setup.target.toArray());
     controls.update();
     controls.enableDamping = true;
     controls.addEventListener('change', () => {
       if (!active || !controls) return;
       active.live.setCamera(active.setup.camera);
+      savedScene = config.scene;
       savedPosition = active.setup.camera.position.toArray();
       savedTarget = controls.target.toArray();
       urlState.camera();
@@ -388,6 +394,7 @@ async function load() {
     element('scene-title').textContent = `${config.scene} / ${config.renderer}`;
     element('live-status').textContent = 'Interactive';
     message(getScene(config.scene).description);
+    savedScene = config.scene;
     savedPosition = active.setup.camera.position.toArray();
     savedTarget = controls.target.toArray();
     urlState.camera();

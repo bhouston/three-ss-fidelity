@@ -29,7 +29,7 @@ Native quality uses 128 frames and decoded sRGB RGB8 PSNR against the existing p
 
 ## Validation
 
-Build, type checking, lint and 123 tests with coverage passed. Lint retains existing warnings in vendored SSGI/SSR. The dependency audit reports three existing high-severity advisories in the path-tracer submodule’s Puppeteer dependencies: two in extract-zip and one in basic-ftp. No dependencies changed.
+Build, type checking, lint and 139 tests with coverage passed after merging the latest main. Lint retains existing warnings in vendored SSGI/SSR. The dependency audit reports three existing high-severity advisories in the path-tracer submodule’s Puppeteer dependencies: two in extract-zip and one in basic-ftp. No dependencies changed.
 
 The implementation and current captures are proposed in a PR; the original checkout retains its local changes on main as requested. Tracking issue: [#107](https://github.com/bhouston/three-ss-fidelity/issues/107).
 

@@ -73,14 +73,13 @@ in `submodules/three.js`. There is only ever one copy of three.
 - `src/ssr/NewSSRNode.js` and `src/ssgi-fast/SSGINode.js` are vendored nodes. They are developed here instead of in
   the submodule.
 
-| Renderer                      | What it is                                                                                                  |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `three-gpu-pathtracer`        | Ground truth (default 4096 spp, seeded).                                                                    |
-| `three-gpu-pathtracer-webgpu` | Independent WebGPU path-traced reference from the path-tracer fork.                                         |
-| `three-current`               | Unmodified three.js r186 from npm (`three@0.186.1`) with its stock SSGI/SSR example pipelines.              |
-| `three-new-light-probe-ddgi`  | Baked diffuse probes with DDGI visibility weighting and relocation ([research](docs/DDGI_RESEARCH.md)).     |
-| `three-new-light-probe`       | Automatically fitted baked SH diffuse probe grid replacing SSGI ([research](docs/LIGHT_PROBE_RESEARCH.md)). |
-| `three-new`                   | The fork + vendored SSGI/SSR nodes, real-time, TRAA ([docs/THREE-NEW.md](docs/THREE-NEW.md)).               |
+| Renderer                     | What it is                                                                                                  |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `three-gpu-pathtracer`       | Ground truth (default 4096 spp, seeded).                                                                    |
+| `three-current`              | Unmodified three.js r186 from npm (`three@0.186.1`) with its stock SSGI/SSR example pipelines.              |
+| `three-new-light-probe-ddgi` | Baked diffuse probes with DDGI visibility weighting and relocation ([research](docs/DDGI_RESEARCH.md)).     |
+| `three-new-light-probe`      | Automatically fitted baked SH diffuse probe grid replacing SSGI ([research](docs/LIGHT_PROBE_RESEARCH.md)). |
+| `three-new`                  | The fork + vendored SSGI/SSR nodes, real-time, TRAA ([docs/THREE-NEW.md](docs/THREE-NEW.md)).               |
 
 ### `packages/cli`
 
@@ -89,20 +88,19 @@ process** (`render-process.ts`, `bench-process.ts`), because dawn and ANGLE don'
 state leaked between scenes. Headless GPU comes from `src/headless/webgpu.ts` (dawn, the `webgpu` package) and
 `src/headless/webgl.ts` (`@onirenaud/node-webgl`, ANGLE). `Math.random` is seeded, so renders are reproducible.
 
-Both path tracers already render directly in Node, without launching Puppeteer or a browser:
+The reference path tracer renders directly in Node, without launching Puppeteer or a browser:
 
-| CLI renderer                  | Native backend                                                                           | Integration                                                                       |
-| ----------------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `three-gpu-pathtracer-webgpu` | [Dawn's `webgpu` package](https://github.com/dawn-gpu/node-webgpu)                       | Minimal canvas context backed by a GPU texture, with asynchronous pixel readback. |
-| `three-gpu-pathtracer`        | [`@onirenaud/node-webgl`](https://github.com/RenaudRohlinger/node-webgl) (ANGLE, WebGL2) | Canvas and DOM shims, with `getImageData()` pixel readback.                       |
+| CLI renderer           | Native backend                                                                           | Integration                                                 |
+| ---------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `three-gpu-pathtracer` | [`@onirenaud/node-webgl`](https://github.com/RenaudRohlinger/node-webgl) (ANGLE, WebGL2) | Canvas and DOM shims, with `getImageData()` pixel readback. |
 
-After building, try both renderers with a small render into an isolated output directory:
+After building, try the reference renderer with a small render into an isolated output directory:
 
 ```sh
-pnpm cli render --scenes ssgi-basic --renderers three-gpu-pathtracer,three-gpu-pathtracer-webgpu --width 64 --height 64 --samples 16 --output /tmp/ss-fidelity-native-cli
+pnpm cli render --scenes ssgi-basic --renderers three-gpu-pathtracer --width 64 --height 64 --samples 16 --output /tmp/ss-fidelity-native-cli
 ```
 
-Legacy WebGL uses `--renderers three-gpu-pathtracer`. The CLI waits for the requested number of accumulated
+The reference renderer uses `--renderers three-gpu-pathtracer`. The CLI waits for the requested number of accumulated
 samples, including shader compilation calls that do not accumulate a sample. It fails if sampling makes no
 progress for two minutes, and SIGINT/SIGTERM cancel capture before an image is saved. Screen-space captures
 continue to count rendered frames.
@@ -161,18 +159,18 @@ Merging to `main` deploys `site/` to GitHub Pages at <https://ss-fidelity.ben3d.
 
 Use `pnpm cli render --missing-only` to fill gaps across all renderers, including every hierarchy variant, without overwriting existing images. Select complete renderer names with `--renderers`; comma-separated names and globs such as `'three-new-*'` work. The render command uses these names:
 
-| Renderer name                                                                     | Output image                            |
-| --------------------------------------------------------------------------------- | --------------------------------------- |
-| `three-new-baseline`                                                              | `three-new.avif`                        |
-| `three-new-ssr-hiz-tight`                                                         | `three-new-ssr-hiz-tight.avif`          |
-| `three-new-ssr-radiance-mips`                                                     | `three-new-ssr-radiance-mips.avif`      |
-| `three-new-ssgi-radiance-mips`                                                    | `three-new-ssgi-radiance-mips.avif`     |
-| `three-new-hierarchy-combined`                                                    | `three-new-hierarchy-combined.avif`     |
-| `three-new-ssr-temporal-validated`                                                | `three-new-ssr-temporal-validated.avif` |
-| `three-new-ssr-temporal-gaussian`                                                 | `three-new-ssr-temporal-gaussian.avif`  |
-| `three-new-ssgi-half`                                                             | `three-new-ssgi-half.avif`              |
-| `three-new-ssgi-third`                                                            | `three-new-ssgi-third.avif`             |
-| `three-current`, `three-gpu-pathtracer`, `three-gpu-pathtracer-webgpu`, `blender` | `<renderer>.avif`                       |
+| Renderer name                                      | Output image                            |
+| -------------------------------------------------- | --------------------------------------- |
+| `three-new-baseline`                               | `three-new.avif`                        |
+| `three-new-ssr-hiz-tight`                          | `three-new-ssr-hiz-tight.avif`          |
+| `three-new-ssr-radiance-mips`                      | `three-new-ssr-radiance-mips.avif`      |
+| `three-new-ssgi-radiance-mips`                     | `three-new-ssgi-radiance-mips.avif`     |
+| `three-new-hierarchy-combined`                     | `three-new-hierarchy-combined.avif`     |
+| `three-new-ssr-temporal-validated`                 | `three-new-ssr-temporal-validated.avif` |
+| `three-new-ssr-temporal-gaussian`                  | `three-new-ssr-temporal-gaussian.avif`  |
+| `three-new-ssgi-half`                              | `three-new-ssgi-half.avif`              |
+| `three-new-ssgi-third`                             | `three-new-ssgi-third.avif`             |
+| `three-current`, `three-gpu-pathtracer`, `blender` | `<renderer>.avif`                       |
 
 `pnpm cli render --renderers three-new-light-probe` captures the basic SH probe renderer. The same renderer name is available in the live lab and `cli bench`. It bakes about 2,000 probes before rendering; moving lights and geometry need a new scene session. See [probe research](docs/LIGHT_PROBE_RESEARCH.md).
 

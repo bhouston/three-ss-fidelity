@@ -159,7 +159,6 @@ test('default missing-only includes every full renderer name and skips existing 
     ['three-new-light-probe-ddgi', undefined],
     ['three-current', undefined],
     ['three-gpu-pathtracer', undefined],
-    ['three-gpu-pathtracer-webgpu', undefined],
     ['blender', undefined],
   ]);
 });
@@ -187,5 +186,10 @@ test('renderer globs and comma-separated names select complete configurations on
 test('render rejects the removed experiment option and the old ambiguous renderer name', async () => {
   await expect(render('--experiment', 'hierarchy-combined')).rejects.toThrow('Unknown argument: experiment');
   await expect(render('--renderers', 'three-new')).rejects.toThrow('No renderer matches');
+  expect(spawn).not.toHaveBeenCalled();
+});
+
+test('rejects the retired WebGPU path tracer name', async () => {
+  await expect(render('--renderers', 'three-gpu-pathtracer-webgpu')).rejects.toThrow('No renderer matches');
   expect(spawn).not.toHaveBeenCalled();
 });

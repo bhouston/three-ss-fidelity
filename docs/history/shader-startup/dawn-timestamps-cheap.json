@@ -1,0 +1,324 @@
+{
+  "flags": "enable-dawn-features=allow_unsafe_apis,disable_timestamp_quantization",
+  "heavyPass": false,
+  "adapter": {
+    "vendor": "apple",
+    "architecture": "metal-3",
+    "device": "apple-m3",
+    "description": "Metal driver on macOS Version 27.0.1 (Build 26A434)"
+  },
+  "samples": [
+    {
+      "repeat": 0,
+      "mode": "no-timestamps",
+      "wallMs": 38.179292000000004
+    },
+    {
+      "repeat": 0,
+      "mode": "one-command-buffer",
+      "wallMs": 69.209166,
+      "totalTimestampMs": 19.070976,
+      "sumPassMs": 57.212928000000005,
+      "rows": [
+        {
+          "pass": "cheap-before",
+          "startNs": "7639408705536",
+          "endNs": "7639427776512",
+          "startMs": 0,
+          "endMs": 19.070976,
+          "durationMs": 19.070976
+        },
+        {
+          "pass": "expensive",
+          "startNs": "7639408705536",
+          "endNs": "7639427776512",
+          "startMs": 0,
+          "endMs": 19.070976,
+          "durationMs": 19.070976
+        },
+        {
+          "pass": "cheap-after",
+          "startNs": "7639408705536",
+          "endNs": "7639427776512",
+          "startMs": 0,
+          "endMs": 19.070976,
+          "durationMs": 19.070976
+        }
+      ]
+    },
+    {
+      "repeat": 0,
+      "mode": "one-submit-per-pass",
+      "wallMs": 168.271125,
+      "totalTimestampMs": 111.673344,
+      "sumPassMs": 219.152384,
+      "rows": [
+        {
+          "pass": "cheap-before",
+          "startNs": "7638661922816",
+          "endNs": "7638719922176",
+          "startMs": 0,
+          "endMs": 57.99936,
+          "durationMs": 57.99936
+        },
+        {
+          "pass": "expensive",
+          "startNs": "7638666117120",
+          "endNs": "7638719987712",
+          "startMs": 4.194304,
+          "endMs": 58.064896,
+          "durationMs": 53.870592
+        },
+        {
+          "pass": "cheap-after",
+          "startNs": "7638666313728",
+          "endNs": "7638773596160",
+          "startMs": 4.390912,
+          "endMs": 111.673344,
+          "durationMs": 107.282432
+        }
+      ]
+    },
+    {
+      "repeat": 0,
+      "mode": "one-submit-and-wait-per-pass",
+      "wallMs": 238.61199999999997,
+      "totalTimestampMs": 182.059008,
+      "sumPassMs": 180.55168,
+      "rows": [
+        {
+          "pass": "cheap-before",
+          "startNs": "7639413161984",
+          "endNs": "7639468146688",
+          "startMs": 0,
+          "endMs": 54.984704,
+          "durationMs": 54.984704
+        },
+        {
+          "pass": "expensive",
+          "startNs": "7639468933120",
+          "endNs": "7639521755136",
+          "startMs": 55.771136,
+          "endMs": 108.593152,
+          "durationMs": 52.822016
+        },
+        {
+          "pass": "cheap-after",
+          "startNs": "7639522476032",
+          "endNs": "7639595220992",
+          "startMs": 109.314048,
+          "endMs": 182.059008,
+          "durationMs": 72.74496
+        }
+      ]
+    },
+    {
+      "repeat": 1,
+      "mode": "no-timestamps",
+      "wallMs": 64.26570800000002
+    },
+    {
+      "repeat": 1,
+      "mode": "one-command-buffer",
+      "wallMs": 116.24512499999992,
+      "totalTimestampMs": 58.589184,
+      "sumPassMs": 167.378944,
+      "rows": [
+        {
+          "pass": "cheap-before",
+          "startNs": "7639716200448",
+          "endNs": "7639774789632",
+          "startMs": 0,
+          "endMs": 58.589184,
+          "durationMs": 58.589184
+        },
+        {
+          "pass": "expensive",
+          "startNs": "7639720329216",
+          "endNs": "7639774789632",
+          "startMs": 4.128768,
+          "endMs": 58.589184,
+          "durationMs": 54.460416
+        },
+        {
+          "pass": "cheap-after",
+          "startNs": "7639720460288",
+          "endNs": "7639774789632",
+          "startMs": 4.25984,
+          "endMs": 58.589184,
+          "durationMs": 54.329344
+        }
+      ]
+    },
+    {
+      "repeat": 1,
+      "mode": "one-submit-per-pass",
+      "wallMs": 136.46079199999997,
+      "totalTimestampMs": 87.49056,
+      "sumPassMs": 188.74367999999998,
+      "rows": [
+        {
+          "pass": "cheap-before",
+          "startNs": "7639832395776",
+          "endNs": "7639886397440",
+          "startMs": 0,
+          "endMs": 54.001664,
+          "durationMs": 54.001664
+        },
+        {
+          "pass": "expensive",
+          "startNs": "7639835803648",
+          "endNs": "7639886462976",
+          "startMs": 3.407872,
+          "endMs": 54.0672,
+          "durationMs": 50.659328
+        },
+        {
+          "pass": "cheap-after",
+          "startNs": "7639835803648",
+          "endNs": "7639919886336",
+          "startMs": 3.407872,
+          "endMs": 87.49056,
+          "durationMs": 84.082688
+        }
+      ]
+    },
+    {
+      "repeat": 1,
+      "mode": "one-submit-and-wait-per-pass",
+      "wallMs": 272.65999999999997,
+      "totalTimestampMs": 209.977344,
+      "sumPassMs": 189.07136000000003,
+      "rows": [
+        {
+          "pass": "cheap-before",
+          "startNs": "7640093163520",
+          "endNs": "7640145461248",
+          "startMs": 0,
+          "endMs": 52.297728,
+          "durationMs": 52.297728
+        },
+        {
+          "pass": "expensive",
+          "startNs": "7640146247680",
+          "endNs": "7640207720448",
+          "startMs": 53.08416,
+          "endMs": 114.556928,
+          "durationMs": 61.472768
+        },
+        {
+          "pass": "cheap-after",
+          "startNs": "7640227840000",
+          "endNs": "7640303140864",
+          "startMs": 134.67648,
+          "endMs": 209.977344,
+          "durationMs": 75.300864
+        }
+      ]
+    },
+    {
+      "repeat": 2,
+      "mode": "no-timestamps",
+      "wallMs": 67.87237500000015
+    },
+    {
+      "repeat": 2,
+      "mode": "one-command-buffer",
+      "wallMs": 116.15987499999983,
+      "totalTimestampMs": 60.358656,
+      "sumPassMs": 176.160768,
+      "rows": [
+        {
+          "pass": "cheap-before",
+          "startNs": "7640427134976",
+          "endNs": "7640487493632",
+          "startMs": 0,
+          "endMs": 60.358656,
+          "durationMs": 60.358656
+        },
+        {
+          "pass": "expensive",
+          "startNs": "7640429428736",
+          "endNs": "7640487493632",
+          "startMs": 2.29376,
+          "endMs": 60.358656,
+          "durationMs": 58.064896
+        },
+        {
+          "pass": "cheap-after",
+          "startNs": "7640429756416",
+          "endNs": "7640487493632",
+          "startMs": 2.62144,
+          "endMs": 60.358656,
+          "durationMs": 57.737216
+        }
+      ]
+    },
+    {
+      "repeat": 2,
+      "mode": "one-submit-per-pass",
+      "wallMs": 169.19141600000012,
+      "totalTimestampMs": 113.573888,
+      "sumPassMs": 218.69363199999998,
+      "rows": [
+        {
+          "pass": "cheap-before",
+          "startNs": "7640543133696",
+          "endNs": "7640598315008",
+          "startMs": 0,
+          "endMs": 55.181312,
+          "durationMs": 55.181312
+        },
+        {
+          "pass": "expensive",
+          "startNs": "7640545755136",
+          "endNs": "7640598446080",
+          "startMs": 2.62144,
+          "endMs": 55.312384,
+          "durationMs": 52.690944
+        },
+        {
+          "pass": "cheap-after",
+          "startNs": "7640545886208",
+          "endNs": "7640656707584",
+          "startMs": 2.752512,
+          "endMs": 113.573888,
+          "durationMs": 110.821376
+        }
+      ]
+    },
+    {
+      "repeat": 2,
+      "mode": "one-submit-and-wait-per-pass",
+      "wallMs": 177.00354199999992,
+      "totalTimestampMs": 132.38272,
+      "sumPassMs": 84.410368,
+      "rows": [
+        {
+          "pass": "cheap-before",
+          "startNs": "7640728141824",
+          "endNs": "7640745181184",
+          "startMs": 0,
+          "endMs": 17.03936,
+          "durationMs": 17.03936
+        },
+        {
+          "pass": "expensive",
+          "startNs": "7640759533568",
+          "endNs": "7640794660864",
+          "startMs": 31.391744,
+          "endMs": 66.51904,
+          "durationMs": 35.127296
+        },
+        {
+          "pass": "cheap-after",
+          "startNs": "7640828280832",
+          "endNs": "7640860524544",
+          "startMs": 100.139008,
+          "endMs": 132.38272,
+          "durationMs": 32.243712
+        }
+      ]
+    }
+  ]
+}

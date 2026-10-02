@@ -15,6 +15,14 @@ if (salt) {
     configurable: true,
   });
 }
+const profile =
+  process.env.SHADER_AUDIT_PROFILE === '1'
+    ? (await import('./shader-startup-profiler.mjs')).installShaderStartupProfiler({
+        RendererClass: (await import('../packages/renderers/node_modules/three/build/three.webgpu.js')).Renderer,
+      })
+    : null;
+if (process.env.SHADER_AUDIT_PROFILE === '1' && (process.argv[3] ?? 'three-new') !== 'three-new')
+  throw new Error('Startup builder profiling currently supports three-new');
 const out = process.argv[2];
 if (!out) throw new Error('Output directory required');
 await mkdir(out, { recursive: true });
@@ -53,18 +61,31 @@ const width = 256,
   height = 256;
 const canvas = headless.createCanvas(width, height);
 const start = performance.now();
-const live = await createRenderer(name, canvas, setup, {
-  width,
-  height,
-  ssrDebug: process.env.SHADER_AUDIT_DEBUG,
-  hierarchyExperiment: process.env.SHADER_AUDIT_EXPERIMENT,
-});
+profile?.setPhase('factory');
+const factory = () =>
+  createRenderer(name, canvas, setup, {
+    width,
+    height,
+    trackTimestamp: process.env.SHADER_AUDIT_GPU === '1',
+    ssrDebug: process.env.SHADER_AUDIT_DEBUG,
+    hierarchyExperiment: process.env.SHADER_AUDIT_EXPERIMENT,
+  });
+const live = await (profile ? profile.measure('factory', factory) : factory());
 const initializedMs = performance.now() - start;
 const advance = createRendererFrameDriver(live.renderer);
+const gpuSamples = [];
+const gpu = live.profiler;
+profile?.setPhase('first-frame');
+gpu?.beginFrame(0);
 advance({ index: 0, timeSeconds: 0, deltaSeconds: 1 / 60, phase: 'warmup' });
-live.render();
-await completeRenderer(live.renderer);
+if (profile) profile.measure('first-render', () => live.render());
+else live.render();
+await (profile
+  ? profile.measure('first-completion', () => completeRenderer(live.renderer))
+  : completeRenderer(live.renderer));
+gpu?.endFrame();
 const firstFrameMs = performance.now() - start;
+if (gpu) gpuSamples.push(...(await gpu.resolve()));
 const warmupFrames = Number(process.env.SHADER_AUDIT_WARMUP ?? 64);
 const measureFrames = Number(process.env.SHADER_AUDIT_FRAMES ?? 100);
 if (
@@ -74,20 +95,28 @@ if (
   measureFrames < 1
 )
   throw new Error('Warmup must be at least four frames; measurement needs positive integral frames');
+profile?.setPhase('warmup');
 for (let i = 1; i < warmupFrames; i++) {
   advance({ index: i, timeSeconds: i / 60, deltaSeconds: 1 / 60, phase: 'warmup' });
+  gpu?.beginFrame(i);
   live.render();
+  gpu?.endFrame();
   await completeRenderer(live.renderer);
+  if (gpu) gpuSamples.push(...(await gpu.resolve()));
 }
 const pixels = await headless.readPixels(canvas);
 await writeFile(join(out, 'pixels.rgba'), pixels);
+profile?.setPhase('measure');
 const runtimeStart = performance.now();
 for (let i = warmupFrames; i < warmupFrames + measureFrames; i++) {
   advance({ index: i, timeSeconds: i / 60, deltaSeconds: 1 / 60, phase: 'measure' });
+  gpu?.beginFrame(i);
   live.render();
+  gpu?.endFrame();
 }
 await completeRenderer(live.renderer);
 const frameMs = (performance.now() - runtimeStart) / measureFrames;
+if (gpu) gpuSamples.push(...(await gpu.resolve()));
 const records = [];
 for (const [i, module] of modules.entries()) {
   const file = `${String(i).padStart(3, '0')}.wgsl`;
@@ -113,6 +142,15 @@ const report = {
   initializedMs,
   firstFrameMs,
   frameMs,
+  gpu: gpu
+    ? {
+        status: gpu.status,
+        reason: gpu.reason,
+        invalidSamples: gpu.invalidSamples,
+        metrics: gpu.metrics,
+        samples: gpuSamples,
+      }
+    : undefined,
   pixelHash: createHash('sha256').update(pixels).digest('hex'),
   adapter: Object.fromEntries(
     ['vendor', 'architecture', 'device', 'description'].map((key) => [
@@ -123,6 +161,22 @@ const report = {
   modules: records,
   pipelines,
 };
+if (profile) {
+  await profile.settled();
+  const startup = await profile.reportAsync({
+    includeSource: true,
+    hashSource: (code) => createHash('sha256').update(code).digest('hex'),
+  });
+  if (!startup.builders.length) throw new Error('No builder hooks captured: check Three.js module identity');
+  for (const source of startup.sources) {
+    source.file = source.id + '.wgsl';
+    await writeFile(join(out, source.file), source.code);
+    delete source.code;
+  }
+  await writeFile(join(out, 'startup.json'), JSON.stringify(startup, null, 2) + '\n');
+  await writeFile(join(out, 'startup-trace.json'), JSON.stringify(profile.trace()) + '\n');
+  profile.restore();
+}
 await writeFile(join(out, 'report.json'), JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report));
 live.dispose();

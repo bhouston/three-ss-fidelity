@@ -46,6 +46,7 @@ import { newSSR } from './ssr/NewSSRNode.js';
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import { ssgiWorkExperiments } from './types.js';
 import type { LiveRenderer, RendererOptions, SSGIWorkExperiment } from './types.js';
+import { ProgressiveLightBake } from './light-bake/ProgressiveLightBake.js';
 import { bakeProbeGrid } from './probe-grid.js';
 import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
 
@@ -315,7 +316,7 @@ export async function createThreeNewRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
   { width, height, trackTimestamp = false, ssrDebug, hierarchyExperiment, ssrTemporalProfile }: RendererOptions,
-  probeMode?: 'light-probe' | 'light-probe-ddgi',
+  probeMode?: 'light-probe' | 'light-probe-ddgi' | 'light-bake',
 ): Promise<LiveRenderer> {
   const useProbes = probeMode !== undefined;
   const setup = sceneSetup;
@@ -338,12 +339,15 @@ export async function createThreeNewRenderer(
   });
 
   let releaseProbes: (() => void) | undefined;
+  let baker: ProgressiveLightBake | undefined;
   let renderPipeline: RenderPipeline;
   try {
-    if (useProbes && effects.ssgi)
+    if (probeMode === 'light-bake') baker = new ProgressiveLightBake(renderer, setup.scene);
+    if (useProbes && probeMode !== 'light-bake' && effects.ssgi)
       releaseProbes = await bakeProbeGrid(renderer, setup.scene, probeMode === 'light-probe-ddgi');
     renderPipeline = createPipeline(renderer, setup, ssrDebug, hierarchyExperiment, ssrTemporalProfile, useProbes);
   } catch (error) {
+    baker?.dispose();
     releaseProbes?.();
     releaseScene();
     renderer.dispose();
@@ -352,12 +356,41 @@ export async function createThreeNewRenderer(
   const progressive = (renderPipeline as AnyNode).progressiveTRAA;
   let frames = 0;
   let sceneSignature = 0;
+  const bakeSignature = () => {
+    setup.scene.updateMatrixWorld(true);
+    let signature = '';
+    setup.scene.traverse((object) => {
+      const source = object as AnyNode;
+      if (!source.isMesh && !source.isLight) return;
+      signature += `${object.uuid}:${object.visible}:${object.matrixWorld.elements.join(',')};`;
+      if (source.isMesh) {
+        signature += `${source.geometry.uuid}:${source.geometry.attributes.position?.version}:${source.instanceMatrix?.version};`;
+        for (const bone of source.skeleton?.bones ?? []) signature += bone.matrixWorld.elements.join(',');
+        for (const material of Array.isArray(source.material) ? source.material : [source.material])
+          signature += `${material.version}:${material.color?.getHex()}:${material.emissive?.getHex()}:${material.emissiveIntensity}:${material.metalness};`;
+      }
+      if (source.isLight)
+        signature += `${source.intensity}:${source.color?.getHex()}:${source.distance}:${source.decay}:${source.angle}:${source.penumbra}:${source.width}:${source.height}:${source.target?.matrixWorld.elements.join(',')};`;
+    });
+    return signature;
+  };
+  let bakedSignature = baker ? bakeSignature() : '';
 
   const handle: LiveRenderer = {
     name: probeMode ? `three-new-${probeMode}` : 'three-new',
     renderer,
     get frames() {
       return frames;
+    },
+    get lightBake() {
+      return baker
+        ? {
+            phase: baker.phase,
+            samples: baker.pass * baker.samplesPerFrame,
+            maxSamples: baker.samples,
+            progress: Math.min(1, (baker.pass * baker.samplesPerFrame) / baker.samples),
+          }
+        : undefined;
     },
     render() {
       if (progressive) {
@@ -366,6 +399,20 @@ export async function createThreeNewRenderer(
         setup.scene.traverse((o) => o.matrixWorld.elements.forEach((e, i) => (signature += e * (i + 1))));
         if (signature !== sceneSignature) progressive.resetAccumulation();
         sceneSignature = signature;
+      }
+      if (baker) {
+        const signature = bakeSignature();
+        if (signature !== bakedSignature) {
+          // Conservative invalidation: a blocker can affect distant transport, so rebuild the whole bake.
+          baker.dispose();
+          baker = new ProgressiveLightBake(renderer, setup.scene);
+          bakedSignature = bakeSignature();
+        }
+        if (baker.step()) {
+          progressive?.resetAccumulation();
+          // Initial lightMap assignment updates material versions once.
+          bakedSignature = bakeSignature();
+        }
       }
       renderPipeline.render();
       frames++;
@@ -380,6 +427,7 @@ export async function createThreeNewRenderer(
       // RenderPipeline.dispose() and Renderer.dispose() don't reach the rtt() render targets (see docs/history/SSGI_FAST.md)
       for (const disposable of (renderPipeline as AnyNode).rttDisposables) disposable.dispose();
       renderPipeline.dispose();
+      baker?.dispose();
       releaseProbes?.();
       releaseScene();
       renderer.dispose();

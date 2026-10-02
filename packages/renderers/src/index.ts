@@ -44,6 +44,9 @@ export function createRenderer(
         get frames() {
           return live.frames;
         },
+        get lightBake() {
+          return live.lightBake;
+        },
         profiler,
         render: live.render.bind(live),
         setSize: live.setSize.bind(live),
@@ -78,6 +81,8 @@ export function createRenderer(
     // unmodified three.js r186 from npm, not the fork (see three-current.ts)
     case 'three-current':
       return instrument(createCurrentRenderer(canvas, setup, options));
+    case 'three-new-light-bake':
+      return instrument(createThreeNewRenderer(canvas, setup, options, 'light-bake'));
     case 'three-new-light-probe-ddgi':
       return instrument(createThreeNewRenderer(canvas, setup, options, 'light-probe-ddgi'));
     case 'three-new-light-probe':

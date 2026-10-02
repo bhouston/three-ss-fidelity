@@ -241,3 +241,39 @@ test('switching scenes resets the camera despite movement before loading', async
   await expect.poll(() => vector('camera')).toBeDefined();
   expectVector('camera', [0, 10, 30]);
 });
+
+test('progressive light bake converges, remains interactive while orbiting and switches cleanly', async ({
+  page,
+}, testInfo) => {
+  const errors: string[] = [];
+  let converged = 0;
+  page.on('pageerror', (e) => errors.push(e.message));
+  page.on('console', (m) => {
+    if (m.type() === 'error' && !m.location().url.endsWith('/favicon.ico')) errors.push(m.text());
+    if (m.text().includes('Light bake:') && m.text().includes('converged')) converged++;
+  });
+  await page.goto('/?scene=ssgi-basic&renderer=three-new-light-bake&width=320&height=240');
+  await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
+  await expect.poll(() => converged, { timeout: 90000 }).toBe(1);
+  await expect(page.locator('#bake-status')).toHaveText('Indirect lighting baked');
+  await page.evaluate(async () => {
+    for (let i = 0; i < 64; i++) await new Promise(requestAnimationFrame);
+  });
+  const bakedImage = await page.locator('#viewport canvas').screenshot();
+  const face = await sharp(bakedImage).extract({ left: 100, top: 135, width: 35, height: 35 }).stats();
+  // This white box face is unlit in the direct-only image. Require visible baked bounce lighting.
+  expect(face.channels.slice(0, 3).every((channel) => channel.mean > 30)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath('light-bake-live.png'), fullPage: true });
+  const box = (await page.locator('#viewport canvas').boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 40, box.y + box.height / 2 + 15, { steps: 12 });
+  await page.mouse.up();
+  await expect.poll(() => new URL(page.url()).searchParams.get('camera')).not.toBeNull();
+  await expect(page.locator('#live-status')).toHaveText('Interactive');
+  expect(converged).toBe(1);
+  await page.locator('#renderer').selectOption('three-new');
+  await page.getByRole('button', { name: 'Load scene', exact: true }).click();
+  await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
+  expect(errors).toEqual([]);
+});

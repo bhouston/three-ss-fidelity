@@ -67,9 +67,11 @@ in `submodules/three.js`. There is only ever one copy of three.
 
 `complex-models.ts` adds `khronos-transmission-test`, `model-bedroom`, `model-breakfast-room`, `model-coffee-maker`,
 `model-contemporary-bathroom`, `model-country-kitchen`, `model-grey-and-white-room`, and `model-headphone-with-stand`.
-Models retain their original dimensions, physical materials and embedded cameras. Daylight HDR and a warm,
-shadow-casting directional sun through each room's window light the interiors. Source window-emitter proxies are hidden
-to let sunlight enter, and transmissive glass does not cast opaque raster shadows. Studio HDR lights the products and
+Models retain their original dimensions, physical materials and embedded cameras. The interiors are enclosed rooms
+and have no IBL, because the unshadowed environment term would light them from inside. A warm, shadow-casting
+directional sun through each room's window and the models' own interior emitters light them; the window openings show
+black. Source window-emitter proxies are hidden to let sunlight enter, and transmissive glass does not cast opaque
+raster shadows. Studio HDR lights the products and
 transmission test. The headphone also has a glossy floor. Licenses, attribution, source hashes and preprocessing details
 live in [assets/complex-scenes](assets/complex-scenes/README.md).
 

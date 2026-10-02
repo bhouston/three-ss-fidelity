@@ -89,20 +89,24 @@ async function createModel(entry: (typeof models)[number], ctx: SceneContext, wh
   scene.add(model);
 
   const interior = windowSun[entry.file];
-  const hdr = await ctx.loadHDR(
-    `textures/equirectangular/${interior ? 'blouberg_sunrise_2_1k.hdr' : 'ferndale_studio_04_1k.hdr'}`,
-  );
-  hdr.mapping = EquirectangularReflectionMapping;
-  scene.environment = hdr;
-  scene.background = hdr;
-  const lights = extractLights(hdr);
+  let lights: DirectionalLight[];
   if (interior) {
+    // Enclosed rooms: an unshadowed IBL would light them from inside. Only the sun through the windows and the
+    // model's own emitters light them; the openings show black.
+    scene.environment = null;
+    scene.background = null;
     const sun = new DirectionalLight(0xffedce, 5);
     sun.name = 'window-sun';
     sun.position.fromArray(interior.direction);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
-    lights.push(sun);
+    lights = [sun];
+  } else {
+    const hdr = await ctx.loadHDR('textures/equirectangular/ferndale_studio_04_1k.hdr');
+    hdr.mapping = EquirectangularReflectionMapping;
+    scene.environment = hdr;
+    scene.background = hdr;
+    lights = extractLights(hdr);
   }
   for (const light of lights) {
     light.position

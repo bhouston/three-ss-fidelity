@@ -168,6 +168,8 @@ Use `pnpm cli render --missing-only` to fill gaps across all renderers, includin
 | `three-new-hierarchy-combined`                                                    | `three-new-hierarchy-combined.avif`     |
 | `three-new-ssr-temporal-validated`                                                | `three-new-ssr-temporal-validated.avif` |
 | `three-new-ssr-temporal-gaussian`                                                 | `three-new-ssr-temporal-gaussian.avif`  |
+| `three-new-ssgi-half`                                                             | `three-new-ssgi-half.avif`              |
+| `three-new-ssgi-third`                                                            | `three-new-ssgi-third.avif`             |
 | `three-current`, `three-gpu-pathtracer`, `three-gpu-pathtracer-webgpu`, `blender` | `<renderer>.avif`                       |
 
 The `three-new-ssr-temporal-validated` and `three-new-ssr-temporal-gaussian` profiles compare validated reflection history and Gaussian clipping. Their captures appear in fidelity-kit; the same options are available in the live lab's experiment selector. Bare `pnpm cli render --missing-only` includes both profiles automatically. To fill only these profiles, use `pnpm cli render --missing-only --renderers 'three-new-ssr-temporal-*' --frames 128`. See [temporal research](docs/SSR_TEMPORAL_RESEARCH.md).

@@ -17,8 +17,12 @@ import type { SceneContext, SceneDefinition, SceneSetup } from './types.js';
 const WIDTH = 640;
 const HEIGHT = 480;
 // Toward the sun in source coordinates, entering each room's window wall.
-const windowSun: Record<string, { direction: [number, number, number]; portals?: string[] }> = {
-  bedroom: { direction: [0.3, 0.6, -1], portals: ['mesh_69_instance_0', 'mesh_69_instance_1'] },
+const windowSun: Record<string, { direction: [number, number, number]; portals?: string[]; translucent?: string[] }> = {
+  bedroom: {
+    direction: [0.3, 0.6, -1],
+    portals: ['mesh_69', 'mesh_70'],
+    translucent: ['Curtains_0001', 'Curtains_0002'],
+  },
   'breakfast-room': { direction: [1, 0.5, 0.2] },
   'contemporary-bathroom': { direction: [-1, 0.7, 0.2], portals: ['Light_0001'] },
   'country-kitchen': { direction: [0.3, 0.7, -1], portals: ['mesh_295'] },
@@ -81,6 +85,8 @@ async function createModel(entry: (typeof models)[number], ctx: SceneContext, wh
       child.castShadow = !materials.every(
         (material) => 'transmission' in material && Number(material.transmission) > 0,
       );
+      // Alpha-blended fabric cannot produce fractional raster/BVH shadows. Like glass, let it admit daylight.
+      if (windowSun[entry.file]?.translucent?.includes(child.name)) child.castShadow = false;
       // Daylight and the sun replace the source area emitters covering window openings.
       if (windowSun[entry.file]?.portals?.includes(child.name)) child.visible = false;
       child.receiveShadow = true;

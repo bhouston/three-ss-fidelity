@@ -170,7 +170,7 @@ async function createModel(entry: (typeof models)[number], ctx: SceneContext, wh
       ssr: { maxDistance: span, thickness: span * 0.01 },
       temporalDenoise: true,
       toneMapping: ACESFilmicToneMapping,
-      toneMappingExposure: 1,
+      toneMappingExposure: entry.file === 'coffee-maker' ? 0.7 : 1,
       frames: 128,
     },
   };

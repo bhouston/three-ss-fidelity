@@ -33,3 +33,18 @@ describe('complex model lighting', () => {
     expect(lightNames(scene)).not.toContain('window-sun');
   });
 });
+
+it.each(['model-bedroom', 'model-bedroom-w'])(
+  'admits daylight through the translucent curtains in %s',
+  async (name) => {
+    const { scene } = await getScene(name).create(createNodeSceneContext());
+    for (const portal of ['mesh_69', 'mesh_70']) expect(scene.getObjectByName(portal)?.visible).toBe(false);
+    for (const curtain of ['Curtains_0001', 'Curtains_0002']) {
+      const mesh = scene.getObjectByName(curtain) as import('three').Mesh;
+      expect(mesh.visible).toBe(true);
+      expect(mesh.castShadow).toBe(false);
+      expect((mesh.material as import('three').Material).transparent).toBe(true);
+    }
+    expect(scene.getObjectByName('Window_0001')?.castShadow).toBe(true);
+  },
+);

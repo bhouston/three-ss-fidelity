@@ -38,6 +38,7 @@ import {
 } from 'three/tsl';
 import { StaticGeometryGenerator } from 'three-mesh-bvh';
 import { prepareAtlas } from './atlas.js';
+import { createBakeTraceMeshes } from './trace-geometry.js';
 
 const PI = Math.PI;
 
@@ -157,11 +158,11 @@ export class ProgressiveLightBake {
       entry.mesh.material = Array.isArray(entry.originalMaterial) ? live : live[0];
       this.resources.push(...live);
     }
-    this.bvh = new BVHComputeData(
-      this.atlas.entries.map((e) => e.mesh),
-      { attributes: { position: 'vec4f', uv1: 'vec2f' } },
-    );
+    this.traceMeshes = createBakeTraceMeshes(this.atlas.entries);
+    this.bvh = new BVHComputeData(this.traceMeshes, { attributes: { position: 'vec4f', uv1: 'vec2f' } });
     this.bvh.update();
+    this.shadowBvh = new BVHComputeData(this.traceMeshes.filter((mesh) => mesh.castShadow));
+    this.shadowBvh.update();
     // Offset scales with scene bounds rather than a fixed world unit.
     this.epsilon = Math.max(1e-6, this.bvh.bvh.getBoundingBox(new Box3()).getSize(new Vector3()).length() * 1e-5);
     const target = () => {
@@ -207,13 +208,13 @@ export class ProgressiveLightBake {
     this.resources.push(m);
     return m;
   }
-  createTrace() {
+  createTrace(bvh = this.bvh) {
     // The library exposes a WGSL pointer-result signature that its parser cannot call directly
     // from TSL. This ABI bridge only returns the library hit; all bake/shading math is TSL.
     const trace = wgslTagFn`
       fn lightBakeTrace(origin: vec3f, direction: vec3f, maxDist: f32) -> IntersectionResult {
         var hit: ${rayIntersectionResultStruct};
-        ${this.bvh.fns.raycastFirstHit}(Ray(origin, direction, maxDist), &hit);
+        ${bvh.fns.raycastFirstHit}(Ray(origin, direction, maxDist), &hit);
         return hit;
       }
     `;
@@ -284,7 +285,7 @@ export class ProgressiveLightBake {
   seedGraph() {
     return Fn((builder) => {
       rayIntersectionResultStruct.setup(builder);
-      const tracer = this.createTrace();
+      const tracer = this.createTrace(this.shadowBvh);
       const pixel = ivec2(screenCoordinate.xy),
         p = this.position.load(pixel).toVar(),
         n = unpackRGBToNormal(this.normal.load(pixel).xyz).normalize().toVar();
@@ -459,6 +460,8 @@ export class ProgressiveLightBake {
     }
     for (const resource of this.resources) resource.dispose();
     this.bvh?.dispose();
+    this.shadowBvh?.dispose();
+    for (const mesh of this.traceMeshes ?? []) mesh.geometry.dispose();
     this.quad?.dispose();
   }
 }

@@ -260,7 +260,7 @@ Blender reference rendering calls `fidelity-kit-blender/three` directly. Set `BL
 
 ## Performance-kit
 
-The independent [performance-kit](https://github.com/bhouston/performance-kit) submodule supplies raw performance measurement, a CLI, and its own report website. Fidelity images live in `fidelity-results/`; performance snapshots live in `performance-results/`.
+The independent [performance-kit](https://github.com/bhouston/performance-kit) submodule supplies performance measurement, a CLI, and its own report website. Fidelity images live in `fidelity-results/`; performance snapshots live in `performance-results/`.
 
 ```sh
 pnpm build
@@ -269,16 +269,16 @@ pnpm live                         # renderer site at http://127.0.0.1:5173
 pnpm performance:run --renderer three-current
 pnpm performance:dev              # watch results and refresh changed entries over SSE
 pnpm performance:serve            # static reader; no watcher or SSE
-pnpm performance:process          # derive display-ready metrics from raw results
+pnpm performance:process          # migrate legacy raw results and rebuild the index
 pnpm performance:build            # portable static report in performance-site/
 ```
 
-`performance-suite.json` contains entries with explicit renderer and scene IDs for Three-Base (the stock `three-current` renderer), the other real-time Three variants, and every Three-New experiment. Blender and path tracers are excluded. Change renderer and scene references, durations and repetitions in a copied suite and pass it with `pnpm performance:run --suite <file>`. The dedicated `/performance.html` renderer supports `params.scene`, `renderer`, `experiment`, `width`, `height`, `seed`, and `motion` (`static` or `orbit`). Each entry gets a fresh scene and renderer, shader preparation, warmup, capture, then the measured window.
+`performance-suite.json` contains entries with explicit renderer and scene IDs for Three-Base (the stock `three-current` renderer), the other real-time Three variants, and every Three-New experiment. Blender and path tracers are excluded. Change renderer and scene references, durations in a copied suite and pass it with `pnpm performance:run --suite <file>`. The dedicated `/performance.html` renderer supports `params.scene`, `renderer`, `experiment`, `width`, `height`, `seed`, and `motion` (`static` or `orbit`). Each entry gets a fresh scene and renderer, shader preparation, immediate measurement from ready, then end-of-run capture.
 
 The harness uses `localhost`, while renderer entries use `127.0.0.1`, to allow Chrome site isolation. The renderer page runs no playground controls or charts. Keep the pinned browser, hardware and drivers consistent when comparing performance snapshots. Results record the vsync mode; comparisons reject mixed modes. Existing `cli bench` remains available for the native diagnostic protocols documented in [docs/PERF.md](docs/PERF.md).
 
-To run all 26 real-time Three configurations on the Cornell box with a mirror sphere, build once and run `pnpm performance:metallic`. It serves the built renderer independently of Vite/HMR, with one repetition with vsync disabled at 1920×1080, 2 s warmup and 10 s measured per run. Use `--executable-path <chrome>` if your bundled browser installation needs repair.
+To run all 26 real-time Three configurations on the Cornell box with a mirror sphere, build once and run `pnpm performance:metallic`. It serves the built renderer independently of Vite/HMR, running each workload once with vsync disabled at 1920×1080 and 10 s measured from ready, without warmup. Use `--executable-path <chrome>` if your bundled browser installation needs repair.
 
 The performance report introduction comes from `performance-results/README.md`. Edit this Markdown file to describe the suite; `performance:dev` refreshes it as it changes, while `performance:build` includes it in the static export.
 
-Each performance configuration uses `performance-results/<renderer-id>/<scene-id>/` with `screenshot.avif`, `raw.json`, and processed `metrics.json`. The viewer reads metrics and screenshots only; raw timestamps are processed by the CLI.
+Each performance configuration uses `performance-results/<renderer-id>/<scene-id>/` with `screenshot.avif` and directly saved `metrics.json`. The viewer uses one shared time scale across filtered timelines, shows frame values on hover, and expands to framerate/responsiveness histograms calculated in the browser and a Phases table with total setup time. Harness and client timestamps are retained independently; precision clock synchronization and discrepancy tables are removed. `performance:process` migrates historical raw results when present.

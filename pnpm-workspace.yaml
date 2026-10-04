@@ -1,5 +1,6 @@
 packages:
   - packages/*
+  - submodules/performance-kit/packages/*
   - submodules/three.js
   - submodules/three-gpu-pathtracer
   - submodules/fidelity-kit-blender
@@ -16,6 +17,7 @@ link-workspace-packages: false
 
 # one copy of three everywhere (three-mesh-bvh, three-gpu-pathtracer, scenes, renderers): the fork in the submodule
 overrides:
+  basic-ftp: '>=6.2.1'
   three: 'workspace:*'
   three-gpu-pathtracer: 'workspace:*'
   '@types/three': '^0.186.0'

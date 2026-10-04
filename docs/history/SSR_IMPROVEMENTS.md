@@ -15,9 +15,9 @@ without touching `three-new-ssgi` or `three-ss-legacy`. Correctness first; speed
   dielectric metal and non-metal floors, grazing view, offscreen emitter, occlusion + thin pole, a vertical
   mirror wall, a metal sphere) and 5 `ssr-steampunk-*` scenes (`packages/scenes/src/ssr.ts`: a textured model
   over a metal disc, plus a roughness sweep). References are path-traced and committed at
-  `results/<scene>/beauty/three-gpu-pathtracer.avif`.
+  `fidelity-results/<scene>/beauty/three-gpu-pathtracer.avif`.
 - **Metrics.** `scripts/ssr-metrics.mjs [renderers]` prints per-scene beauty RMSE/PSNR from
-  `results/<scene>/beauty/metrics-<renderer>.json` (written by `pnpm cli compare`), plus mean RMSE overall and
+  `fidelity-results/<scene>/beauty/metrics-<renderer>.json` (written by `pnpm cli compare`), plus mean RMSE overall and
   split by `ssr-diag-*` / `ssr-steampunk-*`. `packages/cli/scripts/ssr-visual.mjs <out-dir> [scenes] [renderer]`
   writes reference | test | abs-diff×4 PNGs for visual inspection (numbers alone are misleading here — several
   regressions below look nearly identical to the reference and several "improvements" still look wrong).

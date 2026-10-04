@@ -49,4 +49,4 @@ Half resolution fails the diagnostic gate on rounded geometry, the striped-emitt
 
 The [preliminary timing record](ssgi-resolution/preliminary-timing.json) preserves the interrupted 1080p run. Its one completed repetition on `ssgi-basic` measured 558.96 ms baseline, 350.83 ms half, and 298.83 ms third. Concurrent path-tracing work was observed on the same machine, and these numbers are not a validated frame-rate comparison. The requested timing rerun is pending; no repeated-speedup claim is made in this PR. The optional 961×541 and camera-motion captures are also pending.
 
-Completed variant images already present in `results/` are included for viewer inspection. The five-scene report describes only the controlled captures listed above; other images do not establish additional timing or motion evidence.
+Completed variant images already present in `fidelity-results/` are included for viewer inspection. The five-scene report describes only the controlled captures listed above; other images do not establish additional timing or motion evidence.

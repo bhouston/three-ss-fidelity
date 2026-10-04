@@ -155,13 +155,13 @@ These checks established native rendering support and exposed the CLI accumulati
 A fresh legacy CLI render with the accumulation fix produced a nonblack 64×64 image at 16 samples (RGB ranges
 0–255). A long capture cancelled with SIGINT exited with an error and saved no image.
 
-| Command                               | Does                                                                                                                                                                                                                    |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cli list [--verbose]`                | List scene names.                                                                                                                                                                                                       |
+| Command                               | Does                                                                                                                                                                                                                             |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cli list [--verbose]`                | List scene names.                                                                                                                                                                                                                |
 | `cli render`                          | Write `fidelity-results/<scene>/beauty/<renderer>.avif`. `--scenes/--renderers` take comma-separated globs; also `--missing-only`, `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`, `--width`, `--height`. |
-| `cli quality-gate <base> <candidate>` | Fail if the candidate's PSNR (from `fidelity-kit process`'s metrics) drops by more than `--threshold` dB on any scene.                                                                                                  |
+| `cli quality-gate <base> <candidate>` | Fail if the candidate's PSNR (from `fidelity-kit process`'s metrics) drops by more than `--threshold` dB on any scene.                                                                                                           |
 | `cli converge`                        | Move-then-stop benchmark: write `fidelity-results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                                                         |
-| `cli bench --renderers a,b`           | Repeated five-second completed-work benchmarks and A/B speedup; JSON + offline HTML reports; `--experiment` selects variants; `--profile` / `--gpu` for instrumented GPU timing ([docs/PERF.md](docs/PERF.md)).         |
+| `cli bench --renderers a,b`           | Repeated five-second completed-work benchmarks and A/B speedup; JSON + offline HTML reports; `--experiment` selects variants; `--profile` / `--gpu` for instrumented GPU timing ([docs/PERF.md](docs/PERF.md)).                  |
 
 Run `pnpm cli <command> --help` for all flags. `pnpm cli` runs the built `dist/`, so run `pnpm build` (or `pnpm dev`)
 after changing sources.
@@ -257,3 +257,20 @@ Edit `fidelity-results/README.md` to update the Markdown introduction above the 
 The JSON and PNG files in `docs/history/` are the data behind those logs. Most were produced by the scripts in `scripts/`.
 
 Blender reference rendering calls `fidelity-kit-blender/three` directly. Set `BLENDER_EXECUTABLE` to choose an installation; otherwise the package discovers Blender on PATH or in macOS Applications. The suite explicitly bakes procedural IBL and passes environment intensity/rotation, background, bounce count, and Three.js tone-mapping/sRGB settings. The package owns GLB export, camera/light translation, Blender execution, and linear output processing. Unsupported suite features emit diagnostics.
+
+## Performance-kit
+
+The independent [performance-kit](https://github.com/bhouston/performance-kit) submodule supplies raw performance measurement, a CLI, and its own report website. Fidelity images live in `fidelity-results/`; append-only performance run sets live in `performance-results/`.
+
+```sh
+pnpm build
+pnpm live                         # renderer site at http://127.0.0.1:5173
+# In another terminal:
+pnpm performance:run --filter renderer=three-current
+pnpm performance:serve            # report and separate /live reader
+pnpm performance:build            # portable static report in performance-site/
+```
+
+`performance-suite.json` contains flat labeled entries for Three-Base (the stock `three-current` renderer), the other real-time Three variants, and every Three-New experiment. Blender and path tracers are excluded. Change labels, scenes, durations and repetitions in a copied suite and pass it with `pnpm exec performance-kit run --suite <file> --out performance-results`. The dedicated `/performance.html` renderer supports `params.scene`, `renderer`, `experiment`, `width`, `height`, `seed`, and `motion` (`static` or `orbit`). Each entry gets a fresh scene and renderer, shader preparation, warmup, capture, then the measured window.
+
+The harness uses `localhost`, while renderer entries use `127.0.0.1`, to allow Chrome site isolation. The renderer page runs no playground controls or charts. Keep the pinned browser, hardware and drivers consistent when comparing run sets. Results record the vsync mode; comparisons reject mixed modes. Existing `cli bench` remains available for the native diagnostic protocols documented in [docs/PERF.md](docs/PERF.md).

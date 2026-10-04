@@ -31,7 +31,7 @@ Render path-tracer references when missing using `--renderers three-gpu-pathtrac
 
 Cross-check the two path tracers against each other the same way `pnpm cli compare` diffs any screen-space renderer against `three-gpu-pathtracer`: `pnpm cli render --scenes '*' --passes beauty --renderers 'three-gpu-pathtracer,three-gpu-pathtracer-webgpu' --samples 1024` then `pnpm cli compare --renderers three-gpu-pathtracer-webgpu`. This treats `three-gpu-pathtracer` (WebGL) as the reference and `three-gpu-pathtracer-webgpu` as the test image; see issue #34 for the per-scene results of that comparison. The viewer displays both results and each method's error against the same path-traced reference; old folders with only one method still load.
 
-The files in each `results/<scene>/<pass>/` directory are:
+The files in each `fidelity-results/<scene>/<pass>/` directory are:
 
 Every screen-space renderer `R` uses the same `R.avif`, `delta-R.avif`, `metrics-R.json` naming, for example:
 

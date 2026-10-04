@@ -108,7 +108,7 @@ SSGI should reproduce the light it can represent reasonably well under matched m
 
 ## Reproduction and validation
 
-Use Node 26 and the repository's pinned pnpm. Existing `results/` references from the original investigation are required.
+Use Node 26 and the repository's pinned pnpm. Existing `fidelity-results/` references from the original investigation are required.
 
 ```sh
 pnpm build

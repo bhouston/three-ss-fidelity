@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "prepare": "husky",
-    "build": "tsc -b && pnpm build:three && pnpm -r --if-present --filter './packages/*' build",
+    "build": "pnpm build:performance-kit && tsc -b && pnpm build:three && pnpm -r --if-present --filter './packages/*' build",
     "dev": "pnpm -r --parallel --stream dev",
     "tsc": "tsc -b && pnpm --filter @ss-fidelity/playground tsc",
     "format": "oxfmt .",
@@ -21,7 +21,11 @@
     "fidelity:build": "fidelity-kit build fidelity-results --out site/",
     "live": "pnpm --filter @ss-fidelity/playground dev",
     "build:three": "pnpm --filter ./submodules/three.js build",
-    "test:browser": "pnpm --filter @ss-fidelity/playground test:browser"
+    "test:browser": "pnpm --filter @ss-fidelity/playground test:browser",
+    "performance:run": "performance-kit run --suite performance-suite.json --out performance-results",
+    "performance:serve": "performance-kit serve --out performance-results",
+    "performance:build": "performance-kit build --out performance-results --site performance-site",
+    "build:performance-kit": "pnpm --dir submodules/performance-kit build"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
@@ -37,6 +41,7 @@
     "lint-staged": "^17.3.0",
     "oxfmt": "^0.58.0",
     "oxlint": "^1.73.0",
+    "performance-kit": "workspace:*",
     "typescript": "^7",
     "vitest": "^4.1.10",
     "watlas": "^1.0.1"

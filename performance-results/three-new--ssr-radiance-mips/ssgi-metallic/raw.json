@@ -1,0 +1,4015 @@
+{
+  "schemaVersion": 1,
+  "runId": "01M42C1827FDBCW18G7WRKPGDM",
+  "suiteName": "Cornell metallic sphere · 26 real-time Three configurations",
+  "entry": {
+    "id": "ssgi-metallic--three-new--ssr-radiance-mips",
+    "name": "Three-New ssr-radiance-mips · ssgi-metallic",
+    "renderer": {
+      "id": "three-new--ssr-radiance-mips",
+      "name": "Three-New · SSR radiance mipmaps"
+    },
+    "scene": {
+      "id": "ssgi-metallic",
+      "name": "Cornell box · metallic sphere"
+    },
+    "url": "http://127.0.0.1:4401/performance.html"
+  },
+  "repetition": 1,
+  "config": {
+    "durationMs": 10000,
+    "warmupMs": 2000,
+    "vsync": "off"
+  },
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "gpuTimestampsAvailable": true,
+    "crossOriginIsolated": true,
+    "devicePixelRatio": 1,
+    "host": {
+      "os": "darwin 27.0.0",
+      "cpu": "Apple M3"
+    },
+    "chromeFlags": [
+      "--disable-background-timer-throttling",
+      "--disable-renderer-backgrounding",
+      "--disable-backgrounding-occluded-windows",
+      "--enable-unsafe-webgpu",
+      "--enable-webgpu-developer-features",
+      "--site-per-process",
+      "--disable-gpu-vsync",
+      "--disable-frame-rate-limit"
+    ],
+    "gpuAdapter": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "description": "Apple M3"
+    },
+    "api": "webgpu",
+    "gitCommit": "35e03f6acbe32b1acd95ffa297bbdc4048b18eef",
+    "canvasSize": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "harness": {
+    "iframeCreated": 1791081095409.55,
+    "startSent": 1791081100666.155,
+    "captureSent": 1791081102939.475,
+    "runSent": 1791081128341.645,
+    "runEndObserved": 1791081138940.485,
+    "teardown": 1791081139791.565
+  },
+  "clockSync": {
+    "samples": [
+      {
+        "t0": 1791081100658.735,
+        "t1": 1791081100659.9949,
+        "t2": 1791081100660.01,
+        "t3": 1791081100660.1301
+      },
+      {
+        "t0": 1791081100660.495,
+        "t1": 1791081100661.0898,
+        "t2": 1791081100661.0999,
+        "t3": 1791081100661.185
+      },
+      {
+        "t0": 1791081100661.6,
+        "t1": 1791081100663.175,
+        "t2": 1791081100663.175,
+        "t3": 1791081100663.325
+      },
+      {
+        "t0": 1791081100663.8801,
+        "t1": 1791081100663.99,
+        "t2": 1791081100663.99,
+        "t3": 1791081100664.05
+      },
+      {
+        "t0": 1791081100664.32,
+        "t1": 1791081100664.42,
+        "t2": 1791081100664.42,
+        "t3": 1791081100664.485
+      },
+      {
+        "t0": 1791081100664.69,
+        "t1": 1791081100664.76,
+        "t2": 1791081100664.76,
+        "t3": 1791081100664.83
+      },
+      {
+        "t0": 1791081100664.995,
+        "t1": 1791081100665.065,
+        "t2": 1791081100665.0698,
+        "t3": 1791081100665.1301
+      },
+      {
+        "t0": 1791081100665.295,
+        "t1": 1791081100665.3599,
+        "t2": 1791081100665.3599,
+        "t3": 1791081100665.42
+      },
+      {
+        "t0": 1791081100665.585,
+        "t1": 1791081100665.645,
+        "t2": 1791081100665.645,
+        "t3": 1791081100665.7
+      },
+      {
+        "t0": 1791081100665.85,
+        "t1": 1791081100665.9,
+        "t2": 1791081100665.9,
+        "t3": 1791081100665.97
+      },
+      {
+        "t0": 1791081138942.485,
+        "t1": 1791081139105.565,
+        "t2": 1791081139105.5698,
+        "t3": 1791081139105.7651
+      },
+      {
+        "t0": 1791081139106.375,
+        "t1": 1791081139274.13,
+        "t2": 1791081139274.135,
+        "t3": 1791081139274.32
+      },
+      {
+        "t0": 1791081139274.93,
+        "t1": 1791081139451.8198,
+        "t2": 1791081139451.825,
+        "t3": 1791081139452.0151
+      },
+      {
+        "t0": 1791081139452.74,
+        "t1": 1791081139620.26,
+        "t2": 1791081139620.265,
+        "t3": 1791081139620.555
+      },
+      {
+        "t0": 1791081139621.275,
+        "t1": 1791081139790.6848,
+        "t2": 1791081139790.69,
+        "t3": 1791081139790.8801
+      }
+    ]
+  },
+  "messages": [
+    {
+      "type": "hello",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100655.2
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100656.42
+      }
+    },
+    {
+      "type": "environment",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100655.3
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100656.71
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100660.01
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100660.1301
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100661.0999
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100661.185
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100663.18
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100663.325
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100663.99
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100664.05
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100664.42
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100664.485
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100664.76
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100664.83
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100665.0698
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100665.1301
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100665.3599
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100665.42
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100665.645
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100665.7
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100665.91
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100665.97
+      }
+    },
+    {
+      "type": "phase",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100666.305
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100667.23
+      }
+    },
+    {
+      "type": "phase",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100718.395
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100719.7651
+      }
+    },
+    {
+      "type": "phase",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100718.43
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100719.845
+      }
+    },
+    {
+      "type": "environment",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100722.67
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100817.37
+      }
+    },
+    {
+      "type": "phase",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100722.7048
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100817.475
+      }
+    },
+    {
+      "type": "phase",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100722.71
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100817.485
+      }
+    },
+    {
+      "type": "phase",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100935.655
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100935.905
+      }
+    },
+    {
+      "type": "ready",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081100935.7048
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081100935.97
+      }
+    },
+    {
+      "type": "capture",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081128170.6848
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081128172.195
+      }
+    },
+    {
+      "type": "runEnd",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081138939.915
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081138940.485
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081100658.7551
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081100659.9949
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081100660.5
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081100661.0898
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081100661.6
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081100663.175
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081100663.8801
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081100663.99
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081100664.32
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081100664.42
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081100664.69
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081100664.76
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081100665
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081100665.065
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081100665.295
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081100665.3599
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081100665.59
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081100665.645
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081100665.85
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081100665.9
+      }
+    },
+    {
+      "type": "start",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081100666.155
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081100666.255
+      }
+    },
+    {
+      "type": "capture",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081102939.475
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081102982.9348
+      }
+    },
+    {
+      "type": "run",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081128341.645
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081128649.7449
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081139105.5698
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081139105.7651
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081138942.485
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081139105.565
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081139274.135
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081139274.32
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081139106.375
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081139274.13
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081139451.8298
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081139452.0151
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081139274.93
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081139451.8198
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081139620.265
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081139620.555
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081139452.74
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081139620.26
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791081139790.69
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791081139790.8801
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791081139621.275
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791081139790.6848
+      }
+    }
+  ],
+  "reporter": {
+    "frames": [
+      {
+        "cpuStart": 1791081100935.765,
+        "cpuEnd": 1791081100976.805,
+        "gpuStart": "74137154044810",
+        "gpuEnd": "74137363186461",
+        "animationTime": 0.03333333333333333
+      },
+      {
+        "cpuStart": 1791081100977.035,
+        "cpuEnd": 1791081100993.625,
+        "animationTime": 0.05
+      },
+      {
+        "cpuStart": 1791081100993.8599,
+        "cpuEnd": 1791081100998.7048,
+        "gpuStart": "74138697864005",
+        "gpuEnd": "74140021526341",
+        "animationTime": 0.06666666666666667
+      },
+      {
+        "cpuStart": 1791081100998.795,
+        "cpuEnd": 1791081100999.8499,
+        "animationTime": 0.08333333333333333
+      },
+      {
+        "cpuStart": 1791081100999.895,
+        "cpuEnd": 1791081101000.825,
+        "animationTime": 0.1
+      },
+      {
+        "cpuStart": 1791081101000.855,
+        "cpuEnd": 1791081101001.73,
+        "animationTime": 0.11666666666666667
+      },
+      {
+        "cpuStart": 1791081101001.755,
+        "cpuEnd": 1791081101002.595,
+        "animationTime": 0.13333333333333333
+      },
+      {
+        "cpuStart": 1791081101002.9548,
+        "cpuEnd": 1791081101004.1948,
+        "animationTime": 0.15
+      },
+      {
+        "cpuStart": 1791081101004.255,
+        "cpuEnd": 1791081101005.18,
+        "animationTime": 0.16666666666666666
+      },
+      {
+        "cpuStart": 1791081101005.265,
+        "cpuEnd": 1791081101006.1948,
+        "animationTime": 0.18333333333333332
+      },
+      {
+        "cpuStart": 1791081101006.2249,
+        "cpuEnd": 1791081101007.045,
+        "animationTime": 0.2
+      },
+      {
+        "cpuStart": 1791081101007.075,
+        "cpuEnd": 1791081101007.895,
+        "animationTime": 0.21666666666666667
+      },
+      {
+        "cpuStart": 1791081101007.92,
+        "cpuEnd": 1791081101008.8298,
+        "animationTime": 0.23333333333333334
+      },
+      {
+        "cpuStart": 1791081101008.8699,
+        "cpuEnd": 1791081101009.6948,
+        "animationTime": 0.25
+      },
+      {
+        "cpuStart": 1791081101009.7148,
+        "cpuEnd": 1791081101010.655,
+        "animationTime": 0.26666666666666666
+      },
+      {
+        "cpuStart": 1791081101010.6948,
+        "cpuEnd": 1791081101011.675,
+        "animationTime": 0.2833333333333333
+      },
+      {
+        "cpuStart": 1791081101014.14,
+        "cpuEnd": 1791081101015.545,
+        "animationTime": 0.3
+      },
+      {
+        "cpuStart": 1791081101015.665,
+        "cpuEnd": 1791081101016.44,
+        "animationTime": 0.31666666666666665
+      },
+      {
+        "cpuStart": 1791081101016.4949,
+        "cpuEnd": 1791081101017.4648,
+        "animationTime": 0.3333333333333333
+      },
+      {
+        "cpuStart": 1791081101017.5,
+        "cpuEnd": 1791081101018.2048,
+        "animationTime": 0.35
+      },
+      {
+        "cpuStart": 1791081101018.355,
+        "cpuEnd": 1791081101018.98,
+        "animationTime": 0.36666666666666664
+      },
+      {
+        "cpuStart": 1791081101019.005,
+        "cpuEnd": 1791081101019.625,
+        "animationTime": 0.38333333333333336
+      },
+      {
+        "cpuStart": 1791081101019.64,
+        "cpuEnd": 1791081101020.285,
+        "animationTime": 0.4
+      },
+      {
+        "cpuStart": 1791081101020.3098,
+        "cpuEnd": 1791081101020.93,
+        "animationTime": 0.4166666666666667
+      },
+      {
+        "cpuStart": 1791081101020.9548,
+        "cpuEnd": 1791081101021.54,
+        "animationTime": 0.43333333333333335
+      },
+      {
+        "cpuStart": 1791081101021.5598,
+        "cpuEnd": 1791081101022.1948,
+        "animationTime": 0.45
+      },
+      {
+        "cpuStart": 1791081101022.22,
+        "cpuEnd": 1791081101022.825,
+        "animationTime": 0.4666666666666667
+      },
+      {
+        "cpuStart": 1791081101022.855,
+        "cpuEnd": 1791081101023.4348,
+        "animationTime": 0.48333333333333334
+      },
+      {
+        "cpuStart": 1791081101023.46,
+        "cpuEnd": 1791081101024.085,
+        "animationTime": 0.5
+      },
+      {
+        "cpuStart": 1791081101024.105,
+        "cpuEnd": 1791081101024.7,
+        "animationTime": 0.5166666666666667
+      },
+      {
+        "cpuStart": 1791081101024.7349,
+        "cpuEnd": 1791081101025.395,
+        "animationTime": 0.5333333333333333
+      },
+      {
+        "cpuStart": 1791081101025.425,
+        "cpuEnd": 1791081101026.065,
+        "animationTime": 0.55
+      },
+      {
+        "cpuStart": 1791081101026.105,
+        "cpuEnd": 1791081101026.73,
+        "animationTime": 0.5666666666666667
+      },
+      {
+        "cpuStart": 1791081101026.755,
+        "cpuEnd": 1791081101027.355,
+        "animationTime": 0.5833333333333334
+      },
+      {
+        "cpuStart": 1791081101027.38,
+        "cpuEnd": 1791081101027.96,
+        "animationTime": 0.6
+      },
+      {
+        "cpuStart": 1791081101027.9749,
+        "cpuEnd": 1791081101028.54,
+        "animationTime": 0.6166666666666667
+      },
+      {
+        "cpuStart": 1791081101028.5798,
+        "cpuEnd": 1791081101029.155,
+        "animationTime": 0.6333333333333333
+      },
+      {
+        "cpuStart": 1791081101029.19,
+        "cpuEnd": 1791081101029.9348,
+        "animationTime": 0.65
+      },
+      {
+        "cpuStart": 1791081101029.97,
+        "cpuEnd": 1791081101030.565,
+        "animationTime": 0.6666666666666666
+      },
+      {
+        "cpuStart": 1791081101030.585,
+        "cpuEnd": 1791081101031.17,
+        "animationTime": 0.6833333333333333
+      },
+      {
+        "cpuStart": 1791081101031.19,
+        "cpuEnd": 1791081101031.835,
+        "animationTime": 0.7
+      },
+      {
+        "cpuStart": 1791081101031.865,
+        "cpuEnd": 1791081101032.4348,
+        "animationTime": 0.7166666666666667
+      },
+      {
+        "cpuStart": 1791081101032.4548,
+        "cpuEnd": 1791081101033.005,
+        "animationTime": 0.7333333333333333
+      },
+      {
+        "cpuStart": 1791081101033.02,
+        "cpuEnd": 1791081101033.565,
+        "animationTime": 0.75
+      },
+      {
+        "cpuStart": 1791081101033.5999,
+        "cpuEnd": 1791081101034.155,
+        "animationTime": 0.7666666666666667
+      },
+      {
+        "cpuStart": 1791081101034.18,
+        "cpuEnd": 1791081101034.71,
+        "animationTime": 0.7833333333333333
+      },
+      {
+        "cpuStart": 1791081101034.76,
+        "cpuEnd": 1791081101147.9,
+        "animationTime": 0.8
+      },
+      {
+        "cpuStart": 1791081101148.065,
+        "cpuEnd": 1791081101150.055,
+        "animationTime": 0.8166666666666667
+      },
+      {
+        "cpuStart": 1791081101150.28,
+        "cpuEnd": 1791081101316.0999,
+        "gpuStart": "74149121965007",
+        "gpuEnd": "74149161802357",
+        "animationTime": 0.8333333333333334
+      },
+      {
+        "cpuStart": 1791081101316.575,
+        "cpuEnd": 1791081101509.5999,
+        "animationTime": 0.85
+      },
+      {
+        "cpuStart": 1791081101509.9548,
+        "cpuEnd": 1791081101705.265,
+        "animationTime": 0.8666666666666667
+      },
+      {
+        "cpuStart": 1791081101706.775,
+        "cpuEnd": 1791081101895.25,
+        "gpuStart": "74149504278756",
+        "gpuEnd": "74149679739121",
+        "animationTime": 0.8833333333333333
+      },
+      {
+        "cpuStart": 1791081101896.0999,
+        "cpuEnd": 1791081102084.4448,
+        "gpuStart": "74149680280862",
+        "gpuEnd": "74141152847816",
+        "animationTime": 0.9
+      },
+      {
+        "cpuStart": 1791081102085,
+        "cpuEnd": 1791081102267.3398,
+        "animationTime": 0.9166666666666666
+      },
+      {
+        "cpuStart": 1791081102268.075,
+        "cpuEnd": 1791081102449.395,
+        "animationTime": 0.9333333333333333
+      },
+      {
+        "cpuStart": 1791081102450.075,
+        "cpuEnd": 1791081102624.325,
+        "animationTime": 0.95
+      },
+      {
+        "cpuStart": 1791081102625.02,
+        "cpuEnd": 1791081102809.045,
+        "animationTime": 0.9666666666666667
+      },
+      {
+        "cpuStart": 1791081102809.7,
+        "cpuEnd": 1791081102982.035,
+        "animationTime": 0.9833333333333333
+      },
+      {
+        "cpuStart": 1791081102982.99,
+        "cpuEnd": 1791081103154.265,
+        "animationTime": 1
+      },
+      {
+        "cpuStart": 1791081103154.795,
+        "cpuEnd": 1791081103325.68,
+        "animationTime": 1.0166666666666666
+      },
+      {
+        "cpuStart": 1791081103326.265,
+        "cpuEnd": 1791081103494.675,
+        "animationTime": 1.0333333333333334
+      },
+      {
+        "cpuStart": 1791081103495.2249,
+        "cpuEnd": 1791081103668.005,
+        "animationTime": 1.05
+      },
+      {
+        "cpuStart": 1791081103668.525,
+        "cpuEnd": 1791081103847.3699,
+        "animationTime": 1.0666666666666667
+      },
+      {
+        "cpuStart": 1791081103847.885,
+        "cpuEnd": 1791081104017.035,
+        "animationTime": 1.0833333333333333
+      },
+      {
+        "cpuStart": 1791081104017.575,
+        "cpuEnd": 1791081104185.5898,
+        "animationTime": 1.1
+      },
+      {
+        "cpuStart": 1791081104186.0798,
+        "cpuEnd": 1791081104355.895,
+        "animationTime": 1.1166666666666667
+      },
+      {
+        "cpuStart": 1791081104356.44,
+        "cpuEnd": 1791081104533.375,
+        "animationTime": 1.1333333333333333
+      },
+      {
+        "cpuStart": 1791081104533.885,
+        "cpuEnd": 1791081104709.24,
+        "animationTime": 1.15
+      },
+      {
+        "cpuStart": 1791081104709.785,
+        "cpuEnd": 1791081104889.545,
+        "animationTime": 1.1666666666666667
+      },
+      {
+        "cpuStart": 1791081104890.0798,
+        "cpuEnd": 1791081105063.925,
+        "animationTime": 1.1833333333333333
+      },
+      {
+        "cpuStart": 1791081105064.48,
+        "cpuEnd": 1791081105235.7249,
+        "animationTime": 1.2
+      },
+      {
+        "cpuStart": 1791081105236.26,
+        "cpuEnd": 1791081105407.565,
+        "animationTime": 1.2166666666666666
+      },
+      {
+        "cpuStart": 1791081105408.075,
+        "cpuEnd": 1791081105577.39,
+        "animationTime": 1.2333333333333334
+      },
+      {
+        "cpuStart": 1791081105577.89,
+        "cpuEnd": 1791081105743.9548,
+        "animationTime": 1.25
+      },
+      {
+        "cpuStart": 1791081105744.51,
+        "cpuEnd": 1791081105915.9,
+        "animationTime": 1.2666666666666666
+      },
+      {
+        "cpuStart": 1791081105916.515,
+        "cpuEnd": 1791081106091.2148,
+        "animationTime": 1.2833333333333334
+      },
+      {
+        "cpuStart": 1791081106091.68,
+        "cpuEnd": 1791081106259.545,
+        "animationTime": 1.3
+      },
+      {
+        "cpuStart": 1791081106260.085,
+        "cpuEnd": 1791081106429.5698,
+        "animationTime": 1.3166666666666667
+      },
+      {
+        "cpuStart": 1791081106430.125,
+        "cpuEnd": 1791081106596.165,
+        "animationTime": 1.3333333333333333
+      },
+      {
+        "cpuStart": 1791081106596.7249,
+        "cpuEnd": 1791081106764.27,
+        "animationTime": 1.35
+      },
+      {
+        "cpuStart": 1791081106764.8,
+        "cpuEnd": 1791081106934.1948,
+        "animationTime": 1.3666666666666667
+      },
+      {
+        "cpuStart": 1791081106934.775,
+        "cpuEnd": 1791081107107.18,
+        "animationTime": 1.3833333333333333
+      },
+      {
+        "cpuStart": 1791081107107.7349,
+        "cpuEnd": 1791081107276.19,
+        "animationTime": 1.4
+      },
+      {
+        "cpuStart": 1791081107276.8298,
+        "cpuEnd": 1791081107443.4648,
+        "animationTime": 1.4166666666666667
+      },
+      {
+        "cpuStart": 1791081107443.9849,
+        "cpuEnd": 1791081107609.3298,
+        "animationTime": 1.4333333333333333
+      },
+      {
+        "cpuStart": 1791081107609.8198,
+        "cpuEnd": 1791081107776.005,
+        "animationTime": 1.45
+      },
+      {
+        "cpuStart": 1791081107776.545,
+        "cpuEnd": 1791081107943.23,
+        "animationTime": 1.4666666666666666
+      },
+      {
+        "cpuStart": 1791081107943.76,
+        "cpuEnd": 1791081108125.3298,
+        "animationTime": 1.4833333333333334
+      },
+      {
+        "cpuStart": 1791081108125.8599,
+        "cpuEnd": 1791081108295.115,
+        "animationTime": 1.5
+      },
+      {
+        "cpuStart": 1791081108295.755,
+        "cpuEnd": 1791081108467.88,
+        "animationTime": 1.5166666666666666
+      },
+      {
+        "cpuStart": 1791081108468.42,
+        "cpuEnd": 1791081108643.275,
+        "animationTime": 1.5333333333333334
+      },
+      {
+        "cpuStart": 1791081108643.93,
+        "cpuEnd": 1791081108853.3198,
+        "animationTime": 1.55
+      },
+      {
+        "cpuStart": 1791081108853.89,
+        "cpuEnd": 1791081109031.3599,
+        "animationTime": 1.5666666666666667
+      },
+      {
+        "cpuStart": 1791081109031.8298,
+        "cpuEnd": 1791081109172.925,
+        "animationTime": 1.5833333333333333
+      },
+      {
+        "cpuStart": 1791081109173.335,
+        "cpuEnd": 1791081109348.275,
+        "animationTime": 1.6
+      },
+      {
+        "cpuStart": 1791081109348.6948,
+        "cpuEnd": 1791081109518.035,
+        "animationTime": 1.6166666666666667
+      },
+      {
+        "cpuStart": 1791081109518.74,
+        "cpuEnd": 1791081109690.605,
+        "animationTime": 1.6333333333333333
+      },
+      {
+        "cpuStart": 1791081109691.425,
+        "cpuEnd": 1791081109862.2048,
+        "animationTime": 1.65
+      },
+      {
+        "cpuStart": 1791081109862.78,
+        "cpuEnd": 1791081110034.115,
+        "gpuStart": "74157623855193",
+        "gpuEnd": "74149161802357",
+        "animationTime": 1.6666666666666667
+      },
+      {
+        "cpuStart": 1791081110034.6199,
+        "cpuEnd": 1791081110211.14,
+        "animationTime": 1.6833333333333333
+      },
+      {
+        "cpuStart": 1791081110211.925,
+        "cpuEnd": 1791081110379.605,
+        "gpuStart": "74157960158937",
+        "gpuEnd": "74157963819256",
+        "animationTime": 1.7
+      },
+      {
+        "cpuStart": 1791081110380.24,
+        "cpuEnd": 1791081110549.165,
+        "gpuStart": "74158135610925",
+        "gpuEnd": "74149679739121",
+        "animationTime": 1.7166666666666666
+      },
+      {
+        "cpuStart": 1791081110549.7,
+        "cpuEnd": 1791081110721,
+        "animationTime": 1.7333333333333334
+      },
+      {
+        "cpuStart": 1791081110721.55,
+        "cpuEnd": 1791081110889.91,
+        "animationTime": 1.75
+      },
+      {
+        "cpuStart": 1791081110891.515,
+        "cpuEnd": 1791081111058.365,
+        "animationTime": 1.7666666666666666
+      },
+      {
+        "cpuStart": 1791081111058.94,
+        "cpuEnd": 1791081111236.6099,
+        "animationTime": 1.7833333333333334
+      },
+      {
+        "cpuStart": 1791081111237.22,
+        "cpuEnd": 1791081111404.9348,
+        "animationTime": 1.8
+      },
+      {
+        "cpuStart": 1791081111405.16,
+        "cpuEnd": 1791081111572.585,
+        "animationTime": 1.8166666666666667
+      },
+      {
+        "cpuStart": 1791081111572.655,
+        "cpuEnd": 1791081111738.5898,
+        "animationTime": 1.8333333333333333
+      },
+      {
+        "cpuStart": 1791081111739.335,
+        "cpuEnd": 1791081111905.76,
+        "animationTime": 1.85
+      },
+      {
+        "cpuStart": 1791081111906.8599,
+        "cpuEnd": 1791081112070.8699,
+        "animationTime": 1.8666666666666667
+      },
+      {
+        "cpuStart": 1791081112071.48,
+        "cpuEnd": 1791081112246.7349,
+        "animationTime": 1.8833333333333333
+      },
+      {
+        "cpuStart": 1791081112247.24,
+        "cpuEnd": 1791081112412.52,
+        "animationTime": 1.9
+      },
+      {
+        "cpuStart": 1791081112413.0999,
+        "cpuEnd": 1791081112584.585,
+        "animationTime": 1.9166666666666667
+      },
+      {
+        "cpuStart": 1791081112585.1099,
+        "cpuEnd": 1791081112759.77,
+        "animationTime": 1.9333333333333333
+      },
+      {
+        "cpuStart": 1791081112760.29,
+        "cpuEnd": 1791081112931.4,
+        "animationTime": 1.95
+      },
+      {
+        "cpuStart": 1791081112931.98,
+        "cpuEnd": 1791081113104.03,
+        "animationTime": 1.9666666666666666
+      },
+      {
+        "cpuStart": 1791081113104.595,
+        "cpuEnd": 1791081113283.325,
+        "animationTime": 1.9833333333333334
+      },
+      {
+        "cpuStart": 1791081113283.92,
+        "cpuEnd": 1791081113451.76,
+        "animationTime": 2
+      },
+      {
+        "cpuStart": 1791081113452.315,
+        "cpuEnd": 1791081113620.905,
+        "animationTime": 2.0166666666666666
+      },
+      {
+        "cpuStart": 1791081113621.48,
+        "cpuEnd": 1791081113789.53,
+        "animationTime": 2.033333333333333
+      },
+      {
+        "cpuStart": 1791081113790.135,
+        "cpuEnd": 1791081113958.295,
+        "animationTime": 2.05
+      },
+      {
+        "cpuStart": 1791081113958.8499,
+        "cpuEnd": 1791081114126.5698,
+        "animationTime": 2.066666666666667
+      },
+      {
+        "cpuStart": 1791081114127.115,
+        "cpuEnd": 1791081114302.96,
+        "animationTime": 2.0833333333333335
+      },
+      {
+        "cpuStart": 1791081114303.675,
+        "cpuEnd": 1791081114471.1948,
+        "animationTime": 2.1
+      },
+      {
+        "cpuStart": 1791081114471.805,
+        "cpuEnd": 1791081114637.8098,
+        "animationTime": 2.1166666666666667
+      },
+      {
+        "cpuStart": 1791081114638.55,
+        "cpuEnd": 1791081114803.145,
+        "animationTime": 2.1333333333333333
+      },
+      {
+        "cpuStart": 1791081114803.78,
+        "cpuEnd": 1791081114974.99,
+        "animationTime": 2.15
+      },
+      {
+        "cpuStart": 1791081114975.4949,
+        "cpuEnd": 1791081115142.13,
+        "animationTime": 2.1666666666666665
+      },
+      {
+        "cpuStart": 1791081115142.7349,
+        "cpuEnd": 1791081115321.27,
+        "animationTime": 2.183333333333333
+      },
+      {
+        "cpuStart": 1791081115321.88,
+        "cpuEnd": 1791081115495.125,
+        "animationTime": 2.2
+      },
+      {
+        "cpuStart": 1791081115495.8499,
+        "cpuEnd": 1791081115683.595,
+        "animationTime": 2.216666666666667
+      },
+      {
+        "cpuStart": 1791081115684.2048,
+        "cpuEnd": 1791081115868.45,
+        "animationTime": 2.2333333333333334
+      },
+      {
+        "cpuStart": 1791081115869.13,
+        "cpuEnd": 1791081116055.8198,
+        "animationTime": 2.25
+      },
+      {
+        "cpuStart": 1791081116056.385,
+        "cpuEnd": 1791081116226.285,
+        "animationTime": 2.2666666666666666
+      },
+      {
+        "cpuStart": 1791081116226.8499,
+        "cpuEnd": 1791081116406.49,
+        "animationTime": 2.283333333333333
+      },
+      {
+        "cpuStart": 1791081116407.0798,
+        "cpuEnd": 1791081116614.67,
+        "animationTime": 2.3
+      },
+      {
+        "cpuStart": 1791081116615.24,
+        "cpuEnd": 1791081116801.3298,
+        "animationTime": 2.316666666666667
+      },
+      {
+        "cpuStart": 1791081116801.9348,
+        "cpuEnd": 1791081116947.045,
+        "animationTime": 2.3333333333333335
+      },
+      {
+        "cpuStart": 1791081116947.39,
+        "cpuEnd": 1791081117125.98,
+        "animationTime": 2.35
+      },
+      {
+        "cpuStart": 1791081117126.4,
+        "cpuEnd": 1791081117304.9849,
+        "animationTime": 2.3666666666666667
+      },
+      {
+        "cpuStart": 1791081117305.875,
+        "cpuEnd": 1791081117480.775,
+        "animationTime": 2.3833333333333333
+      },
+      {
+        "cpuStart": 1791081117481.38,
+        "cpuEnd": 1791081117648.335,
+        "animationTime": 2.4
+      },
+      {
+        "cpuStart": 1791081117648.98,
+        "cpuEnd": 1791081117814.065,
+        "animationTime": 2.4166666666666665
+      },
+      {
+        "cpuStart": 1791081117814.6099,
+        "cpuEnd": 1791081117980.4949,
+        "animationTime": 2.433333333333333
+      },
+      {
+        "cpuStart": 1791081117981.19,
+        "cpuEnd": 1791081118148.3098,
+        "animationTime": 2.45
+      },
+      {
+        "cpuStart": 1791081118148.9849,
+        "cpuEnd": 1791081118314.2449,
+        "animationTime": 2.466666666666667
+      },
+      {
+        "cpuStart": 1791081118314.855,
+        "cpuEnd": 1791081118492.2449,
+        "gpuStart": "74166020622983",
+        "gpuEnd": "74149161802357",
+        "animationTime": 2.4833333333333334
+      },
+      {
+        "cpuStart": 1791081118492.795,
+        "cpuEnd": 1791081118660.4749,
+        "animationTime": 2.5
+      },
+      {
+        "cpuStart": 1791081118661.27,
+        "cpuEnd": 1791081118827.6848,
+        "gpuStart": "74166359065819",
+        "gpuEnd": "74166530482495",
+        "animationTime": 2.5166666666666666
+      },
+      {
+        "cpuStart": 1791081118828.595,
+        "cpuEnd": 1791081118993.5999,
+        "gpuStart": "74166531148735",
+        "gpuEnd": "74166699706413",
+        "animationTime": 2.533333333333333
+      },
+      {
+        "cpuStart": 1791081118994.415,
+        "cpuEnd": 1791081119158.535,
+        "animationTime": 2.55
+      },
+      {
+        "cpuStart": 1791081119159.03,
+        "cpuEnd": 1791081119326.795,
+        "animationTime": 2.566666666666667
+      },
+      {
+        "cpuStart": 1791081119327.43,
+        "cpuEnd": 1791081119507.615,
+        "animationTime": 2.5833333333333335
+      },
+      {
+        "cpuStart": 1791081119508.23,
+        "cpuEnd": 1791081119672.7048,
+        "animationTime": 2.6
+      },
+      {
+        "cpuStart": 1791081119673.4548,
+        "cpuEnd": 1791081119840.42,
+        "animationTime": 2.6166666666666667
+      },
+      {
+        "cpuStart": 1791081119841.055,
+        "cpuEnd": 1791081120006.075,
+        "animationTime": 2.6333333333333333
+      },
+      {
+        "cpuStart": 1791081128120.52,
+        "cpuEnd": 1791081128122.135,
+        "animationTime": 2.65
+      },
+      {
+        "cpuStart": 1791081128126.035,
+        "cpuEnd": 1791081128127.855,
+        "animationTime": 2.6666666666666665
+      },
+      {
+        "cpuStart": 1791081128129.2148,
+        "cpuEnd": 1791081128130.29,
+        "gpuStart": "74168076361489",
+        "gpuEnd": "74168254471855",
+        "animationTime": 2.683333333333333
+      },
+      {
+        "cpuStart": 1791081128130.3699,
+        "cpuEnd": 1791081128131.175,
+        "animationTime": 2.7
+      },
+      {
+        "cpuStart": 1791081128131.2148,
+        "cpuEnd": 1791081128131.98,
+        "animationTime": 2.716666666666667
+      },
+      {
+        "cpuStart": 1791081128132.01,
+        "cpuEnd": 1791081128135.2148,
+        "animationTime": 2.7333333333333334
+      },
+      {
+        "cpuStart": 1791081128135.3098,
+        "cpuEnd": 1791081128136.275,
+        "animationTime": 2.75
+      },
+      {
+        "cpuStart": 1791081128136.315,
+        "cpuEnd": 1791081128136.9648,
+        "animationTime": 2.7666666666666666
+      },
+      {
+        "cpuStart": 1791081128137,
+        "cpuEnd": 1791081128137.625,
+        "animationTime": 2.783333333333333
+      },
+      {
+        "cpuStart": 1791081128137.65,
+        "cpuEnd": 1791081128138.275,
+        "animationTime": 2.8
+      },
+      {
+        "cpuStart": 1791081128138.305,
+        "cpuEnd": 1791081128138.9348,
+        "animationTime": 2.816666666666667
+      },
+      {
+        "cpuStart": 1791081128141.115,
+        "cpuEnd": 1791081128141.7449,
+        "animationTime": 2.8333333333333335
+      },
+      {
+        "cpuStart": 1791081128141.77,
+        "cpuEnd": 1791081128142.385,
+        "animationTime": 2.85
+      },
+      {
+        "cpuStart": 1791081128142.42,
+        "cpuEnd": 1791081128143.285,
+        "animationTime": 2.8666666666666667
+      },
+      {
+        "cpuStart": 1791081128143.305,
+        "cpuEnd": 1791081128143.93,
+        "animationTime": 2.8833333333333333
+      },
+      {
+        "cpuStart": 1791081128158.4,
+        "cpuEnd": 1791081128159.005,
+        "animationTime": 2.9
+      },
+      {
+        "cpuStart": 1791081128159.04,
+        "cpuEnd": 1791081128159.595,
+        "animationTime": 2.9166666666666665
+      },
+      {
+        "cpuStart": 1791081128159.615,
+        "cpuEnd": 1791081128160.14,
+        "animationTime": 2.933333333333333
+      },
+      {
+        "cpuStart": 1791081128161.295,
+        "cpuEnd": 1791081128162.025,
+        "animationTime": 2.95
+      },
+      {
+        "cpuStart": 1791081128168.345,
+        "cpuEnd": 1791081128169.0798,
+        "animationTime": 2.966666666666667
+      },
+      {
+        "cpuStart": 1791081128169.2048,
+        "cpuEnd": 1791081128169.775,
+        "animationTime": 2.9833333333333334
+      },
+      {
+        "cpuStart": 1791081128169.825,
+        "cpuEnd": 1791081128170.375,
+        "animationTime": 3
+      },
+      {
+        "cpuStart": 1791081128170.875,
+        "cpuEnd": 1791081128171.4548,
+        "animationTime": 3.0166666666666666
+      },
+      {
+        "cpuStart": 1791081128171.4949,
+        "cpuEnd": 1791081128171.98,
+        "animationTime": 3.033333333333333
+      },
+      {
+        "cpuStart": 1791081128172.025,
+        "cpuEnd": 1791081128172.54,
+        "animationTime": 3.05
+      },
+      {
+        "cpuStart": 1791081128172.595,
+        "cpuEnd": 1791081128173.075,
+        "animationTime": 3.066666666666667
+      },
+      {
+        "cpuStart": 1791081128173.3699,
+        "cpuEnd": 1791081128173.8499,
+        "animationTime": 3.0833333333333335
+      },
+      {
+        "cpuStart": 1791081128173.89,
+        "cpuEnd": 1791081128174.38,
+        "animationTime": 3.1
+      },
+      {
+        "cpuStart": 1791081128174.425,
+        "cpuEnd": 1791081128174.91,
+        "animationTime": 3.1166666666666667
+      },
+      {
+        "cpuStart": 1791081128174.95,
+        "cpuEnd": 1791081128175.4949,
+        "animationTime": 3.1333333333333333
+      },
+      {
+        "cpuStart": 1791081128175.535,
+        "cpuEnd": 1791081128176.045,
+        "animationTime": 3.15
+      },
+      {
+        "cpuStart": 1791081128176.075,
+        "cpuEnd": 1791081128176.6099,
+        "animationTime": 3.1666666666666665
+      },
+      {
+        "cpuStart": 1791081128176.645,
+        "cpuEnd": 1791081128177.16,
+        "animationTime": 3.183333333333333
+      },
+      {
+        "cpuStart": 1791081128177.2,
+        "cpuEnd": 1791081128177.6848,
+        "animationTime": 3.2
+      },
+      {
+        "cpuStart": 1791081128177.7349,
+        "cpuEnd": 1791081128178.325,
+        "animationTime": 3.216666666666667
+      },
+      {
+        "cpuStart": 1791081128178.3699,
+        "cpuEnd": 1791081128178.885,
+        "animationTime": 3.2333333333333334
+      },
+      {
+        "cpuStart": 1791081128178.925,
+        "cpuEnd": 1791081128179.4348,
+        "animationTime": 3.25
+      },
+      {
+        "cpuStart": 1791081128179.4548,
+        "cpuEnd": 1791081128179.9548,
+        "animationTime": 3.2666666666666666
+      },
+      {
+        "cpuStart": 1791081128179.98,
+        "cpuEnd": 1791081128180.48,
+        "animationTime": 3.283333333333333
+      },
+      {
+        "cpuStart": 1791081128180.5,
+        "cpuEnd": 1791081128181.05,
+        "animationTime": 3.3
+      },
+      {
+        "cpuStart": 1791081128181.0798,
+        "cpuEnd": 1791081128181.9548,
+        "animationTime": 3.316666666666667
+      },
+      {
+        "cpuStart": 1791081128181.9849,
+        "cpuEnd": 1791081128182.4849,
+        "animationTime": 3.3333333333333335
+      },
+      {
+        "cpuStart": 1791081128182.51,
+        "cpuEnd": 1791081128183.015,
+        "animationTime": 3.35
+      },
+      {
+        "cpuStart": 1791081128183.05,
+        "cpuEnd": 1791081128183.5698,
+        "animationTime": 3.3666666666666667
+      },
+      {
+        "cpuStart": 1791081128183.6099,
+        "cpuEnd": 1791081128184.13,
+        "animationTime": 3.3833333333333333
+      },
+      {
+        "cpuStart": 1791081128184.2,
+        "cpuEnd": 1791081128184.75,
+        "animationTime": 3.4
+      },
+      {
+        "cpuStart": 1791081128184.8,
+        "cpuEnd": 1791081128185.305,
+        "animationTime": 3.4166666666666665
+      },
+      {
+        "cpuStart": 1791081128185.3499,
+        "cpuEnd": 1791081128297.755,
+        "animationTime": 3.433333333333333
+      },
+      {
+        "cpuStart": 1791081128297.96,
+        "cpuEnd": 1791081128649.4,
+        "animationTime": 3.45
+      },
+      {
+        "cpuStart": 1791081128649.96,
+        "cpuEnd": 1791081128650.97,
+        "animationTime": 3.466666666666667
+      },
+      {
+        "cpuStart": 1791081128651.2449,
+        "cpuEnd": 1791081128822.625,
+        "gpuStart": "74176350819771",
+        "gpuEnd": "74176529377005",
+        "animationTime": 3.4833333333333334
+      },
+      {
+        "cpuStart": 1791081128823.14,
+        "cpuEnd": 1791081129003.3699,
+        "animationTime": 3.5
+      },
+      {
+        "cpuStart": 1791081129004.7349,
+        "cpuEnd": 1791081129178.305,
+        "animationTime": 3.5166666666666666
+      },
+      {
+        "cpuStart": 1791081129179.38,
+        "cpuEnd": 1791081129356.3499,
+        "animationTime": 3.533333333333333
+      },
+      {
+        "cpuStart": 1791081129357.75,
+        "cpuEnd": 1791081129526.89,
+        "animationTime": 3.55
+      },
+      {
+        "cpuStart": 1791081129528.13,
+        "cpuEnd": 1791081129695.68,
+        "animationTime": 3.566666666666667
+      },
+      {
+        "cpuStart": 1791081129696.8499,
+        "cpuEnd": 1791081129832.98,
+        "animationTime": 3.5833333333333335
+      },
+      {
+        "cpuStart": 1791081129833.7449,
+        "cpuEnd": 1791081130009.8499,
+        "animationTime": 3.6
+      },
+      {
+        "cpuStart": 1791081130010.3599,
+        "cpuEnd": 1791081130179.14,
+        "animationTime": 3.6166666666666667
+      },
+      {
+        "cpuStart": 1791081130179.655,
+        "cpuEnd": 1791081130345.295,
+        "animationTime": 3.6333333333333333
+      },
+      {
+        "cpuStart": 1791081130345.98,
+        "cpuEnd": 1791081130513.125,
+        "animationTime": 3.65
+      },
+      {
+        "cpuStart": 1791081130513.6948,
+        "cpuEnd": 1791081130680.405,
+        "animationTime": 3.6666666666666665
+      },
+      {
+        "cpuStart": 1791081130681.05,
+        "cpuEnd": 1791081130851.645,
+        "animationTime": 3.683333333333333
+      },
+      {
+        "cpuStart": 1791081130852.295,
+        "cpuEnd": 1791081131033.115,
+        "animationTime": 3.7
+      },
+      {
+        "cpuStart": 1791081131033.9,
+        "cpuEnd": 1791081131202.68,
+        "animationTime": 3.716666666666667
+      },
+      {
+        "cpuStart": 1791081131203.325,
+        "cpuEnd": 1791081131370.38,
+        "animationTime": 3.7333333333333334
+      },
+      {
+        "cpuStart": 1791081131371.0999,
+        "cpuEnd": 1791081131538.505,
+        "animationTime": 3.75
+      },
+      {
+        "cpuStart": 1791081131539.24,
+        "cpuEnd": 1791081131706.595,
+        "animationTime": 3.7666666666666666
+      },
+      {
+        "cpuStart": 1791081131707.075,
+        "cpuEnd": 1791081131876.9949,
+        "animationTime": 3.783333333333333
+      },
+      {
+        "cpuStart": 1791081131877.605,
+        "cpuEnd": 1791081132055.04,
+        "animationTime": 3.8
+      },
+      {
+        "cpuStart": 1791081132055.66,
+        "cpuEnd": 1791081132230.035,
+        "animationTime": 3.816666666666667
+      },
+      {
+        "cpuStart": 1791081132230.69,
+        "cpuEnd": 1791081132397.76,
+        "animationTime": 3.8333333333333335
+      },
+      {
+        "cpuStart": 1791081132398.52,
+        "cpuEnd": 1791081132573.3398,
+        "animationTime": 3.85
+      },
+      {
+        "cpuStart": 1791081132574.17,
+        "cpuEnd": 1791081132747.645,
+        "animationTime": 3.8666666666666667
+      },
+      {
+        "cpuStart": 1791081132748.285,
+        "cpuEnd": 1791081132920.27,
+        "animationTime": 3.8833333333333333
+      },
+      {
+        "cpuStart": 1791081132921.18,
+        "cpuEnd": 1791081133098.13,
+        "animationTime": 3.9
+      },
+      {
+        "cpuStart": 1791081133099.0898,
+        "cpuEnd": 1791081133277.345,
+        "animationTime": 3.9166666666666665
+      },
+      {
+        "cpuStart": 1791081133278.015,
+        "cpuEnd": 1791081133447.6199,
+        "animationTime": 3.933333333333333
+      },
+      {
+        "cpuStart": 1791081133448.315,
+        "cpuEnd": 1791081133614.54,
+        "animationTime": 3.95
+      },
+      {
+        "cpuStart": 1791081133615.3198,
+        "cpuEnd": 1791081133781.63,
+        "animationTime": 3.966666666666667
+      },
+      {
+        "cpuStart": 1791081133782.295,
+        "cpuEnd": 1791081133948.4949,
+        "animationTime": 3.9833333333333334
+      },
+      {
+        "cpuStart": 1791081133949.21,
+        "cpuEnd": 1791081134121.905,
+        "animationTime": 4
+      },
+      {
+        "cpuStart": 1791081134122.9648,
+        "cpuEnd": 1791081134301.24,
+        "animationTime": 4.016666666666667
+      },
+      {
+        "cpuStart": 1791081134301.8499,
+        "cpuEnd": 1791081134471.05,
+        "animationTime": 4.033333333333333
+      },
+      {
+        "cpuStart": 1791081134471.7349,
+        "cpuEnd": 1791081134643.395,
+        "animationTime": 4.05
+      },
+      {
+        "cpuStart": 1791081134644.03,
+        "cpuEnd": 1791081134814.755,
+        "animationTime": 4.066666666666666
+      },
+      {
+        "cpuStart": 1791081134815.45,
+        "cpuEnd": 1791081134983.5898,
+        "animationTime": 4.083333333333333
+      },
+      {
+        "cpuStart": 1791081134984.29,
+        "cpuEnd": 1791081135155.255,
+        "animationTime": 4.1
+      },
+      {
+        "cpuStart": 1791081135156.28,
+        "cpuEnd": 1791081135331.21,
+        "animationTime": 4.116666666666666
+      },
+      {
+        "cpuStart": 1791081135332,
+        "cpuEnd": 1791081135500.8298,
+        "animationTime": 4.133333333333334
+      },
+      {
+        "cpuStart": 1791081135501.51,
+        "cpuEnd": 1791081135668.4348,
+        "animationTime": 4.15
+      },
+      {
+        "cpuStart": 1791081135668.9949,
+        "cpuEnd": 1791081135836.885,
+        "animationTime": 4.166666666666667
+      },
+      {
+        "cpuStart": 1791081135837.91,
+        "cpuEnd": 1791081136041.45,
+        "animationTime": 4.183333333333334
+      },
+      {
+        "cpuStart": 1791081136042.095,
+        "cpuEnd": 1791081136214.0598,
+        "animationTime": 4.2
+      },
+      {
+        "cpuStart": 1791081136214.605,
+        "cpuEnd": 1791081136356.785,
+        "animationTime": 4.216666666666667
+      },
+      {
+        "cpuStart": 1791081136357.3398,
+        "cpuEnd": 1791081136532.405,
+        "animationTime": 4.233333333333333
+      },
+      {
+        "cpuStart": 1791081136532.8499,
+        "cpuEnd": 1791081136705.97,
+        "animationTime": 4.25
+      },
+      {
+        "cpuStart": 1791081136706.505,
+        "cpuEnd": 1791081136884.68,
+        "animationTime": 4.266666666666667
+      },
+      {
+        "cpuStart": 1791081136885.895,
+        "cpuEnd": 1791081137061.41,
+        "animationTime": 4.283333333333333
+      },
+      {
+        "cpuStart": 1791081137062.3098,
+        "cpuEnd": 1791081137238.8699,
+        "animationTime": 4.3
+      },
+      {
+        "cpuStart": 1791081137239.5798,
+        "cpuEnd": 1791081137415.085,
+        "animationTime": 4.316666666666666
+      },
+      {
+        "cpuStart": 1791081137415.66,
+        "cpuEnd": 1791081137586.68,
+        "animationTime": 4.333333333333333
+      },
+      {
+        "cpuStart": 1791081137587.365,
+        "cpuEnd": 1791081137757.2349,
+        "animationTime": 4.35
+      },
+      {
+        "cpuStart": 1791081137757.855,
+        "cpuEnd": 1791081137925.795,
+        "animationTime": 4.366666666666666
+      },
+      {
+        "cpuStart": 1791081137926.385,
+        "cpuEnd": 1791081138096.53,
+        "animationTime": 4.383333333333334
+      },
+      {
+        "cpuStart": 1791081138097.04,
+        "cpuEnd": 1791081138268.94,
+        "animationTime": 4.4
+      },
+      {
+        "cpuStart": 1791081138269.925,
+        "cpuEnd": 1791081138441.3398,
+        "animationTime": 4.416666666666667
+      },
+      {
+        "cpuStart": 1791081138442.015,
+        "cpuEnd": 1791081138608.55,
+        "animationTime": 4.433333333333334
+      },
+      {
+        "cpuStart": 1791081138609.26,
+        "cpuEnd": 1791081138774.18,
+        "animationTime": 4.45
+      },
+      {
+        "cpuStart": 1791081138774.8,
+        "cpuEnd": 1791081138939.7048,
+        "animationTime": 4.466666666666667
+      }
+    ],
+    "phases": [
+      {
+        "phase": "load",
+        "start": {
+          "clock": "reporter",
+          "t": 1791081100666.305
+        }
+      },
+      {
+        "phase": "load",
+        "start": {
+          "clock": "reporter",
+          "t": 1791081100666.305
+        },
+        "end": {
+          "clock": "reporter",
+          "t": 1791081100718.39
+        }
+      },
+      {
+        "phase": "process",
+        "start": {
+          "clock": "reporter",
+          "t": 1791081100718.425
+        }
+      },
+      {
+        "phase": "process",
+        "start": {
+          "clock": "reporter",
+          "t": 1791081100718.425
+        },
+        "end": {
+          "clock": "reporter",
+          "t": 1791081100722.7048
+        }
+      },
+      {
+        "phase": "compile",
+        "start": {
+          "clock": "reporter",
+          "t": 1791081100722.71
+        }
+      },
+      {
+        "phase": "compile",
+        "start": {
+          "clock": "reporter",
+          "t": 1791081100722.71
+        },
+        "end": {
+          "clock": "reporter",
+          "t": 1791081100935.65
+        }
+      }
+    ],
+    "blocks": [
+      {
+        "start": 1791081100721.14,
+        "end": 1791081100810.785,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791081101034.7249,
+        "end": 1791081101147.95,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081101034.76,
+            "end": 1791081101147.905,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081101150.1099,
+        "end": 1791081101316.2048,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081101150.28,
+            "end": 1791081101316.115,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081101316.275,
+        "end": 1791081101509.66,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081101316.575,
+            "end": 1791081101509.6099,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081101509.6948,
+        "end": 1791081101705.3647,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081101509.9548,
+            "end": 1791081101705.285,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081101706.2349,
+        "end": 1791081101895.3098,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081101706.77,
+            "end": 1791081101895.2651,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081101895.585,
+        "end": 1791081102084.51,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081101896.0999,
+            "end": 1791081102084.46,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081102084.5999,
+        "end": 1791081102267.3848,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081102084.9949,
+            "end": 1791081102267.3499,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081102267.63,
+        "end": 1791081102449.44,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081102268.075,
+            "end": 1791081102449.405,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081102449.615,
+        "end": 1791081102624.375,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081102450.0698,
+            "end": 1791081102624.3347,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081102624.605,
+        "end": 1791081102809.1,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081102625.015,
+            "end": 1791081102809.055,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081102809.3098,
+        "end": 1791081102982.0898,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081102809.6948,
+            "end": 1791081102982.0498,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081102982.535,
+        "end": 1791081103154.315,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081102982.9849,
+            "end": 1791081103154.2698,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081103154.345,
+        "end": 1791081103325.7349,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081103154.79,
+            "end": 1791081103325.69,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081103325.77,
+        "end": 1791081103494.73,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081103326.26,
+            "end": 1791081103494.685,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081103494.77,
+        "end": 1791081103668.065,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081103495.22,
+            "end": 1791081103668.02,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081103668.105,
+        "end": 1791081103847.43,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081103668.525,
+            "end": 1791081103847.385,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081103847.4648,
+        "end": 1791081104017.1047,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081103847.88,
+            "end": 1791081104017.0498,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081104017.14,
+        "end": 1791081104185.65,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081104017.575,
+            "end": 1791081104185.605,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081104185.6948,
+        "end": 1791081104355.9497,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081104186.075,
+            "end": 1791081104355.905,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081104355.98,
+        "end": 1791081104533.43,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081104356.44,
+            "end": 1791081104533.385,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081104533.4648,
+        "end": 1791081104709.2998,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081104533.885,
+            "end": 1791081104709.2551,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081104709.3398,
+        "end": 1791081104889.6047,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081104709.78,
+            "end": 1791081104889.555,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081104889.645,
+        "end": 1791081105063.98,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081104890.0798,
+            "end": 1791081105063.94,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081105064.01,
+        "end": 1791081105235.78,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081105064.4749,
+            "end": 1791081105235.7397,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081105235.8198,
+        "end": 1791081105407.6199,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081105236.26,
+            "end": 1791081105407.58,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081105407.645,
+        "end": 1791081105577.445,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081105408.075,
+            "end": 1791081105577.405,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081105577.4749,
+        "end": 1791081105744.0198,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081105577.885,
+            "end": 1791081105743.97,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081105744.055,
+        "end": 1791081105915.97,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081105744.51,
+            "end": 1791081105915.925,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081105916.025,
+        "end": 1791081106091.275,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081105916.515,
+            "end": 1791081106091.2249,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081106091.305,
+        "end": 1791081106259.5999,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081106091.68,
+            "end": 1791081106259.5598,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081106259.63,
+        "end": 1791081106429.625,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081106260.085,
+            "end": 1791081106429.585,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081106429.66,
+        "end": 1791081106596.23,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081106430.125,
+            "end": 1791081106596.175,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081106596.265,
+        "end": 1791081106764.3298,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081106596.7148,
+            "end": 1791081106764.285,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081106764.3699,
+        "end": 1791081106934.2598,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081106764.795,
+            "end": 1791081106934.21,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081106934.3098,
+        "end": 1791081107107.2349,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081106934.77,
+            "end": 1791081107107.19,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081107107.27,
+        "end": 1791081107276.26,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081107107.7349,
+            "end": 1791081107276.2048,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081107276.295,
+        "end": 1791081107443.515,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081107276.79,
+            "end": 1791081107443.475,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081107443.55,
+        "end": 1791081107609.3901,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081107443.98,
+            "end": 1791081107609.345,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081107609.425,
+        "end": 1791081107776.065,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081107609.8198,
+            "end": 1791081107776.015,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081107776.095,
+        "end": 1791081107943.28,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081107776.535,
+            "end": 1791081107943.24,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081107943.315,
+        "end": 1791081108125.41,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081107943.76,
+            "end": 1791081108125.345,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081108125.44,
+        "end": 1791081108295.18,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081108125.855,
+            "end": 1791081108295.125,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081108295.2249,
+        "end": 1791081108467.94,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081108295.75,
+            "end": 1791081108467.89,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081108467.97,
+        "end": 1791081108643.335,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081108468.415,
+            "end": 1791081108643.29,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081108643.38,
+        "end": 1791081108853.375,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081108643.925,
+            "end": 1791081108853.335,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081108853.41,
+        "end": 1791081109031.405,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081108853.885,
+            "end": 1791081109031.37,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081109031.4448,
+        "end": 1791081109172.9897,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081109031.825,
+            "end": 1791081109172.94,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081109173.03,
+        "end": 1791081109348.345,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081109173.335,
+            "end": 1791081109348.29,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081109348.38,
+        "end": 1791081109518.0798,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081109348.69,
+            "end": 1791081109518.05,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081109518.26,
+        "end": 1791081109690.67,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081109518.7349,
+            "end": 1791081109690.6199,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081109690.99,
+        "end": 1791081109862.255,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081109691.425,
+            "end": 1791081109862.215,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081109862.285,
+        "end": 1791081110034.17,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081109862.78,
+            "end": 1791081110034.125,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081110034.2048,
+        "end": 1791081110211.19,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081110034.615,
+            "end": 1791081110211.15,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081110211.23,
+        "end": 1791081110379.655,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081110211.92,
+            "end": 1791081110379.615,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081110379.77,
+        "end": 1791081110549.21,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081110380.24,
+            "end": 1791081110549.175,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081110549.2449,
+        "end": 1791081110721.045,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081110549.7,
+            "end": 1791081110721.01,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081110721.075,
+        "end": 1791081110889.9648,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081110721.55,
+            "end": 1791081110889.9202,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081110890.005,
+        "end": 1791081111058.4148,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081110891.51,
+            "end": 1791081111058.375,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081111058.4548,
+        "end": 1791081111236.6748,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081111058.94,
+            "end": 1791081111236.625,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081111236.7349,
+        "end": 1791081111404.9897,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081111237.2148,
+            "end": 1791081111404.95,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081111405.025,
+        "end": 1791081111738.645,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081111572.655,
+            "end": 1791081111738.6,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081111738.675,
+        "end": 1791081111905.82,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081111739.3298,
+            "end": 1791081111905.7698,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081111905.855,
+        "end": 1791081112070.935,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081111906.8599,
+            "end": 1791081112070.88,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081112070.98,
+        "end": 1791081112246.78,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081112071.4749,
+            "end": 1791081112246.7397,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081112246.8198,
+        "end": 1791081112412.5698,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081112247.2349,
+            "end": 1791081112412.525,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081112412.605,
+        "end": 1791081112584.65,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081112413.095,
+            "end": 1791081112584.595,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081112584.6848,
+        "end": 1791081112759.8247,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081112585.1099,
+            "end": 1791081112759.7798,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081112759.855,
+        "end": 1791081112931.455,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081112760.29,
+            "end": 1791081112931.4102,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081112931.4849,
+        "end": 1791081113104.085,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081112931.98,
+            "end": 1791081113104.04,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081113104.1199,
+        "end": 1791081113283.39,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081113104.5898,
+            "end": 1791081113283.335,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081113283.425,
+        "end": 1791081113451.815,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081113283.915,
+            "end": 1791081113451.77,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081113451.8499,
+        "end": 1791081113620.96,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081113452.3098,
+            "end": 1791081113620.92,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081113620.9949,
+        "end": 1791081113789.585,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081113621.48,
+            "end": 1791081113789.545,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081113789.64,
+        "end": 1791081113958.3398,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081113790.135,
+            "end": 1791081113958.3,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081113958.375,
+        "end": 1791081114126.62,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081113958.8499,
+            "end": 1791081114126.5798,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081114126.645,
+        "end": 1791081114303.02,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081114127.1099,
+            "end": 1791081114302.9749,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081114303.055,
+        "end": 1791081114471.265,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081114303.675,
+            "end": 1791081114471.21,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081114471.305,
+        "end": 1791081114637.905,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081114471.805,
+            "end": 1791081114637.825,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081114637.96,
+        "end": 1791081114803.2,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081114638.545,
+            "end": 1791081114803.155,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081114803.24,
+        "end": 1791081114975.045,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081114803.765,
+            "end": 1791081114975,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081114975.0798,
+        "end": 1791081115142.1848,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081114975.49,
+            "end": 1791081115142.14,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081115142.23,
+        "end": 1791081115321.325,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081115142.73,
+            "end": 1791081115321.285,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081115321.355,
+        "end": 1791081115495.19,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081115321.88,
+            "end": 1791081115495.14,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081115495.23,
+        "end": 1791081115683.65,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081115495.845,
+            "end": 1791081115683.605,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081115683.6848,
+        "end": 1791081115868.505,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081115684.2,
+            "end": 1791081115868.4648,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081115868.54,
+        "end": 1791081116055.875,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081115869.13,
+            "end": 1791081116055.835,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081116055.915,
+        "end": 1791081116226.35,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081116056.385,
+            "end": 1791081116226.3,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081116226.4,
+        "end": 1791081116406.5598,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081116226.845,
+            "end": 1791081116406.505,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081116406.6099,
+        "end": 1791081116614.72,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081116407.075,
+            "end": 1791081116614.68,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081116614.765,
+        "end": 1791081116801.385,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081116615.24,
+            "end": 1791081116801.34,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081116801.425,
+        "end": 1791081116947.095,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081116801.93,
+            "end": 1791081116947.055,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081116947.14,
+        "end": 1791081117126.035,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081116947.39,
+            "end": 1791081117125.99,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081117126.0698,
+        "end": 1791081117305.065,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081117126.4,
+            "end": 1791081117305,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081117305.1099,
+        "end": 1791081117480.825,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081117305.8699,
+            "end": 1791081117480.785,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081117480.865,
+        "end": 1791081117648.4,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081117481.38,
+            "end": 1791081117648.345,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081117648.44,
+        "end": 1791081117814.115,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081117648.9749,
+            "end": 1791081117814.075,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081117814.145,
+        "end": 1791081117980.54,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081117814.605,
+            "end": 1791081117980.505,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081117980.5698,
+        "end": 1791081118148.3699,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081117981.1848,
+            "end": 1791081118148.3247,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081118148.41,
+        "end": 1791081118314.305,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081118148.9849,
+            "end": 1791081118314.2598,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081118314.345,
+        "end": 1791081118492.31,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081118314.855,
+            "end": 1791081118492.26,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081118492.3499,
+        "end": 1791081118660.5298,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081118492.795,
+            "end": 1791081118660.4849,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081118660.5798,
+        "end": 1791081118827.7397,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081118661.27,
+            "end": 1791081118827.695,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081118827.95,
+        "end": 1791081118993.9,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081118828.5898,
+            "end": 1791081118993.8547,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081118993.93,
+        "end": 1791081119158.585,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081118994.415,
+            "end": 1791081119158.545,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081119158.63,
+        "end": 1791081119326.855,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081119159.03,
+            "end": 1791081119326.805,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081119326.91,
+        "end": 1791081119507.6748,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081119327.425,
+            "end": 1791081119507.6301,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081119507.72,
+        "end": 1791081119672.755,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081119508.2249,
+            "end": 1791081119672.7148,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081119672.915,
+        "end": 1791081119840.485,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081119673.4548,
+            "end": 1791081119840.4348,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081119840.525,
+        "end": 1791081120006.135,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081119841.05,
+            "end": 1791081120006.085,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      },
+      {
+        "start": 1791081120006.26,
+        "end": 1791081128122.185,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791081128185.3198,
+        "end": 1791081128297.8098,
+        "source": "loaf",
+        "scripts": [
+          {
+            "start": 1791081128185.3499,
+            "end": 1791081128297.765,
+            "sourceURL": "http://127.0.0.1:4401/assets/performance-yMGI_p3b.js",
+            "invoker": "FrameRequestCallback",
+            "invokerType": "user-callback",
+            "sourceFunctionName": "w",
+            "sourceCharPosition": 11998
+          }
+        ]
+      }
+    ],
+    "watchdogTicks": [
+      1791081100666.26,
+      1791081100682.66,
+      1791081100699.71,
+      1791081100719.54,
+      1791081100811.05,
+      1791081100828.7148,
+      1791081100844.775,
+      1791081100861.8198,
+      1791081100879.29,
+      1791081100897.005,
+      1791081100914.575,
+      1791081100931.0698,
+      1791081100993.7349,
+      1791081101010.68,
+      1791081101027.3699,
+      1791081101150.125,
+      1791081101509.72,
+      1791081101895.605,
+      1791081102267.66,
+      1791081102624.625,
+      1791081102982.555,
+      1791081103325.79,
+      1791081103668.1199,
+      1791081104017.16,
+      1791081104356,
+      1791081104709.365,
+      1791081105064.025,
+      1791081105407.67,
+      1791081105744.075,
+      1791081105916.47,
+      1791081106259.65,
+      1791081106596.295,
+      1791081106934.3198,
+      1791081107276.315,
+      1791081107609.4348,
+      1791081107943.3298,
+      1791081108295.25,
+      1791081108643.39,
+      1791081109031.46,
+      1791081109348.395,
+      1791081109691.01,
+      1791081109862.755,
+      1791081110211.25,
+      1791081110549.265,
+      1791081110890.02,
+      1791081111236.75,
+      1791081111739.19,
+      1791081111906.835,
+      1791081112071.46,
+      1791081112412.635,
+      1791081112585.0898,
+      1791081112931.5,
+      1791081113283.4448,
+      1791081113621.01,
+      1791081113958.395,
+      1791081114303.0798,
+      1791081114471.785,
+      1791081114803.26,
+      1791081115142.25,
+      1791081115495.255,
+      1791081115868.5598,
+      1791081116226.41,
+      1791081116614.77,
+      1791081116947.15,
+      1791081117305.14,
+      1791081117648.4648,
+      1791081117980.5898,
+      1791081118314.3699,
+      1791081118660.595,
+      1791081118993.95,
+      1791081119326.92,
+      1791081119672.93,
+      1791081120006.265,
+      1791081128125.9648,
+      1791081128142.41,
+      1791081128159.03,
+      1791081128175.525,
+      1791081128649.53,
+      1791081129003.5898,
+      1791081129357.18,
+      1791081129528.105,
+      1791081129833.265,
+      1791081130179.265,
+      1791081130513.2449,
+      1791081130851.835,
+      1791081131202.8499,
+      1791081131538.855,
+      1791081131877.16,
+      1791081132230.295,
+      1791081132573.645,
+      1791081132920.575,
+      1791081133099.0698,
+      1791081133447.75,
+      1791081133781.865,
+      1791081134122.4448,
+      1791081134471.28,
+      1791081134814.9,
+      1791081135155.4749,
+      1791081135501.01,
+      1791081135837.0798,
+      1791081136214.18,
+      1791081136532.53,
+      1791081136884.8,
+      1791081137239.0598,
+      1791081137586.815,
+      1791081137925.92,
+      1791081138269.135,
+      1791081138608.675,
+      1791081138939.8298
+    ],
+    "hello": 1791081100655.2,
+    "ready": 1791081100935.7,
+    "warmupStart": 1791081100935.7,
+    "runStart": 1791081128649.865,
+    "runEnd": 1791081138939.8398
+  },
+  "status": "ok",
+  "capture": {
+    "file": "screenshot.avif",
+    "at": 1791081128170.675
+  }
+}

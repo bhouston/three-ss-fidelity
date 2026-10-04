@@ -1,3 +1,5 @@
+> Historical measurement: three repetitions with vsync enabled. The original raw run set is archived in [`runsets/2026-10-04T00-50-05-359Z_01M4267CXFYE6D4ZSEB537PMYB/`](runsets/2026-10-04T00-50-05-359Z_01M4267CXFYE6D4ZSEB537PMYB/). Current testing uses one repetition with vsync disabled.
+
 # Cornell metallic sphere performance — October 3, 2026
 
 Initial browser performance measurement of all 26 real-time Three configurations on `ssgi-metallic`, the Cornell box with a cone and a mirror sphere. All 78 runs completed successfully (three interleaved repetitions per configuration). Blender and path tracers are excluded.

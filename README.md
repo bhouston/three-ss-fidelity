@@ -266,13 +266,16 @@ The independent [performance-kit](https://github.com/bhouston/performance-kit) s
 pnpm build
 pnpm live                         # renderer site at http://127.0.0.1:5173
 # In another terminal:
-pnpm performance:run --filter renderer=three-current
-pnpm performance:serve            # report and separate /live reader
+pnpm performance:run --renderer three-current
+pnpm performance:dev              # watch results and refresh changed entries over SSE
+pnpm performance:serve            # static reader; no watcher or SSE
 pnpm performance:build            # portable static report in performance-site/
 ```
 
-`performance-suite.json` contains flat labeled entries for Three-Base (the stock `three-current` renderer), the other real-time Three variants, and every Three-New experiment. Blender and path tracers are excluded. Change labels, scenes, durations and repetitions in a copied suite and pass it with `pnpm exec performance-kit run --suite <file> --out performance-results`. The dedicated `/performance.html` renderer supports `params.scene`, `renderer`, `experiment`, `width`, `height`, `seed`, and `motion` (`static` or `orbit`). Each entry gets a fresh scene and renderer, shader preparation, warmup, capture, then the measured window.
+`performance-suite.json` contains entries with explicit renderer and scene IDs for Three-Base (the stock `three-current` renderer), the other real-time Three variants, and every Three-New experiment. Blender and path tracers are excluded. Change renderer and scene references, durations and repetitions in a copied suite and pass it with `pnpm performance:run --suite <file>`. The dedicated `/performance.html` renderer supports `params.scene`, `renderer`, `experiment`, `width`, `height`, `seed`, and `motion` (`static` or `orbit`). Each entry gets a fresh scene and renderer, shader preparation, warmup, capture, then the measured window.
 
 The harness uses `localhost`, while renderer entries use `127.0.0.1`, to allow Chrome site isolation. The renderer page runs no playground controls or charts. Keep the pinned browser, hardware and drivers consistent when comparing run sets. Results record the vsync mode; comparisons reject mixed modes. Existing `cli bench` remains available for the native diagnostic protocols documented in [docs/PERF.md](docs/PERF.md).
 
-To run all 26 real-time Three configurations on the Cornell box with a mirror sphere, build once and run `pnpm performance:metallic`. It serves the built renderer independently of Vite/HMR, with three interleaved repetitions at 1920×1080, 2 s warmup and 10 s measured per run. Use `--executable-path <chrome>` if your bundled browser installation needs repair.
+To run all 26 real-time Three configurations on the Cornell box with a mirror sphere, build once and run `pnpm performance:metallic`. It serves the built renderer independently of Vite/HMR, with one repetition with vsync disabled at 1920×1080, 2 s warmup and 10 s measured per run. Use `--executable-path <chrome>` if your bundled browser installation needs repair.
+
+The performance report introduction comes from `performance-results/README.md`. Edit this Markdown file to describe the suite; `performance:dev` refreshes it as it changes, while `performance:build` includes it in the static export.

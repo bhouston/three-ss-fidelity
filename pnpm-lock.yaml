@@ -264,12 +264,18 @@ importers:
 
   submodules/performance-kit/packages/cli:
     dependencies:
+      performance-kit-reporter:
+        specifier: workspace:*
+        version: link:../reporter
       performance-kit-schema:
         specifier: workspace:*
         version: link:../schema
       puppeteer:
         specifier: ^24.40.0
         version: 24.43.1(typescript@7.0.2)
+      sharp:
+        specifier: ^0.35.4
+        version: 0.35.5(@types/node@25.9.8)
       ulid:
         specifier: ^3.0.2
         version: 3.0.2
@@ -6090,7 +6096,7 @@ snapshots:
       '@types/ndarray': 1.1.0
       ndarray: 1.1.1
       ndarray-ops: 1.2.2
-      sharp: 0.35.4(@types/node@25.9.8)
+      sharp: 0.35.5(@types/node@25.9.8)
     transitivePeerDependencies:
       - '@types/node'
 

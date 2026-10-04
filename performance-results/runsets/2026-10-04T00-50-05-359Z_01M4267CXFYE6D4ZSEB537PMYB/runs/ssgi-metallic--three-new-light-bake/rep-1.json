@@ -1,0 +1,3667 @@
+{
+  "schemaVersion": 1,
+  "runId": "01M4268GA9NWEQY7192NMGTXXY",
+  "suiteName": "Cornell metallic sphere · 26 real-time Three configurations",
+  "entry": {
+    "id": "ssgi-metallic--three-new-light-bake",
+    "name": "Three Light Bake · ssgi-metallic",
+    "labels": [
+      {
+        "key": "renderer",
+        "value": "three-new-light-bake"
+      },
+      {
+        "key": "scene",
+        "value": "ssgi-metallic"
+      },
+      {
+        "key": "experiment",
+        "value": "baseline"
+      }
+    ],
+    "url": "http://127.0.0.1:4401/performance.html"
+  },
+  "repetition": 1,
+  "config": {
+    "durationMs": 10000,
+    "warmupMs": 2000,
+    "vsync": "on"
+  },
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "gpuTimestampsAvailable": true,
+    "crossOriginIsolated": true,
+    "devicePixelRatio": 1,
+    "host": {
+      "os": "darwin 27.0.0",
+      "cpu": "Apple M3"
+    },
+    "chromeFlags": [
+      "--disable-background-timer-throttling",
+      "--disable-renderer-backgrounding",
+      "--disable-backgrounding-occluded-windows",
+      "--enable-unsafe-webgpu",
+      "--enable-webgpu-developer-features",
+      "--site-per-process"
+    ],
+    "gpuAdapter": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "description": "Apple M3"
+    },
+    "api": "webgpu",
+    "gitCommit": "aed207b307f4101f61ea10f7d94b8e54fbdf96d6",
+    "canvasSize": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "harness": {
+    "iframeCreated": 1791075041686.045,
+    "startSent": 1791075041716.945,
+    "captureSent": 1791075044157.225,
+    "runSent": 1791075045373.345,
+    "runEndObserved": 1791075055376.715,
+    "teardown": 1791075055389.07
+  },
+  "clockSync": {
+    "samples": [
+      {
+        "t0": 1791075041708.6,
+        "t1": 1791075041708.975,
+        "t2": 1791075041708.99,
+        "t3": 1791075041709.1099
+      },
+      {
+        "t0": 1791075041709.565,
+        "t1": 1791075041709.72,
+        "t2": 1791075041709.73,
+        "t3": 1791075041709.815
+      },
+      {
+        "t0": 1791075041710.32,
+        "t1": 1791075041711.3,
+        "t2": 1791075041711.3,
+        "t3": 1791075041711.405
+      },
+      {
+        "t0": 1791075041711.97,
+        "t1": 1791075041712.105,
+        "t2": 1791075041712.105,
+        "t3": 1791075041712.285
+      },
+      {
+        "t0": 1791075041712.83,
+        "t1": 1791075041713.135,
+        "t2": 1791075041713.14,
+        "t3": 1791075041713.47
+      },
+      {
+        "t0": 1791075041714.19,
+        "t1": 1791075041714.3801,
+        "t2": 1791075041714.3801,
+        "t3": 1791075041714.545
+      },
+      {
+        "t0": 1791075041714.95,
+        "t1": 1791075041715.1301,
+        "t2": 1791075041715.1301,
+        "t3": 1791075041715.215
+      },
+      {
+        "t0": 1791075041715.55,
+        "t1": 1791075041715.685,
+        "t2": 1791075041715.685,
+        "t3": 1791075041715.775
+      },
+      {
+        "t0": 1791075041716.055,
+        "t1": 1791075041716.185,
+        "t2": 1791075041716.185,
+        "t3": 1791075041716.255
+      },
+      {
+        "t0": 1791075041716.465,
+        "t1": 1791075041716.545,
+        "t2": 1791075041716.545,
+        "t3": 1791075041716.685
+      },
+      {
+        "t0": 1791075055380.56,
+        "t1": 1791075055381.71,
+        "t2": 1791075055381.715,
+        "t3": 1791075055382.155
+      },
+      {
+        "t0": 1791075055383.295,
+        "t1": 1791075055383.9,
+        "t2": 1791075055383.905,
+        "t3": 1791075055384.19
+      },
+      {
+        "t0": 1791075055384.975,
+        "t1": 1791075055385.295,
+        "t2": 1791075055385.295,
+        "t3": 1791075055385.505
+      },
+      {
+        "t0": 1791075055386.17,
+        "t1": 1791075055386.44,
+        "t2": 1791075055386.44,
+        "t3": 1791075055386.59
+      },
+      {
+        "t0": 1791075055387.165,
+        "t1": 1791075055387.3801,
+        "t2": 1791075055387.385,
+        "t3": 1791075055388.09
+      }
+    ]
+  },
+  "messages": [
+    {
+      "type": "hello",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041706.01
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041707.425
+      }
+    },
+    {
+      "type": "environment",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041706.095
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041707.725
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041708.99
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041709.1099
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041709.73
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041709.815
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041711.3
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041711.405
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041712.105
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041712.285
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041713.14
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041713.47
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041714.3801
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041714.545
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041715.135
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041715.215
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041715.685
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041715.775
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041716.185
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041716.255
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041716.565
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041716.685
+      }
+    },
+    {
+      "type": "phase",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041717.16
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041719.385
+      }
+    },
+    {
+      "type": "phase",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041769.4
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041770.58
+      }
+    },
+    {
+      "type": "phase",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041769.425
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041770.65
+      }
+    },
+    {
+      "type": "environment",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041802.7
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041886.32
+      }
+    },
+    {
+      "type": "phase",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041802.735
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041886.385
+      }
+    },
+    {
+      "type": "phase",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075041802.74
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075041886.395
+      }
+    },
+    {
+      "type": "phase",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075042154.25
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075042154.595
+      }
+    },
+    {
+      "type": "ready",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075042154.29
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075042154.685
+      }
+    },
+    {
+      "type": "capture",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075045252.355
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075045252.82
+      }
+    },
+    {
+      "type": "runEnd",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075055375.635
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075055376.715
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075041708.6199
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075041708.975
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075041709.57
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075041709.72
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075041710.32
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075041711.3
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075041711.97
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075041712.105
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075041712.83
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075041713.135
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075041714.19
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075041714.3801
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075041714.95
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075041715.1301
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075041715.55
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075041715.685
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075041716.055
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075041716.185
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075041716.465
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075041716.545
+      }
+    },
+    {
+      "type": "start",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075041716.945
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075041717.11
+      }
+    },
+    {
+      "type": "capture",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075044157.225
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075044157.47
+      }
+    },
+    {
+      "type": "run",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075045373.345
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075045373.92
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075055381.72
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075055382.155
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075055380.56
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075055381.71
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075055383.905
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075055384.19
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075055383.295
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075055383.9
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075055385.3
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075055385.505
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075055384.975
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075055385.295
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075055386.44
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075055386.59
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075055386.17
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075055386.44
+      }
+    },
+    {
+      "type": "syncPong",
+      "direction": "toHarness",
+      "sentAt": {
+        "clock": "reporter",
+        "t": 1791075055387.385
+      },
+      "receivedAt": {
+        "clock": "harness",
+        "t": 1791075055388.09
+      }
+    },
+    {
+      "type": "syncPing",
+      "direction": "toReporter",
+      "sentAt": {
+        "clock": "harness",
+        "t": 1791075055387.165
+      },
+      "receivedAt": {
+        "clock": "reporter",
+        "t": 1791075055387.3801
+      }
+    }
+  ],
+  "reporter": {
+    "frames": [
+      {
+        "cpuStart": 1791075042159.855,
+        "cpuEnd": 1791075042182.29,
+        "gpuStart": "68075608668457",
+        "gpuEnd": "68075702589425",
+        "animationTime": 0.03333333333333333
+      },
+      {
+        "cpuStart": 1791075042182.485,
+        "cpuEnd": 1791075042183.725,
+        "animationTime": 0.05
+      },
+      {
+        "cpuStart": 1791075042193.8,
+        "cpuEnd": 1791075042195.335,
+        "animationTime": 0.06666666666666667
+      },
+      {
+        "cpuStart": 1791075042209.58,
+        "cpuEnd": 1791075042210.74,
+        "animationTime": 0.08333333333333333
+      },
+      {
+        "cpuStart": 1791075042255.79,
+        "cpuEnd": 1791075042257.9,
+        "animationTime": 0.1
+      },
+      {
+        "cpuStart": 1791075042260.36,
+        "cpuEnd": 1791075042261.61,
+        "gpuStart": "68080180013055",
+        "gpuEnd": "68081340151850",
+        "animationTime": 0.11666666666666667
+      },
+      {
+        "cpuStart": 1791075042351.985,
+        "cpuEnd": 1791075042353.565,
+        "animationTime": 0.13333333333333333
+      },
+      {
+        "cpuStart": 1791075042439.26,
+        "cpuEnd": 1791075042440.885,
+        "animationTime": 0.15
+      },
+      {
+        "cpuStart": 1791075042519.57,
+        "cpuEnd": 1791075042520.8801,
+        "animationTime": 0.16666666666666666
+      },
+      {
+        "cpuStart": 1791075042699.035,
+        "cpuEnd": 1791075042700.405,
+        "gpuStart": "68081561353807",
+        "gpuEnd": "68081684036188",
+        "animationTime": 0.18333333333333332
+      },
+      {
+        "cpuStart": 1791075042710.33,
+        "cpuEnd": 1791075042711.3801,
+        "gpuStart": "68082745396480",
+        "gpuEnd": "68082745418396",
+        "animationTime": 0.2
+      },
+      {
+        "cpuStart": 1791075042782.49,
+        "cpuEnd": 1791075042783.58,
+        "animationTime": 0.21666666666666667
+      },
+      {
+        "cpuStart": 1791075042870.645,
+        "cpuEnd": 1791075042871.855,
+        "animationTime": 0.23333333333333334
+      },
+      {
+        "cpuStart": 1791075043042.97,
+        "cpuEnd": 1791075043044.23,
+        "gpuStart": "68082957889987",
+        "gpuEnd": "68083042369323",
+        "animationTime": 0.25
+      },
+      {
+        "cpuStart": 1791075043098.39,
+        "cpuEnd": 1791075043099.61,
+        "gpuStart": "68083124062910",
+        "gpuEnd": "68083124305656",
+        "animationTime": 0.26666666666666666
+      },
+      {
+        "cpuStart": 1791075043185.785,
+        "cpuEnd": 1791075043186.93,
+        "animationTime": 0.2833333333333333
+      },
+      {
+        "cpuStart": 1791075043222.59,
+        "cpuEnd": 1791075043223.49,
+        "animationTime": 0.3
+      },
+      {
+        "cpuStart": 1791075043362.75,
+        "cpuEnd": 1791075043363.82,
+        "gpuStart": "68083300045891",
+        "gpuEnd": "68083429968034",
+        "animationTime": 0.31666666666666665
+      },
+      {
+        "cpuStart": 1791075043444.815,
+        "cpuEnd": 1791075043446.095,
+        "gpuStart": "68083485103526",
+        "gpuEnd": "68083485125025",
+        "animationTime": 0.3333333333333333
+      },
+      {
+        "cpuStart": 1791075043530.86,
+        "cpuEnd": 1791075043532.08,
+        "animationTime": 0.35
+      },
+      {
+        "cpuStart": 1791075043619.4,
+        "cpuEnd": 1791075043620.41,
+        "animationTime": 0.36666666666666664
+      },
+      {
+        "cpuStart": 1791075043749.97,
+        "cpuEnd": 1791075043751.135,
+        "gpuStart": "68083666785503",
+        "gpuEnd": "68083750282771",
+        "animationTime": 0.38333333333333336
+      },
+      {
+        "cpuStart": 1791075043806.3,
+        "cpuEnd": 1791075043807.54,
+        "gpuStart": "68083842019246",
+        "gpuEnd": "68083842267493",
+        "animationTime": 0.4
+      },
+      {
+        "cpuStart": 1791075043889.15,
+        "cpuEnd": 1791075043890.39,
+        "animationTime": 0.4166666666666667
+      },
+      {
+        "cpuStart": 1791075043985.89,
+        "cpuEnd": 1791075043987.055,
+        "animationTime": 0.43333333333333335
+      },
+      {
+        "cpuStart": 1791075044070.695,
+        "cpuEnd": 1791075044071.86,
+        "gpuStart": "68084012053152",
+        "gpuEnd": "68084134040415",
+        "animationTime": 0.45
+      },
+      {
+        "cpuStart": 1791075044162.8,
+        "cpuEnd": 1791075044163.995,
+        "gpuStart": "68084134724530",
+        "gpuEnd": "68084183721949",
+        "animationTime": 0.4666666666666667
+      },
+      {
+        "cpuStart": 1791075044245.24,
+        "cpuEnd": 1791075044246.475,
+        "animationTime": 0.48333333333333334
+      },
+      {
+        "cpuStart": 1791075044282.645,
+        "cpuEnd": 1791075044283.835,
+        "animationTime": 0.5
+      },
+      {
+        "cpuStart": 1791075044454.08,
+        "cpuEnd": 1791075044455.275,
+        "gpuStart": "68084356800391",
+        "gpuEnd": "68084439452755",
+        "animationTime": 0.5166666666666667
+      },
+      {
+        "cpuStart": 1791075044455.41,
+        "cpuEnd": 1791075044456.095,
+        "gpuStart": "68084523538389",
+        "gpuEnd": "68084523599346",
+        "animationTime": 0.5333333333333333
+      },
+      {
+        "cpuStart": 1791075044504.24,
+        "cpuEnd": 1791075044505.425,
+        "gpuStart": "68084604992771",
+        "gpuEnd": "68084605922632",
+        "animationTime": 0.55
+      },
+      {
+        "cpuStart": 1791075044543.45,
+        "cpuEnd": 1791075044544.64,
+        "gpuStart": "68084640774683",
+        "gpuEnd": "68084688273375",
+        "animationTime": 0.5666666666666667
+      },
+      {
+        "cpuStart": 1791075044630.12,
+        "cpuEnd": 1791075044631.215,
+        "animationTime": 0.5833333333333334
+      },
+      {
+        "cpuStart": 1791075044760.055,
+        "cpuEnd": 1791075044761.36,
+        "gpuStart": "68084779286070",
+        "gpuEnd": "68084900959171",
+        "animationTime": 0.6
+      },
+      {
+        "cpuStart": 1791075045224.32,
+        "cpuEnd": 1791075045225.3801,
+        "gpuStart": "68084905311022",
+        "gpuEnd": "68084956443241",
+        "animationTime": 0.6166666666666667
+      },
+      {
+        "cpuStart": 1791075045225.645,
+        "cpuEnd": 1791075045226.235,
+        "animationTime": 0.6333333333333333
+      },
+      {
+        "cpuStart": 1791075045226.94,
+        "cpuEnd": 1791075045227.7551,
+        "gpuStart": "68085046062499",
+        "gpuEnd": "68085172818232",
+        "animationTime": 0.65
+      },
+      {
+        "cpuStart": 1791075045243.555,
+        "cpuEnd": 1791075045244.56,
+        "animationTime": 0.6666666666666666
+      },
+      {
+        "cpuStart": 1791075045277.455,
+        "cpuEnd": 1791075045278.795,
+        "gpuStart": "68085227395399",
+        "gpuEnd": "68085321336173",
+        "animationTime": 0.6833333333333333
+      },
+      {
+        "cpuStart": 1791075045365,
+        "cpuEnd": 1791075045366.215,
+        "animationTime": 0.7
+      },
+      {
+        "cpuStart": 1791075045492.89,
+        "cpuEnd": 1791075045494.065,
+        "gpuStart": "68085413060524",
+        "gpuEnd": "68085496880328",
+        "animationTime": 0.7166666666666667
+      },
+      {
+        "cpuStart": 1791075045510.06,
+        "cpuEnd": 1791075045511.115,
+        "gpuStart": "68085585760389",
+        "gpuEnd": "68085585831012",
+        "animationTime": 0.7333333333333333
+      },
+      {
+        "cpuStart": 1791075045642.93,
+        "cpuEnd": 1791075045643.91,
+        "gpuStart": "68085588119978",
+        "gpuEnd": "68085684331134",
+        "animationTime": 0.75
+      },
+      {
+        "cpuStart": 1791075045732.045,
+        "cpuEnd": 1791075045733.02,
+        "animationTime": 0.7666666666666667
+      },
+      {
+        "cpuStart": 1791075045817.325,
+        "cpuEnd": 1791075045818.33,
+        "gpuStart": "68085775509785",
+        "gpuEnd": "68085863889603",
+        "animationTime": 0.7833333333333333
+      },
+      {
+        "cpuStart": 1791075045906.715,
+        "cpuEnd": 1791075045908.205,
+        "gpuStart": "68085955538454",
+        "gpuEnd": "68085955783909",
+        "animationTime": 0.8
+      },
+      {
+        "cpuStart": 1791075046005.3,
+        "cpuEnd": 1791075046006.3801,
+        "gpuStart": "68085957570090",
+        "gpuEnd": "68086042033468",
+        "animationTime": 0.8166666666666667
+      },
+      {
+        "cpuStart": 1791075046094.5051,
+        "cpuEnd": 1791075046095.57,
+        "animationTime": 0.8333333333333334
+      },
+      {
+        "cpuStart": 1791075046184.605,
+        "cpuEnd": 1791075046185.81,
+        "gpuStart": "68086122333868",
+        "gpuEnd": "68086205693137",
+        "animationTime": 0.85
+      },
+      {
+        "cpuStart": 1791075046276.2551,
+        "cpuEnd": 1791075046277.305,
+        "gpuStart": "68086295723763",
+        "gpuEnd": "68086295774471",
+        "animationTime": 0.8666666666666667
+      },
+      {
+        "cpuStart": 1791075046362.7551,
+        "cpuEnd": 1791075046363.915,
+        "gpuStart": "68086297870522",
+        "gpuEnd": "68086380179891",
+        "animationTime": 0.8833333333333333
+      },
+      {
+        "cpuStart": 1791075046443.58,
+        "cpuEnd": 1791075046444.49,
+        "animationTime": 0.9
+      },
+      {
+        "cpuStart": 1791075046526.2,
+        "cpuEnd": 1791075046527.2551,
+        "gpuStart": "68086460581873",
+        "gpuEnd": "68086542921200",
+        "animationTime": 0.9166666666666666
+      },
+      {
+        "cpuStart": 1791075046616.54,
+        "cpuEnd": 1791075046617.655,
+        "gpuStart": "68086544975960",
+        "gpuEnd": "68086630890358",
+        "animationTime": 0.9333333333333333
+      },
+      {
+        "cpuStart": 1791075046701.165,
+        "cpuEnd": 1791075046702.22,
+        "gpuStart": "68086632370835",
+        "gpuEnd": "68086714490373",
+        "animationTime": 0.95
+      },
+      {
+        "cpuStart": 1791075046779.605,
+        "cpuEnd": 1791075046780.37,
+        "animationTime": 0.9666666666666667
+      },
+      {
+        "cpuStart": 1791075046863.715,
+        "cpuEnd": 1791075046864.965,
+        "gpuStart": "68086796982948",
+        "gpuEnd": "68086885314559",
+        "animationTime": 0.9833333333333333
+      },
+      {
+        "cpuStart": 1791075046951.295,
+        "cpuEnd": 1791075046952.415,
+        "gpuStart": "68086920240859",
+        "gpuEnd": "68086972387397",
+        "animationTime": 1
+      },
+      {
+        "cpuStart": 1791075047035.17,
+        "cpuEnd": 1791075047036.245,
+        "gpuStart": "68086974400491",
+        "gpuEnd": "68087067506321",
+        "animationTime": 1.0166666666666666
+      },
+      {
+        "cpuStart": 1791075047116.06,
+        "cpuEnd": 1791075047117.085,
+        "animationTime": 1.0333333333333334
+      },
+      {
+        "cpuStart": 1791075047206.025,
+        "cpuEnd": 1791075047207.085,
+        "gpuStart": "68087153835003",
+        "gpuEnd": "68087242180363",
+        "animationTime": 1.05
+      },
+      {
+        "cpuStart": 1791075047293,
+        "cpuEnd": 1791075047294.4,
+        "gpuStart": "68087244625159",
+        "gpuEnd": "68087335203486",
+        "animationTime": 1.0666666666666667
+      },
+      {
+        "cpuStart": 1791075047388.405,
+        "cpuEnd": 1791075047389.405,
+        "gpuStart": "68087372270920",
+        "gpuEnd": "68087408505158",
+        "animationTime": 1.0833333333333333
+      },
+      {
+        "cpuStart": 1791075047425.48,
+        "cpuEnd": 1791075047426.52,
+        "animationTime": 1.1
+      },
+      {
+        "cpuStart": 1791075047563.75,
+        "cpuEnd": 1791075047564.775,
+        "gpuStart": "68087447380607",
+        "gpuEnd": "68087484889285",
+        "animationTime": 1.1166666666666667
+      },
+      {
+        "cpuStart": 1791075047655.64,
+        "cpuEnd": 1791075047656.59,
+        "gpuStart": "68087485461234",
+        "gpuEnd": "68087485886936",
+        "animationTime": 1.1333333333333333
+      },
+      {
+        "cpuStart": 1791075047728.495,
+        "cpuEnd": 1791075047729.435,
+        "gpuStart": "68087524628261",
+        "gpuEnd": "68087524876383",
+        "animationTime": 1.15
+      },
+      {
+        "cpuStart": 1791075047742.66,
+        "cpuEnd": 1791075047743.385,
+        "gpuStart": "68087560857500",
+        "gpuEnd": "68087560906292",
+        "animationTime": 1.1666666666666667
+      },
+      {
+        "cpuStart": 1791075047804.87,
+        "cpuEnd": 1791075047805.6,
+        "gpuStart": "68087598596675",
+        "gpuEnd": "68087636172059",
+        "animationTime": 1.1833333333333333
+      },
+      {
+        "cpuStart": 1791075047810.15,
+        "cpuEnd": 1791075047810.86,
+        "gpuStart": "68087637260043",
+        "gpuEnd": "68087638598314",
+        "animationTime": 1.2
+      },
+      {
+        "cpuStart": 1791075047845.46,
+        "cpuEnd": 1791075047846.335,
+        "gpuStart": "68087674917677",
+        "gpuEnd": "68087674967259",
+        "animationTime": 1.2166666666666666
+      },
+      {
+        "cpuStart": 1791075047881.3801,
+        "cpuEnd": 1791075047882.305,
+        "animationTime": 1.2333333333333334
+      },
+      {
+        "cpuStart": 1791075047956.24,
+        "cpuEnd": 1791075047957.15,
+        "gpuStart": "68087748043144",
+        "gpuEnd": "68087749460123",
+        "animationTime": 1.25
+      },
+      {
+        "cpuStart": 1791075047959.3,
+        "cpuEnd": 1791075047960.015,
+        "gpuStart": "68087783406105",
+        "gpuEnd": "68087785667612",
+        "animationTime": 1.2666666666666666
+      },
+      {
+        "cpuStart": 1791075047995.65,
+        "cpuEnd": 1791075047996.635,
+        "gpuStart": "68087821893975",
+        "gpuEnd": "68087822141139",
+        "animationTime": 1.2833333333333334
+      },
+      {
+        "cpuStart": 1791075048032.74,
+        "cpuEnd": 1791075048033.79,
+        "animationTime": 1.3
+      },
+      {
+        "cpuStart": 1791075048069.935,
+        "cpuEnd": 1791075048070.91,
+        "gpuStart": "68087892025780",
+        "gpuEnd": "68087895173607",
+        "animationTime": 1.3166666666666667
+      },
+      {
+        "cpuStart": 1791075048106.285,
+        "cpuEnd": 1791075048107.19,
+        "gpuStart": "68087930236947",
+        "gpuEnd": "68087933205444",
+        "animationTime": 1.3333333333333333
+      },
+      {
+        "cpuStart": 1791075048142.805,
+        "cpuEnd": 1791075048143.895,
+        "gpuStart": "68087968661195",
+        "gpuEnd": "68087968712319",
+        "animationTime": 1.35
+      },
+      {
+        "cpuStart": 1791075048179.175,
+        "cpuEnd": 1791075048180.2,
+        "animationTime": 1.3666666666666667
+      },
+      {
+        "cpuStart": 1791075048215.705,
+        "cpuEnd": 1791075048216.715,
+        "gpuStart": "68088041778037",
+        "gpuEnd": "68088043181099",
+        "animationTime": 1.3833333333333333
+      },
+      {
+        "cpuStart": 1791075048253.68,
+        "cpuEnd": 1791075048254.56,
+        "gpuStart": "68088076955208",
+        "gpuEnd": "68088078940095",
+        "animationTime": 1.4
+      },
+      {
+        "cpuStart": 1791075048289.28,
+        "cpuEnd": 1791075048290.14,
+        "gpuStart": "68088115378247",
+        "gpuEnd": "68088150976246",
+        "animationTime": 1.4166666666666667
+      },
+      {
+        "cpuStart": 1791075048326.335,
+        "cpuEnd": 1791075048327.29,
+        "animationTime": 1.4333333333333333
+      },
+      {
+        "cpuStart": 1791075048363.655,
+        "cpuEnd": 1791075048364.56,
+        "gpuStart": "68088187686269",
+        "gpuEnd": "68088191548960",
+        "animationTime": 1.45
+      },
+      {
+        "cpuStart": 1791075048399.42,
+        "cpuEnd": 1791075048400.16,
+        "gpuStart": "68088228152401",
+        "gpuEnd": "68088228497605",
+        "animationTime": 1.4666666666666666
+      },
+      {
+        "cpuStart": 1791075048471.02,
+        "cpuEnd": 1791075048471.875,
+        "gpuStart": "68088266092364",
+        "gpuEnd": "68088266143614",
+        "animationTime": 1.4833333333333334
+      },
+      {
+        "cpuStart": 1791075048476.81,
+        "cpuEnd": 1791075048477.6,
+        "gpuStart": "68088306431791",
+        "gpuEnd": "68088306483290",
+        "animationTime": 1.5
+      },
+      {
+        "cpuStart": 1791075048512.02,
+        "cpuEnd": 1791075048512.965,
+        "gpuStart": "68088344347420",
+        "gpuEnd": "68088345763441",
+        "animationTime": 1.5166666666666666
+      },
+      {
+        "cpuStart": 1791075048549.03,
+        "cpuEnd": 1791075048550.065,
+        "gpuStart": "68088381089027",
+        "gpuEnd": "68088382696335",
+        "animationTime": 1.5333333333333334
+      },
+      {
+        "cpuStart": 1791075048587.25,
+        "cpuEnd": 1791075048588.405,
+        "gpuStart": "68088419448607",
+        "gpuEnd": "68088422122066",
+        "animationTime": 1.55
+      },
+      {
+        "cpuStart": 1791075048627.34,
+        "cpuEnd": 1791075048628.265,
+        "gpuStart": "68088456735997",
+        "gpuEnd": "68088457989144",
+        "animationTime": 1.5666666666666667
+      },
+      {
+        "cpuStart": 1791075048666.335,
+        "cpuEnd": 1791075048667.34,
+        "gpuStart": "68088493845806",
+        "gpuEnd": "68088496689304",
+        "animationTime": 1.5833333333333333
+      },
+      {
+        "cpuStart": 1791075048703.245,
+        "cpuEnd": 1791075048704.1301,
+        "gpuStart": "68088532661547",
+        "gpuEnd": "68088533010291",
+        "animationTime": 1.6
+      },
+      {
+        "cpuStart": 1791075048742.76,
+        "cpuEnd": 1791075048743.745,
+        "gpuStart": "68088570382804",
+        "gpuEnd": "68088570433470",
+        "animationTime": 1.6166666666666667
+      },
+      {
+        "cpuStart": 1791075048778.73,
+        "cpuEnd": 1791075048779.735,
+        "gpuStart": "68088607247576",
+        "gpuEnd": "68088607293866",
+        "animationTime": 1.6333333333333333
+      },
+      {
+        "cpuStart": 1791075048817.1,
+        "cpuEnd": 1791075048817.845,
+        "gpuStart": "68088643222402",
+        "gpuEnd": "68088644640671",
+        "animationTime": 1.65
+      },
+      {
+        "cpuStart": 1791075048853.53,
+        "cpuEnd": 1791075048854.585,
+        "gpuStart": "68088678463489",
+        "gpuEnd": "68088679986341",
+        "animationTime": 1.6666666666666667
+      },
+      {
+        "cpuStart": 1791075048891.34,
+        "cpuEnd": 1791075048892.39,
+        "gpuStart": "68088714915016",
+        "gpuEnd": "68088717715223",
+        "animationTime": 1.6833333333333333
+      },
+      {
+        "cpuStart": 1791075048928.11,
+        "cpuEnd": 1791075048929.14,
+        "gpuStart": "68088751686622",
+        "gpuEnd": "68088752945143",
+        "animationTime": 1.7
+      },
+      {
+        "cpuStart": 1791075048965.135,
+        "cpuEnd": 1791075048966.115,
+        "gpuStart": "68088788071816",
+        "gpuEnd": "68088790914439",
+        "animationTime": 1.7166666666666666
+      },
+      {
+        "cpuStart": 1791075049000.555,
+        "cpuEnd": 1791075049001.4,
+        "gpuStart": "68088826505480",
+        "gpuEnd": "68088826857808",
+        "animationTime": 1.7333333333333334
+      },
+      {
+        "cpuStart": 1791075049038.125,
+        "cpuEnd": 1791075049038.825,
+        "gpuStart": "68088864861645",
+        "gpuEnd": "68088864914852",
+        "animationTime": 1.75
+      },
+      {
+        "cpuStart": 1791075049073.46,
+        "cpuEnd": 1791075049074.075,
+        "gpuStart": "68088901213881",
+        "gpuEnd": "68088901243506",
+        "animationTime": 1.7666666666666666
+      },
+      {
+        "cpuStart": 1791075049111.365,
+        "cpuEnd": 1791075049112.24,
+        "gpuStart": "68088937147875",
+        "gpuEnd": "68088938682976",
+        "animationTime": 1.7833333333333334
+      },
+      {
+        "cpuStart": 1791075049147.55,
+        "cpuEnd": 1791075049148.4,
+        "gpuStart": "68088973675650",
+        "gpuEnd": "68088975497664",
+        "animationTime": 1.8
+      },
+      {
+        "cpuStart": 1791075049185.895,
+        "cpuEnd": 1791075049186.99,
+        "gpuStart": "68089010564796",
+        "gpuEnd": "68089013254255",
+        "animationTime": 1.8166666666666667
+      },
+      {
+        "cpuStart": 1791075049221.87,
+        "cpuEnd": 1791075049222.745,
+        "animationTime": 1.8333333333333333
+      },
+      {
+        "cpuStart": 1791075049259.105,
+        "cpuEnd": 1791075049259.92,
+        "gpuStart": "68089083623182",
+        "gpuEnd": "68089086889715",
+        "animationTime": 1.85
+      },
+      {
+        "cpuStart": 1791075049296.14,
+        "cpuEnd": 1791075049297.16,
+        "gpuStart": "68089122135719",
+        "gpuEnd": "68089122483755",
+        "animationTime": 1.8666666666666667
+      },
+      {
+        "cpuStart": 1791075049333.735,
+        "cpuEnd": 1791075049334.75,
+        "gpuStart": "68089159500357",
+        "gpuEnd": "68089159554064",
+        "animationTime": 1.8833333333333333
+      },
+      {
+        "cpuStart": 1791075049369.785,
+        "cpuEnd": 1791075049370.745,
+        "animationTime": 1.9
+      },
+      {
+        "cpuStart": 1791075049407.52,
+        "cpuEnd": 1791075049408.605,
+        "gpuStart": "68089232616741",
+        "gpuEnd": "68089235710069",
+        "animationTime": 1.9166666666666667
+      },
+      {
+        "cpuStart": 1791075049443.065,
+        "cpuEnd": 1791075049444.09,
+        "gpuStart": "68089272614548",
+        "gpuEnd": "68089274166274",
+        "animationTime": 1.9333333333333333
+      },
+      {
+        "cpuStart": 1791075049480.65,
+        "cpuEnd": 1791075049481.565,
+        "gpuStart": "68089309131157",
+        "gpuEnd": "68089311852365",
+        "animationTime": 1.95
+      },
+      {
+        "cpuStart": 1791075049518.585,
+        "cpuEnd": 1791075049519.495,
+        "animationTime": 1.9666666666666666
+      },
+      {
+        "cpuStart": 1791075049556.145,
+        "cpuEnd": 1791075049557.035,
+        "gpuStart": "68089381478928",
+        "gpuEnd": "68089384728128",
+        "animationTime": 1.9833333333333334
+      },
+      {
+        "cpuStart": 1791075049594.77,
+        "cpuEnd": 1791075049595.73,
+        "gpuStart": "68089420268586",
+        "gpuEnd": "68089420616747",
+        "animationTime": 2
+      },
+      {
+        "cpuStart": 1791075049632.355,
+        "cpuEnd": 1791075049633.175,
+        "gpuStart": "68089456494783",
+        "gpuEnd": "68089456544824",
+        "animationTime": 2.0166666666666666
+      },
+      {
+        "cpuStart": 1791075049667.715,
+        "cpuEnd": 1791075049668.435,
+        "animationTime": 2.033333333333333
+      },
+      {
+        "cpuStart": 1791075049705.29,
+        "cpuEnd": 1791075049706.275,
+        "gpuStart": "68089528519809",
+        "gpuEnd": "68089531523347",
+        "animationTime": 2.05
+      },
+      {
+        "cpuStart": 1791075049741.21,
+        "cpuEnd": 1791075049742.2551,
+        "gpuStart": "68089565512494",
+        "gpuEnd": "68089567122887",
+        "animationTime": 2.066666666666667
+      },
+      {
+        "cpuStart": 1791075049777.475,
+        "cpuEnd": 1791075049778.5,
+        "gpuStart": "68089604264737",
+        "gpuEnd": "68089608064220",
+        "animationTime": 2.0833333333333335
+      },
+      {
+        "cpuStart": 1791075049814.56,
+        "cpuEnd": 1791075049815.5,
+        "animationTime": 2.1
+      },
+      {
+        "cpuStart": 1791075049851.98,
+        "cpuEnd": 1791075049852.97,
+        "gpuStart": "68089681357227",
+        "gpuEnd": "68089684722800",
+        "animationTime": 2.1166666666666667
+      },
+      {
+        "cpuStart": 1791075049887.82,
+        "cpuEnd": 1791075049889.14,
+        "gpuStart": "68089722320436",
+        "gpuEnd": "68089722752637",
+        "animationTime": 2.1333333333333333
+      },
+      {
+        "cpuStart": 1791075049928.82,
+        "cpuEnd": 1791075049930.27,
+        "gpuStart": "68089760307022",
+        "gpuEnd": "68089760357938",
+        "animationTime": 2.15
+      },
+      {
+        "cpuStart": 1791075049966.595,
+        "cpuEnd": 1791075049969.235,
+        "animationTime": 2.1666666666666665
+      },
+      {
+        "cpuStart": 1791075050006.195,
+        "cpuEnd": 1791075050008.565,
+        "gpuStart": "68089836727606",
+        "gpuEnd": "68089840444133",
+        "animationTime": 2.183333333333333
+      },
+      {
+        "cpuStart": 1791075050044.94,
+        "cpuEnd": 1791075050047.47,
+        "gpuStart": "68089877381486",
+        "gpuEnd": "68089879145251",
+        "animationTime": 2.2
+      },
+      {
+        "cpuStart": 1791075050084.31,
+        "cpuEnd": 1791075050087.15,
+        "gpuStart": "68089917819744",
+        "gpuEnd": "68089920549952",
+        "animationTime": 2.216666666666667
+      },
+      {
+        "cpuStart": 1791075050119.955,
+        "cpuEnd": 1791075050123.07,
+        "animationTime": 2.2333333333333334
+      },
+      {
+        "cpuStart": 1791075050162.64,
+        "cpuEnd": 1791075050165.7551,
+        "gpuStart": "68089993493214",
+        "gpuEnd": "68089997101368",
+        "animationTime": 2.25
+      },
+      {
+        "cpuStart": 1791075050201.145,
+        "cpuEnd": 1791075050204.175,
+        "gpuStart": "68090034193843",
+        "gpuEnd": "68090034660836",
+        "animationTime": 2.2666666666666666
+      },
+      {
+        "cpuStart": 1791075050243.47,
+        "cpuEnd": 1791075050245.91,
+        "gpuStart": "68090073619533",
+        "gpuEnd": "68090073670782",
+        "animationTime": 2.283333333333333
+      },
+      {
+        "cpuStart": 1791075050279.135,
+        "cpuEnd": 1791075050282.385,
+        "animationTime": 2.3
+      },
+      {
+        "cpuStart": 1791075050319.02,
+        "cpuEnd": 1791075050321.97,
+        "gpuStart": "68090146904540",
+        "gpuEnd": "68090149985368",
+        "animationTime": 2.316666666666667
+      },
+      {
+        "cpuStart": 1791075050356.715,
+        "cpuEnd": 1791075050359.965,
+        "gpuStart": "68090187432297",
+        "gpuEnd": "68090189733844",
+        "animationTime": 2.3333333333333335
+      },
+      {
+        "cpuStart": 1791075050396.79,
+        "cpuEnd": 1791075050399.6,
+        "gpuStart": "68090227434019",
+        "gpuEnd": "68090230425307",
+        "animationTime": 2.35
+      },
+      {
+        "cpuStart": 1791075050431.925,
+        "cpuEnd": 1791075050435.315,
+        "animationTime": 2.3666666666666667
+      },
+      {
+        "cpuStart": 1791075050472.535,
+        "cpuEnd": 1791075050475.8801,
+        "gpuStart": "68090303577899",
+        "gpuEnd": "68090307563088",
+        "animationTime": 2.3833333333333333
+      },
+      {
+        "cpuStart": 1791075050512.08,
+        "cpuEnd": 1791075050514.815,
+        "gpuStart": "68090344015074",
+        "gpuEnd": "68090344468067",
+        "animationTime": 2.4
+      },
+      {
+        "cpuStart": 1791075050552.71,
+        "cpuEnd": 1791075050555.845,
+        "gpuStart": "68090382133076",
+        "gpuEnd": "68090382207324",
+        "animationTime": 2.4166666666666665
+      },
+      {
+        "cpuStart": 1791075050589.155,
+        "cpuEnd": 1791075050591.735,
+        "animationTime": 2.433333333333333
+      },
+      {
+        "cpuStart": 1791075050628.925,
+        "cpuEnd": 1791075050631.54,
+        "gpuStart": "68090459190442",
+        "gpuEnd": "68090462616347",
+        "animationTime": 2.45
+      },
+      {
+        "cpuStart": 1791075050666.7551,
+        "cpuEnd": 1791075050669.595,
+        "gpuStart": "68090498448384",
+        "gpuEnd": "68090500056359",
+        "animationTime": 2.466666666666667
+      },
+      {
+        "cpuStart": 1791075050705.3,
+        "cpuEnd": 1791075050708.545,
+        "gpuStart": "68090537573454",
+        "gpuEnd": "68090540146414",
+        "animationTime": 2.4833333333333334
+      },
+      {
+        "cpuStart": 1791075050743.8,
+        "cpuEnd": 1791075050746.5,
+        "animationTime": 2.5
+      },
+      {
+        "cpuStart": 1791075050784.75,
+        "cpuEnd": 1791075050787.225,
+        "gpuStart": "68090611386119",
+        "gpuEnd": "68090614793400",
+        "animationTime": 2.5166666666666666
+      },
+      {
+        "cpuStart": 1791075050822.86,
+        "cpuEnd": 1791075050826.08,
+        "gpuStart": "68090650055404",
+        "gpuEnd": "68090650545855",
+        "animationTime": 2.533333333333333
+      },
+      {
+        "cpuStart": 1791075050862.4,
+        "cpuEnd": 1791075050865.565,
+        "gpuStart": "68090686333476",
+        "gpuEnd": "68090686399433",
+        "animationTime": 2.55
+      },
+      {
+        "cpuStart": 1791075050896.885,
+        "cpuEnd": 1791075050900.095,
+        "animationTime": 2.566666666666667
+      },
+      {
+        "cpuStart": 1791075050936.385,
+        "cpuEnd": 1791075050939.015,
+        "gpuStart": "68090759054116",
+        "gpuEnd": "68090762157985",
+        "animationTime": 2.5833333333333335
+      },
+      {
+        "cpuStart": 1791075050973.51,
+        "cpuEnd": 1791075050976,
+        "gpuStart": "68090796707000",
+        "gpuEnd": "68090798360724",
+        "animationTime": 2.6
+      },
+      {
+        "cpuStart": 1791075051009.95,
+        "cpuEnd": 1791075051012.71,
+        "gpuStart": "68090834085429",
+        "gpuEnd": "68090837039301",
+        "animationTime": 2.6166666666666667
+      },
+      {
+        "cpuStart": 1791075051044.8,
+        "cpuEnd": 1791075051047.815,
+        "animationTime": 2.6333333333333333
+      },
+      {
+        "cpuStart": 1791075051084.12,
+        "cpuEnd": 1791075051087.055,
+        "gpuStart": "68090906950817",
+        "gpuEnd": "68090910155768",
+        "animationTime": 2.65
+      },
+      {
+        "cpuStart": 1791075051121.02,
+        "cpuEnd": 1791075051123.595,
+        "gpuStart": "68090945750017",
+        "gpuEnd": "68090946255343",
+        "animationTime": 2.6666666666666665
+      },
+      {
+        "cpuStart": 1791075051159.135,
+        "cpuEnd": 1791075051161.895,
+        "gpuStart": "68090983274278",
+        "gpuEnd": "68090983324110",
+        "animationTime": 2.683333333333333
+      },
+      {
+        "cpuStart": 1791075051192.935,
+        "cpuEnd": 1791075051196.11,
+        "animationTime": 2.7
+      },
+      {
+        "cpuStart": 1791075051231.965,
+        "cpuEnd": 1791075051234.655,
+        "gpuStart": "68091055193513",
+        "gpuEnd": "68091058451798",
+        "animationTime": 2.716666666666667
+      },
+      {
+        "cpuStart": 1791075051269.32,
+        "cpuEnd": 1791075051272.605,
+        "gpuStart": "68091092886397",
+        "gpuEnd": "68091094612037",
+        "animationTime": 2.7333333333333334
+      },
+      {
+        "cpuStart": 1791075051306.2,
+        "cpuEnd": 1791075051309.235,
+        "gpuStart": "68091129660252",
+        "gpuEnd": "68091132660415",
+        "animationTime": 2.75
+      },
+      {
+        "cpuStart": 1791075051342.995,
+        "cpuEnd": 1791075051345.145,
+        "animationTime": 2.7666666666666666
+      },
+      {
+        "cpuStart": 1791075051381.395,
+        "cpuEnd": 1791075051384.175,
+        "gpuStart": "68091206687661",
+        "gpuEnd": "68091210042067",
+        "animationTime": 2.783333333333333
+      },
+      {
+        "cpuStart": 1791075051417.32,
+        "cpuEnd": 1791075051419.83,
+        "gpuStart": "68091247992238",
+        "gpuEnd": "68091248442232",
+        "animationTime": 2.8
+      },
+      {
+        "cpuStart": 1791075051454.45,
+        "cpuEnd": 1791075051457.845,
+        "gpuStart": "68091284365141",
+        "gpuEnd": "68091284439390",
+        "animationTime": 2.816666666666667
+      },
+      {
+        "cpuStart": 1791075051490.045,
+        "cpuEnd": 1791075051493.895,
+        "animationTime": 2.8333333333333335
+      },
+      {
+        "cpuStart": 1791075051532.44,
+        "cpuEnd": 1791075051534.925,
+        "gpuStart": "68091357212030",
+        "gpuEnd": "68091360367899",
+        "animationTime": 2.85
+      },
+      {
+        "cpuStart": 1791075051571.09,
+        "cpuEnd": 1791075051573.745,
+        "gpuStart": "68091395991063",
+        "gpuEnd": "68091397743661",
+        "animationTime": 2.8666666666666667
+      },
+      {
+        "cpuStart": 1791075051607.745,
+        "cpuEnd": 1791075051610.515,
+        "gpuStart": "68091433102956",
+        "gpuEnd": "68091435887496",
+        "animationTime": 2.8833333333333333
+      },
+      {
+        "cpuStart": 1791075051642.735,
+        "cpuEnd": 1791075051645.85,
+        "animationTime": 2.9
+      },
+      {
+        "cpuStart": 1791075051682.15,
+        "cpuEnd": 1791075051684.75,
+        "gpuStart": "68091507357614",
+        "gpuEnd": "68091510659855",
+        "animationTime": 2.9166666666666665
+      },
+      {
+        "cpuStart": 1791075051719.33,
+        "cpuEnd": 1791075051722,
+        "gpuStart": "68091545887318",
+        "gpuEnd": "68091546349186",
+        "animationTime": 2.933333333333333
+      },
+      {
+        "cpuStart": 1791075051758.21,
+        "cpuEnd": 1791075051761.08,
+        "gpuStart": "68091582227555",
+        "gpuEnd": "68091582303220",
+        "animationTime": 2.95
+      },
+      {
+        "cpuStart": 1791075051794.375,
+        "cpuEnd": 1791075051797.615,
+        "animationTime": 2.966666666666667
+      },
+      {
+        "cpuStart": 1791075051832.435,
+        "cpuEnd": 1791075051835.11,
+        "gpuStart": "68091653909920",
+        "gpuEnd": "68091657082204",
+        "animationTime": 2.9833333333333334
+      },
+      {
+        "cpuStart": 1791075051869.425,
+        "cpuEnd": 1791075051872.495,
+        "gpuStart": "68091691663010",
+        "gpuEnd": "68091693269361",
+        "animationTime": 3
+      },
+      {
+        "cpuStart": 1791075051904.615,
+        "cpuEnd": 1791075051907.94,
+        "gpuStart": "68091728162036",
+        "gpuEnd": "68091730858162",
+        "animationTime": 3.0166666666666666
+      },
+      {
+        "cpuStart": 1791075051941.08,
+        "cpuEnd": 1791075051943.32,
+        "animationTime": 3.033333333333333
+      },
+      {
+        "cpuStart": 1791075051977.8801,
+        "cpuEnd": 1791075051979.09,
+        "gpuStart": "68091804063503",
+        "gpuEnd": "68091807438119",
+        "animationTime": 3.05
+      },
+      {
+        "cpuStart": 1791075052013.95,
+        "cpuEnd": 1791075052014.965,
+        "gpuStart": "68091846153861",
+        "gpuEnd": "68091846499773",
+        "animationTime": 3.066666666666667
+      },
+      {
+        "cpuStart": 1791075052051.64,
+        "cpuEnd": 1791075052052.58,
+        "gpuStart": "68091882727136",
+        "gpuEnd": "68091882757261",
+        "animationTime": 3.0833333333333335
+      },
+      {
+        "cpuStart": 1791075052088.2551,
+        "cpuEnd": 1791075052089.305,
+        "animationTime": 3.1
+      },
+      {
+        "cpuStart": 1791075052128.115,
+        "cpuEnd": 1791075052129.21,
+        "gpuStart": "68091954476458",
+        "gpuEnd": "68091957431330",
+        "animationTime": 3.1166666666666667
+      },
+      {
+        "cpuStart": 1791075052167.43,
+        "cpuEnd": 1791075052168.48,
+        "gpuStart": "68091992849665",
+        "gpuEnd": "68092033319547",
+        "animationTime": 3.1333333333333333
+      },
+      {
+        "cpuStart": 1791075052203.76,
+        "cpuEnd": 1791075052204.705,
+        "gpuStart": "68092034091243",
+        "gpuEnd": "68092035576888",
+        "animationTime": 3.15
+      },
+      {
+        "cpuStart": 1791075052241.03,
+        "cpuEnd": 1791075052241.955,
+        "animationTime": 3.1666666666666665
+      },
+      {
+        "cpuStart": 1791075052278.11,
+        "cpuEnd": 1791075052279.085,
+        "gpuStart": "68092105958147",
+        "gpuEnd": "68092107683745",
+        "animationTime": 3.183333333333333
+      },
+      {
+        "cpuStart": 1791075052353.5,
+        "cpuEnd": 1791075052354.525,
+        "gpuStart": "68092144400185",
+        "gpuEnd": "68092145109924",
+        "animationTime": 3.2
+      },
+      {
+        "cpuStart": 1791075052360,
+        "cpuEnd": 1791075052361.03,
+        "gpuStart": "68092183945082",
+        "gpuEnd": "68092183997123",
+        "animationTime": 3.216666666666667
+      },
+      {
+        "cpuStart": 1791075052393.12,
+        "cpuEnd": 1791075052394.055,
+        "animationTime": 3.2333333333333334
+      },
+      {
+        "cpuStart": 1791075052428.545,
+        "cpuEnd": 1791075052429.355,
+        "gpuStart": "68092257743456",
+        "gpuEnd": "68092260698910",
+        "animationTime": 3.25
+      },
+      {
+        "cpuStart": 1791075052465.995,
+        "cpuEnd": 1791075052467.02,
+        "gpuStart": "68092296212286",
+        "gpuEnd": "68092333751088",
+        "animationTime": 3.2666666666666666
+      },
+      {
+        "cpuStart": 1791075052505.18,
+        "cpuEnd": 1791075052506.175,
+        "gpuStart": "68092334397661",
+        "gpuEnd": "68092335739473",
+        "animationTime": 3.283333333333333
+      },
+      {
+        "cpuStart": 1791075052542.64,
+        "cpuEnd": 1791075052543.61,
+        "animationTime": 3.3
+      },
+      {
+        "cpuStart": 1791075052581.385,
+        "cpuEnd": 1791075052582.425,
+        "gpuStart": "68092406470186",
+        "gpuEnd": "68092408216077",
+        "animationTime": 3.316666666666667
+      },
+      {
+        "cpuStart": 1791075052653.845,
+        "cpuEnd": 1791075052654.76,
+        "gpuStart": "68092446309411",
+        "gpuEnd": "68092446661615",
+        "animationTime": 3.3333333333333335
+      },
+      {
+        "cpuStart": 1791075052659.935,
+        "cpuEnd": 1791075052660.615,
+        "gpuStart": "68092484310456",
+        "gpuEnd": "68092484935406",
+        "animationTime": 3.35
+      },
+      {
+        "cpuStart": 1791075052692.01,
+        "cpuEnd": 1791075052692.95,
+        "animationTime": 3.3666666666666667
+      },
+      {
+        "cpuStart": 1791075052729.19,
+        "cpuEnd": 1791075052730.225,
+        "gpuStart": "68092557951625",
+        "gpuEnd": "68092560926787",
+        "animationTime": 3.3833333333333333
+      },
+      {
+        "cpuStart": 1791075052767.425,
+        "cpuEnd": 1791075052768.45,
+        "gpuStart": "68092595765923",
+        "gpuEnd": "68092597418605",
+        "animationTime": 3.4
+      },
+      {
+        "cpuStart": 1791075052805.665,
+        "cpuEnd": 1791075052806.6,
+        "gpuStart": "68092633312225",
+        "gpuEnd": "68092636089724",
+        "animationTime": 3.4166666666666665
+      },
+      {
+        "cpuStart": 1791075052843.385,
+        "cpuEnd": 1791075052844.355,
+        "animationTime": 3.433333333333333
+      },
+      {
+        "cpuStart": 1791075052881.55,
+        "cpuEnd": 1791075052882.53,
+        "gpuStart": "68092706493816",
+        "gpuEnd": "68092708224999",
+        "animationTime": 3.45
+      },
+      {
+        "cpuStart": 1791075052918.1,
+        "cpuEnd": 1791075052919.065,
+        "gpuStart": "68092745347848",
+        "gpuEnd": "68092745698302",
+        "animationTime": 3.466666666666667
+      },
+      {
+        "cpuStart": 1791075052956.56,
+        "cpuEnd": 1791075052957.47,
+        "gpuStart": "68092781788542",
+        "gpuEnd": "68092782429991",
+        "animationTime": 3.4833333333333334
+      },
+      {
+        "cpuStart": 1791075052992.93,
+        "cpuEnd": 1791075052993.835,
+        "animationTime": 3.5
+      },
+      {
+        "cpuStart": 1791075053029.1301,
+        "cpuEnd": 1791075053030.14,
+        "gpuStart": "68092854245979",
+        "gpuEnd": "68092857126852",
+        "animationTime": 3.5166666666666666
+      },
+      {
+        "cpuStart": 1791075053066.28,
+        "cpuEnd": 1791075053067.16,
+        "gpuStart": "68092891519827",
+        "gpuEnd": "68087323312750",
+        "animationTime": 3.533333333333333
+      },
+      {
+        "cpuStart": 1791075053102.975,
+        "cpuEnd": 1791075053103.905,
+        "gpuStart": "68092928722842",
+        "gpuEnd": "68092931616506",
+        "animationTime": 3.55
+      },
+      {
+        "cpuStart": 1791075053140.185,
+        "cpuEnd": 1791075053141.175,
+        "gpuStart": "68092967275671",
+        "gpuEnd": "68092782429991",
+        "animationTime": 3.566666666666667
+      },
+      {
+        "cpuStart": 1791075053177.71,
+        "cpuEnd": 1791075053178.545,
+        "gpuStart": "68093002872378",
+        "gpuEnd": "68093004647017",
+        "animationTime": 3.5833333333333335
+      },
+      {
+        "cpuStart": 1791075053213.635,
+        "cpuEnd": 1791075053214.62,
+        "gpuStart": "68093041780867",
+        "gpuEnd": "68087323312750",
+        "animationTime": 3.6
+      },
+      {
+        "cpuStart": 1791075053252.335,
+        "cpuEnd": 1791075053253.4,
+        "gpuStart": "68093078135729",
+        "gpuEnd": "68093079931618",
+        "animationTime": 3.6166666666666667
+      },
+      {
+        "cpuStart": 1791075053288.305,
+        "cpuEnd": 1791075053289.21,
+        "gpuStart": "68093115332828",
+        "gpuEnd": "68092782429991",
+        "animationTime": 3.6333333333333333
+      },
+      {
+        "cpuStart": 1791075053326.035,
+        "cpuEnd": 1791075053327.425,
+        "gpuStart": "68093151984685",
+        "gpuEnd": "68093156252120",
+        "animationTime": 3.65
+      },
+      {
+        "cpuStart": 1791075053363.795,
+        "cpuEnd": 1791075053365.245,
+        "gpuStart": "68093191397209",
+        "gpuEnd": "68087323312750",
+        "animationTime": 3.6666666666666665
+      },
+      {
+        "cpuStart": 1791075053401.35,
+        "cpuEnd": 1791075053402.84,
+        "gpuStart": "68093229899163",
+        "gpuEnd": "68093232773286",
+        "animationTime": 3.683333333333333
+      },
+      {
+        "cpuStart": 1791075053438.37,
+        "cpuEnd": 1791075053440.3,
+        "gpuStart": "68093270314297",
+        "gpuEnd": "68092782429991",
+        "animationTime": 3.7
+      },
+      {
+        "cpuStart": 1791075053477.895,
+        "cpuEnd": 1791075053480.58,
+        "gpuStart": "68093306962738",
+        "gpuEnd": "68093308763418",
+        "animationTime": 3.716666666666667
+      },
+      {
+        "cpuStart": 1791075053513.8,
+        "cpuEnd": 1791075053515.24,
+        "gpuStart": "68093346124890",
+        "gpuEnd": "68087323312750",
+        "animationTime": 3.7333333333333334
+      },
+      {
+        "cpuStart": 1791075053553.56,
+        "cpuEnd": 1791075053554.96,
+        "gpuStart": "68093381772096",
+        "gpuEnd": "68093383694025",
+        "animationTime": 3.75
+      },
+      {
+        "cpuStart": 1791075053592.365,
+        "cpuEnd": 1791075053594.35,
+        "gpuStart": "68093418845988",
+        "gpuEnd": "68092782429991",
+        "animationTime": 3.7666666666666666
+      },
+      {
+        "cpuStart": 1791075053630.925,
+        "cpuEnd": 1791075053633.35,
+        "gpuStart": "68093455867048",
+        "gpuEnd": "68093458971209",
+        "animationTime": 3.783333333333333
+      },
+      {
+        "cpuStart": 1791075053669.07,
+        "cpuEnd": 1791075053671.82,
+        "gpuStart": "68093493215895",
+        "gpuEnd": "68087323312750",
+        "animationTime": 3.8
+      },
+      {
+        "cpuStart": 1791075053706.66,
+        "cpuEnd": 1791075053709.5051,
+        "gpuStart": "68093529866627",
+        "gpuEnd": "68093532830082",
+        "animationTime": 3.816666666666667
+      },
+      {
+        "cpuStart": 1791075053742.305,
+        "cpuEnd": 1791075053744.645,
+        "gpuStart": "68093568680952",
+        "gpuEnd": "68092782429991",
+        "animationTime": 3.8333333333333335
+      },
+      {
+        "cpuStart": 1791075053781.02,
+        "cpuEnd": 1791075053783.865,
+        "gpuStart": "68093606989617",
+        "gpuEnd": "68093608729424",
+        "animationTime": 3.85
+      },
+      {
+        "cpuStart": 1791075053816.075,
+        "cpuEnd": 1791075053817.35,
+        "gpuStart": "68093646420224",
+        "gpuEnd": "68087323312750",
+        "animationTime": 3.8666666666666667
+      },
+      {
+        "cpuStart": 1791075053854.28,
+        "cpuEnd": 1791075053857.1301,
+        "gpuStart": "68093681677686",
+        "gpuEnd": "68093683680822",
+        "animationTime": 3.8833333333333333
+      },
+      {
+        "cpuStart": 1791075053893.29,
+        "cpuEnd": 1791075053895.795,
+        "gpuStart": "68093720064142",
+        "gpuEnd": "68092782429991",
+        "animationTime": 3.9
+      },
+      {
+        "cpuStart": 1791075053929.9,
+        "cpuEnd": 1791075053931.245,
+        "gpuStart": "68093757943981",
+        "gpuEnd": "68093761183265",
+        "animationTime": 3.9166666666666665
+      },
+      {
+        "cpuStart": 1791075053968.55,
+        "cpuEnd": 1791075053970.925,
+        "gpuStart": "68093798041994",
+        "gpuEnd": "68087323312750",
+        "animationTime": 3.933333333333333
+      },
+      {
+        "cpuStart": 1791075054006.8,
+        "cpuEnd": 1791075054009.39,
+        "gpuStart": "68093834688101",
+        "gpuEnd": "68093837836845",
+        "animationTime": 3.95
+      },
+      {
+        "cpuStart": 1791075054043.89,
+        "cpuEnd": 1791075054046.2551,
+        "gpuStart": "68093873829713",
+        "gpuEnd": "68092782429991",
+        "animationTime": 3.966666666666667
+      },
+      {
+        "cpuStart": 1791075054083.6,
+        "cpuEnd": 1791075054086,
+        "gpuStart": "68093909169131",
+        "gpuEnd": "68093911048936",
+        "animationTime": 3.9833333333333334
+      },
+      {
+        "cpuStart": 1791075054121.645,
+        "cpuEnd": 1791075054124.535,
+        "gpuStart": "68093950853870",
+        "gpuEnd": "68087323312750",
+        "animationTime": 4
+      },
+      {
+        "cpuStart": 1791075054159.34,
+        "cpuEnd": 1791075054161.71,
+        "gpuStart": "68093987932430",
+        "gpuEnd": "68093989868317",
+        "animationTime": 4.016666666666667
+      },
+      {
+        "cpuStart": 1791075054197.045,
+        "cpuEnd": 1791075054199.695,
+        "gpuStart": "68094024670161",
+        "gpuEnd": "68092782429991",
+        "animationTime": 4.033333333333333
+      },
+      {
+        "cpuStart": 1791075054233.665,
+        "cpuEnd": 1791075054236.6301,
+        "gpuStart": "68094060717986",
+        "gpuEnd": "68094063867354",
+        "animationTime": 4.05
+      },
+      {
+        "cpuStart": 1791075054273.085,
+        "cpuEnd": 1791075054275.815,
+        "gpuStart": "68094097804253",
+        "gpuEnd": "68087323312750",
+        "animationTime": 4.066666666666666
+      },
+      {
+        "cpuStart": 1791075054312.9,
+        "cpuEnd": 1791075054315.42,
+        "gpuStart": "68094134756189",
+        "gpuEnd": "68094138294177",
+        "animationTime": 4.083333333333333
+      },
+      {
+        "cpuStart": 1791075054349.17,
+        "cpuEnd": 1791075054351.65,
+        "gpuStart": "68094173813051",
+        "gpuEnd": "68092782429991",
+        "animationTime": 4.1
+      },
+      {
+        "cpuStart": 1791075054385.895,
+        "cpuEnd": 1791075054388.67,
+        "gpuStart": "68094209857751",
+        "gpuEnd": "68094211781181",
+        "animationTime": 4.116666666666666
+      },
+      {
+        "cpuStart": 1791075054421.205,
+        "cpuEnd": 1791075054424.51,
+        "gpuStart": "68094249934515",
+        "gpuEnd": "68087323312750",
+        "animationTime": 4.133333333333334
+      },
+      {
+        "cpuStart": 1791075054460.44,
+        "cpuEnd": 1791075054463.71,
+        "gpuStart": "68094285994756",
+        "gpuEnd": "68094287867978",
+        "animationTime": 4.15
+      },
+      {
+        "cpuStart": 1791075054497.045,
+        "cpuEnd": 1791075054500.225,
+        "gpuStart": "68094325158784",
+        "gpuEnd": "68092782429991",
+        "animationTime": 4.166666666666667
+      },
+      {
+        "cpuStart": 1791075054535.115,
+        "cpuEnd": 1791075054538.22,
+        "gpuStart": "68094362610087",
+        "gpuEnd": "68094365829163",
+        "animationTime": 4.183333333333334
+      },
+      {
+        "cpuStart": 1791075054572.84,
+        "cpuEnd": 1791075054575.475,
+        "gpuStart": "68094402470729",
+        "gpuEnd": "68087323312750",
+        "animationTime": 4.2
+      },
+      {
+        "cpuStart": 1791075054610.14,
+        "cpuEnd": 1791075054613.1301,
+        "gpuStart": "68094439918866",
+        "gpuEnd": "68094443082067",
+        "animationTime": 4.216666666666667
+      },
+      {
+        "cpuStart": 1791075054648.325,
+        "cpuEnd": 1791075054650.58,
+        "gpuStart": "68094478682191",
+        "gpuEnd": "68092782429991",
+        "animationTime": 4.233333333333333
+      },
+      {
+        "cpuStart": 1791075054688.445,
+        "cpuEnd": 1791075054691.435,
+        "gpuStart": "68094513542909",
+        "gpuEnd": "68094515568503",
+        "animationTime": 4.25
+      },
+      {
+        "cpuStart": 1791075054725.535,
+        "cpuEnd": 1791075054727.95,
+        "gpuStart": "68094552374067",
+        "gpuEnd": "68087323312750",
+        "animationTime": 4.266666666666667
+      },
+      {
+        "cpuStart": 1791075054764.895,
+        "cpuEnd": 1791075054767.455,
+        "gpuStart": "68094587563863",
+        "gpuEnd": "68094589422126",
+        "animationTime": 4.283333333333333
+      },
+      {
+        "cpuStart": 1791075054801.5,
+        "cpuEnd": 1791075054805.795,
+        "gpuStart": "68094624941167",
+        "gpuEnd": "68092782429991",
+        "animationTime": 4.3
+      },
+      {
+        "cpuStart": 1791075054838.435,
+        "cpuEnd": 1791075054841.21,
+        "animationTime": 4.316666666666666
+      },
+      {
+        "cpuStart": 1791075054876.455,
+        "cpuEnd": 1791075054879.04,
+        "gpuStart": "68094697870014",
+        "gpuEnd": "68094701202296",
+        "animationTime": 4.333333333333333
+      },
+      {
+        "cpuStart": 1791075054911.805,
+        "cpuEnd": 1791075054914.625,
+        "gpuStart": "68094736593589",
+        "gpuEnd": "68094739787374",
+        "animationTime": 4.35
+      },
+      {
+        "cpuStart": 1791075054949.06,
+        "cpuEnd": 1791075054951.835,
+        "gpuStart": "68094776836517",
+        "gpuEnd": "68092782429991",
+        "animationTime": 4.366666666666666
+      },
+      {
+        "cpuStart": 1791075054985.285,
+        "cpuEnd": 1791075054991.35,
+        "animationTime": 4.383333333333334
+      },
+      {
+        "cpuStart": 1791075055023.57,
+        "cpuEnd": 1791075055026.8801,
+        "gpuStart": "68094849334493",
+        "gpuEnd": "68094887150208",
+        "animationTime": 4.4
+      },
+      {
+        "cpuStart": 1791075055062.3,
+        "cpuEnd": 1791075055065.06,
+        "animationTime": 4.416666666666667
+      },
+      {
+        "cpuStart": 1791075055099.135,
+        "cpuEnd": 1791075055102.265,
+        "gpuStart": "68094925022006",
+        "gpuEnd": "68094963566792",
+        "animationTime": 4.433333333333334
+      },
+      {
+        "cpuStart": 1791075055134.49,
+        "cpuEnd": 1791075055137.18,
+        "animationTime": 4.45
+      },
+      {
+        "cpuStart": 1791075055208.08,
+        "cpuEnd": 1791075055211.795,
+        "animationTime": 4.466666666666667
+      },
+      {
+        "cpuStart": 1791075055212.745,
+        "cpuEnd": 1791075055216.275,
+        "animationTime": 4.483333333333333
+      },
+      {
+        "cpuStart": 1791075055284.25,
+        "cpuEnd": 1791075055288.99,
+        "animationTime": 4.5
+      },
+      {
+        "cpuStart": 1791075055293.25,
+        "cpuEnd": 1791075055294.235,
+        "animationTime": 4.516666666666667
+      },
+      {
+        "cpuStart": 1791075055326.03,
+        "cpuEnd": 1791075055327.41,
+        "animationTime": 4.533333333333333
+      }
+    ],
+    "phases": [
+      {
+        "phase": "load",
+        "start": {
+          "clock": "reporter",
+          "t": 1791075041717.155
+        }
+      },
+      {
+        "phase": "load",
+        "start": {
+          "clock": "reporter",
+          "t": 1791075041717.155
+        },
+        "end": {
+          "clock": "reporter",
+          "t": 1791075041769.395
+        }
+      },
+      {
+        "phase": "process",
+        "start": {
+          "clock": "reporter",
+          "t": 1791075041769.425
+        }
+      },
+      {
+        "phase": "process",
+        "start": {
+          "clock": "reporter",
+          "t": 1791075041769.425
+        },
+        "end": {
+          "clock": "reporter",
+          "t": 1791075041802.735
+        }
+      },
+      {
+        "phase": "compile",
+        "start": {
+          "clock": "reporter",
+          "t": 1791075041802.735
+        }
+      },
+      {
+        "phase": "compile",
+        "start": {
+          "clock": "reporter",
+          "t": 1791075041802.735
+        },
+        "end": {
+          "clock": "reporter",
+          "t": 1791075042154.245
+        }
+      }
+    ],
+    "blocks": [
+      {
+        "start": 1791075041768.24,
+        "end": 1791075041885.92,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075042261.68,
+        "end": 1791075042353.63,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075042353.675,
+        "end": 1791075042440.945,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075042440.985,
+        "end": 1791075042520.9402,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075042520.975,
+        "end": 1791075042700.4602,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075042711.435,
+        "end": 1791075042783.62,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075042783.645,
+        "end": 1791075042871.9,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075042871.935,
+        "end": 1791075043044.2751,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075043044.315,
+        "end": 1791075043099.66,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075043099.685,
+        "end": 1791075043186.985,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075043223.555,
+        "end": 1791075043363.8599,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075043363.9,
+        "end": 1791075043446.145,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075043446.18,
+        "end": 1791075043532.13,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075043532.165,
+        "end": 1791075043620.45,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075043620.48,
+        "end": 1791075043751.185,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075043751.215,
+        "end": 1791075043807.58,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075043807.615,
+        "end": 1791075043890.445,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075043890.485,
+        "end": 1791075043987.1052,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075043987.14,
+        "end": 1791075044071.92,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075044071.95,
+        "end": 1791075044164.045,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075044164.08,
+        "end": 1791075044246.5352,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075044283.93,
+        "end": 1791075044455.325,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075044455.36,
+        "end": 1791075044505.4702,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075044544.71,
+        "end": 1791075044631.26,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075044631.295,
+        "end": 1791075044761.42,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075044761.465,
+        "end": 1791075045225.4302,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075045278.885,
+        "end": 1791075045366.285,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075045366.345,
+        "end": 1791075045494.115,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075045511.17,
+        "end": 1791075045643.9548,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075045643.985,
+        "end": 1791075045733.05,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075045733.08,
+        "end": 1791075045818.37,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075045818.4,
+        "end": 1791075045908.27,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075045908.34,
+        "end": 1791075046006.4202,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075046006.45,
+        "end": 1791075046095.615,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075046095.65,
+        "end": 1791075046185.8699,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075046185.91,
+        "end": 1791075046277.3499,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075046277.395,
+        "end": 1791075046363.955,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075046363.99,
+        "end": 1791075046444.53,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075046444.555,
+        "end": 1791075046527.3,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075046527.335,
+        "end": 1791075046617.71,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075046617.75,
+        "end": 1791075046702.265,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075046702.3,
+        "end": 1791075046780.405,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075046780.425,
+        "end": 1791075046865.02,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075046865.055,
+        "end": 1791075046952.46,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075046952.5,
+        "end": 1791075047036.285,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075047036.315,
+        "end": 1791075047117.13,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075047117.165,
+        "end": 1791075047207.135,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075047207.165,
+        "end": 1791075047294.455,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075047294.495,
+        "end": 1791075047389.4702,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075047426.62,
+        "end": 1791075047564.8252,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075047564.86,
+        "end": 1791075047656.645,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075047656.675,
+        "end": 1791075047729.48,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075047743.43,
+        "end": 1791075047805.63,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075047882.39,
+        "end": 1791075047957.1948,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075048400.22,
+        "end": 1791075048471.915,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075052279.18,
+        "end": 1791075052354.5798,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075052582.525,
+        "end": 1791075052654.8098,
+        "source": "loaf",
+        "scripts": []
+      },
+      {
+        "start": 1791075055137.345,
+        "end": 1791075055211.885,
+        "source": "loaf",
+        "scripts": []
+      }
+    ],
+    "watchdogTicks": [
+      1791075041717.115,
+      1791075041733.985,
+      1791075041751.055,
+      1791075041770.41,
+      1791075041886.115,
+      1791075041904.25,
+      1791075041921.585,
+      1791075041939.28,
+      1791075041956.31,
+      1791075041973.345,
+      1791075041990.73,
+      1791075042007.765,
+      1791075042024.21,
+      1791075042041.23,
+      1791075042058.2551,
+      1791075042075.29,
+      1791075042092.33,
+      1791075042109.375,
+      1791075042126.27,
+      1791075042142.92,
+      1791075042159.82,
+      1791075042183.795,
+      1791075042201.185,
+      1791075042218.73,
+      1791075042235.7551,
+      1791075042252.78,
+      1791075042269.81,
+      1791075042286.84,
+      1791075042303.885,
+      1791075042321.105,
+      1791075042338.15,
+      1791075042354.8801,
+      1791075042371.925,
+      1791075042389.6301,
+      1791075042406.51,
+      1791075042423.61,
+      1791075042441,
+      1791075042458.1,
+      1791075042474.8801,
+      1791075042492.41,
+      1791075042509.49,
+      1791075042526.72,
+      1791075042543.7551,
+      1791075042560.785,
+      1791075042577.36,
+      1791075042594.855,
+      1791075042611.92,
+      1791075042628.97,
+      1791075042646.015,
+      1791075042663.075,
+      1791075042680.115,
+      1791075042697.145,
+      1791075042713.7551,
+      1791075042730.785,
+      1791075042747.18,
+      1791075042764.26,
+      1791075042781.285,
+      1791075042798.68,
+      1791075042815.545,
+      1791075042832.565,
+      1791075042850.45,
+      1791075042867.485,
+      1791075042884.995,
+      1791075042903.02,
+      1791075042920.085,
+      1791075042937.535,
+      1791075042954.575,
+      1791075042971.61,
+      1791075042988.64,
+      1791075043005.675,
+      1791075043022.71,
+      1791075043039.745,
+      1791075043056.955,
+      1791075043073.995,
+      1791075043091.03,
+      1791075043108.7551,
+      1791075043125.78,
+      1791075043142.845,
+      1791075043159.885,
+      1791075043176.385,
+      1791075043193.675,
+      1791075043210.37,
+      1791075043226.895,
+      1791075043243.695,
+      1791075043260.71,
+      1791075043277.6,
+      1791075043294.735,
+      1791075043311.7551,
+      1791075043328.765,
+      1791075043345.8,
+      1791075043362.615,
+      1791075043379.96,
+      1791075043397.055,
+      1791075043414.115,
+      1791075043431.15,
+      1791075043447.3801,
+      1791075043464.395,
+      1791075043481.51,
+      1791075043498.56,
+      1791075043515.59,
+      1791075043532.2,
+      1791075043549.2551,
+      1791075043567.12,
+      1791075043584.155,
+      1791075043601.185,
+      1791075043618.215,
+      1791075043635.605,
+      1791075043653.52,
+      1791075043670.56,
+      1791075043687.605,
+      1791075043704.635,
+      1791075043721.675,
+      1791075043738.72,
+      1791075043755.77,
+      1791075043772.825,
+      1791075043789.545,
+      1791075043806.19,
+      1791075043823.68,
+      1791075043840.895,
+      1791075043857.94,
+      1791075043874.98,
+      1791075043891.73,
+      1791075043908.79,
+      1791075043925.57,
+      1791075043942.62,
+      1791075043959.665,
+      1791075043976.69,
+      1791075043993.98,
+      1791075044010.365,
+      1791075044027.39,
+      1791075044044.43,
+      1791075044061.48,
+      1791075044078.84,
+      1791075044095.905,
+      1791075044112.95,
+      1791075044129.71,
+      1791075044146.75,
+      1791075044164.085,
+      1791075044181.145,
+      1791075044198.16,
+      1791075044215.21,
+      1791075044232.195,
+      1791075044248.955,
+      1791075044266.0051,
+      1791075044282.58,
+      1791075044299.98,
+      1791075044317.105,
+      1791075044333.425,
+      1791075044349.715,
+      1791075044366.77,
+      1791075044383.835,
+      1791075044400.885,
+      1791075044417.92,
+      1791075044434.955,
+      1791075044451.99,
+      1791075044469.12,
+      1791075044486.97,
+      1791075044503.995,
+      1791075044521.59,
+      1791075044538.635,
+      1791075044555.685,
+      1791075044572.71,
+      1791075044589.475,
+      1791075044607.21,
+      1791075044624.245,
+      1791075044641.34,
+      1791075044658.385,
+      1791075044675.41,
+      1791075044692.925,
+      1791075044709.555,
+      1791075044726.605,
+      1791075044743.62,
+      1791075044759.94,
+      1791075044776.875,
+      1791075044793.12,
+      1791075044810.175,
+      1791075044826.84,
+      1791075044842.9,
+      1791075044860.48,
+      1791075044877.515,
+      1791075044894.555,
+      1791075044911.59,
+      1791075045225.605,
+      1791075045241.69,
+      1791075045259.26,
+      1791075045275.94,
+      1791075045293.515,
+      1791075045310.26,
+      1791075045327.285,
+      1791075045344.97,
+      1791075045361.685,
+      1791075045378.545,
+      1791075045395.595,
+      1791075045412.03,
+      1791075045428.68,
+      1791075045445.345,
+      1791075045461.99,
+      1791075045479.04,
+      1791075045495.195,
+      1791075045512.24,
+      1791075045528.635,
+      1791075045545.65,
+      1791075045563.2,
+      1791075045579.915,
+      1791075045596.935,
+      1791075045613.945,
+      1791075045630.965,
+      1791075045647.42,
+      1791075045664.445,
+      1791075045680.915,
+      1791075045697.925,
+      1791075045714.935,
+      1791075045731.94,
+      1791075045749.245,
+      1791075045767.03,
+      1791075045784.06,
+      1791075045801.1,
+      1791075045817.205,
+      1791075045834.475,
+      1791075045852.46,
+      1791075045869.485,
+      1791075045886.535,
+      1791075045903.61,
+      1791075045921.5,
+      1791075045938.77,
+      1791075045955.83,
+      1791075045972.58,
+      1791075045989.55,
+      1791075046006.475,
+      1791075046023.79,
+      1791075046041.47,
+      1791075046058.235,
+      1791075046075.2551,
+      1791075046092.29,
+      1791075046109.725,
+      1791075046125.7551,
+      1791075046142.785,
+      1791075046159.825,
+      1791075046176.865,
+      1791075046193.875,
+      1791075046210.325,
+      1791075046226.865,
+      1791075046243.91,
+      1791075046260.935,
+      1791075046277.41,
+      1791075046294.475,
+      1791075046311.52,
+      1791075046328.575,
+      1791075046345.61,
+      1791075046362.66,
+      1791075046380.05,
+      1791075046396.905,
+      1791075046413.035,
+      1791075046429.515,
+      1791075046445.72,
+      1791075046462.76,
+      1791075046479.69,
+      1791075046496.185,
+      1791075046513.02,
+      1791075046529.745,
+      1791075046546.76,
+      1791075046562.845,
+      1791075046579.685,
+      1791075046596.71,
+      1791075046613.725,
+      1791075046630.895,
+      1791075046648.085,
+      1791075046665.12,
+      1791075046681.715,
+      1791075046698.745,
+      1791075046716.355,
+      1791075046733.37,
+      1791075046750.395,
+      1791075046767.425,
+      1791075046783.875,
+      1791075046800.915,
+      1791075046817.94,
+      1791075046834.96,
+      1791075046852.01,
+      1791075046868.535,
+      1791075046885.585,
+      1791075046903.45,
+      1791075046920.355,
+      1791075046937.39,
+      1791075046953.74,
+      1791075046970.78,
+      1791075046987.8,
+      1791075047004.835,
+      1791075047021.86,
+      1791075047038.6301,
+      1791075047055.675,
+      1791075047072.17,
+      1791075047088.425,
+      1791075047105.445,
+      1791075047122.71,
+      1791075047139.735,
+      1791075047157.46,
+      1791075047174.475,
+      1791075047190.595,
+      1791075047207.205,
+      1791075047224.25,
+      1791075047241.765,
+      1791075047258.795,
+      1791075047274.835,
+      1791075047291.85,
+      1791075047309.575,
+      1791075047326.615,
+      1791075047343.67,
+      1791075047360.715,
+      1791075047377.7551,
+      1791075047395.205,
+      1791075047412.24,
+      1791075047428.91,
+      1791075047445.855,
+      1791075047462.9,
+      1791075047480.165,
+      1791075047497.18,
+      1791075047514.195,
+      1791075047531.205,
+      1791075047548.245,
+      1791075047564.885,
+      1791075047581.915,
+      1791075047598.93,
+      1791075047614.995,
+      1791075047632.045,
+      1791075047649.08,
+      1791075047666.74,
+      1791075047682.99,
+      1791075047700.025,
+      1791075047717.06,
+      1791075047734.11,
+      1791075047751.36,
+      1791075047768.375,
+      1791075047785.405,
+      1791075047802.435,
+      1791075047820.06,
+      1791075047836.995,
+      1791075047854.335,
+      1791075047871.365,
+      1791075047888.085,
+      1791075047905.12,
+      1791075047922.14,
+      1791075047939.175,
+      1791075047956.135,
+      1791075047974.125,
+      1791075047991.165,
+      1791075048008.75,
+      1791075048025.745,
+      1791075048042.785,
+      1791075048058.89,
+      1791075048075.565,
+      1791075048092.385,
+      1791075048109.555,
+      1791075048125.635,
+      1791075048142.645,
+      1791075048160.08,
+      1791075048176.17,
+      1791075048193.325,
+      1791075048209.48,
+      1791075048226.865,
+      1791075048243.525,
+      1791075048260.31,
+      1791075048276.845,
+      1791075048293.745,
+      1791075048310.16,
+      1791075048326.215,
+      1791075048343.39,
+      1791075048360.44,
+      1791075048377.7,
+      1791075048394.565,
+      1791075048412.3,
+      1791075048429.09,
+      1791075048446.17,
+      1791075048463.21,
+      1791075048479.965,
+      1791075048496.34,
+      1791075048513.085,
+      1791075048530.15,
+      1791075048546.865,
+      1791075048564.18,
+      1791075048581.325,
+      1791075048598.6301,
+      1791075048615.865,
+      1791075048632.905,
+      1791075048649.955,
+      1791075048666.215,
+      1791075048683.495,
+      1791075048700.5051,
+      1791075048718.275,
+      1791075048735.715,
+      1791075048752.165,
+      1791075048769.235,
+      1791075048786.65,
+      1791075048803.645,
+      1791075048820.185,
+      1791075048837.2,
+      1791075048853.445,
+      1791075048870.78,
+      1791075048888.72,
+      1791075048905.705,
+      1791075048922.115,
+      1791075048939.335,
+      1791075048956.3801,
+      1791075048974.05,
+      1791075048991.08,
+      1791075049008.225,
+      1791075049025.26,
+      1791075049042.31,
+      1791075049059.225,
+      1791075049075.565,
+      1791075049092.62,
+      1791075049109.655,
+      1791075049127.395,
+      1791075049144.42,
+      1791075049161.53,
+      1791075049177.94,
+      1791075049194.98,
+      1791075049211.285,
+      1791075049228.515,
+      1791075049245.735,
+      1791075049262.285,
+      1791075049279.33,
+      1791075049296.045,
+      1791075049313.37,
+      1791075049330.135,
+      1791075049347.885,
+      1791075049364.66,
+      1791075049381.89,
+      1791075049398.94,
+      1791075049416.625,
+      1791075049433.555,
+      1791075049451.015,
+      1791075049467.415,
+      1791075049483.93,
+      1791075049500.97,
+      1791075049518.485,
+      1791075049535.64,
+      1791075049552.675,
+      1791075049570.185,
+      1791075049587.65,
+      1791075049604.7,
+      1791075049621.72,
+      1791075049638.975,
+      1791075049656.01,
+      1791075049673.11,
+      1791075049690.155,
+      1791075049706.39,
+      1791075049723.435,
+      1791075049740.815,
+      1791075049757.51,
+      1791075049775.055,
+      1791075049792.18,
+      1791075049808.98,
+      1791075049826.65,
+      1791075049843.52,
+      1791075049860.265,
+      1791075049876.79,
+      1791075049893.78,
+      1791075049910.125,
+      1791075049927.17,
+      1791075049944.485,
+      1791075049961.305,
+      1791075049978.525,
+      1791075049995.745,
+      1791075050013.275,
+      1791075050030.195,
+      1791075050047.685,
+      1791075050065.08,
+      1791075050082.7,
+      1791075050099.78,
+      1791075050116.855,
+      1791075050134.475,
+      1791075050151.695,
+      1791075050168.265,
+      1791075050185.365,
+      1791075050204.405,
+      1791075050221.5051,
+      1791075050238.715,
+      1791075050255.81,
+      1791075050272.905,
+      1791075050290.585,
+      1791075050307.675,
+      1791075050324.45,
+      1791075050340.665,
+      1791075050360.165,
+      1791075050376.775,
+      1791075050393.885,
+      1791075050411.695,
+      1791075050429.01,
+      1791075050446.79,
+      1791075050463.515,
+      1791075050480.62,
+      1791075050497.94,
+      1791075050515.0051,
+      1791075050532.1,
+      1791075050549.44,
+      1791075050567.11,
+      1791075050584.695,
+      1791075050602.05,
+      1791075050620.0051,
+      1791075050637.425,
+      1791075050654.51,
+      1791075050670.915,
+      1791075050687.985,
+      1791075050705.045,
+      1791075050722.685,
+      1791075050740.66,
+      1791075050757.8,
+      1791075050774.875,
+      1791075050791.805,
+      1791075050808.705,
+      1791075050826.26,
+      1791075050842.865,
+      1791075050859.95,
+      1791075050877.8,
+      1791075050894.68,
+      1791075050911.98,
+      1791075050929.01,
+      1791075050946.15,
+      1791075050963.225,
+      1791075050979.69,
+      1791075050997.165,
+      1791075051014.035,
+      1791075051030.59,
+      1791075051048.03,
+      1791075051064.68,
+      1791075051081.95,
+      1791075051099.345,
+      1791075051116.885,
+      1791075051134.74,
+      1791075051151.825,
+      1791075051168.895,
+      1791075051186,
+      1791075051203.185,
+      1791075051219.695,
+      1791075051236.045,
+      1791075051253.14,
+      1791075051269.19,
+      1791075051287,
+      1791075051304.175,
+      1791075051321.555,
+      1791075051339.04,
+      1791075051356.15,
+      1791075051373.245,
+      1791075051390.07,
+      1791075051406.86,
+      1791075051423.425,
+      1791075051440.495,
+      1791075051458.02,
+      1791075051475.23,
+      1791075051494.145,
+      1791075051511.21,
+      1791075051528.3,
+      1791075051546.2,
+      1791075051563.48,
+      1791075051580.735,
+      1791075051597.98,
+      1791075051615.3,
+      1791075051632.41,
+      1791075051649.57,
+      1791075051666.645,
+      1791075051684.93,
+      1791075051701.025,
+      1791075051718.575,
+      1791075051736.32,
+      1791075051754.355,
+      1791075051772.3,
+      1791075051789.62,
+      1791075051806.94,
+      1791075051823.31,
+      1791075051839.93,
+      1791075051857.04,
+      1791075051873.92,
+      1791075051890.995,
+      1791075051908.245,
+      1791075051925.355,
+      1791075051943.475,
+      1791075051960.025,
+      1791075051977.085,
+      1791075051994.345,
+      1791075052011.025,
+      1791075052028.275,
+      1791075052045.525,
+      1791075052061.945,
+      1791075052078.44,
+      1791075052095.15,
+      1791075052112.27,
+      1791075052129.36,
+      1791075052146.305,
+      1791075052163.395,
+      1791075052180.67,
+      1791075052197.465,
+      1791075052215.02,
+      1791075052232.07,
+      1791075052248.855,
+      1791075052266.695,
+      1791075052283.73,
+      1791075052300.77,
+      1791075052317.48,
+      1791075052334.54,
+      1791075052351.61,
+      1791075052369.08,
+      1791075052386.125,
+      1791075052402.78,
+      1791075052419.79,
+      1791075052437.45,
+      1791075052454.135,
+      1791075052470.59,
+      1791075052487.645,
+      1791075052505.02,
+      1791075052522.345,
+      1791075052539.56,
+      1791075052556.765,
+      1791075052573.835,
+      1791075052591.605,
+      1791075052608.205,
+      1791075052625.24,
+      1791075052642.265,
+      1791075052658.75,
+      1791075052676.71,
+      1791075052693.08,
+      1791075052709.96,
+      1791075052727.03,
+      1791075052744.3801,
+      1791075052761.305,
+      1791075052778.365,
+      1791075052795.6,
+      1791075052812.395,
+      1791075052828.67,
+      1791075052845.615,
+      1791075052862.65,
+      1791075052879.47,
+      1791075052896.68,
+      1791075052912.85,
+      1791075052929.61,
+      1791075052946.78,
+      1791075052964.365,
+      1791075052981.085,
+      1791075052998.195,
+      1791075053015.225,
+      1791075053031.385,
+      1791075053048.1301,
+      1791075053065.56,
+      1791075053083.335,
+      1791075053101.195,
+      1791075053119.05,
+      1791075053136.54,
+      1791075053154.125,
+      1791075053171.85,
+      1791075053189.46,
+      1791075053206.495,
+      1791075053223.765,
+      1791075053240.8,
+      1791075053258.045,
+      1791075053274.78,
+      1791075053291.655,
+      1791075053308.685,
+      1791075053325.445,
+      1791075053342.645,
+      1791075053359.73,
+      1791075053377.43,
+      1791075053394.43,
+      1791075053411.99,
+      1791075053428.89,
+      1791075053445.995,
+      1791075053463.39,
+      1791075053480.8801,
+      1791075053497.955,
+      1791075053515.375,
+      1791075053532.435,
+      1791075053549.97,
+      1791075053567.035,
+      1791075053584.46,
+      1791075053601.29,
+      1791075053618.865,
+      1791075053635.855,
+      1791075053652.45,
+      1791075053668.89,
+      1791075053686.085,
+      1791075053703.21,
+      1791075053720.75,
+      1791075053738.57,
+      1791075053755.905,
+      1791075053773.92,
+      1791075053790.84,
+      1791075053807.805,
+      1791075053825.435,
+      1791075053842.18,
+      1791075053858.54,
+      1791075053875.515,
+      1791075053891.68,
+      1791075053908.44,
+      1791075053925.445,
+      1791075053943.435,
+      1791075053960.425,
+      1791075053977.5,
+      1791075053994.64,
+      1791075054011.895,
+      1791075054029.385,
+      1791075054046.46,
+      1791075054062.965,
+      1791075054080.58,
+      1791075054097.87,
+      1791075054114.955,
+      1791075054132.795,
+      1791075054150.65,
+      1791075054167.62,
+      1791075054184.71,
+      1791075054201.085,
+      1791075054218.02,
+      1791075054236.815,
+      1791075054253.97,
+      1791075054271.135,
+      1791075054288.94,
+      1791075054306.185,
+      1791075054323.555,
+      1791075054340.64,
+      1791075054357.52,
+      1791075054374.595,
+      1791075054391.165,
+      1791075054408.265,
+      1791075054424.745,
+      1791075054441.84,
+      1791075054459.225,
+      1791075054476.55,
+      1791075054493.42,
+      1791075054511.485,
+      1791075054528.905,
+      1791075054546.35,
+      1791075054562.97,
+      1791075054580.27,
+      1791075054597.845,
+      1791075054614.55,
+      1791075054631.145,
+      1791075054648.21,
+      1791075054665.875,
+      1791075054683.415,
+      1791075054700.685,
+      1791075054717.54,
+      1791075054735.03,
+      1791075054752.135,
+      1791075054768.81,
+      1791075054785.89,
+      1791075054805.97,
+      1791075054823.06,
+      1791075054841.52,
+      1791075054858.665,
+      1791075054876.1301,
+      1791075054892.935,
+      1791075054910.025,
+      1791075054928.035,
+      1791075054945.4,
+      1791075054962.52,
+      1791075054979.32,
+      1791075054996.095,
+      1791075055013.32,
+      1791075055030.5051,
+      1791075055047.36,
+      1791075055065.34,
+      1791075055082.415,
+      1791075055098.965,
+      1791075055116.525,
+      1791075055134.365,
+      1791075055151,
+      1791075055168.275,
+      1791075055184.575,
+      1791075055201.675,
+      1791075055218.765,
+      1791075055235.835,
+      1791075055253.08,
+      1791075055270.175,
+      1791075055289.61,
+      1791075055307.2551,
+      1791075055324.32,
+      1791075055341.655,
+      1791075055358.25,
+      1791075055375.375
+    ],
+    "hello": 1791075041706.01,
+    "ready": 1791075042154.285,
+    "warmupStart": 1791075042154.285,
+    "runStart": 1791075045373.985,
+    "runEnd": 1791075055375.42
+  },
+  "status": "ok",
+  "capture": {
+    "file": "rep-1.avif",
+    "at": 1791075045252.34
+  }
+}

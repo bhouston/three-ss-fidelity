@@ -1,5 +1,7 @@
 This viewer compares [three.js](https://threejs.org/) screen-space effects against path-traced reference renders. The suite tests screen-space global illumination (SSGI), reflections (SSR), ambient occlusion (AO), and temporal reprojection anti-aliasing (TRAA), so you can inspect visual differences and track improvements across scenes.
 
+[Open the performance viewer](performance/) to inspect frame times, setup, jitter, and the Cornell metallic-sphere benchmark across Three renderer variants.
+
 **Available renderers:**
 
 - `three-gpu-pathtracer` — Reference path tracer — [three-gpu-pathtracer](https://github.com/gkjohnson/three-gpu-pathtracer), providing a path-traced reference for the comparisons.

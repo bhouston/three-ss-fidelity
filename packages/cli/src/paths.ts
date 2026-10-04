@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url';
 /** Repository root (this file is packages/cli/{src,dist}/paths). */
 export const repoRoot = fileURLToPath(new URL('../../../', import.meta.url));
 
-/** results/<scene-name>/beauty/<renderer-name>.avif, committed. */
-export const resultsDir = path.join(repoRoot, 'results');
+/** fidelity-results/<scene-name>/beauty/<renderer-name>.avif, committed. */
+export const resultsDir = path.join(repoRoot, 'fidelity-results');
 
 export const sceneDir = (sceneName: string, root = resultsDir) => path.join(root, sceneName, 'beauty');
 

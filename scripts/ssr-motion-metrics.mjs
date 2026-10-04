@@ -23,7 +23,7 @@ const scenes = readdirSync(dir)
 const sums = Object.fromEntries(columns.map((c) => [c, []]));
 console.log(['scene', ...columns].join(' | '));
 for (const scene of scenes) {
-  const reference = path.join(repoRoot, 'results', scene, 'beauty', `${referenceName}.avif`);
+  const reference = path.join(repoRoot, 'fidelity-results', scene, 'beauty', `${referenceName}.avif`);
   const cells = [scene];
   for (const column of columns) {
     const test = path.join(dir, scene, 'beauty', `${column}.avif`);

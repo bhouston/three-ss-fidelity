@@ -26,7 +26,7 @@ for (const name of listSceneNames().filter(
   const top = Math.floor((-center.y * 0.5 + 0.5) * definition.height) - 8;
   const row = { scene: name, patch: { left, top, width: 16, height: 16 } };
   for (const renderer of ['three-new', 'three-gpu-pathtracer']) {
-    const pixels = await sharp(path.join(root, 'results', name, 'beauty', `${renderer}.avif`))
+    const pixels = await sharp(path.join(root, 'fidelity-results', name, 'beauty', `${renderer}.avif`))
       .extract(row.patch)
       .removeAlpha()
       .raw()

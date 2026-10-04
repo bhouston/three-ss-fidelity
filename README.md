@@ -17,12 +17,12 @@ Workflow rules (issues, branches, Conventional Commits, PRs, required checks) ar
 
 1. Change an effect in `submodules/three.js`, or in a vendored node under `packages/renderers/src/` (see below).
 2. Render the affected scenes: `pnpm cli render --scenes 'ssr-*' --renderers three-new-baseline`.
-3. Score them against the path tracer: `pnpm exec fidelity-kit process results`.
+3. Score them against the path tracer: `pnpm exec fidelity-kit process fidelity-results`.
 4. Check for regressions: `pnpm cli quality-gate <baseline> <candidate>` (per-scene PSNR-drop threshold, default 0.1 dB), e.g.
    against results rendered before the change into another `--results`.
 5. For temporal and real-time work, also run `pnpm cli converge` (image quality after a camera move) and
    `pnpm cli bench` (frame time).
-6. Commit the updated `results/` and record the findings in the matching doc (see [Documentation](#documentation)).
+6. Commit the updated `fidelity-results/` and record the findings in the matching doc (see [Documentation](#documentation)).
 
 Improvements go into `three-new`; `three-current` (stock three.js) stays fixed as the baseline. What `three-new` does
 and why is in [docs/THREE-NEW.md](docs/THREE-NEW.md).
@@ -39,7 +39,7 @@ packages/renderers  @ss-fidelity/renderers  screen-space pipeline and path-trace
 packages/cli        @ss-fidelity/cli        headless render / converge / bench / quality-gate
 packages/runtime    @ss-fidelity/runtime    backend-independent capture / benchmark runners + reports
 packages/playground @ss-fidelity/playground interactive live lab (pnpm live)
-results/<scene>/beauty/                     committed render output; scored/viewed with fidelity-kit
+fidelity-results/<scene>/beauty/                     committed render output; scored/viewed with fidelity-kit
 docs/                                       THREE-NEW.md, plans, benchmark write-ups; docs/history/ holds the experiment logs
 scripts/                                    one-off metric and experiment scripts (gi-*, ssr-*, traa-*) + check-pr.mjs
 ```
@@ -158,9 +158,9 @@ A fresh legacy CLI render with the accumulation fix produced a nonblack 64×64 i
 | Command                               | Does                                                                                                                                                                                                                    |
 | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cli list [--verbose]`                | List scene names.                                                                                                                                                                                                       |
-| `cli render`                          | Write `results/<scene>/beauty/<renderer>.avif`. `--scenes/--renderers` take comma-separated globs; also `--missing-only`, `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`, `--width`, `--height`. |
+| `cli render`                          | Write `fidelity-results/<scene>/beauty/<renderer>.avif`. `--scenes/--renderers` take comma-separated globs; also `--missing-only`, `--samples`, `--frames`, `--motion`, `--motion-object`, `--ssr-debug`, `--width`, `--height`. |
 | `cli quality-gate <base> <candidate>` | Fail if the candidate's PSNR (from `fidelity-kit process`'s metrics) drops by more than `--threshold` dB on any scene.                                                                                                  |
-| `cli converge`                        | Move-then-stop benchmark: write `results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                                                         |
+| `cli converge`                        | Move-then-stop benchmark: write `fidelity-results/<scene>/beauty/converge-<renderer>.json` ([docs/CONVERGENCE.md](docs/CONVERGENCE.md)).                                                                                         |
 | `cli bench --renderers a,b`           | Repeated five-second completed-work benchmarks and A/B speedup; JSON + offline HTML reports; `--experiment` selects variants; `--profile` / `--gpu` for instrumented GPU timing ([docs/PERF.md](docs/PERF.md)).         |
 
 Run `pnpm cli <command> --help` for all flags. `pnpm cli` runs the built `dist/`, so run `pnpm build` (or `pnpm dev`)
@@ -172,8 +172,8 @@ Run `pnpm build` then `pnpm live` and open <http://127.0.0.1:5173/> for orbit in
 
 ### Viewer
 
-[fidelity-kit](https://github.com/bhouston/fidelity-kit) scores and serves `results/` directly; there is no custom
-viewer package. `results/fidelity.json` declares the renderers (`three-gpu-pathtracer` and `blender` are references)
+[fidelity-kit](https://github.com/bhouston/fidelity-kit) scores and serves `fidelity-results/` directly; there is no custom
+viewer package. `fidelity-results/fidelity.json` declares the renderers (`three-gpu-pathtracer` and `blender` are references)
 and the single implicit beauty output.
 
 - `pnpm fidelity:dev` serves the results grid and scene detail views at `localhost:3000`, uncached.
@@ -183,7 +183,7 @@ Merging to `main` deploys `site/` to GitHub Pages at <https://ss-fidelity.ben3d.
 
 ## Results
 
-`results/<scene>/beauty/` is committed and holds:
+`fidelity-results/<scene>/beauty/` is committed and holds:
 
 - `three-gpu-pathtracer.avif` / `blender.avif`: the two references.
 - `<renderer>.avif`: each screen-space render.
@@ -214,7 +214,7 @@ The `three-new-ssr-temporal-validated` and `three-new-ssr-temporal-gaussian` pro
 
 For example, `pnpm cli render --missing-only --renderers three-new-hierarchy-combined` fills only combined hierarchy captures. `cli render` no longer accepts `--experiment`; select the full renderer name instead. Baseline images retain their existing `three-new.avif` filename and viewer ID.
 
-The option checks the requested AVIF paths in `--output` (default: `results/`) before starting render processes, including SSR debug variants. With `--motion`, existing captures are preserved and only missing captures are written; frames still advance normally to preserve temporal history. Omit the flag to regenerate images after changing render settings or code.
+The option checks the requested AVIF paths in `--output` (default: `fidelity-results/`) before starting render processes, including SSR debug variants. With `--motion`, existing captures are preserved and only missing captures are written; frames still advance normally to preserve temporal history. Omit the flag to regenerate images after changing render settings or code.
 
 Images are AVIF q90 4:4:4 (`RESULT_AVIF` in `packages/cli/src/compare.ts`). All renderers produce full beauty images; there is no pass selector. Historical AO/direct images remain as archived artifacts and are excluded from the active viewer configuration.
 
@@ -241,7 +241,7 @@ pnpm exec oxfmt <changed files>
 
 ## Results introduction
 
-Edit `results/README.md` to update the Markdown introduction above the comparisons. Fidelity-kit displays this file in the local viewer, static exports, and the deployed container. Keep its renderer descriptions in sync with `results/fidelity.json`.
+Edit `fidelity-results/README.md` to update the Markdown introduction above the comparisons. Fidelity-kit displays this file in the local viewer, static exports, and the deployed container. Keep its renderer descriptions in sync with `fidelity-results/fidelity.json`.
 
 ## Documentation
 

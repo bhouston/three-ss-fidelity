@@ -19,7 +19,7 @@ const { values } = parseArgs({
     mode: { type: 'string', default: 'quality' },
     scenes: { type: 'string', default: 'ssgi-basic' },
     variants: { type: 'string', default: Object.keys(ssgiWorkExperiments).join(',') },
-    references: { type: 'string', default: 'results' },
+    references: { type: 'string', default: 'fidelity-results' },
     frames: { type: 'string', default: '128' },
     width: { type: 'string', default: '960' },
     height: { type: 'string', default: '540' },

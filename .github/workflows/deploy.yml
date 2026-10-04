@@ -28,7 +28,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
       # Uses the fidelity-kit range from package.json without installing the workspace (which needs submodules).
-      - run: npx -y "fidelity-kit@$(node -p "require('./package.json').devDependencies['fidelity-kit']")" build results --out site/
+      - run: npx -y "fidelity-kit@$(node -p "require('./package.json').devDependencies['fidelity-kit']")" build fidelity-results --out site/
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site/

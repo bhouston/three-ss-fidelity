@@ -14,7 +14,7 @@ load. `cli converge` measures the case that matters.
    temporal history (TRAA, denoisers, SSGI's multi-bounce feedback) is warm and in motion when it stops.
 2. Frames 0, 1, 2, 4, 8, 16, 32, 64, 128, 255 and 256 after stopping are scored against the committed
    `three-gpu-pathtracer` reference.
-3. `results/<scene>/beauty/converge-<renderer>.json` records the curve (PSNR (dB) and brightness bias per capture) and a
+3. `fidelity-results/<scene>/beauty/converge-<renderer>.json` records the curve (PSNR (dB) and brightness bias per capture) and a
    summary:
 
 | field       | meaning                                                                   |

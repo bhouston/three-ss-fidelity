@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const resultsDir = path.join(repoRoot, 'results');
+const resultsDir = path.join(repoRoot, 'fidelity-results');
 
 const renderers = (process.argv[2] ?? 'three-new,three-current').split(',');
 

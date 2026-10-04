@@ -50,7 +50,7 @@ function parseMotion(value: string | undefined, objectValue: string | undefined)
 
 export const command = defineCommand({
   command: 'render',
-  describe: 'Render scenes with renderers into results/<scene>/beauty/<renderer>.avif',
+  describe: 'Render scenes with renderers into fidelity-results/<scene>/beauty/<renderer>.avif',
   builder: (yargs) =>
     yargs
       .strictOptions()

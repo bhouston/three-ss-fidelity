@@ -108,7 +108,7 @@ const { values } = parseArgs({
     out: { type: 'string', default: '.output/ssr-temporal' },
     scenes: { type: 'string', default: 'ssr-diag-mirror,ssr-diag-rough-30,ssr-diag-rough-60,ssr-steampunk-camera' },
     profiles: { type: 'string', default: 'baseline,validated,gaussian' },
-    'reference-root': { type: 'string', default: 'results' },
+    'reference-root': { type: 'string', default: 'fidelity-results' },
     'move-frames': { type: 'string', default: '60' },
     warmup: { type: 'string', default: '64' },
     scale: { type: 'string', default: '1' },

@@ -18,7 +18,7 @@ const screenSpaceRenderers = rendererNames.filter((name) => name !== 'three-gpu-
 export const command = defineCommand({
   command: 'converge',
   describe:
-    'Move-then-stop benchmark: orbit into the reference pose, then score frames after stopping against three-gpu-pathtracer (results/<scene>/beauty/converge-<renderer>.json)',
+    'Move-then-stop benchmark: orbit into the reference pose, then score frames after stopping against three-gpu-pathtracer (fidelity-results/<scene>/beauty/converge-<renderer>.json)',
   builder: (yargs) =>
     yargs
       .option('scenes', { type: 'string', default: '*', describe: 'Scene name glob(s), comma separated' })

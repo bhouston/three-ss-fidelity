@@ -37,7 +37,7 @@ export const command = defineCommand({
         default: 0.1,
         describe: 'Max allowed PSNR drop per scene in dB (higher PSNR is better)',
       })
-      .option('results', { type: 'string', default: resultsDir, describe: 'Results directory' })
+      .option('fidelity-results', { type: 'string', default: resultsDir, describe: 'Results directory' })
       .option('out', { type: 'string', describe: 'Write the row-by-row and summary result as JSON' }),
   handler: async (argv) => {
     if (!Number.isFinite(argv.threshold) || argv.threshold < 0)

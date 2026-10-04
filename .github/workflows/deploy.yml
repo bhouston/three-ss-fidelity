@@ -36,7 +36,7 @@ jobs:
       - name: Build fidelity viewer
         run: pnpm exec fidelity-kit build fidelity-results --out site/
       - name: Build performance viewer
-        run: pnpm exec performance-kit build --out performance-results --site site/performance
+        run: node submodules/performance-kit/packages/cli/dist/bin.js build --out performance-results --site site/performance
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site/

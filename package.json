@@ -22,11 +22,11 @@
     "live": "pnpm --filter @ss-fidelity/playground dev",
     "build:three": "pnpm --filter ./submodules/three.js build",
     "test:browser": "pnpm --filter @ss-fidelity/playground test:browser",
-    "performance:run": "performance-kit run --suite performance-suite.json --out performance-results",
-    "performance:serve": "performance-kit serve --out performance-results",
-    "performance:build": "performance-kit build --out performance-results --site performance-site",
+    "performance:run": "node submodules/performance-kit/packages/cli/dist/bin.js run --suite performance-suite.json --out performance-results",
+    "performance:serve": "node submodules/performance-kit/packages/cli/dist/bin.js serve --out performance-results",
+    "performance:build": "node submodules/performance-kit/packages/cli/dist/bin.js build --out performance-results --site performance-site",
     "build:performance-kit": "pnpm --dir submodules/performance-kit build",
-    "performance:metallic": "performance-kit run --suite performance-suite-metallic.json --renderer-root packages/playground/dist --out performance-results"
+    "performance:metallic": "node submodules/performance-kit/packages/cli/dist/bin.js run --suite performance-suite-metallic.json --renderer-root packages/playground/dist --out performance-results"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",

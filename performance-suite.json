@@ -4,30 +4,24 @@
   "name": "ss-fidelity real-time Three performance",
   "defaults": {
     "warmupMs": 2000,
-    "repetitions": 3,
+    "repetitions": 1,
     "order": "interleaved",
     "setupTimeoutMs": 60000,
     "captureAfterWarmup": true,
-    "vsync": "on"
+    "vsync": "off"
   },
   "entries": [
     {
       "id": "ssgi-basic--three-current",
       "name": "Three-Base \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-current"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "baseline"
-        }
-      ],
+      "renderer": {
+        "id": "three-current",
+        "name": "Three-Base"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -41,20 +35,14 @@
     {
       "id": "ssgi-basic--three-new",
       "name": "Three-New \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "baseline"
-        }
-      ],
+      "renderer": {
+        "id": "three-new",
+        "name": "Three-New"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -68,20 +56,14 @@
     {
       "id": "ssgi-basic--three-new-light-bake",
       "name": "Three Light Bake \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new-light-bake"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "baseline"
-        }
-      ],
+      "renderer": {
+        "id": "three-new-light-bake",
+        "name": "Three Light Bake"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -95,20 +77,14 @@
     {
       "id": "ssgi-basic--three-new-light-probe",
       "name": "Three Light Probe \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new-light-probe"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "baseline"
-        }
-      ],
+      "renderer": {
+        "id": "three-new-light-probe",
+        "name": "Three Light Probe"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -122,20 +98,14 @@
     {
       "id": "ssgi-basic--three-new-light-probe-ddgi",
       "name": "Three DDGI \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new-light-probe-ddgi"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "baseline"
-        }
-      ],
+      "renderer": {
+        "id": "three-new-light-probe-ddgi",
+        "name": "Three DDGI"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -149,20 +119,14 @@
     {
       "id": "ssgi-basic--three-new--ssr-hiz-tight",
       "name": "Three-New ssr-hiz-tight \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssr-hiz-tight"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssr-hiz-tight",
+        "name": "Three-New \u00b7 Tight SSR hierarchy"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -177,20 +141,14 @@
     {
       "id": "ssgi-basic--three-new--ssr-radiance-mips",
       "name": "Three-New ssr-radiance-mips \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssr-radiance-mips"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssr-radiance-mips",
+        "name": "Three-New \u00b7 SSR radiance mipmaps"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -205,20 +163,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-radiance-mips",
       "name": "Three-New ssgi-radiance-mips \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-radiance-mips"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-radiance-mips",
+        "name": "Three-New \u00b7 SSGI radiance mipmaps"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -233,20 +185,14 @@
     {
       "id": "ssgi-basic--three-new--hierarchy-combined",
       "name": "Three-New hierarchy-combined \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "hierarchy-combined"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--hierarchy-combined",
+        "name": "Three-New \u00b7 Combined hierarchy"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -261,20 +207,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-half",
       "name": "Three-New ssgi-half \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-half"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-half",
+        "name": "Three-New \u00b7 Half resolution SSGI"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -289,20 +229,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-third",
       "name": "Three-New ssgi-third \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-third"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-third",
+        "name": "Three-New \u00b7 Third resolution SSGI"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -317,20 +251,14 @@
     {
       "id": "ssgi-basic--three-new--ssr-temporal-validated",
       "name": "Three-New ssr-temporal-validated \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssr-temporal-validated"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssr-temporal-validated",
+        "name": "Three-New \u00b7 Validated temporal SSR"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -345,20 +273,14 @@
     {
       "id": "ssgi-basic--three-new--ssr-temporal-gaussian",
       "name": "Three-New ssr-temporal-gaussian \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssr-temporal-gaussian"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssr-temporal-gaussian",
+        "name": "Three-New \u00b7 Gaussian temporal SSR"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -373,20 +295,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-early-exit",
       "name": "Three-New ssgi-early-exit \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-early-exit"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-early-exit",
+        "name": "Three-New \u00b7 SSGI early exit"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -401,20 +317,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-reuse-texels",
       "name": "Three-New ssgi-reuse-texels \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-reuse-texels"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-reuse-texels",
+        "name": "Three-New \u00b7 SSGI texel reuse"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -429,20 +339,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-redundant-work",
       "name": "Three-New ssgi-redundant-work \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-redundant-work"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-redundant-work",
+        "name": "Three-New \u00b7 Reduced redundant SSGI work"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -457,20 +361,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-4x32",
       "name": "Three-New ssgi-4x32 \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-4x32"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-4x32",
+        "name": "Three-New \u00b7 SSGI 4x32"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -485,20 +383,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-8x16",
       "name": "Three-New ssgi-8x16 \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-8x16"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-8x16",
+        "name": "Three-New \u00b7 SSGI 8x16"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -513,20 +405,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-4x16",
       "name": "Three-New ssgi-4x16 \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-4x16"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-4x16",
+        "name": "Three-New \u00b7 SSGI 4x16"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -541,20 +427,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-2x16",
       "name": "Three-New ssgi-2x16 \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-2x16"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-2x16",
+        "name": "Three-New \u00b7 SSGI 2x16"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -569,20 +449,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-2x8",
       "name": "Three-New ssgi-2x8 \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-2x8"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-2x8",
+        "name": "Three-New \u00b7 SSGI 2x8"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -597,20 +471,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-6x32",
       "name": "Three-New ssgi-6x32 \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-6x32"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-6x32",
+        "name": "Three-New \u00b7 SSGI 6x32"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -625,20 +493,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-8x24",
       "name": "Three-New ssgi-8x24 \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-8x24"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-8x24",
+        "name": "Three-New \u00b7 SSGI 8x24"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -653,20 +515,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-6x24",
       "name": "Three-New ssgi-6x24 \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-6x24"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-6x24",
+        "name": "Three-New \u00b7 SSGI 6x24"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -681,20 +537,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-7x32",
       "name": "Three-New ssgi-7x32 \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-7x32"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-7x32",
+        "name": "Three-New \u00b7 SSGI 7x32"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -709,20 +559,14 @@
     {
       "id": "ssgi-basic--three-new--ssgi-8x28",
       "name": "Three-New ssgi-8x28 \u00b7 ssgi-basic",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssgi-basic"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-8x28"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-8x28",
+        "name": "Three-New \u00b7 SSGI 8x28"
+      },
+      "scene": {
+        "id": "ssgi-basic",
+        "name": "Cornell box \u00b7 two boxes"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -737,20 +581,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-current",
       "name": "Three-Base \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-current"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "baseline"
-        }
-      ],
+      "renderer": {
+        "id": "three-current",
+        "name": "Three-Base"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -764,20 +602,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new",
       "name": "Three-New \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "baseline"
-        }
-      ],
+      "renderer": {
+        "id": "three-new",
+        "name": "Three-New"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -791,20 +623,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new-light-bake",
       "name": "Three Light Bake \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new-light-bake"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "baseline"
-        }
-      ],
+      "renderer": {
+        "id": "three-new-light-bake",
+        "name": "Three Light Bake"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -818,20 +644,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new-light-probe",
       "name": "Three Light Probe \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new-light-probe"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "baseline"
-        }
-      ],
+      "renderer": {
+        "id": "three-new-light-probe",
+        "name": "Three Light Probe"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -845,20 +665,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new-light-probe-ddgi",
       "name": "Three DDGI \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new-light-probe-ddgi"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "baseline"
-        }
-      ],
+      "renderer": {
+        "id": "three-new-light-probe-ddgi",
+        "name": "Three DDGI"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -872,20 +686,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssr-hiz-tight",
       "name": "Three-New ssr-hiz-tight \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssr-hiz-tight"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssr-hiz-tight",
+        "name": "Three-New \u00b7 Tight SSR hierarchy"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -900,20 +708,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssr-radiance-mips",
       "name": "Three-New ssr-radiance-mips \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssr-radiance-mips"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssr-radiance-mips",
+        "name": "Three-New \u00b7 SSR radiance mipmaps"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -928,20 +730,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-radiance-mips",
       "name": "Three-New ssgi-radiance-mips \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-radiance-mips"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-radiance-mips",
+        "name": "Three-New \u00b7 SSGI radiance mipmaps"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -956,20 +752,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--hierarchy-combined",
       "name": "Three-New hierarchy-combined \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "hierarchy-combined"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--hierarchy-combined",
+        "name": "Three-New \u00b7 Combined hierarchy"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -984,20 +774,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-half",
       "name": "Three-New ssgi-half \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-half"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-half",
+        "name": "Three-New \u00b7 Half resolution SSGI"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1012,20 +796,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-third",
       "name": "Three-New ssgi-third \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-third"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-third",
+        "name": "Three-New \u00b7 Third resolution SSGI"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1040,20 +818,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssr-temporal-validated",
       "name": "Three-New ssr-temporal-validated \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssr-temporal-validated"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssr-temporal-validated",
+        "name": "Three-New \u00b7 Validated temporal SSR"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1068,20 +840,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssr-temporal-gaussian",
       "name": "Three-New ssr-temporal-gaussian \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssr-temporal-gaussian"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssr-temporal-gaussian",
+        "name": "Three-New \u00b7 Gaussian temporal SSR"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1096,20 +862,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-early-exit",
       "name": "Three-New ssgi-early-exit \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-early-exit"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-early-exit",
+        "name": "Three-New \u00b7 SSGI early exit"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1124,20 +884,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-reuse-texels",
       "name": "Three-New ssgi-reuse-texels \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-reuse-texels"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-reuse-texels",
+        "name": "Three-New \u00b7 SSGI texel reuse"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1152,20 +906,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-redundant-work",
       "name": "Three-New ssgi-redundant-work \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-redundant-work"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-redundant-work",
+        "name": "Three-New \u00b7 Reduced redundant SSGI work"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1180,20 +928,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-4x32",
       "name": "Three-New ssgi-4x32 \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-4x32"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-4x32",
+        "name": "Three-New \u00b7 SSGI 4x32"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1208,20 +950,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-8x16",
       "name": "Three-New ssgi-8x16 \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-8x16"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-8x16",
+        "name": "Three-New \u00b7 SSGI 8x16"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1236,20 +972,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-4x16",
       "name": "Three-New ssgi-4x16 \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-4x16"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-4x16",
+        "name": "Three-New \u00b7 SSGI 4x16"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1264,20 +994,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-2x16",
       "name": "Three-New ssgi-2x16 \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-2x16"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-2x16",
+        "name": "Three-New \u00b7 SSGI 2x16"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1292,20 +1016,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-2x8",
       "name": "Three-New ssgi-2x8 \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-2x8"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-2x8",
+        "name": "Three-New \u00b7 SSGI 2x8"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1320,20 +1038,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-6x32",
       "name": "Three-New ssgi-6x32 \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-6x32"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-6x32",
+        "name": "Three-New \u00b7 SSGI 6x32"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1348,20 +1060,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-8x24",
       "name": "Three-New ssgi-8x24 \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-8x24"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-8x24",
+        "name": "Three-New \u00b7 SSGI 8x24"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1376,20 +1082,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-6x24",
       "name": "Three-New ssgi-6x24 \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-6x24"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-6x24",
+        "name": "Three-New \u00b7 SSGI 6x24"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1404,20 +1104,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-7x32",
       "name": "Three-New ssgi-7x32 \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-7x32"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-7x32",
+        "name": "Three-New \u00b7 SSGI 7x32"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {
@@ -1432,20 +1126,14 @@
     {
       "id": "ssr-steampunk-camera-roughness-50--three-new--ssgi-8x28",
       "name": "Three-New ssgi-8x28 \u00b7 ssr-steampunk-camera-roughness-50",
-      "labels": [
-        {
-          "key": "renderer",
-          "value": "three-new"
-        },
-        {
-          "key": "scene",
-          "value": "ssr-steampunk-camera-roughness-50"
-        },
-        {
-          "key": "experiment",
-          "value": "ssgi-8x28"
-        }
-      ],
+      "renderer": {
+        "id": "three-new--ssgi-8x28",
+        "name": "Three-New \u00b7 SSGI 8x28"
+      },
+      "scene": {
+        "id": "ssr-steampunk-camera-roughness-50",
+        "name": "Steampunk camera \u00b7 roughness 0.5"
+      },
       "url": "http://127.0.0.1:5173/performance.html",
       "durationMs": 10000,
       "params": {

@@ -94,7 +94,7 @@ reporter.onStart(async ({ params }) => {
   };
   reporter.phaseEnd('process');
   reporter.phaseStart('compile');
-  // Compile the entire post-processing graph, including lazily built passes, before warmup.
+  // Compile the entire post-processing graph, including lazily built passes, during setup.
   draw();
   await complete();
   reporter.phaseEnd('compile');

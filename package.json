@@ -25,7 +25,8 @@
     "performance:run": "performance-kit run --suite performance-suite.json --out performance-results",
     "performance:serve": "performance-kit serve --out performance-results",
     "performance:build": "performance-kit build --out performance-results --site performance-site",
-    "build:performance-kit": "pnpm --dir submodules/performance-kit build"
+    "build:performance-kit": "pnpm --dir submodules/performance-kit build",
+    "performance:metallic": "performance-kit run --suite performance-suite-metallic.json --renderer-root packages/playground/dist --out performance-results"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",

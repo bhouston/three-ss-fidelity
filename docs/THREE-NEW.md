@@ -207,7 +207,7 @@ The fidelity viewer identifies captures as `three-new-hierarchy-combined`.
 
 ```sh
 pnpm cli render --renderers three-new-hierarchy-combined
-pnpm exec fidelity-kit process results
+pnpm exec fidelity-kit process fidelity-results
 pnpm cli quality-gate three-new three-new-hierarchy-combined --threshold 0.1
 # Compare all individual profiles and the combined profile on both-effect scenes:
 node scripts/hierarchical-experiments.mjs --scenes ssgi-basic,ssgi-metallic --out .output/combined

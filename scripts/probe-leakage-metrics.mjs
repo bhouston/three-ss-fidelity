@@ -28,7 +28,7 @@ for (const name of ['gi-probe-thin-wall', 'gi-probe-thick-wall']) {
   const row = report.scenes[name];
   if (!row) continue;
   const setup = await getScene(name).create(noAssets);
-  const reference = await readRgb(path.join('results', name, 'beauty', 'three-gpu-pathtracer.avif'));
+  const reference = await readRgb(path.join('fidelity-results', name, 'beauty', 'three-gpu-pathtracer.avif'));
   setup.scene.updateMatrixWorld(true);
   setup.camera.updateMatrixWorld(true);
   const wall = setup.scene.getObjectByName('opaque-partition');

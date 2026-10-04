@@ -1,0 +1,1082 @@
+{
+  "schemaVersion": 1,
+  "runSetId": "2026-10-04T00-50-05-359Z_01M4267CXFYE6D4ZSEB537PMYB",
+  "createdAt": "2026-10-04T00:50:05.415Z",
+  "suite": {
+    "$schema": "./submodules/performance-kit/packages/schema/schemas/suite.schema.json",
+    "schemaVersion": 1,
+    "name": "Cornell metallic sphere · 26 real-time Three configurations",
+    "defaults": {
+      "warmupMs": 2000,
+      "repetitions": 3,
+      "order": "interleaved",
+      "setupTimeoutMs": 60000,
+      "captureAfterWarmup": true,
+      "vsync": "on"
+    },
+    "entries": [
+      {
+        "id": "ssgi-metallic--three-current",
+        "name": "Three-Base · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-current"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "baseline"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-current",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new",
+        "name": "Three-New · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "baseline"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new-light-bake",
+        "name": "Three Light Bake · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new-light-bake"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "baseline"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new-light-bake",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new-light-probe",
+        "name": "Three Light Probe · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new-light-probe"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "baseline"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new-light-probe",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new-light-probe-ddgi",
+        "name": "Three DDGI · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new-light-probe-ddgi"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "baseline"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new-light-probe-ddgi",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssr-hiz-tight",
+        "name": "Three-New ssr-hiz-tight · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssr-hiz-tight"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssr-hiz-tight",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssr-radiance-mips",
+        "name": "Three-New ssr-radiance-mips · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssr-radiance-mips"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssr-radiance-mips",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-radiance-mips",
+        "name": "Three-New ssgi-radiance-mips · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-radiance-mips"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-radiance-mips",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--hierarchy-combined",
+        "name": "Three-New hierarchy-combined · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "hierarchy-combined"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "hierarchy-combined",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-half",
+        "name": "Three-New ssgi-half · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-half"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-half",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-third",
+        "name": "Three-New ssgi-third · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-third"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-third",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssr-temporal-validated",
+        "name": "Three-New ssr-temporal-validated · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssr-temporal-validated"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssr-temporal-validated",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssr-temporal-gaussian",
+        "name": "Three-New ssr-temporal-gaussian · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssr-temporal-gaussian"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssr-temporal-gaussian",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-early-exit",
+        "name": "Three-New ssgi-early-exit · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-early-exit"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-early-exit",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-reuse-texels",
+        "name": "Three-New ssgi-reuse-texels · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-reuse-texels"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-reuse-texels",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-redundant-work",
+        "name": "Three-New ssgi-redundant-work · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-redundant-work"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-redundant-work",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-4x32",
+        "name": "Three-New ssgi-4x32 · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-4x32"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-4x32",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-8x16",
+        "name": "Three-New ssgi-8x16 · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-8x16"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-8x16",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-4x16",
+        "name": "Three-New ssgi-4x16 · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-4x16"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-4x16",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-2x16",
+        "name": "Three-New ssgi-2x16 · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-2x16"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-2x16",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-2x8",
+        "name": "Three-New ssgi-2x8 · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-2x8"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-2x8",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-6x32",
+        "name": "Three-New ssgi-6x32 · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-6x32"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-6x32",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-8x24",
+        "name": "Three-New ssgi-8x24 · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-8x24"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-8x24",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-6x24",
+        "name": "Three-New ssgi-6x24 · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-6x24"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-6x24",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-7x32",
+        "name": "Three-New ssgi-7x32 · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-7x32"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-7x32",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      },
+      {
+        "id": "ssgi-metallic--three-new--ssgi-8x28",
+        "name": "Three-New ssgi-8x28 · ssgi-metallic",
+        "labels": [
+          {
+            "key": "renderer",
+            "value": "three-new"
+          },
+          {
+            "key": "scene",
+            "value": "ssgi-metallic"
+          },
+          {
+            "key": "experiment",
+            "value": "ssgi-8x28"
+          }
+        ],
+        "url": "http://127.0.0.1:4401/performance.html",
+        "durationMs": 10000,
+        "params": {
+          "scene": "ssgi-metallic",
+          "renderer": "three-new",
+          "experiment": "ssgi-8x28",
+          "width": 1920,
+          "height": 1080,
+          "seed": 1
+        }
+      }
+    ]
+  },
+  "schedule": [
+    {
+      "entryId": "ssgi-metallic--three-current",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new-light-bake",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new-light-probe",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new-light-probe-ddgi",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssr-hiz-tight",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssr-radiance-mips",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-radiance-mips",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--hierarchy-combined",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-half",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-third",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssr-temporal-validated",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssr-temporal-gaussian",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-early-exit",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-reuse-texels",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-redundant-work",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-4x32",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-8x16",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-4x16",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-2x16",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-2x8",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-6x32",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-8x24",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-6x24",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-7x32",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-8x28",
+      "repetition": 1
+    },
+    {
+      "entryId": "ssgi-metallic--three-current",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new-light-bake",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new-light-probe",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new-light-probe-ddgi",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssr-hiz-tight",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssr-radiance-mips",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-radiance-mips",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--hierarchy-combined",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-half",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-third",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssr-temporal-validated",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssr-temporal-gaussian",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-early-exit",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-reuse-texels",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-redundant-work",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-4x32",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-8x16",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-4x16",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-2x16",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-2x8",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-6x32",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-8x24",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-6x24",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-7x32",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-8x28",
+      "repetition": 2
+    },
+    {
+      "entryId": "ssgi-metallic--three-current",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new-light-bake",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new-light-probe",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new-light-probe-ddgi",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssr-hiz-tight",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssr-radiance-mips",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-radiance-mips",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--hierarchy-combined",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-half",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-third",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssr-temporal-validated",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssr-temporal-gaussian",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-early-exit",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-reuse-texels",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-redundant-work",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-4x32",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-8x16",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-4x16",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-2x16",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-2x8",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-6x32",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-8x24",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-6x24",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-7x32",
+      "repetition": 3
+    },
+    {
+      "entryId": "ssgi-metallic--three-new--ssgi-8x28",
+      "repetition": 3
+    }
+  ],
+  "gitCommit": "aed207b307f4101f61ea10f7d94b8e54fbdf96d6",
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "gpuTimestampsAvailable": true,
+    "crossOriginIsolated": true,
+    "devicePixelRatio": 1,
+    "host": {
+      "os": "darwin 27.0.0",
+      "cpu": "Apple M3"
+    },
+    "chromeFlags": [
+      "--disable-background-timer-throttling",
+      "--disable-renderer-backgrounding",
+      "--disable-backgrounding-occluded-windows",
+      "--enable-unsafe-webgpu",
+      "--enable-webgpu-developer-features",
+      "--site-per-process"
+    ],
+    "gpuAdapter": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "description": "Apple M3"
+    },
+    "api": "webgpu"
+  }
+}

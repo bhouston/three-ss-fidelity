@@ -81,8 +81,8 @@ node scripts/hierarchical-experiments.mjs --out .output/hierarchy-timing --skip-
 ```
 
 `render` names variants `three-new-<experiment>.avif`, keeping the baseline intact, including motion/debug captures.
-`results/fidelity.json` recognizes all three experimental image IDs. To compare them in the viewer, render a
-baseline with matching `--frames` into the same output directory, copy `results/fidelity.json` there if using a
+`fidelity-results/fidelity.json` recognizes all three experimental image IDs. To compare them in the viewer, render a
+baseline with matching `--frames` into the same output directory, copy `fidelity-results/fidelity.json` there if using a
 separate directory, and run `fidelity-kit process` there. `cli quality-gate` accepts the experimental image IDs too and reads PSNR-only metrics. `bench` records the experiment in its JSON. The experiment runner measures variants sequentially, alternating order
 across three repeats. Every scene/variant uses a new process to avoid GPU state leakage. It records all synchronized
 wall-time runs and a separate named-pass timestamp breakdown, with pyramid construction included. Apple GPU
@@ -114,7 +114,7 @@ The committed [native-quality report](hierarchical/native-quality.json),
 [1080p and motion report](hierarchical/extra-quality.json), and
 [exploratory timing record](hierarchical/exploratory-timing.json) contain the full metrics. Captures and heatmaps
 are kept locally under `.output/hierarchy-quality`, `.output/hierarchy-ssr-mips-final`, and `.output/hierarchy-extra`;
-the two new 4096-spp path-traced references are committed in `results/`. Commands above regenerate the artifacts.
+the two new 4096-spp path-traced references are committed in `fidelity-results/`. Commands above regenerate the artifacts.
 All baseline repeats in the first full quality suite were byte-identical. The final SSR mip implementation was
 recaptured after removing a redundant unfiltered fetch; its reference gates still pass. In that follow-up,
 `ssr-diag-metal-hit`'s repeated baseline had a repeat-to-baseline PSNR of 55.58 dB (reference PSNR 31.94 dB), so small

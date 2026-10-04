@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { compareImages } from '../packages/cli/dist/compare.js';
 
-const root = fileURLToPath(new URL('../results/', import.meta.url));
+const root = fileURLToPath(new URL('../fidelity-results/', import.meta.url));
 const pairs = [
   ['gi-room-low-albedo', 'gi-room-open-low-albedo'],
   ['gi-room-high-albedo', 'gi-room-open-high-albedo'],

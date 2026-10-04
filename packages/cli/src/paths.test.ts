@@ -1,8 +1,11 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { metricsPath, renderPath } from './paths.js';
+import { metricsPath, renderPath, resultsDir } from './paths.js';
 
 describe('result paths', () => {
+  it('defaults to the fidelity artifact directory', () => {
+    expect(path.basename(resultsDir)).toBe('fidelity-results');
+  });
   const root = path.join(process.cwd(), 'temporary-results');
 
   it("uses fidelity-kit's <renderer>.vs-<reference>.metrics.json naming", () => {

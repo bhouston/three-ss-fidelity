@@ -17,7 +17,7 @@ packages/renderers   @ss-fidelity/renderers  three-ss (WebGPURenderer + SSGI/SSR
 packages/cli         @ss-fidelity/cli        yargs + yargs-file-commands + clidoc; headless GPU (dawn `webgpu`,
                                              `@onirenaud/node-webgl` ANGLE), render + compare (sharp)
 packages/viewer      @ss-fidelity/viewer     TanStack Start + Router: results listing, scene detail, live views
-results/<scene>/<pass>/  three-ss.avif, three-gpu-pathtracer.avif, delta.avif, metrics.json (committed)
+fidelity-results/<scene>/<pass>/  three-ss.avif, three-gpu-pathtracer.avif, delta.avif, metrics.json (committed)
 ```
 
 ## Scene contract (`@ss-fidelity/scenes`)
@@ -50,7 +50,7 @@ Debug outputs of the SSGI example (AO / GI / Direct / Reflections) are not scene
 ## Render passes
 
 A pass is a render setting applied to every scene (`passNames` in `@ss-fidelity/renderers`, `RendererOptions.pass`),
-not a scene setting. Each scene × pass is compared separately in `results/<scene>/<pass>/`.
+not a scene setting. Each scene × pass is compared separately in `fidelity-results/<scene>/<pass>/`.
 
 | pass     | three-ss                            | three-gpu-pathtracer       |
 | -------- | ----------------------------------- | -------------------------- |
@@ -153,7 +153,7 @@ incremental frame loop, so it's a CLI-only renderer name (`RenderJob.renderer: R
 - `pnpm cli render --renderers blender --scenes <name> --passes beauty` (or `direct`) shells out to Blender
   (`$BLENDER_EXECUTABLE`, else a discovered `/Applications/Blender*.app` on macOS, else `blender` on PATH) in
   `--background --factory-startup --python packages/cli/blender/render.py` mode and writes
-  `results/<scene>/<pass>/blender.avif`, same as any other renderer. `--samples` sets Cycles' max sample count
+  `fidelity-results/<scene>/<pass>/blender.avif`, same as any other renderer. `--samples` sets Cycles' max sample count
   (unbiased: no denoising, no clamping, box filter — matching the pathtracer's own settings). Adaptive sampling
   (`adaptive_threshold` 0.01) is on, so converged pixels stop sampling before the max — free speed, not a bias
   source, since it only changes when sampling stops, not what a fully sampled pixel's value would be.
@@ -198,7 +198,7 @@ incremental frame loop, so it's a CLI-only renderer name (`RenderJob.renderer: R
 
 ```
 pnpm cli render  --scenes 'ssgi-*' --passes '*' --renderers '*' [--samples 1024] [--frames N]
-                                                     # results/<scene>/<pass>/<renderer>.avif
+                                                     # fidelity-results/<scene>/<pass>/<renderer>.avif
                                                      # --renderers blender also renders with Blender Cycles
 pnpm cli compare --scenes '*' --passes '*'           # writes delta.avif + metrics.json (PSNR, RMSE, MAE)
                                                      # --reference blender compares against Blender instead

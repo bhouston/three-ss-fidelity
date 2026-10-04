@@ -18,7 +18,7 @@ const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const { values } = parseArgs({
   options: {
     out: { type: 'string', default: '.output/hierarchy' },
-    references: { type: 'string', default: 'results' },
+    references: { type: 'string', default: 'fidelity-results' },
     experiments: {
       type: 'string',
       default: [

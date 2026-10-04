@@ -24,11 +24,19 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          submodules: true
+      - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
-      # Uses the fidelity-kit range from package.json without installing the workspace (which needs submodules).
-      - run: npx -y "fidelity-kit@$(node -p "require('./package.json').devDependencies['fidelity-kit']")" build results --out site/
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:performance-kit
+      - name: Build fidelity viewer
+        run: pnpm exec fidelity-kit build fidelity-results --out site/
+      - name: Build performance viewer
+        run: node submodules/performance-kit/packages/cli/dist/bin.js build --out performance-results --site site/performance
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site/

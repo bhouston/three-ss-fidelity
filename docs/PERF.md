@@ -138,7 +138,7 @@ Browser tests use system Chrome on macOS when present, otherwise Playwright Chro
 ## Quality regression checks
 
 ```sh
-pnpm exec fidelity-kit process results
+pnpm exec fidelity-kit process fidelity-results
 pnpm cli quality-gate three-current three-new --scenes ssgi-basic,ssgi-animated
 ```
 

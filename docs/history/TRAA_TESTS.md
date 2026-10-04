@@ -42,7 +42,7 @@ shading and the path tracer's emission produce the same radiance with no lights 
   (1.0 = same average edge strength as the path-traced reference; <1 = blurrier).
 
 Renderer: `three-new-ssgi` (the raster pipeline that uses `ssgi.ts`/TRAANode.js). Reference: 1024-sample
-`three-gpu-pathtracer`, committed at `results/traa-checker/beauty/three-gpu-pathtracer.avif` etc., alongside
+`three-gpu-pathtracer`, committed at `fidelity-results/traa-checker/beauty/three-gpu-pathtracer.avif` etc., alongside
 the usual `three-new-ssgi.avif`, `delta-three-new-ssgi.avif` and `metrics-three-new-ssgi.json` from
 `pnpm cli compare`.
 
@@ -185,7 +185,7 @@ pnpm cli render --renderers three-new-ssgi --scenes traa-checker,traa-checker-sm
   --motion 10,60,0,1,4,16,64 --output /tmp/traa-motion
 node scripts/ssr-motion-metrics.mjs /tmp/traa-motion three-new-ssgi 0,1,4,16,64 traa-checker
 node scripts/traa-metrics.mjs sharpness /tmp/traa-motion/traa-checker/beauty/three-new-ssgi@m0.avif \
-  results/traa-checker/beauty/three-gpu-pathtracer.avif
+  fidelity-results/traa-checker/beauty/three-gpu-pathtracer.avif
 
 # disocclusion
 pnpm cli render --renderers three-new-ssgi --scenes traa-disocclusion --passes beauty \

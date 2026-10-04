@@ -27,12 +27,32 @@ export default defineConfig({
       '@ss-fidelity/runtime': source('runtime'),
       '@ss-fidelity/renderers': source('renderers'),
       '@ss-fidelity/scenes': source('scenes'),
+      'performance-kit-reporter': fileURLToPath(
+        new URL('../../submodules/performance-kit/packages/reporter/src/index.ts', import.meta.url),
+      ),
     },
   },
   // Keep one TSL stack/runtime: prebundling BVH can embed a second copy of the linked Three.js fork.
   optimizeDeps: { exclude: ['three', 'three-mesh-bvh', 'three-gpu-pathtracer'] },
   publicDir: fileURLToPath(new URL('../../submodules/three.js/examples/', import.meta.url)),
-  server: { host: '127.0.0.1', port: 5173, fs: { allow: [fileURLToPath(new URL('../../', import.meta.url))] } },
+  server: {
+    host: '127.0.0.1',
+    port: 5173,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Resource-Policy': 'cross-origin',
+    },
+    fs: { allow: [fileURLToPath(new URL('../../', import.meta.url))] },
+  },
   // The playground is a local development tool; don't duplicate the large examples asset library in builds.
-  build: { copyPublicDir: false },
+  build: {
+    copyPublicDir: false,
+    rollupOptions: {
+      input: {
+        playground: fileURLToPath(new URL('./index.html', import.meta.url)),
+        performance: fileURLToPath(new URL('./performance.html', import.meta.url)),
+      },
+    },
+  },
 });

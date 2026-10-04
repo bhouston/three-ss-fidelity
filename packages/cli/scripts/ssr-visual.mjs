@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const repoRoot = path.dirname(path.dirname(path.dirname(path.dirname(fileURLToPath(import.meta.url)))));
-const resultsDir = path.join(repoRoot, 'results');
+const resultsDir = path.join(repoRoot, 'fidelity-results');
 
 const outDir = process.argv[2];
 if (!outDir) throw new Error('usage: ssr-visual.mjs <out-dir> [scenes] [renderer]');

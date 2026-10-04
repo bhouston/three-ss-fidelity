@@ -25,6 +25,13 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      - name: Build performance report from committed results
+        run: node submodules/performance-kit/packages/cli/dist/bin.js build --out performance-results --site performance-site
+      - uses: actions/upload-artifact@v4
+        with:
+          name: performance-report
+          path: performance-site/
+          if-no-files-found: error
       - run: pnpm tsc
       - run: pnpm lint
       - run: pnpm test --coverage
@@ -47,6 +54,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          submodules: true
       - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v6
         with:

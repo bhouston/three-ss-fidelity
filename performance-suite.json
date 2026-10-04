@@ -5,7 +5,8 @@
   "defaults": {
     "setupTimeoutMs": 60000,
     "capture": true,
-    "vsync": "off"
+    "vsync": "off",
+    "networkProfile": "unthrottled"
   },
   "entries": [
     {
@@ -1141,6 +1142,32 @@
         "height": 1080,
         "seed": 1
       }
+    }
+  ],
+  "networkProfiles": [
+    {
+      "name": "unthrottled",
+      "latencyMs": 0,
+      "downloadBytesPerSec": -1,
+      "uploadBytesPerSec": -1
+    },
+    {
+      "name": "fast-4g",
+      "latencyMs": 20,
+      "downloadBytesPerSec": 4000000,
+      "uploadBytesPerSec": 1000000
+    },
+    {
+      "name": "slow-4g",
+      "latencyMs": 150,
+      "downloadBytesPerSec": 200000,
+      "uploadBytesPerSec": 93750
+    },
+    {
+      "name": "3g",
+      "latencyMs": 400,
+      "downloadBytesPerSec": 50000,
+      "uploadBytesPerSec": 50000
     }
   ]
 }

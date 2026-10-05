@@ -19,7 +19,7 @@
     "cli": "pnpm --filter @ss-fidelity/cli start",
     "fidelity:dev": "fidelity-kit dev fidelity-results",
     "fidelity:build": "fidelity-kit build fidelity-results --out site/",
-    "live": "pnpm --filter @ss-fidelity/playground dev",
+    "live": "pnpm --filter @ss-fidelity/playground dev --open /performance.html",
     "build:three": "pnpm --filter ./submodules/three.js build",
     "test:browser": "pnpm --filter @ss-fidelity/playground test:browser",
     "performance:run": "node submodules/performance-kit/packages/cli/dist/bin.js run ${PERFORMANCE_MACHINE:+--machine \"$PERFORMANCE_MACHINE\"} --suite performance-suite.json --out performance-results",

@@ -112,6 +112,7 @@ nonoverlapping lightmap atlas: it can also be used by material textures. Multipl
 | `three-gpu-pathtracer`       | Ground truth (default 4096 spp, seeded).                                                                    |
 | `three-current`              | Unmodified three.js r186 from npm (`three@0.186.1`) with its stock SSGI/SSR example pipelines.              |
 | `three-new-light-probe-ddgi` | Baked diffuse probes with DDGI visibility weighting and relocation ([research](docs/DDGI_RESEARCH.md)).     |
+| `three-new-vpl`              | Surface virtual point lights with RIS and BVH visibility ([research](docs/VPL_RESEARCH.md)).                |
 | `three-new-light-probe`      | Automatically fitted baked SH diffuse probe grid replacing SSGI ([research](docs/LIGHT_PROBE_RESEARCH.md)). |
 | `three-new`                  | The fork + vendored SSGI/SSR nodes, real-time, TRAA ([docs/THREE-NEW.md](docs/THREE-NEW.md)).               |
 

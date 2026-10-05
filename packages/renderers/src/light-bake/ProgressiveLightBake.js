@@ -109,7 +109,7 @@ export class ProgressiveLightBake {
     });
     this.gbuffer.textures[0].name = 'output';
     this.gbuffer.textures[1].name = 'normal';
-    this.gbuffer.textures[1].type = UnsignedByteType;
+    this.gbuffer.textures[1].type = this.normalTextureType();
     this.surface = new RenderTarget(size, size, {
       type: HalfFloatType,
       count: 2,
@@ -138,7 +138,7 @@ export class ProgressiveLightBake {
         material.vertexNode = vec4(uv(1).flipY().mul(2).sub(1), 0, 1);
         material.fragmentNode = mrt({
           output: vec4(positionWorld, 1),
-          normal: vec4(packNormalToRGB(normalWorldGeometry), 1),
+          normal: this.normalOutput(),
         });
         const surfaceMaterial = material.clone();
         surfaceMaterial.fragmentNode = mrt({
@@ -201,6 +201,13 @@ export class ProgressiveLightBake {
     // Rebuild after creating the display source.
     this.dilateMaterial.fragmentNode = this.dilateGraph();
     this.quad = new QuadMesh();
+  }
+  /** @returns {import('three').TextureDataType} */
+  normalTextureType() {
+    return UnsignedByteType;
+  }
+  normalOutput() {
+    return vec4(packNormalToRGB(normalWorldGeometry), 1);
   }
   material(node) {
     const m = new MeshBasicNodeMaterial();
@@ -282,7 +289,11 @@ export class ProgressiveLightBake {
     const scramble = pixel.dot(vec2(12.9898, 78.233)).sin().mul(43758.5453).fract();
     return vec2(index.mul(0.754877666), index.mul(0.569840296)).add(scramble).fract();
   }
+  seedSampleCount() {
+    return 16;
+  }
   seedGraph() {
+    const seedSamples = this.seedSampleCount();
     return Fn((builder) => {
       rayIntersectionResultStruct.setup(builder);
       const tracer = this.createTrace(this.shadowBvh);
@@ -291,11 +302,11 @@ export class ProgressiveLightBake {
         n = unpackRGBToNormal(this.normal.load(pixel).xyz).normalize().toVar();
       const result = vec3(0).toVar();
       If(p.w.greaterThan(0), () => {
-        Loop({ start: 0, end: 16, name: 'seedSample' }, ({ seedSample }) => {
+        Loop({ start: 0, end: seedSamples, name: 'seedSample' }, ({ seedSample }) => {
           result.addAssign(this.directAt(p.xyz, n, this.random(float(seedSample)), tracer));
         });
       });
-      return vec4(result.div(16), p.w);
+      return vec4(result.div(seedSamples), p.w);
     })();
   }
   bakeGraph() {

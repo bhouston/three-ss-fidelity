@@ -1,0 +1,1430 @@
+{
+  "metadata": {
+    "frames": 192,
+    "lightingIterations": 128,
+    "reservoirsPerTexel": 2048,
+    "candidatesPerReservoir": 8,
+    "nearRaysPerTexel": 2048,
+    "thresholdDb": 0.1,
+    "metric": "PSNR over decoded sRGB8 AVIF RGB"
+  },
+  "summary": {
+    "blender": {
+      "total": 58,
+      "passed": 55,
+      "failures": ["higharc_dogwood", "model-bedroom", "model-headphone-with-stand"]
+    },
+    "three-gpu-pathtracer": {
+      "total": 58,
+      "passed": 46,
+      "failures": [
+        "ssgi-basic",
+        "ssgi-rounded",
+        "ssgi-metallic",
+        "ssgi-animated",
+        "gltf-littlest-tokyo",
+        "model-bedroom",
+        "model-headphone-with-stand",
+        "model-headphone-with-stand-w",
+        "gi-room-low-albedo",
+        "gi-room-open-low-albedo",
+        "gi-room-open-high-albedo",
+        "ssgi-animated-visible-walls"
+      ]
+    }
+  },
+  "rows": [
+    {
+      "scene": "ssgi-basic",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 22.452404537359474,
+        "three-new-light-bake": 28.35336701073735,
+        "three-new-light-probe-ddgi": 22.93393203742783,
+        "three-new-vpl": 34.61347575351263
+      },
+      "dropFromSSGI": -12.161071216153157,
+      "pass": true
+    },
+    {
+      "scene": "ssgi-basic",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 27.481138484406348,
+        "three-new-light-bake": 30.695984886395827,
+        "three-new-light-probe-ddgi": 30.960741093782268,
+        "three-new-vpl": 26.26040693221777
+      },
+      "dropFromSSGI": 1.2207315521885782,
+      "pass": false
+    },
+    {
+      "scene": "ssgi-rounded",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 24.258765711228534,
+        "three-new-light-bake": 29.28349132028487,
+        "three-new-light-probe-ddgi": 23.769966993974503,
+        "three-new-vpl": 34.839046279414816
+      },
+      "dropFromSSGI": -10.580280568186282,
+      "pass": true
+    },
+    {
+      "scene": "ssgi-rounded",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 29.347669394359702,
+        "three-new-light-bake": 30.05654428942436,
+        "three-new-light-probe-ddgi": 31.91345005456737,
+        "three-new-vpl": 26.51911199038392
+      },
+      "dropFromSSGI": 2.8285574039757826,
+      "pass": false
+    },
+    {
+      "scene": "ssgi-metallic",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 23.32097222520565,
+        "three-new-light-bake": 27.114321914069922,
+        "three-new-light-probe-ddgi": 23.404957925460646,
+        "three-new-vpl": 30.0858164042618
+      },
+      "dropFromSSGI": -6.764844179056148,
+      "pass": true
+    },
+    {
+      "scene": "ssgi-metallic",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 27.626608888490484,
+        "three-new-light-bake": 29.8297483879968,
+        "three-new-light-probe-ddgi": 30.636807264223922,
+        "three-new-vpl": 27.21872602868227
+      },
+      "dropFromSSGI": 0.4078828598082147,
+      "pass": false
+    },
+    {
+      "scene": "ssgi-animated",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 24.845258211550355,
+        "three-new-light-bake": 29.614639048492357,
+        "three-new-light-probe-ddgi": 24.538330833479968,
+        "three-new-vpl": 33.48372810651999
+      },
+      "dropFromSSGI": -8.638469894969635,
+      "pass": true
+    },
+    {
+      "scene": "ssgi-animated",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 28.142932425684165,
+        "three-new-light-bake": 30.12207234851442,
+        "three-new-light-probe-ddgi": 32.08294210404008,
+        "three-new-vpl": 27.326405586344208
+      },
+      "dropFromSSGI": 0.8165268393399572,
+      "pass": false
+    },
+    {
+      "scene": "ssgi-basic-oblique",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 16.14504805631756,
+        "three-new-light-bake": 29.2702566348305,
+        "three-new-light-probe-ddgi": 24.059416312421888,
+        "three-new-vpl": 34.7364311888913
+      },
+      "dropFromSSGI": -18.591383132573743,
+      "pass": true
+    },
+    {
+      "scene": "ssgi-basic-oblique",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 19.24785484982535,
+        "three-new-light-bake": 31.857635212360776,
+        "three-new-light-probe-ddgi": 31.965376423307717,
+        "three-new-vpl": 27.552994775681064
+      },
+      "dropFromSSGI": -8.305139925855713,
+      "pass": true
+    },
+    {
+      "scene": "ssr-steampunk-camera",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 23.13522506620224,
+        "three-new-light-bake": 21.626442810762327,
+        "three-new-light-probe-ddgi": 21.620584233030247,
+        "three-new-vpl": 23.0774457273878
+      },
+      "dropFromSSGI": 0.057779338814437864,
+      "pass": true
+    },
+    {
+      "scene": "ssr-steampunk-camera",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 22.962197941466307,
+        "three-new-light-bake": 21.934947664548076,
+        "three-new-light-probe-ddgi": 21.931566009576876,
+        "three-new-vpl": 22.870355917006727
+      },
+      "dropFromSSGI": 0.09184202445958078,
+      "pass": true
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-0",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 20.253250957042525,
+        "three-new-light-bake": 19.927316507617036,
+        "three-new-light-probe-ddgi": 19.914454359159123,
+        "three-new-vpl": 20.273569124641888
+      },
+      "dropFromSSGI": -0.020318167599363335,
+      "pass": true
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-0",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 20.564338805214007,
+        "three-new-light-bake": 20.467921406382885,
+        "three-new-light-probe-ddgi": 20.44417690826046,
+        "three-new-vpl": 20.55653178647801
+      },
+      "dropFromSSGI": 0.007807018735995541,
+      "pass": true
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-25",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 20.824167434427025,
+        "three-new-light-bake": 20.241760522013003,
+        "three-new-light-probe-ddgi": 20.248269369923925,
+        "three-new-vpl": 20.83244785697968
+      },
+      "dropFromSSGI": -0.008280422552655153,
+      "pass": true
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-25",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 21.050612783233717,
+        "three-new-light-bake": 20.68800169331201,
+        "three-new-light-probe-ddgi": 20.692320658554056,
+        "three-new-vpl": 21.025106089642648
+      },
+      "dropFromSSGI": 0.025506693591069052,
+      "pass": true
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-50",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 21.978111586707616,
+        "three-new-light-bake": 21.154523648811782,
+        "three-new-light-probe-ddgi": 21.160579898942288,
+        "three-new-vpl": 21.944553981515202
+      },
+      "dropFromSSGI": 0.033557605192413575,
+      "pass": true
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-50",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 21.85005157988634,
+        "three-new-light-bake": 21.306113325501673,
+        "three-new-light-probe-ddgi": 21.308545846056997,
+        "three-new-vpl": 21.794300448571164
+      },
+      "dropFromSSGI": 0.055751131315176394,
+      "pass": true
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-100",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 23.130588105049668,
+        "three-new-light-bake": 21.62407333845465,
+        "three-new-light-probe-ddgi": 21.618612789682746,
+        "three-new-vpl": 23.07329537784707
+      },
+      "dropFromSSGI": 0.05729272720259715,
+      "pass": true
+    },
+    {
+      "scene": "ssr-steampunk-camera-roughness-100",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 22.96384024978814,
+        "three-new-light-bake": 21.934989043861467,
+        "three-new-light-probe-ddgi": 21.933138743144823,
+        "three-new-vpl": 22.871634325689957
+      },
+      "dropFromSSGI": 0.09220592409818451,
+      "pass": true
+    },
+    {
+      "scene": "higharc_dogwood",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 15.416592928264308,
+        "three-new-light-bake": 14.49373605843736,
+        "three-new-light-probe-ddgi": 13.9621377241106,
+        "three-new-vpl": 14.518044431232106
+      },
+      "dropFromSSGI": 0.898548497032202,
+      "pass": false
+    },
+    {
+      "scene": "higharc_dogwood",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 21.766413064099154,
+        "three-new-light-bake": 21.701800048978797,
+        "three-new-light-probe-ddgi": 21.4046272992854,
+        "three-new-vpl": 21.761168763345538
+      },
+      "dropFromSSGI": 0.005244300753616926,
+      "pass": true
+    },
+    {
+      "scene": "gltf-damaged-helmet",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 27.147463292583577,
+        "three-new-light-bake": 27.835046152680853,
+        "three-new-light-probe-ddgi": 28.11957003575458,
+        "three-new-vpl": 27.849584787588157
+      },
+      "dropFromSSGI": -0.7021214950045795,
+      "pass": true
+    },
+    {
+      "scene": "gltf-damaged-helmet",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 27.390592859074733,
+        "three-new-light-bake": 28.346986845638607,
+        "three-new-light-probe-ddgi": 28.848489012277703,
+        "three-new-vpl": 28.350758883669727
+      },
+      "dropFromSSGI": -0.9601660245949937,
+      "pass": true
+    },
+    {
+      "scene": "gltf-coffeemat",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 26.20125553750188,
+        "three-new-light-bake": 27.675854773085593,
+        "three-new-light-probe-ddgi": 28.23813771441948,
+        "three-new-vpl": 27.62907882023205
+      },
+      "dropFromSSGI": -1.42782328273017,
+      "pass": true
+    },
+    {
+      "scene": "gltf-coffeemat",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 26.86818425383092,
+        "three-new-light-bake": 28.434490159861838,
+        "three-new-light-probe-ddgi": 28.982734611577428,
+        "three-new-vpl": 28.388541542832513
+      },
+      "dropFromSSGI": -1.5203572890015948,
+      "pass": true
+    },
+    {
+      "scene": "gltf-littlest-tokyo",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 11.330730863008814,
+        "three-new-light-bake": 11.252943795489836,
+        "three-new-light-probe-ddgi": 11.036672899455748,
+        "three-new-vpl": 11.253169712688248
+      },
+      "dropFromSSGI": 0.07756115032056599,
+      "pass": true
+    },
+    {
+      "scene": "gltf-littlest-tokyo",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 24.082943700910594,
+        "three-new-light-bake": 23.87775029636706,
+        "three-new-light-probe-ddgi": 22.943871170418145,
+        "three-new-vpl": 23.880003634690222
+      },
+      "dropFromSSGI": 0.2029400662203713,
+      "pass": false
+    },
+    {
+      "scene": "khronos-transmission-test",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 19.856268184214464,
+        "three-new-light-bake": 19.75935102326715,
+        "three-new-light-probe-ddgi": 19.189467814033083,
+        "three-new-vpl": 19.76227792614646
+      },
+      "dropFromSSGI": 0.0939902580680041,
+      "pass": true
+    },
+    {
+      "scene": "khronos-transmission-test",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 19.81130059956913,
+        "three-new-light-bake": 20.546000929525505,
+        "three-new-light-probe-ddgi": 20.781518429032037,
+        "three-new-vpl": 20.557844581547954
+      },
+      "dropFromSSGI": -0.7465439819788244,
+      "pass": true
+    },
+    {
+      "scene": "khronos-transmission-test-w",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 20.908350296459414,
+        "three-new-light-bake": 22.096829745297907,
+        "three-new-light-probe-ddgi": 21.490155425483554,
+        "three-new-vpl": 22.12247111575227
+      },
+      "dropFromSSGI": -1.2141208192928552,
+      "pass": true
+    },
+    {
+      "scene": "khronos-transmission-test-w",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 18.75155259516395,
+        "three-new-light-bake": 21.020733436234863,
+        "three-new-light-probe-ddgi": 23.08714497954592,
+        "three-new-vpl": 21.125003514281193
+      },
+      "dropFromSSGI": -2.373450919117243,
+      "pass": true
+    },
+    {
+      "scene": "model-bedroom",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 20.080913514743376,
+        "three-new-light-bake": 21.470754478795534,
+        "three-new-light-probe-ddgi": 17.81928227998097,
+        "three-new-vpl": 19.96515614522949
+      },
+      "dropFromSSGI": 0.11575736951388649,
+      "pass": false
+    },
+    {
+      "scene": "model-bedroom",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 20.05963317208112,
+        "three-new-light-bake": 20.833243613724104,
+        "three-new-light-probe-ddgi": 17.754305004594805,
+        "three-new-vpl": 19.384410229150014
+      },
+      "dropFromSSGI": 0.6752229429311072,
+      "pass": false
+    },
+    {
+      "scene": "model-bedroom-w",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 9.3017772266158,
+        "three-new-light-bake": 18.145455131836666,
+        "three-new-light-probe-ddgi": 18.94590037347778,
+        "three-new-vpl": 14.579970676217009
+      },
+      "dropFromSSGI": -5.2781934496012095,
+      "pass": true
+    },
+    {
+      "scene": "model-bedroom-w",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 10.445036143820277,
+        "three-new-light-bake": 19.480556311534237,
+        "three-new-light-probe-ddgi": 19.883737786990487,
+        "three-new-vpl": 15.645981026122286
+      },
+      "dropFromSSGI": -5.200944882302009,
+      "pass": true
+    },
+    {
+      "scene": "model-breakfast-room",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 7.265096318579066,
+        "three-new-light-bake": 25.92016124808291,
+        "three-new-light-probe-ddgi": 25.440690672731215,
+        "three-new-vpl": 25.76342155593368
+      },
+      "dropFromSSGI": -18.498325237354614,
+      "pass": true
+    },
+    {
+      "scene": "model-breakfast-room",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 7.184176784724946,
+        "three-new-light-bake": 26.587628342565814,
+        "three-new-light-probe-ddgi": 25.943598209643064,
+        "three-new-vpl": 26.448790056721624
+      },
+      "dropFromSSGI": -19.264613271996677,
+      "pass": true
+    },
+    {
+      "scene": "model-breakfast-room-w",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 12.834310170172852,
+        "three-new-light-bake": 15.7798969947857,
+        "three-new-light-probe-ddgi": 12.594860173243788,
+        "three-new-vpl": 20.40498887745576
+      },
+      "dropFromSSGI": -7.570678707282909,
+      "pass": true
+    },
+    {
+      "scene": "model-breakfast-room-w",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 10.253108256825517,
+        "three-new-light-bake": 20.472374105112596,
+        "three-new-light-probe-ddgi": 16.116880853047384,
+        "three-new-vpl": 23.0049499416345
+      },
+      "dropFromSSGI": -12.751841684808984,
+      "pass": true
+    },
+    {
+      "scene": "model-coffee-maker",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 16.381820603123952,
+        "three-new-light-bake": 20.380873278950315,
+        "three-new-light-probe-ddgi": 19.95853768285851,
+        "three-new-vpl": 20.375468727630203
+      },
+      "dropFromSSGI": -3.993648124506251,
+      "pass": true
+    },
+    {
+      "scene": "model-coffee-maker",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 15.732474852799733,
+        "three-new-light-bake": 21.47129286882283,
+        "three-new-light-probe-ddgi": 21.261684699394586,
+        "three-new-vpl": 21.48974599348785
+      },
+      "dropFromSSGI": -5.757271140688118,
+      "pass": true
+    },
+    {
+      "scene": "model-coffee-maker-w",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 15.100417314199204,
+        "three-new-light-bake": 21.790548749036176,
+        "three-new-light-probe-ddgi": 21.938488928965572,
+        "three-new-vpl": 19.754173060488363
+      },
+      "dropFromSSGI": -4.653755746289159,
+      "pass": true
+    },
+    {
+      "scene": "model-coffee-maker-w",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 14.549042117490668,
+        "three-new-light-bake": 21.292493140093566,
+        "three-new-light-probe-ddgi": 21.102659730431093,
+        "three-new-vpl": 19.203071766429055
+      },
+      "dropFromSSGI": -4.654029648938387,
+      "pass": true
+    },
+    {
+      "scene": "model-contemporary-bathroom",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 4.313029407558327,
+        "three-new-light-bake": 23.67225192808684,
+        "three-new-light-probe-ddgi": 24.240560812433834,
+        "three-new-vpl": 23.52484645412642
+      },
+      "dropFromSSGI": -19.211817046568093,
+      "pass": true
+    },
+    {
+      "scene": "model-contemporary-bathroom",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 4.379503312182189,
+        "three-new-light-bake": 21.6132965838921,
+        "three-new-light-probe-ddgi": 21.894438045138557,
+        "three-new-vpl": 21.52726661450071
+      },
+      "dropFromSSGI": -17.147763302318523,
+      "pass": true
+    },
+    {
+      "scene": "model-contemporary-bathroom-w",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 7.019257453170926,
+        "three-new-light-bake": 15.366053813823514,
+        "three-new-light-probe-ddgi": 14.293744424076188,
+        "three-new-vpl": 16.617328037889084
+      },
+      "dropFromSSGI": -9.598070584718158,
+      "pass": true
+    },
+    {
+      "scene": "model-contemporary-bathroom-w",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 6.6606403396952825,
+        "three-new-light-bake": 15.914250177081808,
+        "three-new-light-probe-ddgi": 15.011490672019136,
+        "three-new-vpl": 16.258600949693864
+      },
+      "dropFromSSGI": -9.597960609998582,
+      "pass": true
+    },
+    {
+      "scene": "model-country-kitchen",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 5.459785209190306,
+        "three-new-light-bake": 23.983339976679034,
+        "three-new-light-probe-ddgi": 21.99266891117704,
+        "three-new-vpl": 23.804241607374685
+      },
+      "dropFromSSGI": -18.344456398184377,
+      "pass": true
+    },
+    {
+      "scene": "model-country-kitchen",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 5.4431732750781165,
+        "three-new-light-bake": 23.855079192432843,
+        "three-new-light-probe-ddgi": 21.847080786482955,
+        "three-new-vpl": 23.665314095915267
+      },
+      "dropFromSSGI": -18.22214082083715,
+      "pass": true
+    },
+    {
+      "scene": "model-country-kitchen-w",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 8.053539827212084,
+        "three-new-light-bake": 12.21205404748325,
+        "three-new-light-probe-ddgi": 13.203711425440305,
+        "three-new-vpl": 12.361728295487456
+      },
+      "dropFromSSGI": -4.308188468275372,
+      "pass": true
+    },
+    {
+      "scene": "model-country-kitchen-w",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 7.672491412515104,
+        "three-new-light-bake": 12.521307662189404,
+        "three-new-light-probe-ddgi": 13.618069523235274,
+        "three-new-vpl": 12.625618268488868
+      },
+      "dropFromSSGI": -4.953126855973764,
+      "pass": true
+    },
+    {
+      "scene": "model-grey-and-white-room",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 6.459305650610332,
+        "three-new-light-bake": 28.24611060059071,
+        "three-new-light-probe-ddgi": 27.32098100683475,
+        "three-new-vpl": 27.155063286422564
+      },
+      "dropFromSSGI": -20.69575763581223,
+      "pass": true
+    },
+    {
+      "scene": "model-grey-and-white-room",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 6.415191728967139,
+        "three-new-light-bake": 27.17752917432419,
+        "three-new-light-probe-ddgi": 26.36033900922936,
+        "three-new-vpl": 26.212083671602176
+      },
+      "dropFromSSGI": -19.796891942635035,
+      "pass": true
+    },
+    {
+      "scene": "model-grey-and-white-room-w",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 8.942565539571818,
+        "three-new-light-bake": 17.506324827777163,
+        "three-new-light-probe-ddgi": 13.961190589039308,
+        "three-new-vpl": 22.81112154202164
+      },
+      "dropFromSSGI": -13.868556002449823,
+      "pass": true
+    },
+    {
+      "scene": "model-grey-and-white-room-w",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 8.429599154886155,
+        "three-new-light-bake": 19.039277166770617,
+        "three-new-light-probe-ddgi": 15.328561966824918,
+        "three-new-vpl": 22.484744769357427
+      },
+      "dropFromSSGI": -14.055145614471272,
+      "pass": true
+    },
+    {
+      "scene": "model-headphone-with-stand",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 28.54792196292496,
+        "three-new-light-bake": 28.427558009828022,
+        "three-new-light-probe-ddgi": 28.23394842488286,
+        "three-new-vpl": 28.422856847137815
+      },
+      "dropFromSSGI": 0.12506511578714452,
+      "pass": false
+    },
+    {
+      "scene": "model-headphone-with-stand",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 23.830212195743385,
+        "three-new-light-bake": 23.60140056469369,
+        "three-new-light-probe-ddgi": 23.445743654758296,
+        "three-new-vpl": 23.605874293242785
+      },
+      "dropFromSSGI": 0.2243379025006007,
+      "pass": false
+    },
+    {
+      "scene": "model-headphone-with-stand-w",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 29.33681904014879,
+        "three-new-light-bake": 32.17685945919571,
+        "three-new-light-probe-ddgi": 33.24826948399903,
+        "three-new-vpl": 31.625152188005096
+      },
+      "dropFromSSGI": -2.2883331478563065,
+      "pass": true
+    },
+    {
+      "scene": "model-headphone-with-stand-w",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 17.48958648430885,
+        "three-new-light-bake": 17.32316217849555,
+        "three-new-light-probe-ddgi": 17.16295886155391,
+        "three-new-vpl": 17.364829917456756
+      },
+      "dropFromSSGI": 0.12475656685209557,
+      "pass": false
+    },
+    {
+      "scene": "gi-probe-thin-wall",
+      "reference": "blender",
+      "psnr": {
+        "three-new": null,
+        "three-new-light-bake": null,
+        "three-new-light-probe-ddgi": 57.86231337243067,
+        "three-new-vpl": null
+      },
+      "dropFromSSGI": 0,
+      "pass": true
+    },
+    {
+      "scene": "gi-probe-thin-wall",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": null,
+        "three-new-light-bake": null,
+        "three-new-light-probe-ddgi": 57.86231337243067,
+        "three-new-vpl": null
+      },
+      "dropFromSSGI": 0,
+      "pass": true
+    },
+    {
+      "scene": "gi-probe-thick-wall",
+      "reference": "blender",
+      "psnr": {
+        "three-new": null,
+        "three-new-light-bake": null,
+        "three-new-light-probe-ddgi": 60.69848325048163,
+        "three-new-vpl": null
+      },
+      "dropFromSSGI": 0,
+      "pass": true
+    },
+    {
+      "scene": "gi-probe-thick-wall",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": null,
+        "three-new-light-bake": null,
+        "three-new-light-probe-ddgi": 60.69848325048163,
+        "three-new-vpl": null
+      },
+      "dropFromSSGI": 0,
+      "pass": true
+    },
+    {
+      "scene": "gi-hierarchy-discontinuity",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 44.49839547279673,
+        "three-new-light-bake": 45.155220564122374,
+        "three-new-light-probe-ddgi": 40.409214250712935,
+        "three-new-vpl": 44.95052068217558
+      },
+      "dropFromSSGI": -0.45212520937884904,
+      "pass": true
+    },
+    {
+      "scene": "gi-hierarchy-discontinuity",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 35.1462378032902,
+        "three-new-light-bake": 35.33718443700146,
+        "three-new-light-probe-ddgi": 34.24166874572605,
+        "three-new-vpl": 35.291713094625266
+      },
+      "dropFromSSGI": -0.14547529133506742,
+      "pass": true
+    },
+    {
+      "scene": "gi-emitter-corner",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 25.97448732664894,
+        "three-new-light-bake": 51.635528226706136,
+        "three-new-light-probe-ddgi": 46.54639335928212,
+        "three-new-vpl": 52.431093655507766
+      },
+      "dropFromSSGI": -26.456606328858825,
+      "pass": true
+    },
+    {
+      "scene": "gi-emitter-corner",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 25.416033326618688,
+        "three-new-light-bake": 41.70508223821188,
+        "three-new-light-probe-ddgi": 39.73312891937284,
+        "three-new-vpl": 42.01689006161071
+      },
+      "dropFromSSGI": -16.60085673499202,
+      "pass": true
+    },
+    {
+      "scene": "gi-emitter-corner-dense",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 26.724233652616217,
+        "three-new-light-bake": 51.65596644887968,
+        "three-new-light-probe-ddgi": 46.564229102120436,
+        "three-new-vpl": 52.45823842140386
+      },
+      "dropFromSSGI": -25.734004768787646,
+      "pass": true
+    },
+    {
+      "scene": "gi-emitter-corner-dense",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 26.10781653225507,
+        "three-new-light-bake": 41.70508223821188,
+        "three-new-light-probe-ddgi": 39.73312891937284,
+        "three-new-vpl": 42.01689006161071
+      },
+      "dropFromSSGI": -15.909073529355638,
+      "pass": true
+    },
+    {
+      "scene": "gi-emitter-corner-thick",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 26.11338848521789,
+        "three-new-light-bake": 51.6465822835087,
+        "three-new-light-probe-ddgi": 46.553623743206096,
+        "three-new-vpl": 52.45891921912582
+      },
+      "dropFromSSGI": -26.34553073390793,
+      "pass": true
+    },
+    {
+      "scene": "gi-emitter-corner-thick",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 25.54348611878335,
+        "three-new-light-bake": 41.70508223821188,
+        "three-new-light-probe-ddgi": 39.73312891937284,
+        "three-new-vpl": 42.01689006161071
+      },
+      "dropFromSSGI": -16.47340394282736,
+      "pass": true
+    },
+    {
+      "scene": "gi-emitter-enclosure-wide",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 10.885075105386058,
+        "three-new-light-bake": 62.112717701153635,
+        "three-new-light-probe-ddgi": 50.217723534035706,
+        "three-new-vpl": 49.43593991661516
+      },
+      "dropFromSSGI": -38.550864811229104,
+      "pass": true
+    },
+    {
+      "scene": "gi-emitter-enclosure-wide",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 10.805111998740507,
+        "three-new-light-bake": 50.03279126965177,
+        "three-new-light-probe-ddgi": 46.03213319798577,
+        "three-new-vpl": 44.4849136944876
+      },
+      "dropFromSSGI": -33.679801695747095,
+      "pass": true
+    },
+    {
+      "scene": "gi-emitter-enclosure-crop",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 5.3963922655509675,
+        "three-new-light-bake": null,
+        "three-new-light-probe-ddgi": null,
+        "three-new-vpl": 48.1308036086791
+      },
+      "dropFromSSGI": -42.73441134312814,
+      "pass": true
+    },
+    {
+      "scene": "gi-emitter-enclosure-crop",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 5.33329265131409,
+        "three-new-light-bake": 48.13570726861271,
+        "three-new-light-probe-ddgi": 48.13570726861271,
+        "three-new-vpl": 42.11388092117994
+      },
+      "dropFromSSGI": -36.78058826986585,
+      "pass": true
+    },
+    {
+      "scene": "gi-room-low-albedo",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 32.13736968435072,
+        "three-new-light-bake": 50.32935636448427,
+        "three-new-light-probe-ddgi": 50.27458095224812,
+        "three-new-vpl": 50.33110795552744
+      },
+      "dropFromSSGI": -18.19373827117672,
+      "pass": true
+    },
+    {
+      "scene": "gi-room-low-albedo",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 43.658505275114905,
+        "three-new-light-bake": 34.129638873425435,
+        "three-new-light-probe-ddgi": 33.82087416975374,
+        "three-new-vpl": 34.06890998325128
+      },
+      "dropFromSSGI": 9.589595291863624,
+      "pass": false
+    },
+    {
+      "scene": "gi-room-high-albedo",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 9.663207910458599,
+        "three-new-light-bake": 25.925196039670062,
+        "three-new-light-probe-ddgi": 19.672606297860735,
+        "three-new-vpl": 35.94299219511462
+      },
+      "dropFromSSGI": -26.27978428465602,
+      "pass": true
+    },
+    {
+      "scene": "gi-room-high-albedo",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 11.480710531824522,
+        "three-new-light-bake": 36.26072226852773,
+        "three-new-light-probe-ddgi": 27.23301953479883,
+        "three-new-vpl": 26.128043715843432
+      },
+      "dropFromSSGI": -14.64733318401891,
+      "pass": true
+    },
+    {
+      "scene": "gi-room-open-low-albedo",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 44.65505299469048,
+        "three-new-light-bake": 57.960035247007575,
+        "three-new-light-probe-ddgi": 57.12486470678876,
+        "three-new-vpl": 57.52098503688786
+      },
+      "dropFromSSGI": -12.865932042197379,
+      "pass": true
+    },
+    {
+      "scene": "gi-room-open-low-albedo",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 37.32358697093379,
+        "three-new-light-bake": 34.65732498818163,
+        "three-new-light-probe-ddgi": 34.64122649117364,
+        "three-new-vpl": 34.65585008965753
+      },
+      "dropFromSSGI": 2.6677368812762623,
+      "pass": false
+    },
+    {
+      "scene": "gi-room-open-high-albedo",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 24.652477323484806,
+        "three-new-light-bake": 42.272640012538005,
+        "three-new-light-probe-ddgi": 38.79598638589457,
+        "three-new-vpl": 42.42949740236361
+      },
+      "dropFromSSGI": -17.777020078878802,
+      "pass": true
+    },
+    {
+      "scene": "gi-room-open-high-albedo",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 31.725908147687676,
+        "three-new-light-bake": 29.90041683032213,
+        "three-new-light-probe-ddgi": 31.123876582294045,
+        "three-new-vpl": 29.37652882974634
+      },
+      "dropFromSSGI": 2.3493793179413345,
+      "pass": false
+    },
+    {
+      "scene": "ssgi-animated-visible-walls",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 25.187543786593196,
+        "three-new-light-bake": 29.742940861408776,
+        "three-new-light-probe-ddgi": 24.568657934698273,
+        "three-new-vpl": 33.501362958912075
+      },
+      "dropFromSSGI": -8.31381917231888,
+      "pass": true
+    },
+    {
+      "scene": "ssgi-animated-visible-walls",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 27.780542478073727,
+        "three-new-light-bake": 29.72854899829811,
+        "three-new-light-probe-ddgi": 31.739088192664518,
+        "three-new-vpl": 27.06276937305827
+      },
+      "dropFromSSGI": 0.717773105015457,
+      "pass": false
+    },
+    {
+      "scene": "ssr-diag-odd-size",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 46.70152520226357,
+        "three-new-light-bake": 43.877517578876095,
+        "three-new-light-probe-ddgi": 43.87723579859653,
+        "three-new-vpl": 46.86428623291267
+      },
+      "dropFromSSGI": -0.16276103064910075,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-odd-size",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 37.976115200954816,
+        "three-new-light-bake": 37.57151612665335,
+        "three-new-light-probe-ddgi": 37.57143256967937,
+        "three-new-vpl": 38.03510549128838
+      },
+      "dropFromSSGI": -0.05899029033356129,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-mirror",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 40.04942356013133,
+        "three-new-light-bake": 39.04740164057102,
+        "three-new-light-probe-ddgi": 39.040816133248484,
+        "three-new-vpl": 40.02488766343469
+      },
+      "dropFromSSGI": 0.02453589669664069,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-mirror",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 36.584615217883126,
+        "three-new-light-bake": 36.14845434057448,
+        "three-new-light-probe-ddgi": 36.145472587944155,
+        "three-new-vpl": 36.56686988280597
+      },
+      "dropFromSSGI": 0.017745335077158586,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-rough-10",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 40.546077114819425,
+        "three-new-light-bake": 39.68764414819813,
+        "three-new-light-probe-ddgi": 39.681757666755736,
+        "three-new-vpl": 40.48993204469299
+      },
+      "dropFromSSGI": 0.05614507012643344,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-rough-10",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 36.77039093275087,
+        "three-new-light-bake": 36.398130791182474,
+        "three-new-light-probe-ddgi": 36.39612044682296,
+        "three-new-vpl": 36.76026224537295
+      },
+      "dropFromSSGI": 0.010128687377921608,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-rough-30",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 42.740703677767684,
+        "three-new-light-bake": 41.360404978371,
+        "three-new-light-probe-ddgi": 41.360404978371,
+        "three-new-vpl": 42.80168040127813
+      },
+      "dropFromSSGI": -0.06097672351044281,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-rough-30",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 37.123640120104675,
+        "three-new-light-bake": 36.554105031660356,
+        "three-new-light-probe-ddgi": 36.554105031660356,
+        "three-new-vpl": 37.211936064097095
+      },
+      "dropFromSSGI": -0.08829594399242069,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-rough-60",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 38.92477601486027,
+        "three-new-light-bake": 37.51484642726751,
+        "three-new-light-probe-ddgi": 37.51484642726751,
+        "three-new-vpl": 39.150788783078134
+      },
+      "dropFromSSGI": -0.22601276821786342,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-rough-60",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 26.034626295175265,
+        "three-new-light-bake": 25.930850468582214,
+        "three-new-light-probe-ddgi": 25.930850468582214,
+        "three-new-vpl": 26.12392195810115
+      },
+      "dropFromSSGI": -0.08929566292588476,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-dielectric-0",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 37.505677965393865,
+        "three-new-light-bake": 37.18712094034187,
+        "three-new-light-probe-ddgi": 37.18712094034187,
+        "three-new-vpl": 37.511213764428454
+      },
+      "dropFromSSGI": -0.005535799034589672,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-dielectric-0",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 40.06945549700796,
+        "three-new-light-bake": 39.59385434435211,
+        "three-new-light-probe-ddgi": 39.59385434435211,
+        "three-new-vpl": 40.10743413551446
+      },
+      "dropFromSSGI": -0.03797863850650174,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-dielectric-30",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 37.758617384916995,
+        "three-new-light-bake": 37.55439639902847,
+        "three-new-light-probe-ddgi": 37.55439639902847,
+        "three-new-vpl": 37.71366019079093
+      },
+      "dropFromSSGI": 0.044957194126062916,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-dielectric-30",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 40.3411208666853,
+        "three-new-light-bake": 39.86669209254311,
+        "three-new-light-probe-ddgi": 39.86669209254311,
+        "three-new-vpl": 40.379938108087586
+      },
+      "dropFromSSGI": -0.03881724140228471,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-grazing",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 39.58933581138966,
+        "three-new-light-bake": 38.200409077243556,
+        "three-new-light-probe-ddgi": 38.200409077243556,
+        "three-new-vpl": 39.686411795932145
+      },
+      "dropFromSSGI": -0.09707598454248512,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-grazing",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 34.21029811108766,
+        "three-new-light-bake": 33.821463626652886,
+        "three-new-light-probe-ddgi": 33.821463626652886,
+        "three-new-vpl": 34.275553196063576
+      },
+      "dropFromSSGI": -0.06525508497591659,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-offscreen",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 31.401699417571113,
+        "three-new-light-bake": 31.19787584884073,
+        "three-new-light-probe-ddgi": 31.19787584884073,
+        "three-new-vpl": 31.405467302429596
+      },
+      "dropFromSSGI": -0.003767884858483228,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-offscreen",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 29.99268875908431,
+        "three-new-light-bake": 29.845002452497262,
+        "three-new-light-probe-ddgi": 29.845002452497262,
+        "three-new-vpl": 29.990108255094697
+      },
+      "dropFromSSGI": 0.002580503989612737,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-occlusion",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 45.8947536964018,
+        "three-new-light-bake": 43.25371210640499,
+        "three-new-light-probe-ddgi": 43.25387562592158,
+        "three-new-vpl": 46.02969498096067
+      },
+      "dropFromSSGI": -0.13494128455887022,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-occlusion",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 36.632211016456885,
+        "three-new-light-bake": 36.281871480961655,
+        "three-new-light-probe-ddgi": 36.28190431913551,
+        "three-new-vpl": 36.66731571857603
+      },
+      "dropFromSSGI": -0.03510470211914196,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-wall",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 23.393743332512145,
+        "three-new-light-bake": 23.38207259037261,
+        "three-new-light-probe-ddgi": 23.38293350592792,
+        "three-new-vpl": 23.39025313872034
+      },
+      "dropFromSSGI": 0.0034901937918050407,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-wall",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 23.081615923780767,
+        "three-new-light-bake": 23.078767404602708,
+        "three-new-light-probe-ddgi": 23.079542802928753,
+        "three-new-vpl": 23.082295447307164
+      },
+      "dropFromSSGI": -0.0006795235263972188,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-sphere",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 24.769710637619326,
+        "three-new-light-bake": 24.765318451784335,
+        "three-new-light-probe-ddgi": 24.76462134102674,
+        "three-new-vpl": 24.766716406844132
+      },
+      "dropFromSSGI": 0.0029942307751937847,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-sphere",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 24.576038897528733,
+        "three-new-light-bake": 24.57835924218849,
+        "three-new-light-probe-ddgi": 24.57796432347884,
+        "three-new-vpl": 24.577812310421
+      },
+      "dropFromSSGI": -0.0017734128922661796,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-metal-hit",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 32.46373073467939,
+        "three-new-light-bake": 31.351277587733843,
+        "three-new-light-probe-ddgi": 31.340782476806048,
+        "three-new-vpl": 32.76717983638824
+      },
+      "dropFromSSGI": -0.30344910170884987,
+      "pass": true
+    },
+    {
+      "scene": "ssr-diag-metal-hit",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 31.945230435876418,
+        "three-new-light-bake": 30.963759598646647,
+        "three-new-light-probe-ddgi": 30.953634625953494,
+        "three-new-vpl": 32.209894019390816
+      },
+      "dropFromSSGI": -0.2646635835143982,
+      "pass": true
+    },
+    {
+      "scene": "traa-checker",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 18.36226452868956,
+        "three-new-light-bake": 17.871445916240408,
+        "three-new-light-probe-ddgi": 18.308135129974307,
+        "three-new-vpl": 18.308442549304655
+      },
+      "dropFromSSGI": 0.053821979384906626,
+      "pass": true
+    },
+    {
+      "scene": "traa-checker",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 28.232160244236123,
+        "three-new-light-bake": 28.04159888911571,
+        "three-new-light-probe-ddgi": 28.44167665255219,
+        "three-new-vpl": 28.667799994810682
+      },
+      "dropFromSSGI": -0.43563975057455906,
+      "pass": true
+    },
+    {
+      "scene": "traa-disocclusion",
+      "reference": "blender",
+      "psnr": {
+        "three-new": 18.064491595521762,
+        "three-new-light-bake": 17.911096210961887,
+        "three-new-light-probe-ddgi": 18.05798033090259,
+        "three-new-vpl": 18.047779865280095
+      },
+      "dropFromSSGI": 0.016711730241667055,
+      "pass": true
+    },
+    {
+      "scene": "traa-disocclusion",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new": 29.25771339505042,
+        "three-new-light-bake": 29.165020523255258,
+        "three-new-light-probe-ddgi": 29.272233351204193,
+        "three-new-vpl": 29.588675136897752
+      },
+      "dropFromSSGI": -0.3309617418473323,
+      "pass": true
+    }
+  ]
+}

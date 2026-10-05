@@ -1,0 +1,21 @@
+{
+  "backend": "native Dawn WebGPU",
+  "validation": "scripts/vpl-validate.mjs",
+  "checks": [
+    {
+      "whiteFurnaceIrradiance": [3.064453125, 3.064453125, 3.064453125],
+      "concaveIrradiance": [1.5048828125, 1.5048828125, 1.5048828125],
+      "concaveExpected": 1.5172517353124122,
+      "staticPointIrradiance": [0.9990234375, 0.9990234375, 0.9990234375],
+      "staticPointExpected": 0.9990441279214604,
+      "blockedIrradiance": [0, 0, 0],
+      "expected": 3.141592653589793,
+      "stopsAtSampleCap": true,
+      "restoresScene": true
+    },
+    {
+      "cameraPreservesBake": true,
+      "lightChangeInvalidatesBake": true
+    }
+  ]
+}

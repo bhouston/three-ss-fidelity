@@ -196,8 +196,10 @@ function instrument(time: number, interval: number, cpu: number) {
   element('bake-status').hidden = !bake;
   element('bake-status').textContent = bake
     ? bake.phase === 'converged'
-      ? 'Indirect lighting baked'
-      : `Baking indirect lighting · ${Math.round(bake.progress * 100)}%`
+      ? current?.live.name === 'three-new-vpl'
+        ? 'Virtual light GI converged'
+        : 'Indirect lighting baked'
+      : `${current?.live.name === 'three-new-vpl' ? 'Accumulating virtual light GI' : 'Baking indirect lighting'} · ${Math.round(bake.progress * 100)}%`
     : '';
   if (rollingIntervals.length) {
     const timing = statistics(rollingIntervals);

@@ -92,6 +92,7 @@ async function initialize() {
     current.render(frame);
     reporter.frameEnd(token);
   };
+  await reporter.convergence(canvas);
   reporter.phaseEnd('process');
   reporter.phaseStart('compile');
   // Compile the entire post-processing graph, including lazily built passes, during init.

@@ -302,3 +302,5 @@ category totals, and individual request waterfall. Cross-origin assets without
 Timing-Allow-Origin have unknown sizes; worker fetches are outside the iframe's
 performance timeline. The chart approximates uniform byte arrival and uses the
 same time axis as frame charts, including downloads before the reporter starts.
+
+For timed GI quality comparisons, run `pnpm performance:convergence` after building. See [GI performance and convergence](docs/performance/GI_CONVERGENCE.md) for the optional reference workflow and initial results.

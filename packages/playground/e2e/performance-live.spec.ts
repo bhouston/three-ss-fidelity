@@ -1,10 +1,14 @@
 import { expect, test } from '@playwright/test';
+import sharp from 'sharp';
 
 test('live benchmark defers selections, resets charts and renders at 1080p with local telemetry', async ({
   page,
 }, testInfo) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error' && /THREE|shader|WebGPU/i.test(message.text())) errors.push(message.text());
+  });
   await page.addInitScript(() => {
     (window as unknown as { harnessMessages: unknown[] }).harnessMessages = [];
     window.addEventListener('message', (event) => {
@@ -23,6 +27,11 @@ test('live benchmark defers selections, resets charts and renders at 1080p with 
   await expect(page.getByLabel('Setup time chart')).toContainText('compile');
   await expect(page.getByLabel('Live frame rate')).not.toHaveText('— FPS');
   await expect.poll(() => page.locator('[aria-label="Frame rate chart"] circle').count()).toBeGreaterThan(1);
+
+  const baseCapture = await canvas.screenshot({ path: testInfo.outputPath('three-base.png') });
+  const stats = await sharp(baseCapture).stats();
+  expect(Math.max(...stats.channels.slice(0, 3).map((channel) => channel.stdev))).toBeGreaterThan(10);
+  expect(errors).toEqual([]);
 
   // Keyboard controls must change the rendered camera, not scroll the page.
   await canvas.focus();

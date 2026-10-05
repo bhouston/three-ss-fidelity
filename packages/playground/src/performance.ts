@@ -12,8 +12,8 @@ let cleanupScene: ((setup: SceneSetup) => void) | undefined;
 let complete: (() => Promise<void>) | undefined;
 let draw: (() => void) | undefined;
 
-reporter.onStart(async ({ params }) => {
-  reporter.phaseStart('load');
+async function initialize() {
+  const params = reporter.params;
   const [scenes, renderers, runtime, { performanceConfiguration }] = await Promise.all([
     import('@ss-fidelity/scenes'),
     import('@ss-fidelity/renderers'),
@@ -108,7 +108,8 @@ reporter.onStart(async ({ params }) => {
     }
   };
   animation = requestAnimationFrame(tick);
-});
+}
+void initialize().catch((error) => reporter.fail(error));
 reporter.onCapture(async () => {
   await complete?.();
   draw?.();

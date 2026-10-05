@@ -16,7 +16,7 @@ const renderer = process.argv[4] ?? 'three-new';
 const scenes = process.argv[3]
   ? process.argv[3].split(',')
   : readdirSync(resultsDir)
-      .filter((name) => name.startsWith('ssr-'))
+      .filter((name) => name.startsWith('diag-') || name === 'steampunk-camera')
       .toSorted();
 
 for (const scene of scenes) {

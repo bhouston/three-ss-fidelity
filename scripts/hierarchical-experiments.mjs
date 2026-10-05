@@ -62,9 +62,9 @@ if (!Number.isFinite(threshold) || threshold < 0) throw new Error('--threshold m
 const out = path.resolve(root, values.out);
 const definitions = {
   'sh-probes': [
-    'ssgi-basic',
-    'ssgi-rounded',
-    'ssgi-animated',
+    'cornell-box-basic',
+    'cornell-box-rounded',
+    'cornell-box-animated',
     'gi-emitter-corner',
     'gi-emitter-corner-thick',
     'gi-room-open-high-albedo',
@@ -73,32 +73,27 @@ const definitions = {
     'gltf-coffeemat',
   ],
   'ssr-hiz-tight': [
-    'ssr-diag-mirror',
-    'ssr-diag-grazing',
-    'ssr-diag-occlusion',
-    'ssr-diag-metal-hit',
-    'ssr-diag-rough-30',
-    'ssr-diag-odd-size',
+    'diag-mirror',
+    'diag-grazing',
+    'diag-occlusion',
+    'diag-metal-hit',
+    'diag-rough-30',
+    'diag-odd-size',
   ],
-  'ssr-radiance-mips': ['ssr-diag-mirror', 'ssr-diag-rough-30', 'ssr-diag-rough-60', 'ssr-diag-metal-hit'],
+  'ssr-radiance-mips': ['diag-mirror', 'diag-rough-30', 'diag-rough-60', 'diag-metal-hit'],
   'ssgi-radiance-mips': [
-    'ssgi-basic',
-    'ssgi-rounded',
+    'cornell-box-basic',
+    'cornell-box-rounded',
     'gi-emitter-corner-dense',
     'gi-room-open-high-albedo',
     'gi-hierarchy-discontinuity',
   ],
 };
-definitions['hierarchy-combined'] = [...new Set(Object.values(definitions).flat()), 'ssgi-metallic'];
+definitions['hierarchy-combined'] = [...new Set(Object.values(definitions).flat()), 'cornell-box-metallic'];
 for (const name of Object.keys(ssgiWorkExperiments)) definitions[name] = definitions['ssgi-radiance-mips'];
-definitions['ssgi-half'] = [...definitions['ssgi-radiance-mips'], 'ssgi-metallic'];
+definitions['ssgi-half'] = [...definitions['ssgi-radiance-mips'], 'cornell-box-metallic'];
 definitions['ssgi-third'] = definitions['ssgi-half'];
-definitions['ssr-temporal-validated'] = [
-  'ssr-diag-mirror',
-  'ssr-diag-rough-30',
-  'ssr-diag-rough-60',
-  'ssr-steampunk-camera',
-];
+definitions['ssr-temporal-validated'] = ['diag-mirror', 'diag-rough-30', 'diag-rough-60', 'steampunk-camera'];
 definitions['ssr-temporal-gaussian'] = definitions['ssr-temporal-validated'];
 definitions['ddgi-probes'] = [...definitions['sh-probes'], 'gi-probe-thin-wall', 'gi-probe-thick-wall'];
 const rendererFor = (variant) =>

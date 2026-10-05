@@ -96,7 +96,7 @@ export const command = defineCommand({
     const profiles = selectNames(cliRendererNames, argv.renderers, 'renderer').map((name) => profilesByName.get(name)!);
     let failed = false;
     // one child process per renderer and scene: dawn and ANGLE don't share a process reliably, and GPU state leaked
-    // from one scene's renderer into the next scene's (a red cast from ssgi-basic in ssr-steampunk-camera), so no
+    // from one scene's renderer into the next scene's (a red cast from cornell-box-basic in steampunk-camera), so no
     // result may depend on what rendered before it
     for (const { name, renderer, hierarchyExperiment } of profiles) {
       for (const scene of scenes) {

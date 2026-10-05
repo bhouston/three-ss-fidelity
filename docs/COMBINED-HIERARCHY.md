@@ -42,23 +42,23 @@ PSNR drop is 0.0479 dB on `gi-hierarchy-discontinuity`.
 
 | Scene                        | Baseline PSNR (dB) | Combined PSNR (dB) | Delta (dB) |
 | ---------------------------- | -----------------: | -----------------: | ---------: |
-| `ssr-diag-mirror`            |            36.5846 |            36.5933 |    +0.0087 |
-| `ssr-diag-grazing`           |            34.2103 |            34.2270 |    +0.0167 |
-| `ssr-diag-occlusion`         |            36.6322 |            36.6386 |    +0.0064 |
-| `ssr-diag-metal-hit`         |            31.9452 |            31.9526 |    +0.0074 |
-| `ssr-diag-rough-30`          |            37.1236 |            37.1178 |    -0.0059 |
-| `ssr-diag-odd-size`          |            37.9761 |            37.9619 |    -0.0142 |
-| `ssr-diag-rough-60`          |            26.0346 |            26.0283 |    -0.0063 |
-| `ssgi-basic`                 |            27.4811 |            27.6800 |    +0.1988 |
-| `ssgi-rounded`               |            29.3477 |            29.5447 |    +0.1970 |
+| `diag-mirror`                |            36.5846 |            36.5933 |    +0.0087 |
+| `diag-grazing`               |            34.2103 |            34.2270 |    +0.0167 |
+| `diag-occlusion`             |            36.6322 |            36.6386 |    +0.0064 |
+| `diag-metal-hit`             |            31.9452 |            31.9526 |    +0.0074 |
+| `diag-rough-30`              |            37.1236 |            37.1178 |    -0.0059 |
+| `diag-odd-size`              |            37.9761 |            37.9619 |    -0.0142 |
+| `diag-rough-60`              |            26.0346 |            26.0283 |    -0.0063 |
+| `cornell-box-basic`          |            27.4811 |            27.6800 |    +0.1988 |
+| `cornell-box-rounded`        |            29.3477 |            29.5447 |    +0.1970 |
 | `gi-emitter-corner-dense`    |            26.1078 |            26.0911 |    -0.0167 |
 | `gi-room-open-high-albedo`   |            31.7259 |            31.6896 |    -0.0363 |
 | `gi-hierarchy-discontinuity` |            35.1462 |            35.0983 |    -0.0479 |
-| `ssgi-metallic`              |            27.6266 |            27.8281 |    +0.2015 |
+| `cornell-box-metallic`       |            27.6266 |            27.8281 |    +0.2015 |
 
 [Native results](history/hierarchical/combined-native-quality.json) include reference
 hashes and baseline-repeat comparisons. Most repeated baseline images were
-identical; `ssr-diag-metal-hit` and `ssgi-metallic` showed residual variation.
+identical; `diag-metal-hit` and `cornell-box-metallic` showed residual variation.
 `fidelity-kit process` computed all 26 expected comparisons successfully, and the
 [standard CLI quality gate](history/hierarchical/combined-fidelity-gate.json) passed
 all 13 scenes without skips. Visual inspection of baseline/combined/delta images
@@ -66,7 +66,7 @@ for the discontinuity, rough-60, and metallic scenes found no obvious new artifa
 
 On scenes running both effects, the combined profile also passes against each
 individual profile. It improves PSNR by 0.0300 dB over the best individual profile
-on `ssgi-basic`, and by 0.0953 dB on `ssgi-metallic`.
+on `cornell-box-basic`, and by 0.0953 dB on `cornell-box-metallic`.
 [Individual comparisons](history/hierarchical/combined-individual-quality.json)
 contain all per-profile metrics.
 
@@ -103,11 +103,11 @@ pnpm tsc
 pnpm lint
 pnpm test --coverage
 pnpm test:browser
-node scripts/hierarchical-quality.mjs --experiments hierarchy-combined --scenes gi-hierarchy-discontinuity,ssgi-metallic --width 1280 --height 720 --frames 64 --out .output/combined-extra
+node scripts/hierarchical-quality.mjs --experiments hierarchy-combined --scenes gi-hierarchy-discontinuity,cornell-box-metallic --width 1280 --height 720 --frames 64 --out .output/combined-extra
 node scripts/hierarchical-experiments.mjs --experiments hierarchy-combined --skip-timing --out .output/combined-native
-node scripts/hierarchical-experiments.mjs --skip-timing --scenes ssgi-basic,ssgi-metallic --out .output/combined-individuals
+node scripts/hierarchical-experiments.mjs --skip-timing --scenes cornell-box-basic,cornell-box-metallic --out .output/combined-individuals
 # Run this with an idle GPU for meaningful repeated 1080p throughput:
-node scripts/hierarchical-experiments.mjs --skip-quality --scenes ssgi-basic,ssgi-metallic --out .output/combined-timing
+node scripts/hierarchical-experiments.mjs --skip-quality --scenes cornell-box-basic,cornell-box-metallic --out .output/combined-timing
 ```
 
 The experimental runner now uses the current benchmark protocol and report schema,

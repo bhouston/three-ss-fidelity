@@ -31,9 +31,9 @@ The next renderer should explicitly fetch the eight neighboring probes, reject i
 
 ```sh
 pnpm build
-pnpm cli render --scenes ssgi-basic --renderers three-new-light-probe --frames 128
-pnpm cli bench --scenes ssgi-basic --renderers three-new,three-new-light-probe --experiment baseline
-node scripts/hierarchical-experiments.mjs --experiments sh-probes --scenes gi-emitter-corner,gi-room-high-albedo,ssgi-basic --out .output/sh-probes --repeats 3 --width 1920 --height 1080 --warmup 30 --measure 60
+pnpm cli render --scenes cornell-box-basic --renderers three-new-light-probe --frames 128
+pnpm cli bench --scenes cornell-box-basic --renderers three-new,three-new-light-probe --experiment baseline
+node scripts/hierarchical-experiments.mjs --experiments sh-probes --scenes gi-emitter-corner,gi-room-high-albedo,cornell-box-basic --out .output/sh-probes --repeats 3 --width 1920 --height 1080 --warmup 30 --measure 60
 ```
 
 The script's `sh-probes` report key selects the public `three-new-light-probe` renderer. Quality captures use native scene resolution, 128 settled frames and the existing 4,096-sample path-traced AVIF references. Metrics are decoded sRGB image PSNR; they are not linear irradiance error. Timings use separate sequential GPU processes, GPU-synchronized batches, three repeats and median batch wall time. They include CPU submission and preserve SSR/TRAA costs. Timestamp pass sums are recorded separately and are not whole-frame GPU spans.
@@ -46,9 +46,9 @@ Apple M3 / macOS arm64, Node 26.3.0. The initial run used the internal `sh-probe
 | ------------------- | ------------: | --------------: | ------: | ------------------: | --------------------: | ---------: |
 | gi-emitter-corner   |         18.88 |            3.03 |   6.24× |            25.42 dB |              37.17 dB |     11.1 s |
 | gi-room-high-albedo |         36.45 |            4.35 |   8.38× |            11.48 dB |              25.66 dB |     13.8 s |
-| ssgi-basic          |        268.86 |           40.78 |   6.59× |            27.48 dB |              28.22 dB |     16.8 s |
+| cornell-box-basic   |        268.86 |           40.78 |   6.59× |            27.48 dB |              28.22 dB |     16.8 s |
 
-All three improve display-image PSNR against the reference, while cutting measured total pipeline time substantially. Native captures were visually inspected: the emitter-corner probe floor follows the path-traced illumination more closely than the underlit SSGI floor. This does not imply every surface or scene improves. At native resolution SSR remains a substantial cost in ssgi-basic; these are not isolated GI-pass timings. Initial atlas dimensions are 15×9×15 (2,025 probes) for the emitter/room and 14×11×13 (2,002) for ssgi-basic. One live padded atlas uses `nx * ny * 7 * (nz+2) * 8` bytes: 128,520 and 129,360 bytes respectively, plus an equal-sized bounce snapshot and temporary shared cube/projection storage. Construction performs over 36,000 cube-face draws per scene across three passes, explaining the bake cost.
+All three improve display-image PSNR against the reference, while cutting measured total pipeline time substantially. Native captures were visually inspected: the emitter-corner probe floor follows the path-traced illumination more closely than the underlit SSGI floor. This does not imply every surface or scene improves. At native resolution SSR remains a substantial cost in cornell-box-basic; these are not isolated GI-pass timings. Initial atlas dimensions are 15×9×15 (2,025 probes) for the emitter/room and 14×11×13 (2,002) for cornell-box-basic. One live padded atlas uses `nx * ny * 7 * (nz+2) * 8` bytes: 128,520 and 129,360 bytes respectively, plus an equal-sized bounce snapshot and temporary shared cube/projection storage. Construction performs over 36,000 cube-face draws per scene across three passes, explaining the bake cost.
 
 Research artifacts, native-resolution captures, per-run timings and reference hashes are archived under `history/light-probes/initial/`. The stored report points to omitted delta PNGs, which can be regenerated with the script; AVIF captures and metrics are preserved. The final public renderer has also been exercised on additional scenes; see the extra report below.
 
@@ -58,12 +58,12 @@ Research artifacts, native-resolution captures, per-run timings and reference ha
 
 ## Additional final-renderer quality sweep
 
-Native-resolution 128-frame captures under the final `three-new-light-probe` name are archived in `history/light-probes/extra/` and published in the comparison viewer. These are static captures, including the scene named ssgi-animated; they do not validate updates of moving geometry.
+Native-resolution 128-frame captures under the final `three-new-light-probe` name are archived in `history/light-probes/extra/` and published in the comparison viewer. These are static captures, including the scene named cornell-box-animated; they do not validate updates of moving geometry.
 
 | Scene                    | SSGI PSNR | Probes PSNR |    Change |
 | ------------------------ | --------: | ----------: | --------: |
-| ssgi-rounded             |  29.35 dB |    28.93 dB |  -0.42 dB |
-| ssgi-animated            |  28.15 dB |    29.69 dB |  +1.54 dB |
+| cornell-box-rounded      |  29.35 dB |    28.93 dB |  -0.42 dB |
+| cornell-box-animated     |  28.15 dB |    29.69 dB |  +1.54 dB |
 | gi-emitter-corner-thick  |  25.55 dB |    37.17 dB | +11.63 dB |
 | gi-room-open-high-albedo |  31.73 dB |    31.42 dB |  -0.30 dB |
 | gi-room-low-albedo       |  43.66 dB |    33.85 dB |  -9.81 dB |

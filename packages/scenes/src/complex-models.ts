@@ -175,14 +175,14 @@ async function createModel(
       ssr: { maxDistance: span, thickness: span * 0.01 },
       temporalDenoise: true,
       toneMapping: ACESFilmicToneMapping,
-      toneMappingExposure: entry.file === 'coffee-maker' ? (white ? 0.49 : 0.7) : 1,
+      toneMappingExposure: entry.file === 'coffee-maker' ? 0.7 : 1,
       frames: 128,
     },
   };
 }
 
 export const complexModelScenes: SceneDefinition[] = models.flatMap((entry) =>
-  [false, true].map((white) => ({
+  (['khronos-transmission-test', 'model-coffee-maker'].includes(entry.name) ? [false] : [false, true]).map((white) => ({
     name: entry.name + (white ? '-w' : ''),
     description: entry.description + (white ? ' White materials with original transmission and surface detail.' : ''),
     width: WIDTH,

@@ -23,18 +23,18 @@ The lab is a local development tool. Vite serves assets from `submodules/three.j
 
 ```sh
 # Default: 60 warmup frames, five measured seconds, five fresh repetitions.
-pnpm cli bench --renderers three-current,three-new --scenes ssgi-basic --out benchmarks/ab.json
+pnpm cli bench --renderers three-current,three-new --scenes cornell-box-basic --out benchmarks/ab.json
 
 # Infrastructure smoke test, not evidence of a speed improvement.
-pnpm cli bench --renderers three-new --scenes ssgi-basic \
+pnpm cli bench --renderers three-new --scenes cornell-box-basic \
   --width 160 --height 120 --warmup 3 --measure 7 --repeats 1 --out /tmp/bench.json
 
 # Replay a closed camera trajectory, finishing complete 120-frame cycles.
-pnpm cli bench --renderers three-current,three-new --scenes ssr-diag-rough-30 \
+pnpm cli bench --renderers three-current,three-new --scenes diag-rough-30 \
   --motion orbit --cycle 120 --orbit-degrees 30 --seed 1
 
 # Explicitly instrumented GPU profile; do not compare its wall times to throughput runs.
-pnpm cli bench --renderers three-new --scenes ssgi-basic --profile
+pnpm cli bench --renderers three-new --scenes cornell-box-basic --profile
 ```
 
 Each scene/renderer/repetition gets its own child process, fresh scene, random seed, and temporal history. Shader compilation and warmup occur outside measurement. Renderer order alternates between repetitions. Scene traversal order is preserved. `--experiment` selects a three-new-only variant; `--gpu` remains an alias for `--profile`.
@@ -139,7 +139,7 @@ Browser tests use system Chrome on macOS when present, otherwise Playwright Chro
 
 ```sh
 pnpm exec fidelity-kit process fidelity-results
-pnpm cli quality-gate three-current three-new --scenes ssgi-basic,ssgi-animated
+pnpm cli quality-gate three-current three-new --scenes cornell-box-basic,cornell-box-animated
 ```
 
 The quality gate compares existing PSNR scores against the path-tracer reference, with a default maximum drop of 0.1 dB. Measure speed at fixed effect settings and retain the quality/convergence checks when evaluating optimizations.

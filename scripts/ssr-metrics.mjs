@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Prints a table of beauty PSNR per ssr-* scene for given renderers, plus mean PSNR overall and
-// separately over the ssr-diag-* and ssr-steampunk-* groups.
+// Prints a table of beauty PSNR per reflection diagnostic or steampunk scene for given renderers, plus mean PSNR overall and
+// separately over the diag-* and steampunk-camera groups.
 // Usage: node scripts/ssr-metrics.mjs [renderer1,renderer2,...]
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
@@ -12,11 +12,11 @@ const resultsDir = path.join(repoRoot, 'fidelity-results');
 const renderers = (process.argv[2] ?? 'three-new,three-current').split(',');
 
 const scenes = readdirSync(resultsDir)
-  .filter((name) => name.startsWith('ssr-'))
+  .filter((name) => name.startsWith('diag-') || name === 'steampunk-camera')
   .toSorted();
 
 function group(scene) {
-  return scene.startsWith('ssr-diag-') ? 'diag' : 'steampunk';
+  return scene.startsWith('diag-') ? 'diag' : 'steampunk';
 }
 
 const rows = [];

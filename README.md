@@ -280,7 +280,7 @@ pnpm performance:build            # portable static report in performance-site/
 
 The harness uses `localhost`, while renderer entries use `127.0.0.1`, to allow Chrome site isolation. The renderer page runs no playground controls or charts. Keep the pinned browser, hardware and drivers consistent when comparing performance snapshots. Results record the vsync mode and network profile; comparisons reject mixed modes or network conditions. Existing `cli bench` remains available for the native diagnostic protocols documented in [docs/PERF.md](docs/PERF.md).
 
-To run all 26 real-time Three configurations on the Cornell box with a mirror sphere, build once and run `pnpm performance:metallic`. It serves the built renderer independently of Vite/HMR, running each workload once with vsync disabled at 1920×1080 and 10 s measured from ready, without warmup. Use `--executable-path <chrome>` if your bundled browser installation needs repair.
+To run all 27 real-time Three configurations on the Cornell box with a mirror sphere, build once and run `pnpm performance:metallic`. It serves the built renderer independently of Vite/HMR, running each workload once with vsync disabled at 1920×1080 and 10 s measured from ready, without warmup. Use `--executable-path <chrome>` if your bundled browser installation needs repair.
 
 The performance report introduction comes from `performance-results/README.md`. Edit this Markdown file to describe the suite; `performance:dev` refreshes it as it changes, while `performance:build` includes it in the static export.
 

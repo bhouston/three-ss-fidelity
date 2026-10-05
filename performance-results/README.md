@@ -4,4 +4,4 @@ The current benchmark uses the Cornell box with a metallic sphere: **26 configur
 
 Read the [benchmark notes](https://github.com/bhouston/three-ss-fidelity/blob/main/docs/history/performance/METALLIC-CORNELL.md) for historical measurements and reproduction context. The [fidelity viewer](https://ss-fidelity.ben3d.ca/) shows the corresponding image quality comparisons.
 
-These results were refreshed on October 4, 2026 using the navigation-based, automatic-start benchmark. Exact browser, host, toolkit and timing metadata are recorded in each metrics file. The older warmup-based measurements in the historical notes describe a different measurement window.
+These results were refreshed on October 4, 2026 using the navigation-based, automatic-start benchmark and schema v3 metrics. All saved times use seconds; phases and blocks store start plus duration. Unused message logs and script attribution are omitted. Exact browser, host, toolkit and timing metadata are recorded in each metrics file. The older warmup-based measurements in the historical notes describe a different measurement window.

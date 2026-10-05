@@ -49,7 +49,7 @@ A single run per configuration describes this observation and cannot estimate ru
 
 ## Processed format and viewer
 
-The viewer requests only a lightweight result index, processed metrics, captures, and the optional results README. It never fetches raw measurements. Every timing or duration in processed metrics uses seconds, with numeric shared `frameSeconds`, `cpuSeconds`, and `gpuSeconds` arrays. Typical and tail FPS are precomputed. The viewer formats short costs in milliseconds and longer durations in seconds.
+The viewer requests only a lightweight result index, processed metrics, captures, and the optional results README. It never fetches raw measurements. Every timing or duration in processed metrics uses seconds, with numeric shared `frameTimes`, `cpuDurations`, and `gpuDurations` arrays. Phases and blocks store `start` and `duration`. Resource timings and network latency also use seconds. Unused message logs and script attribution are omitted. Typical and tail FPS are precomputed. The viewer formats short costs in milliseconds and longer durations in seconds.
 
 The render timeline starts at ready and includes warmup and capture frames. The measured interval is marked separately. Warmup and capture frames provide context in the chart and remain excluded from summary statistics. Display indices preserve extrema without inventing intervals between decimated frame timestamps.
 

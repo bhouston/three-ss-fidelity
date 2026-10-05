@@ -267,7 +267,7 @@ The independent [performance-kit](https://github.com/bhouston/performance-kit) s
 
 ```sh
 pnpm build
-pnpm live                         # renderer site at http://127.0.0.1:5173
+pnpm live                         # opens http://127.0.0.1:5173/performance.html
 # In another terminal:
 pnpm performance:run --renderer three-current
 pnpm performance:dev              # watch results and refresh changed entries over SSE
@@ -278,7 +278,9 @@ pnpm performance:build            # portable static report in performance-site/
 
 `performance-suite.json` contains entries with explicit renderer and scene IDs for Three-Base (the stock `three-current` renderer), the other real-time Three variants (including VPL), and every Three-New experiment. Blender and path tracers are excluded. Change renderer and scene references, durations in a copied suite and pass it with `pnpm performance:run --suite <file>`. The dedicated `/performance.html` renderer supports `params.scene`, `renderer`, `experiment`, `width`, `height`, `seed`, and `motion` (`static` or `orbit`). Each entry gets a fresh scene and renderer, shader preparation, immediate measurement from ready, then end-of-run capture.
 
-The harness uses `localhost`, while renderer entries use `127.0.0.1`, to allow Chrome site isolation. The renderer page runs no playground controls or charts. Keep the pinned browser, hardware and drivers consistent when comparing performance snapshots. Results record the vsync mode and network profile; comparisons reject mixed modes or network conditions. Existing `cli bench` remains available for the native diagnostic protocols documented in [docs/PERF.md](docs/PERF.md).
+Open `/performance.html` directly for the React live benchmark viewer. It shares scene creation, renderer setup, shader preparation and drawing with the automated renderer, but disables harness reporting and result persistence. The renderer picker includes the main suite’s renderer configurations and experiment settings. Choose a scenario and renderer, then click **Start Benchmark** to load it at a fixed 1920×1080 physical resolution (the display scales to the available width). Selection changes take effect only on the next start; every start resets the camera and charts. Drag to orbit, scroll to zoom, or click the canvas and move with WASD / arrow keys. Local setup telemetry appears after the first completed frame, with the same load/process/compile boundaries as automation. Frame rate and mean CPU frame time update once per second, with the most recent 300 samples charted below the view. Ordinary browser vsync applies. The diagnostic playground remains at `/` for GPU-pass profiling, captures and its independent benchmark protocols. The live charts are reusable React components in `packages/playground/src/performance-charts.tsx`, styled with the results viewer stylesheet and square borders.
+
+The harness uses `localhost`, while renderer entries use `127.0.0.1`, to allow Chrome site isolation. In automated harness mode, the renderer page runs no controls or charts. Keep the pinned browser, hardware and drivers consistent when comparing performance snapshots. Results record the vsync mode and network profile; comparisons reject mixed modes or network conditions. Existing `cli bench` remains available for the native diagnostic protocols documented in [docs/PERF.md](docs/PERF.md).
 
 To run all 27 real-time Three configurations on the Cornell box with a mirror sphere, build once and run `pnpm performance:metallic`. It serves the built renderer independently of Vite/HMR, running each workload once with vsync disabled at 1920×1080 and 10 s measured from ready, without warmup. Use `--executable-path <chrome>` if your bundled browser installation needs repair.
 

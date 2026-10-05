@@ -1,6 +1,6 @@
 # Real-time browser performance — October 5, 2026
 
-The standard and metallic suites now include Three VPL (`three-new-vpl`), bringing each scene to 27 configurations. All 81 workloads completed successfully and their metrics and end-of-run AVIF captures are stored in [`performance-results/macbookairm3/`](../../performance-results/macbookairm3/) (MacBook Air M3).
+The standard and metallic suites now include Three VPL (`three-new-vpl`), bringing each scene to 27 configurations. All 81 workloads completed successfully and their metrics and end-of-run AVIF captures are stored in [`performance-results/macbookairm3/`](../../performance-results/macbookairm3/) (MacBook Air M3). Results from `build001` (Ubuntu, NVIDIA GeForce GTX 1050) are described in [REALTIME-BUILD001.md](REALTIME-BUILD001.md).
 
 ## Measurement conditions
 

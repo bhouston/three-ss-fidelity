@@ -280,10 +280,11 @@ pnpm performance:build            # portable static report in performance-site/
 
 Performance results are stored per benchmark machine, under `performance-results/<machine-id>/` and `performance-convergence-results/<machine-id>/`. Each machine folder has a `machine.json` with its display name. When more than one machine has results, the report shows a **Machines** selector in the navigation bar.
 
-| Machine ID     | Description                    |
-| -------------- | ------------------------------ |
-| `macbookairm3` | MacBook Air M3                 |
-| `build001`     | Ubuntu Ryzen 5950x NVIDIA 1050 |
+| Machine ID     | Description                       |
+| -------------- | --------------------------------- |
+| `macbookairm3` | MacBook Air M3                    |
+| `build001`     | Ubuntu Ryzen 5950x NVIDIA 1050    |
+| `window001`    | Windows Ryzen 9590 NVIDIA 3060 Ti |
 
 The `performance:run`, `performance:metallic` and `performance:convergence` scripts write to the machine named by `PERFORMANCE_MACHINE`. If it is unset, they use a slug of the host name instead. Set it explicitly whenever the host name differs from the machine ID:
 

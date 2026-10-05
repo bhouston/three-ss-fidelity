@@ -2,10 +2,11 @@ import { fileURLToPath } from 'node:url';
 import { createReadStream } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
-import { defineConfig } from 'vite';
+import { defineConfig, normalizePath } from 'vite';
 
 const stockRequire = createRequire(new URL('../renderers/package.json', import.meta.url));
-const stockRoot = dirname(dirname(stockRequire.resolve('three-r186')));
+// Vite module ids use forward slashes on every platform, including Windows.
+const stockRoot = normalizePath(dirname(dirname(stockRequire.resolve('three-r186'))));
 
 const source = (name: string) => fileURLToPath(new URL(`../${name}/src/index.ts`, import.meta.url));
 export default defineConfig({
@@ -15,7 +16,7 @@ export default defineConfig({
       enforce: 'pre',
       resolveId(id) {
         if (id !== 'three-r186' && !id.startsWith('three-r186/')) return;
-        return id === 'three-r186' ? join(stockRoot, 'build/three.module.js') : stockRequire.resolve(id);
+        return normalizePath(id === 'three-r186' ? join(stockRoot, 'build/three.module.js') : stockRequire.resolve(id));
       },
       transform(code, id) {
         if (!id.startsWith(stockRoot + '/')) return;

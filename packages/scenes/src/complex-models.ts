@@ -68,7 +68,12 @@ const models = [
   },
 ];
 
-async function createModel(entry: (typeof models)[number], ctx: SceneContext, white = false): Promise<SceneSetup> {
+async function createModel(
+  entry: (typeof models)[number],
+  ctx: SceneContext,
+  white = false,
+  normalBiasFactor = 0.001,
+): Promise<SceneSetup> {
   const scene = new Scene();
   const gltf = await ctx.loadGLTF(`suite-assets/complex-scenes/${entry.file}.glb`);
   const model = gltf.scene;
@@ -124,7 +129,7 @@ async function createModel(entry: (typeof models)[number], ctx: SceneContext, wh
     light.shadow.camera.right = light.shadow.camera.top = span;
     light.shadow.camera.near = span * 0.01;
     light.shadow.camera.far = span * 4;
-    light.shadow.normalBias = span * 0.001;
+    light.shadow.normalBias = span * normalBiasFactor;
     scene.add(light, light.target);
   }
 
@@ -185,3 +190,12 @@ export const complexModelScenes: SceneDefinition[] = models.flatMap((entry) =>
     create: (ctx) => createModel(entry, ctx, white),
   })),
 );
+
+const breakfastRoom = models.find((entry) => entry.file === 'breakfast-room')!;
+complexModelScenes.push({
+  name: 'model-breakfast-room-no-normal-bias',
+  description: 'Breakfast room with zero shadow normal bias to isolate blind shadow displacement.',
+  width: WIDTH,
+  height: HEIGHT,
+  create: (ctx) => createModel(breakfastRoom, ctx, false, 0),
+});

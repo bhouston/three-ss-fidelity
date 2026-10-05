@@ -276,6 +276,24 @@ pnpm performance:process          # migrate legacy raw results and rebuild the i
 pnpm performance:build            # portable static report in performance-site/
 ```
 
+### Benchmark machines
+
+Performance results are stored per benchmark machine, under `performance-results/<machine-id>/` and `performance-convergence-results/<machine-id>/`. Each machine folder has a `machine.json` with its display name. When more than one machine has results, the report shows a **Machines** selector in the navigation bar.
+
+| Machine ID     | Description                    |
+| -------------- | ------------------------------ |
+| `macbookairm3` | MacBook Air M3                 |
+| `build001`     | Ubuntu Ryzen 5950x NVIDIA 1050 |
+
+The `performance:run`, `performance:metallic` and `performance:convergence` scripts write to the machine named by `PERFORMANCE_MACHINE`. If it is unset, they use a slug of the host name instead. Set it explicitly whenever the host name differs from the machine ID:
+
+```sh
+PERFORMANCE_MACHINE=macbookairm3 pnpm performance:metallic
+PERFORMANCE_MACHINE=build001 pnpm performance:run --renderer three-current
+```
+
+To add a machine, create `performance-results/<machine-id>/machine.json` (and the matching convergence folder) containing `{ "id": "<machine-id>", "name": "<description>" }`, then run the suite with that `PERFORMANCE_MACHINE`. Only compare results recorded on the same machine.
+
 `performance-suite.json` contains entries with explicit renderer and scene IDs for Three-Base (the stock `three-current` renderer), the other real-time Three variants (including VPL), and every Three-New experiment. Blender and path tracers are excluded. Change renderer and scene references, durations in a copied suite and pass it with `pnpm performance:run --suite <file>`. The dedicated `/performance.html` renderer supports `params.scene`, `renderer`, `experiment`, `width`, `height`, `seed`, and `motion` (`static` or `orbit`). Each entry gets a fresh scene and renderer, shader preparation, immediate measurement from ready, then end-of-run capture.
 
 The harness uses `localhost`, while renderer entries use `127.0.0.1`, to allow Chrome site isolation. The renderer page runs no playground controls or charts. Keep the pinned browser, hardware and drivers consistent when comparing performance snapshots. Results record the vsync mode and network profile; comparisons reject mixed modes or network conditions. Existing `cli bench` remains available for the native diagnostic protocols documented in [docs/PERF.md](docs/PERF.md).
@@ -286,7 +304,7 @@ The [current benchmark notes](docs/performance/REALTIME.md) record the refreshed
 
 The performance report introduction comes from `performance-results/README.md`. Edit this Markdown file to describe the suite; `performance:dev` refreshes it as it changes, while `performance:build` includes it in the static export.
 
-Each performance configuration uses `performance-results/<renderer-id>/<scene-id>/` with `screenshot.avif` and directly saved `metrics.json`. The viewer uses one shared time scale across filtered timelines, combines setup phases and frame timing with hover values, and links to shareable details pages with one combined timing chart, histograms, bandwidth, and a Phases table with total setup time. Timing and bandwidth charts start at example navigation. Examples initialize automatically using workload params supplied in their URL, report ready, and then receive the measured run request. Uncovered initialization spans appear automatically as `unknown` phases. Harness and client timestamps are retained independently; precision clock synchronization and discrepancy tables are removed. `performance:process` validates current metrics and refreshes their report index.
+Each performance configuration uses `performance-results/<machine-id>/<renderer-id>/<scene-id>/` with `screenshot.avif` and directly saved `metrics.json`. The viewer uses one shared time scale across filtered timelines, combines setup phases and frame timing with hover values, and links to shareable details pages with one combined timing chart, histograms, bandwidth, and a Phases table with total setup time. Timing and bandwidth charts start at example navigation. Examples initialize automatically using workload params supplied in their URL, report ready, and then receive the measured run request. Uncovered initialization spans appear automatically as `unknown` phases. Harness and client timestamps are retained independently; precision clock synchronization and discrepancy tables are removed. `performance:process` validates current metrics and refreshes their report index.
 
 The performance suites define `unthrottled`, `fast-4g`, `slow-4g`, and `3g`
 network profiles, defaulting to `unthrottled`. To test a slower connection, copy a

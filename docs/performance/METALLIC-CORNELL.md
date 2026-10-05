@@ -2,7 +2,7 @@
 
 Fresh measurement of all 26 real-time Three configurations on `cornell-box-metallic`, the Cornell box with a cone and a metallic sphere. Every configuration completed successfully with one measured run and vsync disabled. Blender and path tracers are excluded.
 
-Results use the flat layout [`performance-results/<renderer.id>/<scene.id>/`](../../performance-results/), with `metrics.json` and `screenshot.avif`. Measured source commit: `f60d5d1775b375eb8992917a8a04c9ba7729e0ae`. The [earlier three-repetition measurement with vsync enabled](../history/performance/METALLIC-CORNELL.md) is archived separately and uses different measurement settings.
+Results use the layout [`performance-results/<machine.id>/<renderer.id>/<scene.id>/`](../../performance-results/macbookairm3/) and were measured on the MacBook Air M3 (`macbookairm3`), with `metrics.json` and `screenshot.avif`. Measured source commit: `f60d5d1775b375eb8992917a8a04c9ba7729e0ae`. The [earlier three-repetition measurement with vsync enabled](../history/performance/METALLIC-CORNELL.md) is archived separately and uses different measurement settings.
 
 ## Measurement settings
 

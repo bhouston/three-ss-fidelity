@@ -121,3 +121,10 @@ it('dispatches progressive surface baking independently of probe lighting', () =
   createRenderer('three-new-light-bake', {} as HTMLCanvasElement, setup, options);
   expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'light-bake');
 });
+
+it('dispatches surface VPL transport independently of baking and probes', () => {
+  const setup = { effects: {} } as SceneSetup;
+  const options = { width: 640, height: 480 };
+  createRenderer('three-new-vpl', {} as HTMLCanvasElement, setup, options);
+  expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'vpl');
+});

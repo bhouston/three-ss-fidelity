@@ -46,6 +46,7 @@ import { newSSR } from './ssr/NewSSRNode.js';
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import { ssgiWorkExperiments } from './types.js';
 import type { LiveRenderer, RendererOptions, SSGIWorkExperiment } from './types.js';
+import { VirtualPointLightGI } from './vpl/VirtualPointLightGI.js';
 import { ProgressiveLightBake } from './light-bake/ProgressiveLightBake.js';
 import { bakeProbeGrid } from './probe-grid.js';
 import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
@@ -316,7 +317,7 @@ export async function createThreeNewRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
   { width, height, trackTimestamp = false, ssrDebug, hierarchyExperiment, ssrTemporalProfile }: RendererOptions,
-  probeMode?: 'light-probe' | 'light-probe-ddgi' | 'light-bake',
+  probeMode?: 'light-probe' | 'light-probe-ddgi' | 'light-bake' | 'vpl',
 ): Promise<LiveRenderer> {
   const useProbes = probeMode !== undefined;
   const setup = sceneSetup;
@@ -340,10 +341,14 @@ export async function createThreeNewRenderer(
 
   let releaseProbes: (() => void) | undefined;
   let baker: ProgressiveLightBake | undefined;
+  const createSurfaceLighting = () =>
+    probeMode === 'vpl'
+      ? new VirtualPointLightGI(renderer, setup.scene)
+      : new ProgressiveLightBake(renderer, setup.scene);
   let renderPipeline: RenderPipeline;
   try {
-    if (probeMode === 'light-bake') baker = new ProgressiveLightBake(renderer, setup.scene);
-    if (useProbes && probeMode !== 'light-bake' && effects.ssgi)
+    if (probeMode === 'light-bake' || probeMode === 'vpl') baker = createSurfaceLighting();
+    if (useProbes && !baker && effects.ssgi)
       releaseProbes = await bakeProbeGrid(renderer, setup.scene, probeMode === 'light-probe-ddgi');
     renderPipeline = createPipeline(renderer, setup, ssrDebug, hierarchyExperiment, ssrTemporalProfile, useProbes);
   } catch (error) {
@@ -405,7 +410,7 @@ export async function createThreeNewRenderer(
         if (signature !== bakedSignature) {
           // Conservative invalidation: a blocker can affect distant transport, so rebuild the whole bake.
           baker.dispose();
-          baker = new ProgressiveLightBake(renderer, setup.scene);
+          baker = createSurfaceLighting();
           bakedSignature = bakeSignature();
         }
         if (baker.step()) {

@@ -112,11 +112,11 @@ pnpm build
 node scripts/ssgi-work-experiments.mjs --out .output/ssgi-work/new-sweep
 # Representative additional scenes:
 node scripts/ssgi-work-experiments.mjs --out .output/ssgi-work/new-scenes \
-  --scenes ssgi-rounded,ssgi-metallic,gi-emitter-corner-dense,gi-hierarchy-discontinuity,gi-room-open-high-albedo \
+  --scenes cornell-box-rounded,cornell-box-metallic,gi-emitter-corner-dense,gi-hierarchy-discontinuity,gi-room-open-high-albedo \
   --variants ssgi-early-exit,ssgi-reuse-texels,ssgi-redundant-work,ssgi-4x32,ssgi-6x32,ssgi-8x24
 # Motion, live-lab dimensions, and extra convergence:
 node scripts/ssgi-work-experiments.mjs --mode motion --out .output/ssgi-work/new-motion \
-  --scenes ssgi-basic,gi-hierarchy-discontinuity --variants ssgi-redundant-work,ssgi-4x32,ssgi-6x32,ssgi-8x24
+  --scenes cornell-box-basic,gi-hierarchy-discontinuity --variants ssgi-redundant-work,ssgi-4x32,ssgi-6x32,ssgi-8x24
 node scripts/ssgi-work-experiments.mjs --mode resolution --out .output/ssgi-work/new-resolution \
   --variants ssgi-reuse-texels,ssgi-4x32,ssgi-6x32,ssgi-8x24 --width 960 --height 540
 node scripts/ssgi-work-experiments.mjs --out .output/ssgi-work/new-convergence \
@@ -126,7 +126,7 @@ node scripts/ssgi-work-experiments.mjs --mode timing --out .output/ssgi-work/idl
   --variants ssgi-early-exit,ssgi-reuse-texels,ssgi-redundant-work,ssgi-4x32,ssgi-6x32,ssgi-8x24,ssgi-7x32,ssgi-8x28
 ```
 
-For live inspection, choose `three-new` and one of the new names in the Experiment selector. For a single capture, use a full renderer name such as `pnpm cli render --renderers three-new-ssgi-6x32 --scenes ssgi-basic --output .output/ssgi-inspection`. The existing general hierarchy runner retains its earlier default experiment set; it accepts the new work profiles only when explicitly selected.
+For live inspection, choose `three-new` and one of the new names in the Experiment selector. For a single capture, use a full renderer name such as `pnpm cli render --renderers three-new-ssgi-6x32 --scenes cornell-box-basic --output .output/ssgi-inspection`. The existing general hierarchy runner retains its earlier default experiment set; it accepts the new work profiles only when explicitly selected.
 
 Keep the redundant-work candidates opt-in until idle timing establishes whether their branches and caches help. Keep the sample-count variants as quality/performance options for comparison rather than adopting a global reduced preset. Prioritize 8×28 for idle timing; its largest reference PSNR loss in the six-scene matrix is 0.0463 dB. The 7×32 variant remains an indoor-specific comparison because count rounding produces a larger change in low-budget scenes. Speed and temporal behavior must govern adoption.
 

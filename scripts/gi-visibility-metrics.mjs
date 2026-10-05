@@ -8,7 +8,7 @@ const root = fileURLToPath(new URL('../fidelity-results/', import.meta.url));
 const pairs = [
   ['gi-room-low-albedo', 'gi-room-open-low-albedo'],
   ['gi-room-high-albedo', 'gi-room-open-high-albedo'],
-  ['ssgi-animated', 'ssgi-animated-visible-walls'],
+  ['cornell-box-animated', 'cornell-box-animated-visible-walls'],
 ];
 const rows = [];
 for (const [reference, test] of pairs) {

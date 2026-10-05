@@ -35,15 +35,14 @@ fidelity-results/<scene>/<pass>/  three-ss.avif, three-gpu-pathtracer.avif, delt
 
 Initial scenes are every variation of the two examples:
 
-| name                               | source                                                                |
-| ---------------------------------- | --------------------------------------------------------------------- |
-| `ssgi-basic`                       | webgpu_postprocessing_ssgi, scene "basic" (Cornell box, two boxes)    |
-| `ssgi-rounded`                     | scene "rounded" (cone + sphere)                                       |
-| `ssgi-metallic`                    | scene "metallic" (cone + mirror sphere)                               |
-| `ssgi-animated`                    | scene "animated" (Michelle.glb, frozen pose)                          |
-| `ssr-steampunk-camera`             | webgpu_postprocessing_ssr default (model roughness as authored)       |
-| `ssr-steampunk-camera-roughness-*` | the example's roughness slider at a few fixed values                  |
-| `higharc_dogwood`                  | webgpu_higharc_ao defaults (Dogwood.glb, sun, HDR sky, SSGI at ½ res) |
+| name                   | source                                                                |
+| ---------------------- | --------------------------------------------------------------------- |
+| `cornell-box-basic`    | webgpu_postprocessing_ssgi, scene "basic" (Cornell box, two boxes)    |
+| `cornell-box-rounded`  | scene "rounded" (cone + sphere)                                       |
+| `cornell-box-metallic` | scene "metallic" (cone + mirror sphere)                               |
+| `cornell-box-animated` | scene "animated" (Michelle.glb, frozen pose)                          |
+| `steampunk-camera`     | webgpu_postprocessing_ssr default (model roughness as authored)       |
+| `higharc_dogwood`      | webgpu_higharc_ao defaults (Dogwood.glb, sun, HDR sky, SSGI at ½ res) |
 
 Debug outputs of the SSGI example (AO / GI / Direct / Reflections) are not scenes but render passes.
 
@@ -62,13 +61,13 @@ not a scene setting. Each scene × pass is compared separately in `fidelity-resu
 separates shading-model, shadow and environment-lighting differences from the SSGI/SSR approximation.
 three-gpu-pathtracer with `bounces = 1` samples lights and the environment only through next-event estimation;
 the BSDF-sampled half of the MIS-weighted environment is added when the next ray is traced, so env-lit scenes came
-out too dark (18 dB off on `ssr-steampunk-camera`). The adapter uses 2 bounces and patches the shader
+out too dark (18 dB off on `steampunk-camera`). The adapter uses 2 bounces and patches the shader
 (`traceDirectOnly`) to stop the second ray at any surface: it only collects environment misses and light hits.
 Point-light scenes match plain `bounces = 1` (50 dB, noise). Measured differences:
 
 - three-ss lights with the environment unoccluded (IBL); the pathtracer shadow-rays it. Dominant on the SSR scenes
   (15–17 dB) and higharc (19.6 dB); it is what AO addresses in `beauty`.
-- The `ssgi-*` scenes (≈30 dB): raster shadow maps vs exact shadows, Lambert vs the pathtracer's diffuse, and the
+- The `cornell-box-*` scenes (≈30 dB): raster shadow maps vs exact shadows, Lambert vs the pathtracer's diffuse, and the
   three-ss-only `AmbientLight`.
 - In `direct`, emissive meshes are visible but do not illuminate other surfaces: rasterization does not gather them, and the direct-only path-tracer patch stops before secondary-surface emission. In `beauty`, SSGI gathers their visible radiance and the path tracer collects emission on BSDF-sampled surface hits (without sampling mesh emitters as explicit lights). See [the GI investigation](history/GI-INVESTIGATION.md).
 
@@ -82,7 +81,7 @@ thick), rasterized over the baked scene geometry, 1024 rays per pixel. Settings 
   example's 2 slices / 8 steps for the SSR scenes), with temporal denoising and 128 frames.
 - Written linear, no tone mapping; background = 1 (unoccluded) on both sides. Pixel centres, no AA jitter.
 - Transparent objects are skipped by the three-ss pre-pass, so the pathtracer hides them from the occluders too.
-- AO ignores materials: `ssgi-rounded`/`ssgi-metallic` and the SSR roughness variants have identical results.
+- AO ignores materials: `cornell-box-rounded`/`cornell-box-metallic` and the SSR roughness variants have identical results.
 
 Results: 18.0–18.6 dB (Cornell box), 19.4 dB (steampunk camera), 19.0 dB (higharc). Measured differences:
 
@@ -197,7 +196,7 @@ incremental frame loop, so it's a CLI-only renderer name (`RenderJob.renderer: R
 ## CLI
 
 ```
-pnpm cli render  --scenes 'ssgi-*' --passes '*' --renderers '*' [--samples 1024] [--frames N]
+pnpm cli render  --scenes 'cornell-box-*' --passes '*' --renderers '*' [--samples 1024] [--frames N]
                                                      # fidelity-results/<scene>/<pass>/<renderer>.avif
                                                      # --renderers blender also renders with Blender Cycles
 pnpm cli compare --scenes '*' --passes '*'           # writes delta.avif + metrics.json (PSNR, RMSE, MAE)
@@ -225,5 +224,5 @@ pnpm cli list                                        # scene names
 The headless three-ss adapter was checked against `webgpu_postprocessing_ssgi.html` running in Chrome
 (WebGPU, 640×480, same camera, 200+ frames): Combined matches at 51 dB outside the lamp fixture (the
 lamp differs only because the scene sets `castShadow` on it, see above); GI-only 34 dB, AO-only 36 dB.
-So the ~15 dB PSNR of the `ssgi-*` scenes against the pathtracer is the SSGI approximation itself
+So the ~15 dB PSNR of the `cornell-box-*` scenes against the pathtracer is the SSGI approximation itself
 (weak bounce light and colour bleed in shadowed regions), not a harness artefact.

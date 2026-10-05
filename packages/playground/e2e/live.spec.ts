@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import sharp from 'sharp';
 
 test('camera movement replaces history and settings support Back and Forward', async ({ page }) => {
-  await page.goto('/?scene=ssgi-basic&renderer=three-new&width=160&height=120&repeats=2');
+  await page.goto('/?scene=cornell-box-basic&renderer=three-new&width=160&height=120&repeats=2');
   await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
   const initialLength = await page.evaluate(() => history.length);
   const initialCamera = new URL(page.url()).searchParams.get('camera');
@@ -30,7 +30,7 @@ test('camera movement replaces history and settings support Back and Forward', a
 test('live scene, GPU/CPU reports, image capture, saved-report import and cancellation', async ({ page }, testInfo) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('/?scene=ssgi-basic&renderer=three-new');
+  await page.goto('/?scene=cornell-box-basic&renderer=three-new');
   await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
   await page.locator('#width').fill('160');
   await page.locator('#height').fill('120');
@@ -126,7 +126,7 @@ test('live scene, GPU/CPU reports, image capture, saved-report import and cancel
 
 test('URL restores every control and the camera on refresh', async ({ page }) => {
   await page.goto(
-    '/?scene=ssgi-basic&renderer=three-new&experiment=baseline&width=160&height=120&live-gpu=0&protocol=throughput&motion=orbit&duration=0.2&repeats=2&warmup=3&seed=42&compare=1&camera=1,10,30&target=0,7,0',
+    '/?scene=cornell-box-basic&renderer=three-new&experiment=baseline&width=160&height=120&live-gpu=0&protocol=throughput&motion=orbit&duration=0.2&repeats=2&warmup=3&seed=42&compare=1&camera=1,10,30&target=0,7,0',
   );
   await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
   await expect(page.locator('#protocol')).toHaveValue('throughput');
@@ -153,7 +153,7 @@ test('combined hierarchy renders both effects, survives resize and camera motion
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto(
-    '/?scene=ssgi-metallic&renderer=three-new&experiment=hierarchy-combined&width=161&height=121&live-gpu=0&protocol=throughput&duration=0.1&repeats=1&warmup=3',
+    '/?scene=cornell-box-metallic&renderer=three-new&experiment=hierarchy-combined&width=161&height=121&live-gpu=0&protocol=throughput&duration=0.1&repeats=1&warmup=3',
   );
   await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
   await expect(page.locator('#experiment')).toHaveValue('hierarchy-combined');
@@ -187,7 +187,7 @@ test('SSGI work experiments render and survive URL restoration', async ({ page }
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   for (const experiment of ['ssgi-early-exit', 'ssgi-reuse-texels', 'ssgi-redundant-work', 'ssgi-4x32']) {
-    await page.goto(`/?scene=ssgi-basic&renderer=three-new&experiment=${experiment}&width=160&height=120`);
+    await page.goto(`/?scene=cornell-box-basic&renderer=three-new&experiment=${experiment}&width=160&height=120`);
     await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
     await expect(page.locator('#experiment')).toHaveValue(experiment);
     await expect(page.locator('#gauge-cpu')).toContainText('ms');
@@ -207,13 +207,13 @@ test('switching scenes resets the camera despite movement before loading', async
     expect(actual).toHaveLength(3);
     expected.forEach((value, index) => expect(actual[index]).toBeCloseTo(value, 8));
   };
-  await page.goto('/?scene=ssgi-basic&renderer=three-new&width=160&height=120&camera=1,10,30&target=0,7,0');
+  await page.goto('/?scene=cornell-box-basic&renderer=three-new&width=160&height=120&camera=1,10,30&target=0,7,0');
   await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
   expectVector('camera', [1, 10, 30]);
   expectVector('target', [0, 7, 0]);
 
   // Select a differently sized scene, then move the still-active old camera.
-  await page.locator('#scene').selectOption('ssr-steampunk-camera');
+  await page.locator('#scene').selectOption('steampunk-camera');
   const box = (await page.locator('#viewport canvas').boundingBox())!;
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.wheel(0, 200);
@@ -235,7 +235,7 @@ test('switching scenes resets the camera despite movement before loading', async
   expectVector('camera', pose);
   expectVector('target', [0, 0, 0]);
 
-  await page.locator('#scene').selectOption('ssgi-basic');
+  await page.locator('#scene').selectOption('cornell-box-basic');
   await page.getByRole('button', { name: 'Load scene', exact: true }).click();
   await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
   await expect.poll(() => vector('camera')).toBeDefined();
@@ -252,7 +252,7 @@ test('progressive light bake converges, remains interactive while orbiting and s
     if (m.type() === 'error' && !m.location().url.endsWith('/favicon.ico')) errors.push(m.text());
     if (m.text().includes('Light bake:') && m.text().includes('converged')) converged++;
   });
-  await page.goto('/?scene=ssgi-basic&renderer=three-new-light-bake&width=320&height=240');
+  await page.goto('/?scene=cornell-box-basic&renderer=three-new-light-bake&width=320&height=240');
   await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
   await expect.poll(() => converged, { timeout: 90000 }).toBe(1);
   await expect(page.locator('#bake-status')).toHaveText('Indirect lighting baked');

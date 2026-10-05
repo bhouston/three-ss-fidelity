@@ -21,7 +21,7 @@ export function performanceConfiguration(params: Record<string, unknown>) {
   };
   const seed = params.seed ?? 1;
   if (typeof seed !== 'number' || !Number.isSafeInteger(seed)) throw new Error('seed must be an integer');
-  const scene = params.scene ?? 'ssgi-basic';
+  const scene = params.scene ?? 'cornell-box-basic';
   if (typeof scene !== 'string') throw new Error('scene must be a string');
   const motion = params.motion ?? 'static';
   if (motion !== 'static' && motion !== 'orbit') throw new Error('motion must be static or orbit');

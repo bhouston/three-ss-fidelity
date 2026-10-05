@@ -132,11 +132,11 @@ node scripts/ssr-temporal-experiments.mjs
 
 # Quick diagnostic sweep:
 node scripts/ssr-temporal-experiments.mjs \
-  --scenes ssr-diag-rough-30 --warmup 16 --move-frames 20
+  --scenes diag-rough-30 --warmup 16 --move-frames 20
 
 # Moving reflected object, with the camera held still:
 node scripts/ssr-temporal-experiments.mjs \
-  --scenes ssr-diag-rough-30 --ghost --out .output/ssr-temporal-ghost
+  --scenes diag-rough-30 --ghost --out .output/ssr-temporal-ghost
 ```
 
 `--scale 0.25` can shorten a preliminary sweep. It resizes the committed reference, so those scores include a pixel-filter/resampling mismatch and must not be treated as native-resolution accuracy gates.

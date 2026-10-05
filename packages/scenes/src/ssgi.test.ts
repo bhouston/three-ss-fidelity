@@ -16,8 +16,8 @@ function normalize(value: unknown): unknown {
 
 it('reproduces the oblique live-viewer camera while preserving the basic Cornell scene', async () => {
   const ctx = createNodeSceneContext();
-  const basic = await getScene('ssgi-basic').create(ctx);
-  const definition = getScene('ssgi-basic-oblique');
+  const basic = await getScene('cornell-box-basic').create(ctx);
+  const definition = getScene('cornell-box-basic-oblique');
   const oblique = await definition.create(ctx);
   try {
     expect([definition.width, definition.height]).toEqual([960, 540]);

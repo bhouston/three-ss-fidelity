@@ -5,8 +5,8 @@ import { createNodeSceneContext } from './node.js';
 
 it('clips Cornell wall vertices to the frustum without changing interior primary-ray wall hits', async () => {
   const ctx = createNodeSceneContext();
-  const original = await getScene('ssgi-animated').create(ctx);
-  const clipped = await getScene('ssgi-animated-visible-walls').create(ctx);
+  const original = await getScene('cornell-box-animated').create(ctx);
+  const clipped = await getScene('cornell-box-animated-visible-walls').create(ctx);
   original.scene.updateMatrixWorld(true);
   original.camera.updateMatrixWorld(true);
   clipped.scene.updateMatrixWorld(true);

@@ -43,9 +43,9 @@ This is a good pragmatic implementation of the requested visibility/relocation f
 ```sh
 pnpm build
 pnpm cli render --scenes 'gi-probe-*' --renderers three-gpu-pathtracer --samples 4096
-node scripts/hierarchical-experiments.mjs --experiments sh-probes,ddgi-probes --scenes gi-probe-thin-wall,gi-probe-thick-wall,gi-room-low-albedo,gi-room-high-albedo,gi-emitter-corner,ssgi-basic,gltf-coffeemat --skip-timing --out .output/ddgi-quality
+node scripts/hierarchical-experiments.mjs --experiments sh-probes,ddgi-probes --scenes gi-probe-thin-wall,gi-probe-thick-wall,gi-room-low-albedo,gi-room-high-albedo,gi-emitter-corner,cornell-box-basic,gltf-coffeemat --skip-timing --out .output/ddgi-quality
 node scripts/probe-leakage-metrics.mjs --out .output/ddgi-quality
-pnpm cli render --renderers three-new-light-probe-ddgi --scenes ssgi-basic
+pnpm cli render --renderers three-new-light-probe-ddgi --scenes cornell-box-basic
 ```
 
 ## Measured quality and leakage
@@ -59,7 +59,7 @@ Apple M3 / macOS arm64, Node 26.3.0, base `b305673c43e` plus this recorded imple
 | gi-room-low-albedo  |        43.66 |                33.85 |               33.82 |
 | gi-room-high-albedo |        11.48 |                25.66 |               27.23 |
 | gi-emitter-corner   |        25.42 |                37.17 |               39.73 |
-| ssgi-basic          |        27.48 |                28.22 |               30.96 |
+| cornell-box-basic   |        27.48 |                28.22 |               30.96 |
 | gltf-coffeemat      |        26.87 |                29.06 |               28.98 |
 
 DDGI improves substantially over basic probes on the partitions, high-albedo room, single emitter and SSGI example. Coffeemat loses about 0.08 dB against the basic grid while remaining better than SSGI. The low-albedo room remains about 9.84 dB below SSGI: geometric visibility does not resolve that transport error, and its cause has not been established by this experiment. The unlit chamber is exactly black with both the path tracer and SSGI; DDGI's small residual is not a perfect solution and the baseline-relative quality gates there correctly fail. The default SSGI renderer therefore remains important.
@@ -85,10 +85,10 @@ The separate sequential run used 1920×1080, 60 warmup frames, 120 measured fram
 | ------------------ | ------: | --------------: | -------------: | -------------------: |
 | gi-probe-thin-wall |  42.767 |           7.692 |         11.832 |                3.61× |
 | gi-room-low-albedo |  29.177 |           2.900 |          3.474 |                8.40× |
-| ssgi-basic         | 192.550 |          38.554 |         39.298 |                4.90× |
+| cornell-box-basic  | 192.550 |          38.554 |         39.298 |                4.90× |
 
 Basic probes were 4.99–10.06× faster than SSGI in these runs. DDGI's added visibility costs roughly 2–54% over the basic renderer, depending on the scene. These are exploratory workstation measurements, not controlled hardware guarantees: repetition ranges were wide, especially the low-albedo scene (SSGI 27.64–60.81 ms, basic 2.22–13.31 ms, DDGI 3.10–16.60 ms). Thin-wall DDGI ranged 10.93–12.48 ms; SSGI-example DDGI ranged 38.22–40.28 ms. Separate timestamp pass sums are diagnostic and must not be mistaken for whole-frame GPU time. The speed advantage also excludes the substantial initial bake and does not imply universally better image quality.
 
 ```sh
-node scripts/hierarchical-experiments.mjs --experiments sh-probes,ddgi-probes --scenes gi-probe-thin-wall,gi-room-low-albedo,ssgi-basic --skip-quality --out .output/ddgi-timing --repeats 3 --width 1920 --height 1080 --warmup 60 --measure 120
+node scripts/hierarchical-experiments.mjs --experiments sh-probes,ddgi-probes --scenes gi-probe-thin-wall,gi-room-low-albedo,cornell-box-basic --skip-quality --out .output/ddgi-timing --repeats 3 --width 1920 --height 1080 --warmup 60 --measure 120
 ```

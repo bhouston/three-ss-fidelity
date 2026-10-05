@@ -78,28 +78,28 @@ Flat-plane simulation of the bitmask code (16 slices, 8 steps, samples exactly o
 
 ss-fidelity AO pass, RMSE against three-gpu-pathtracer's ray-traced AO:
 
-| Scene                | Before | After  |
-| -------------------- | ------ | ------ |
-| ssgi-basic           | 0.1184 | 0.1056 |
-| gltf-damaged-helmet  | 0.1046 | 0.0880 |
-| higharc_dogwood      | 0.1116 | 0.0960 |
-| ssr-steampunk-camera | 0.1378 | 0.1218 |
-| gltf-coffeemat       | 0.1048 | 0.0939 |
-| gltf-littlest-tokyo  | 0.3236 | 0.3356 |
+| Scene               | Before | After  |
+| ------------------- | ------ | ------ |
+| cornell-box-basic   | 0.1184 | 0.1056 |
+| gltf-damaged-helmet | 0.1046 | 0.0880 |
+| higharc_dogwood     | 0.1116 | 0.0960 |
+| steampunk-camera    | 0.1378 | 0.1218 |
+| gltf-coffeemat      | 0.1048 | 0.0939 |
+| gltf-littlest-tokyo | 0.3236 | 0.3356 |
 
 gltf-littlest-tokyo was already brighter than the reference, from missing occlusion elsewhere, so the fix moves it
 slightly further away.
 
-ssgi-basic AO samples (7×7 means): the camera-facing back wall goes 0.929 → 0.988 (reference 0.980).
+cornell-box-basic AO samples (7×7 means): the camera-facing back wall goes 0.929 → 0.988 (reference 0.980).
 
 ## Known side effects
 
 - **GI gets slightly darker.** The GI term adds `numOccludedZones / 32 × light` per sample from the same bitfield, so
   the old over-count also added GI energy. In ss-fidelity's SSGI scenes the beauty was already darker than the
-  reference, and its RMSE rises about 6 % (ssgi-basic 0.0677 → 0.0720). The AO fix is still correct: it exposes a
+  reference, and its RMSE rises about 6 % (cornell-box-basic 0.0677 → 0.0720). The AO fix is still correct: it exposes a
   separate GI shortfall, tracked as #51, which should be fixed at its own source. The upstream PR should mention this
   so reviewers comparing the example screenshots aren't surprised.
-- **Oblique surfaces are still dark.** Flat surfaces seen at an angle still sit about 0.1 low (ssgi-basic side walls
+- **Oblique surfaces are still dark.** Flat surfaces seen at an angle still sit about 0.1 low (cornell-box-basic side walls
   0.878 against 1.0). That has a different cause, tracked as #52, and is out of scope here.
 
 ## Upstream PR

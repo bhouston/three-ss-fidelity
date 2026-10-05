@@ -16,7 +16,7 @@ Workflow rules (issues, branches, Conventional Commits, PRs, required checks) ar
 ## How the work is done
 
 1. Change an effect in `submodules/three.js`, or in a vendored node under `packages/renderers/src/` (see below).
-2. Render the affected scenes: `pnpm cli render --scenes 'ssr-*' --renderers three-new-baseline`.
+2. Render the affected scenes: `pnpm cli render --scenes 'diag-*,steampunk-camera' --renderers three-new-baseline`.
 3. Score them against the path tracer: `pnpm exec fidelity-kit process fidelity-results`.
 4. Check for regressions: `pnpm cli quality-gate <baseline> <candidate>` (per-scene PSNR-drop threshold, default 0.1 dB), e.g.
    against results rendered before the change into another `--results`.
@@ -53,14 +53,16 @@ in `submodules/three.js`. There is only ever one copy of three.
   `create(ctx)`, which returns a `SceneSetup`: the scene, camera, orbit `target`, `effects` (SSGI/SSR parameters,
   `temporalDenoise`, tone mapping, `frames` to render before capture).
 - `src/index.ts` is the registry (`listSceneNames`, `getScene`). Scene families each live in their own file:
-  `ssgi.ts`, `ssr.ts` (steampunk), `ssr-diagnostics.ts` (`ssr-diag-*`), `gi-diagnostics.ts` and
+  `ssgi.ts`, `ssr.ts` (steampunk), `ssr-diagnostics.ts` (`diag-*`), `gi-diagnostics.ts` and
   `gi-visible-walls.ts` (`gi-*`), `traa-diagnostics.ts` (`traa-*`), `gltf-examples.ts` (`gltf-*`), `higharc.ts`.
 - Assets (glTF, HDR) are loaded from paths relative to `submodules/three.js/examples/`. `src/node.ts` provides the
   node-side `SceneContext`. Repository assets use the `suite-assets/` prefix, served by the playground from `assets/`.
 - **To add a scene:** add a `SceneDefinition` to the family file (or a new file), make sure it is spread into the
   registry in `index.ts`, add or extend the family's `*.test.ts`, then render the path-tracer reference.
-- `ssgi-basic-oblique` preserves the basic Cornell box and uses an elevated oblique camera captured in the live
-  viewer at 960×540. Select it in the live lab or with `pnpm cli render --scenes ssgi-basic-oblique` to reproduce
+- Scene IDs describe the content: `cornell-box-*`, `steampunk-camera`, and `diag-*`. Archived
+  measurements under `docs/history/` retain the scene IDs used when they were captured.
+- `cornell-box-basic-oblique` preserves the basic Cornell box and uses an elevated oblique camera captured in the live
+  viewer at 960×540. Select it in the live lab or with `pnpm cli render --scenes cornell-box-basic-oblique` to reproduce
   the screen-space artifact view with any renderer.
 
 ### Complex glTF scenes and offline lightmap UVs
@@ -131,7 +133,7 @@ The reference path tracer renders directly in Node, without launching Puppeteer 
 After building, try the reference renderer with a small render into an isolated output directory:
 
 ```sh
-pnpm cli render --scenes ssgi-basic --renderers three-gpu-pathtracer --width 64 --height 64 --samples 16 --output /tmp/ss-fidelity-native-cli
+pnpm cli render --scenes cornell-box-basic --renderers three-gpu-pathtracer --width 64 --height 64 --samples 16 --output /tmp/ss-fidelity-native-cli
 ```
 
 The reference renderer uses `--renderers three-gpu-pathtracer`. The CLI waits for the requested number of accumulated
@@ -146,7 +148,7 @@ their timings does not measure native versus browser overhead. The WebGPU adapte
 gradient backgrounds with their center color; differences between its images and the WebGL reference can also
 come from renderer behavior. Browser tests still verify the interactive viewer.
 
-Verification on macOS arm64 with Node 26.3.0, using `ssgi-basic` at 64×64 on `origin/main` revision
+Verification on macOS arm64 with Node 26.3.0, using `cornell-box-basic` at 64×64 on `origin/main` revision
 `b07d48cbf15`: the WebGPU CLI produced a nonblack 16-sample image. Legacy WebGL CLI runs with both 16 and 1024
 requested samples produced all-zero RGB pixels. A direct native WebGL adapter probe that waited for its
 accumulated sample counter to reach 16 produced nonblack pixels after 181 render calls (7.56 seconds).

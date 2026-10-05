@@ -13,29 +13,29 @@ const noAssets: SceneContext = {
 };
 
 const sceneNames = [
-  'ssr-diag-mirror',
-  'ssr-diag-rough-10',
-  'ssr-diag-rough-30',
-  'ssr-diag-rough-60',
-  'ssr-diag-dielectric-0',
-  'ssr-diag-dielectric-30',
-  'ssr-diag-grazing',
-  'ssr-diag-offscreen',
-  'ssr-diag-occlusion',
-  'ssr-diag-wall',
-  'ssr-diag-sphere',
-  'ssr-diag-metal-hit',
+  'diag-mirror',
+  'diag-rough-10',
+  'diag-rough-30',
+  'diag-rough-60',
+  'diag-dielectric-0',
+  'diag-dielectric-30',
+  'diag-grazing',
+  'diag-offscreen',
+  'diag-occlusion',
+  'diag-wall',
+  'diag-sphere',
+  'diag-metal-hit',
 ];
 
 describe('SSR diagnostic scenes', () => {
   it('provides an odd-sized occlusion scene for Hi-Z edge coverage', async () => {
-    const scene = getScene('ssr-diag-odd-size');
+    const scene = getScene('diag-odd-size');
     expect(scene.width).toBe(481);
     expect(scene.height).toBe(361);
     const setup = await scene.create(noAssets);
     expect(setup.effects.ssr).toBeDefined();
     expect(setup.scene.children.map((child) => child.name)).toEqual(
-      (await getScene('ssr-diag-occlusion').create(noAssets)).scene.children.map((child) => child.name),
+      (await getScene('diag-occlusion').create(noAssets)).scene.children.map((child) => child.name),
     );
   });
   it('registers each scene once, at 480x360, with a unique name', () => {
@@ -80,13 +80,13 @@ describe('SSR diagnostic scenes', () => {
   });
 
   it('gives metal receivers zero diffuse contribution and dielectric receivers a black base color', async () => {
-    const mirror = await getScene('ssr-diag-mirror').create(noAssets);
+    const mirror = await getScene('diag-mirror').create(noAssets);
     const mirrorFloor = mirror.scene.getObjectByName('receiver-floor') as Mesh;
     const mirrorMaterial = mirrorFloor.material as MeshStandardMaterial;
     expect(mirrorMaterial.metalness).toBe(1);
     expect(mirrorMaterial.roughness).toBe(0);
 
-    const dielectric = await getScene('ssr-diag-dielectric-30').create(noAssets);
+    const dielectric = await getScene('diag-dielectric-30').create(noAssets);
     const dielectricFloor = dielectric.scene.getObjectByName('receiver-floor') as Mesh;
     const dielectricMaterial = dielectricFloor.material as MeshPhysicalMaterial;
     expect(dielectricMaterial.metalness).toBe(0);
@@ -95,7 +95,7 @@ describe('SSR diagnostic scenes', () => {
   });
 
   it('places the offscreen scene emitter behind the camera', async () => {
-    const setup = await getScene('ssr-diag-offscreen').create(noAssets);
+    const setup = await getScene('diag-offscreen').create(noAssets);
     setup.scene.updateMatrixWorld(true);
     setup.camera.updateMatrixWorld(true);
     const behind = setup.scene.getObjectByName('box-behind-camera') as Mesh;

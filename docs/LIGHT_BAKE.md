@@ -43,13 +43,13 @@ All 42 fidelity scenes rendered with native Dawn WebGPU at their native sizes, 1
 - GPU path tracer: **38/42 comparisons pass**. Failures are `gi-room-low-albedo`, `gi-room-open-low-albedo`, `gi-room-open-high-albedo` and `gltf-littlest-tokyo`.
 - The room scenes improve against Blender while regressing against the GPU path tracer. Their diffuse-model/reference disagreement warrants investigation; neither reference's failures are hidden or removed from the gate. The full fidelity gate is therefore **not passed**.
 
-| Scene                      | Existing SSGI vs Blender |     Light bake vs Blender |
-| -------------------------- | -----------------------: | ------------------------: |
-| Cornell box (`ssgi-basic`) |                22.452 dB |                 28.364 dB |
-| Closed low-albedo room     |                32.137 dB |                 50.336 dB |
-| Closed high-albedo room    |                 9.663 dB |                 25.927 dB |
-| Hierarchy discontinuity    |                44.498 dB |                 45.243 dB |
-| Emissive enclosure crop    |                 5.396 dB | Exact decoded-image match |
+| Scene                             | Existing SSGI vs Blender |     Light bake vs Blender |
+| --------------------------------- | -----------------------: | ------------------------: |
+| Cornell box (`cornell-box-basic`) |                22.452 dB |                 28.364 dB |
+| Closed low-albedo room            |                32.137 dB |                 50.336 dB |
+| Closed high-albedo room           |                 9.663 dB |                 25.927 dB |
+| Hierarchy discontinuity           |                44.498 dB |                 45.243 dB |
+| Emissive enclosure crop           |                 5.396 dB | Exact decoded-image match |
 
 `node scripts/light-bake-validate.mjs` verifies the GPU white furnace: an emissive unit-radiance enclosure produces receiver irradiance **3.140625** in all channels, within 0.03 of π. It also verifies the sample cap stops work, disposal restores scene resources, camera movement preserves the bake and a light-intensity change restarts it. Atlas unit tests cover distinct allocations for shared geometry, dense tessellation, nonuniform scale and failure cleanup.
 
@@ -64,7 +64,7 @@ pnpm --filter @ss-fidelity/playground exec playwright test -g 'progressive light
 pnpm cli render --renderers three-new-light-bake --frames 192
 pnpm exec fidelity-kit process fidelity-results --quiet
 pnpm cli quality-gate three-new three-new-light-bake --out /tmp/light-bake-quality.json
-pnpm cli bench --renderers 'three-new,three-new-light-probe-ddgi,three-new-light-bake' --scenes 'ssgi-basic,gi-room-high-albedo,higharc_dogwood' --width 1280 --height 720 --warmup 192 --measure 120 --duration 0.1 --repeats 3 --batch 20 --out /tmp/light-bake-benchmark.json
+pnpm cli bench --renderers 'three-new,three-new-light-probe-ddgi,three-new-light-bake' --scenes 'cornell-box-basic,gi-room-high-albedo,higharc_dogwood' --width 1280 --height 720 --warmup 192 --measure 120 --duration 0.1 --repeats 3 --batch 20 --out /tmp/light-bake-benchmark.json
 ```
 
 The quality-gate command intentionally reports the four GPU-reference regressions above. Performance results and their measurement scope are recorded below.
@@ -75,7 +75,7 @@ Three repetitions per scene/renderer on the Apple M3 MacBook Air, 1,280 × 720, 
 
 | Scene                 |      SSGI |      DDGI | Light bake | Speedup vs SSGI | Speedup vs DDGI |
 | --------------------- | --------: | --------: | ---------: | --------------: | --------------: |
-| `ssgi-basic`          | 63.519 ms | 16.421 ms |  15.428 ms |           4.12× |           1.06× |
+| `cornell-box-basic`   | 63.519 ms | 16.421 ms |  15.428 ms |           4.12× |           1.06× |
 | `higharc_dogwood`     |  3.489 ms |  1.467 ms |   1.115 ms |           3.13× |           1.32× |
 | `gi-room-high-albedo` | 10.743 ms |  1.836 ms |   1.803 ms |           5.96× |           1.02× |
 

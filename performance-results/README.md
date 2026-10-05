@@ -1,5 +1,7 @@
-This viewer benchmarks various [three.js](https://threejs.org/) real-time renderers.
+This viewer benchmarks 27 [three.js](https://threejs.org/) real-time renderer configurations, including Three VPL, on Cornell basic, the steampunk camera and Cornell metallic.
 
-Read the [benchmark notes](https://github.com/bhouston/three-ss-fidelity/blob/main/docs/history/performance/METALLIC-CORNELL.md) for historical measurements and reproduction context. The [fidelity viewer](https://ss-fidelity.ben3d.ca/) shows the corresponding image quality comparisons.
+The current measurements were refreshed on October 5, 2026, on an Apple M3 using isolated headless Chrome. Each workload uses a fresh scene and renderer, 1920×1080 at DPR 1, vsync disabled, one 10-second run measured immediately after shader preparation, and an end-of-run screenshot. Progressive light baking and VPL accumulation are included in the measured interval; these are not settled-cache or equal-quality comparisons. GPU timestamp profiling is disabled.
 
-These historical measurements retain their original GPU profiling and responsiveness probes. Their stored lifecycle and resource coordinates have been migrated to seconds offsets for the current viewer; this conversion is not a new benchmark run. Rerun the suite on an idle GPU to obtain measurements using the isolated reporter.
+Read the [current benchmark notes](https://github.com/bhouston/three-ss-fidelity/blob/main/docs/performance/REALTIME.md) for measurements and reproduction commands. The [historical metallic report](https://github.com/bhouston/three-ss-fidelity/blob/main/docs/history/performance/METALLIC-CORNELL.md) preserves the earlier profiling and responsiveness measurements. The [fidelity viewer](https://ss-fidelity.ben3d.ca/) shows the corresponding image quality comparisons.
+
+These are single-run observations from one machine, with no confidence interval or repeated-run speed claim. Frame timing describes browser pacing and CPU submission, not completed GPU execution. Inspect the captures and fidelity results alongside frame rates.

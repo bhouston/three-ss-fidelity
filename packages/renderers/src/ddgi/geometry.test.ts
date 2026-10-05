@@ -1,6 +1,13 @@
 import { BoxGeometry, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, PlaneGeometry, Scene, Vector3 } from 'three';
 import { expect, it, vi } from 'vitest';
-import { geometrySnapshot, momentVisibility, octBorderTexel, octDecode, relocateProbe } from './geometry.js';
+import {
+  geometrySnapshot,
+  momentVisibility,
+  octBorderTexel,
+  VISIBILITY_BIAS,
+  octDecode,
+  relocateProbe,
+} from './geometry.js';
 
 it('moves a probe out of a nearby solid, but rejects a deeply embedded probe', () => {
   const scene = new Scene();
@@ -52,6 +59,7 @@ it('snapshots instance transforms, hidden geometry and geometric back faces corr
 });
 it('uses directional variance to suppress receivers behind a blocker', () => {
   expect(momentVisibility(0.1, 0.2, 0.04)).toBe(1);
+  expect(momentVisibility(0.2 + VISIBILITY_BIAS, 0.2, 1e-6)).toBe(1); // slack for texel-footprint depth error
   expect(momentVisibility(0.8, 0.2, 0.041)).toBeLessThan(1e-6);
   expect(momentVisibility(0.8, 0.2, 0.2)).toBeGreaterThan(momentVisibility(0.8, 0.2, 0.041));
   expect(momentVisibility(0.8, 0.2, 0.03)).toBeGreaterThanOrEqual(0);

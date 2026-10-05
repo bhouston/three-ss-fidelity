@@ -29,6 +29,7 @@ import {
   vec3,
   vec4,
 } from 'three/tsl';
+import { VISIBILITY_BIAS } from './geometry.js';
 import { ATLAS_COLUMNS, DISTANCE_RESOLUTION, IRRADIANCE_RESOLUTION } from './visibility.js';
 
 const signNonzero = (value) => value.greaterThanEqual(0).select(1, -1);
@@ -104,7 +105,7 @@ export class DDGIProbeNode extends AnalyticLightNode {
         const moments = distance.sample(atlasUV(index, encodeOct(direction), DISTANCE_RESOLUTION, rows)).rg.toVar();
         const queryDistance = length.div(this._distanceScale).toVar();
         const variance = moments.y.sub(moments.x.mul(moments.x)).max(1e-6).toVar();
-        const delta = queryDistance.sub(moments.x).max(0).toVar();
+        const delta = queryDistance.sub(moments.x).sub(VISIBILITY_BIAS).max(0).toVar();
         const visibility = variance
           .div(variance.add(delta.mul(delta)))
           .pow(3)

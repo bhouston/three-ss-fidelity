@@ -2,7 +2,7 @@
 
 Run `pnpm build`, then `pnpm performance:convergence`. Add `--executable-path /path/to/chrome` if Chrome is not discovered automatically. The suite measures Cornell box light baking and VPL for 15 seconds each, with a 640×480 Blender reference, a 250 ms sampling cadence and a 30 dB PSNR target.
 
-Results are written to `performance-convergence-results`. Each workload includes processed metrics, the final screenshot, a lossless reference and a lossless 4× absolute RGB diff. To create a portable report:
+Results are written to `performance-convergence-results/<machine-id>/`; set `PERFORMANCE_MACHINE` as described in the [README](../../README.md#benchmark-machines). The existing results were measured on the MacBook Air M3 (`macbookairm3`). Each workload includes processed metrics, the final screenshot, a lossless reference and a lossless 4× absolute RGB diff. To create a portable report:
 
 ```sh
 node submodules/performance-kit/packages/cli/dist/bin.js build --out performance-convergence-results --site performance-convergence-site

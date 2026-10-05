@@ -165,14 +165,14 @@ async function createCornellBox(setup: Setup, ctx: SceneContext): Promise<SceneS
 }
 
 const descriptions: Record<Setup, string> = {
-  basic: 'SSGI example, "basic": Cornell box with a tall and a short box.',
-  rounded: 'SSGI example, "rounded": Cornell box with a cone and a sphere.',
-  metallic: 'SSGI example, "metallic": Cornell box with a cone and a mirror sphere.',
-  animated: `SSGI example, "animated": Cornell box with Michelle.glb frozen at t=${ANIMATED_POSE_TIME}s.`,
+  basic: 'Cornell box with a tall and a short box.',
+  rounded: 'Cornell box with a cone and a sphere.',
+  metallic: 'Cornell box with a cone and a mirror sphere.',
+  animated: `Cornell box with Michelle.glb frozen at t=${ANIMATED_POSE_TIME}s.`,
 };
 
 export const ssgiScenes: SceneDefinition[] = (['basic', 'rounded', 'metallic', 'animated'] as const).map((setup) => ({
-  name: `ssgi-${setup}`,
+  name: `cornell-box-${setup}`,
   description: descriptions[setup],
   width: WIDTH,
   height: HEIGHT,
@@ -180,8 +180,8 @@ export const ssgiScenes: SceneDefinition[] = (['basic', 'rounded', 'metallic', '
 }));
 
 ssgiScenes.push({
-  name: 'ssgi-basic-oblique',
-  description: 'SSGI basic Cornell box from an elevated oblique live-viewer camera, exposing screen-space artifacts.',
+  name: 'cornell-box-basic-oblique',
+  description: 'Basic Cornell box from an elevated oblique live-viewer camera, exposing screen-space artifacts.',
   width: 960,
   height: 540,
   async create(ctx) {

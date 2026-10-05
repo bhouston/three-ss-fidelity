@@ -49,10 +49,10 @@ time through TRAA and the temporal filters.
      fractional sample UV, which puts samples off the surface; and a snapped sample lies up to half a texel off the
      slice plane, where its angle to the view direction no longer matches the slice's horizon. On a 65° wall, a
      sample one pixel away then sits a sector or more inside the hemisphere. A CPU replay of the loop on
-     ssgi-basic's exact geometry in float64 gives the same 0.87 as the GPU, so it isn't precision, TRAA jitter, the
-     normal buffer (depth-derived normals give the same), GTAOFastAcos, or the denoiser (≈0.01). ssgi-basic walls,
-     floor and ceiling go from 0.86–0.88 to 0.99 (reference 0.97–1.0). AO RMSE falls 5–22 % (ssgi-basic 0.1056 →
-     0.0930), SSGI beauty RMSE 1–19 % (ssgi-basic 0.0719 → 0.0606). Exceptions: gltf-littlest-tokyo AO +2 % (its
+     cornell-box-basic's exact geometry in float64 gives the same 0.87 as the GPU, so it isn't precision, TRAA jitter, the
+     normal buffer (depth-derived normals give the same), GTAOFastAcos, or the denoiser (≈0.01). cornell-box-basic walls,
+     floor and ceiling go from 0.86–0.88 to 0.99 (reference 0.97–1.0). AO RMSE falls 5–22 % (cornell-box-basic 0.1056 →
+     0.0930), SSGI beauty RMSE 1–19 % (cornell-box-basic 0.0719 → 0.0606). Exceptions: gltf-littlest-tokyo AO +2 % (its
      path-traced AO reference is almost black, so any lighter AO scores worse) and higharc_dogwood beauty +2 %.
      The SSGI pass costs roughly 10 % more at 8 slices × 32 steps (timed on a shared, noisy GPU).
    - GI sectors between samples of one surface are lit (issue #51). Far from the pixel the samples are sparser than
@@ -91,20 +91,20 @@ Everything else comes from the scene's `effects`: the SSGI slice and step counts
 
 ## GI sector gaps (issue #51)
 
-In ssgi-basic, beauty minus direct (linear) is 0.47–0.67 of the path tracer's, even though three-new's direct is
+In cornell-box-basic, beauty minus direct (linear) is 0.47–0.67 of the path tracer's, even though three-new's direct is
 already 13–35 % brighter than the path tracer's (a BRDF mismatch, separate from the GI). The estimator's
 normalization is right: π²/2 × (sectors/32) × 2|sin h| × cos, averaged over slices, is π · Σ (π/32) L cos |sin h|,
 the irradiance integral in view-centred slice coordinates. The loss is the sampling:
 
-| ssgi-basic beauty (8 slices, radius 32, thickness 4) | RMSE   | mean linear |
-| ---------------------------------------------------- | ------ | ----------- |
-| path tracer                                          | –      | 0.241       |
-| 32 steps (before)                                    | 0.0720 | 0.189       |
-| 64 steps                                             | 0.0531 | –           |
-| 128 steps                                            | 0.0480 | –           |
-| 256 steps                                            | 0.0476 | –           |
-| 32 steps, gap fill for every sample (heightfield)    | 0.0608 | 0.220       |
-| 32 steps, gap fill for one surface only              | 0.0562 | 0.220       |
+| cornell-box-basic beauty (8 slices, radius 32, thickness 4) | RMSE   | mean linear |
+| ----------------------------------------------------------- | ------ | ----------- |
+| path tracer                                                 | –      | 0.241       |
+| 32 steps (before)                                           | 0.0720 | 0.189       |
+| 64 steps                                                    | 0.0531 | –           |
+| 128 steps                                                   | 0.0480 | –           |
+| 256 steps                                                   | 0.0476 | –           |
+| 32 steps, gap fill for every sample (heightfield)           | 0.0608 | 0.220       |
+| 32 steps, gap fill for one surface only                     | 0.0562 | 0.220       |
 
 The step count, not the thickness or the normalization, converges the energy, so light is lost between samples.
 With exponent-2 spacing the last samples are about 37 px apart, while a thickness-4 wall sample spans about half a
@@ -114,17 +114,17 @@ ceiling shortfall is outside the screen or the radius.
 
 Beauty RMSE vs three-gpu-pathtracer, #51 alone (the AO pass is bit-identical):
 
-| Scene                       | before #50 | after #50 | now    |
-| --------------------------- | ---------- | --------- | ------ |
-| ssgi-basic                  | 0.0677     | 0.0720    | 0.0562 |
-| ssgi-rounded                | 0.0514     | 0.0560    | 0.0415 |
-| ssgi-metallic               | 0.0578     | 0.0611    | 0.0488 |
-| ssgi-animated               | 0.0441     | 0.0467    | 0.0410 |
-| ssgi-animated-visible-walls | –          | 0.0461    | 0.0415 |
-| gi-emitter-corner           | 0.0574     | 0.0606    | 0.0544 |
-| gi-room-high-albedo         | –          | 0.2749    | 0.2694 |
-| gi-room-open-high-albedo    | –          | 0.0327    | 0.0278 |
-| gi-room-open-low-albedo     | –          | 0.0127    | 0.0134 |
+| Scene                              | before #50 | after #50 | now    |
+| ---------------------------------- | ---------- | --------- | ------ |
+| cornell-box-basic                  | 0.0677     | 0.0720    | 0.0562 |
+| cornell-box-rounded                | 0.0514     | 0.0560    | 0.0415 |
+| cornell-box-metallic               | 0.0578     | 0.0611    | 0.0488 |
+| cornell-box-animated               | 0.0441     | 0.0467    | 0.0410 |
+| cornell-box-animated-visible-walls | –          | 0.0461    | 0.0415 |
+| gi-emitter-corner                  | 0.0574     | 0.0606    | 0.0544 |
+| gi-room-high-albedo                | –          | 0.2749    | 0.2694 |
+| gi-room-open-high-albedo           | –          | 0.0327    | 0.0278 |
+| gi-room-open-low-albedo            | –          | 0.0127    | 0.0134 |
 
 The gltf and higharc scenes change by at most 0.0002. gi-room-open-low-albedo was already brighter than the reference
 because of the direct mismatch, so the extra GI adds to that.
@@ -132,7 +132,7 @@ because of the direct mismatch, so the extra GI adds to that.
 ### Back-facing gap samples
 
 The first version let any sample fill its gap. Combined with #52 it left a hard horizontal line across the
-ssgi-basic back wall at y ≈ 272 (640×480): G dropped 0.028 (linear) within two rows, where the path tracer is smooth
+cornell-box-basic back wall at y ≈ 272 (640×480): G dropped 0.028 (linear) within two rows, where the path tracer is smooth
 (largest row-to-row step 0.002). The line is at a wall height of about 4, the height of the short box, and:
 
 - it doesn't appear without the gap fill, or with `thickness` 1;
@@ -147,16 +147,16 @@ height 4 the same face points at the wall and lights that gap. A sample facing a
 neither fills a gap nor becomes the previous sample, and its own sectors are claimed as before. The line is gone
 (largest row step 0.003).
 
-| Beauty RMSE (AO pass unchanged) | #51 + #52 before | now    |
-| ------------------------------- | ---------------- | ------ |
-| ssgi-basic                      | 0.0485           | 0.0423 |
-| ssgi-rounded                    | 0.0356           | 0.0341 |
-| ssgi-metallic                   | 0.0430           | 0.0416 |
-| ssgi-animated                   | 0.0397           | 0.0392 |
-| ssgi-animated-visible-walls     | 0.0410           | 0.0408 |
-| gi-room-open-high-albedo        | 0.0259           | 0.0259 |
+| Beauty RMSE (AO pass unchanged)    | #51 + #52 before | now    |
+| ---------------------------------- | ---------------- | ------ |
+| cornell-box-basic                  | 0.0485           | 0.0423 |
+| cornell-box-rounded                | 0.0356           | 0.0341 |
+| cornell-box-metallic               | 0.0430           | 0.0416 |
+| cornell-box-animated               | 0.0397           | 0.0392 |
+| cornell-box-animated-visible-walls | 0.0410           | 0.0408 |
+| gi-room-open-high-albedo           | 0.0259           | 0.0259 |
 
-ssgi-basic's mean linear brightness is now 0.241, the same as the path tracer's. Other scenes change by at most
+cornell-box-basic's mean linear brightness is now 0.241, the same as the path tracer's. Other scenes change by at most
 0.0001.
 
 ## Cost
@@ -166,7 +166,7 @@ Measured per 1080p frame in [history/SSR_TEMPORAL.md](history/SSR_TEMPORAL.md) "
 - **SSR scenes:** 16–21 ms with a half-resolution trace. The trace now runs at full resolution, so these scenes cost
   more: E7 measured about 4× for the trace before Hi-Z. The floor is the three scene renders (pre-pass, back-face
   depth, scene pass) plus TRAA and the filter passes.
-- **SSGI-heavy scenes:** bound by their own SSGI settings. For example, `ssgi-metallic` uses 8 slices × 32 steps.
+- **SSGI-heavy scenes:** bound by their own SSGI settings. For example, `cornell-box-metallic` uses 8 slices × 32 steps.
   The SSGI-side rounds above cut this by about a third.
 - **Shader compile:** `three-new` compiles more pipelines than `three-current`: the Hi-Z pyramid, the SSR trace and
   filter passes, the back-face pass, and the vendored SSGI. The first frame therefore takes noticeably longer.
@@ -202,7 +202,7 @@ Mirror/near-hit SSR and secondary bounces still sample the original history;
 depth, normals, hit refinement, sampling budgets, and temporal filters are unchanged.
 
 Select `hierarchy-combined` in the live viewer's Experiment control, or open
-`?scene=ssgi-metallic&renderer=three-new&experiment=hierarchy-combined`.
+`?scene=cornell-box-metallic&renderer=three-new&experiment=hierarchy-combined`.
 The fidelity viewer identifies captures as `three-new-hierarchy-combined`.
 
 ```sh
@@ -210,7 +210,7 @@ pnpm cli render --renderers three-new-hierarchy-combined
 pnpm exec fidelity-kit process fidelity-results
 pnpm cli quality-gate three-new three-new-hierarchy-combined --threshold 0.1
 # Compare all individual profiles and the combined profile on both-effect scenes:
-node scripts/hierarchical-experiments.mjs --scenes ssgi-basic,ssgi-metallic --out .output/combined
+node scripts/hierarchical-experiments.mjs --scenes cornell-box-basic,cornell-box-metallic --out .output/combined
 # 1080p and motion captures for the combined profile:
 node scripts/hierarchical-quality.mjs --experiments hierarchy-combined --out .output/combined-extra
 ```

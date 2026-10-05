@@ -137,7 +137,7 @@ try {
       salt,
       root: new URL('..', import.meta.url).pathname.replace(/\/$/, ''),
       name: process.argv[3] ?? 'three-new',
-      scene: process.argv[4] ?? 'ssgi-basic',
+      scene: process.argv[4] ?? 'cornell-box-basic',
     },
   );
   for (const [i, module] of report.modules.entries()) {

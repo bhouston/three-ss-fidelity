@@ -38,15 +38,15 @@ const report = {
   motion: {},
 };
 const cases = [
-  ['ssr-diag-occlusion', 'ssr-hiz-tight'],
-  ['ssr-diag-rough-60', 'ssr-radiance-mips'],
+  ['diag-occlusion', 'ssr-hiz-tight'],
+  ['diag-rough-60', 'ssr-radiance-mips'],
   ['gi-hierarchy-discontinuity', 'ssgi-radiance-mips'],
-  ['ssr-diag-occlusion', 'hierarchy-combined'],
-  ['ssr-diag-rough-60', 'hierarchy-combined'],
+  ['diag-occlusion', 'hierarchy-combined'],
+  ['diag-rough-60', 'hierarchy-combined'],
   ['gi-hierarchy-discontinuity', 'hierarchy-combined'],
-  ['ssgi-metallic', 'hierarchy-combined'],
-  ['ssgi-basic', 'ssgi-half'],
-  ['ssgi-basic', 'ssgi-third'],
+  ['cornell-box-metallic', 'hierarchy-combined'],
+  ['cornell-box-basic', 'ssgi-half'],
+  ['cornell-box-basic', 'ssgi-third'],
   ['gi-hierarchy-discontinuity', 'ssgi-half'],
   ['gi-hierarchy-discontinuity', 'ssgi-third'],
 ];

@@ -5,13 +5,13 @@ import type { SceneDefinition } from './types.js';
 /** Trim the original Cornell walls to the camera frustum, retaining the same visible surface geometry. */
 export const visibleWallScenes: SceneDefinition[] = [
   {
-    name: 'ssgi-animated-visible-walls',
+    name: 'cornell-box-animated-visible-walls',
     description:
       'Original animated Cornell room with only its five wall/floor/ceiling planes clipped to the camera frustum; off-screen wall portions physically removed.',
     width: 640,
     height: 480,
     async create(ctx) {
-      const original = ssgiScenes.find((definition) => definition.name === 'ssgi-animated')!;
+      const original = ssgiScenes.find((definition) => definition.name === 'cornell-box-animated')!;
       const setup = await original.create(ctx);
       const { scene, camera } = setup;
       camera.updateMatrixWorld(true);

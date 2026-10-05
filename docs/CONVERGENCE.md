@@ -77,7 +77,7 @@ Findings:
    +16, 0.0388 at 256). Likely a pixel-filter mismatch between TRAA's jittered mean and the path tracer; not yet
    verified.
 5. The earlier +6–9 % "regression" of `three-new-ssr-rt` on the Cornell boxes from the still-view running mean
-   (`8805f3c`) was a cold-start artifact: with warm history it converges to 0.0610 on `ssgi-basic`, the moving
+   (`8805f3c`) was a cold-start artifact: with warm history it converges to 0.0610 on `cornell-box-basic`, the moving
    average's best.
 
 ## Next steps

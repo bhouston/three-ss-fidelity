@@ -66,12 +66,14 @@ async function initialize() {
   const orbit = config.motion === 'orbit' ? scenes.createOrbitWorkload(setup, 120, 30) : undefined;
   complete = () => renderers.completeRenderer(current.renderer);
   // Read the adapter selected by the renderer; probing another adapter can misidentify software fallbacks.
-  const gpu = reporter.gpu.attachThree(current.renderer as Parameters<typeof reporter.gpu.attachThree>[0]);
+  // GPU query readbacks schedule promises and polling per frame. Keep the standard
+  // frame-rate test limited to CPU frame boundaries and the renderer's own work.
+  const rendererBackend = current.renderer as { backend?: { device?: unknown }; getContext?: () => unknown };
   reporter.environment({
-    api: gpu.api,
+    api: rendererBackend.backend?.device ? 'webgpu' : rendererBackend.getContext ? 'webgl2' : 'other',
     canvasSize: { width: config.width, height: config.height },
     gpuAdapter: adapterInfo,
-    gpuTimestampsAvailable: gpu.available,
+    gpuTimestampsAvailable: false,
   });
   let frameIndex = 0;
   draw = () => {
@@ -82,14 +84,12 @@ async function initialize() {
       phase: 'measure',
     };
     const token = reporter.frameBegin({ animationTime: frame.timeSeconds });
-    gpu.begin(token);
     advance(frame);
     if (orbit) {
       orbit(frame.index);
       current.setCamera(setup!.camera);
     }
     current.render(frame);
-    gpu.end();
     reporter.frameEnd(token);
   };
   reporter.phaseEnd('process');
@@ -100,6 +100,7 @@ async function initialize() {
   reporter.phaseEnd('compile');
   reporter.ready();
   const tick = () => {
+    if (reporter.enabled && !reporter.running) return;
     try {
       draw!();
       animation = requestAnimationFrame(tick);

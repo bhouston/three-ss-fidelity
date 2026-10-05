@@ -233,7 +233,7 @@ function diagnostic(name: string, description: string, create: () => SceneSetup)
 export const ssrDiagnosticScenes: SceneDefinition[] = [
   {
     ...diagnostic(
-      'ssr-diag-odd-size',
+      'diag-odd-size',
       'Thin emissive pole and overlapping objects at 481x361: odd-sized Hi-Z edge coverage.',
       occlusion,
     ),
@@ -241,49 +241,49 @@ export const ssrDiagnosticScenes: SceneDefinition[] = [
     height: 361,
   },
   diagnostic(
-    'ssr-diag-mirror',
+    'diag-mirror',
     'Mirror metal floor (roughness 0) with emissive box/sphere/cylinder emitters at ~30° elevation.',
     () => mirror(metal(0)),
   ),
   ...[10, 30, 60].map((percent) =>
-    diagnostic(`ssr-diag-rough-${percent}`, `Same mirror layout with floor roughness ${percent / 100}.`, () =>
+    diagnostic(`diag-rough-${percent}`, `Same mirror layout with floor roughness ${percent / 100}.`, () =>
       mirror(metal(percent / 100)),
     ),
   ),
   ...[0, 30].map((percent) =>
     diagnostic(
-      `ssr-diag-dielectric-${percent}`,
+      `diag-dielectric-${percent}`,
       `Same layout with a black dielectric floor (metalness 0, roughness ${percent / 100}, IOR 1.5): tests Fresnel and whether SSR reflects non-metals.`,
       () => mirror(dielectric(percent / 100)),
     ),
   ),
   diagnostic(
-    'ssr-diag-grazing',
+    'diag-grazing',
     'Mirror floor viewed at a low ~8° grazing angle: stretching, Fresnel, depth precision.',
     grazing,
   ),
   diagnostic(
-    'ssr-diag-offscreen',
+    'diag-offscreen',
     'Mirror floor with emitters partly above the frame and one entirely behind the camera: ray misses / edge fade / environment fallback.',
     offscreen,
   ),
   diagnostic(
-    'ssr-diag-occlusion',
+    'diag-occlusion',
     'An emitter partially hidden behind a closer emitter, plus a 0.05-wide emissive pole: thickness and hidden-geometry handling.',
     occlusion,
   ),
   diagnostic(
-    'ssr-diag-wall',
+    'diag-wall',
     'Vertical metal mirror wall (roughness 0.05) reflecting emitters, over a matte black floor.',
     wall,
   ),
   diagnostic(
-    'ssr-diag-sphere',
+    'diag-sphere',
     'Large metal sphere (roughness 0.1) surrounded by emitters, over a matte black floor: curved normals.',
     sphere,
   ),
   diagnostic(
-    'ssr-diag-metal-hit',
+    'diag-metal-hit',
     'Mirror floor reflecting a chrome sphere and a rough-0.3 gold box that themselves reflect an overhead panel and low emitters: view-dependent radiance at SSR hits.',
     metalHit,
   ),

@@ -10,32 +10,33 @@
   },
   "summary": {
     "blender": {
-      "total": 58,
-      "passed": 55,
+      "total": 52,
+      "passed": 49,
       "failures": ["higharc_dogwood", "model-bedroom", "model-headphone-with-stand"]
     },
     "three-gpu-pathtracer": {
-      "total": 58,
-      "passed": 46,
+      "total": 53,
+      "passed": 40,
       "failures": [
-        "ssgi-basic",
-        "ssgi-rounded",
-        "ssgi-metallic",
-        "ssgi-animated",
+        "cornell-box-basic",
+        "cornell-box-rounded",
+        "cornell-box-metallic",
+        "cornell-box-animated",
         "gltf-littlest-tokyo",
         "model-bedroom",
         "model-headphone-with-stand",
         "model-headphone-with-stand-w",
+        "model-breakfast-room-no-normal-bias",
         "gi-room-low-albedo",
         "gi-room-open-low-albedo",
         "gi-room-open-high-albedo",
-        "ssgi-animated-visible-walls"
+        "cornell-box-animated-visible-walls"
       ]
     }
   },
   "rows": [
     {
-      "scene": "ssgi-basic",
+      "scene": "cornell-box-basic",
       "reference": "blender",
       "psnr": {
         "three-new": 22.452404537359474,
@@ -47,7 +48,7 @@
       "pass": true
     },
     {
-      "scene": "ssgi-basic",
+      "scene": "cornell-box-basic",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 27.481138484406348,
@@ -59,7 +60,7 @@
       "pass": false
     },
     {
-      "scene": "ssgi-rounded",
+      "scene": "cornell-box-rounded",
       "reference": "blender",
       "psnr": {
         "three-new": 24.258765711228534,
@@ -71,7 +72,7 @@
       "pass": true
     },
     {
-      "scene": "ssgi-rounded",
+      "scene": "cornell-box-rounded",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 29.347669394359702,
@@ -83,7 +84,7 @@
       "pass": false
     },
     {
-      "scene": "ssgi-metallic",
+      "scene": "cornell-box-metallic",
       "reference": "blender",
       "psnr": {
         "three-new": 23.32097222520565,
@@ -95,7 +96,7 @@
       "pass": true
     },
     {
-      "scene": "ssgi-metallic",
+      "scene": "cornell-box-metallic",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 27.626608888490484,
@@ -107,7 +108,7 @@
       "pass": false
     },
     {
-      "scene": "ssgi-animated",
+      "scene": "cornell-box-animated",
       "reference": "blender",
       "psnr": {
         "three-new": 24.845258211550355,
@@ -119,7 +120,7 @@
       "pass": true
     },
     {
-      "scene": "ssgi-animated",
+      "scene": "cornell-box-animated",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 28.142932425684165,
@@ -131,7 +132,7 @@
       "pass": false
     },
     {
-      "scene": "ssgi-basic-oblique",
+      "scene": "cornell-box-basic-oblique",
       "reference": "blender",
       "psnr": {
         "three-new": 16.14504805631756,
@@ -143,7 +144,7 @@
       "pass": true
     },
     {
-      "scene": "ssgi-basic-oblique",
+      "scene": "cornell-box-basic-oblique",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 19.24785484982535,
@@ -155,7 +156,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-steampunk-camera",
+      "scene": "steampunk-camera",
       "reference": "blender",
       "psnr": {
         "three-new": 23.13522506620224,
@@ -167,7 +168,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-steampunk-camera",
+      "scene": "steampunk-camera",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 22.962197941466307,
@@ -176,102 +177,6 @@
         "three-new-vpl": 22.870355917006727
       },
       "dropFromSSGI": 0.09184202445958078,
-      "pass": true
-    },
-    {
-      "scene": "ssr-steampunk-camera-roughness-0",
-      "reference": "blender",
-      "psnr": {
-        "three-new": 20.253250957042525,
-        "three-new-light-bake": 19.927316507617036,
-        "three-new-light-probe-ddgi": 19.914454359159123,
-        "three-new-vpl": 20.273569124641888
-      },
-      "dropFromSSGI": -0.020318167599363335,
-      "pass": true
-    },
-    {
-      "scene": "ssr-steampunk-camera-roughness-0",
-      "reference": "three-gpu-pathtracer",
-      "psnr": {
-        "three-new": 20.564338805214007,
-        "three-new-light-bake": 20.467921406382885,
-        "three-new-light-probe-ddgi": 20.44417690826046,
-        "three-new-vpl": 20.55653178647801
-      },
-      "dropFromSSGI": 0.007807018735995541,
-      "pass": true
-    },
-    {
-      "scene": "ssr-steampunk-camera-roughness-25",
-      "reference": "blender",
-      "psnr": {
-        "three-new": 20.824167434427025,
-        "three-new-light-bake": 20.241760522013003,
-        "three-new-light-probe-ddgi": 20.248269369923925,
-        "three-new-vpl": 20.83244785697968
-      },
-      "dropFromSSGI": -0.008280422552655153,
-      "pass": true
-    },
-    {
-      "scene": "ssr-steampunk-camera-roughness-25",
-      "reference": "three-gpu-pathtracer",
-      "psnr": {
-        "three-new": 21.050612783233717,
-        "three-new-light-bake": 20.68800169331201,
-        "three-new-light-probe-ddgi": 20.692320658554056,
-        "three-new-vpl": 21.025106089642648
-      },
-      "dropFromSSGI": 0.025506693591069052,
-      "pass": true
-    },
-    {
-      "scene": "ssr-steampunk-camera-roughness-50",
-      "reference": "blender",
-      "psnr": {
-        "three-new": 21.978111586707616,
-        "three-new-light-bake": 21.154523648811782,
-        "three-new-light-probe-ddgi": 21.160579898942288,
-        "three-new-vpl": 21.944553981515202
-      },
-      "dropFromSSGI": 0.033557605192413575,
-      "pass": true
-    },
-    {
-      "scene": "ssr-steampunk-camera-roughness-50",
-      "reference": "three-gpu-pathtracer",
-      "psnr": {
-        "three-new": 21.85005157988634,
-        "three-new-light-bake": 21.306113325501673,
-        "three-new-light-probe-ddgi": 21.308545846056997,
-        "three-new-vpl": 21.794300448571164
-      },
-      "dropFromSSGI": 0.055751131315176394,
-      "pass": true
-    },
-    {
-      "scene": "ssr-steampunk-camera-roughness-100",
-      "reference": "blender",
-      "psnr": {
-        "three-new": 23.130588105049668,
-        "three-new-light-bake": 21.62407333845465,
-        "three-new-light-probe-ddgi": 21.618612789682746,
-        "three-new-vpl": 23.07329537784707
-      },
-      "dropFromSSGI": 0.05729272720259715,
-      "pass": true
-    },
-    {
-      "scene": "ssr-steampunk-camera-roughness-100",
-      "reference": "three-gpu-pathtracer",
-      "psnr": {
-        "three-new": 22.96384024978814,
-        "three-new-light-bake": 21.934989043861467,
-        "three-new-light-probe-ddgi": 21.933138743144823,
-        "three-new-vpl": 22.871634325689957
-      },
-      "dropFromSSGI": 0.09220592409818451,
       "pass": true
     },
     {
@@ -395,30 +300,6 @@
       "pass": true
     },
     {
-      "scene": "khronos-transmission-test-w",
-      "reference": "blender",
-      "psnr": {
-        "three-new": 20.908350296459414,
-        "three-new-light-bake": 22.096829745297907,
-        "three-new-light-probe-ddgi": 21.490155425483554,
-        "three-new-vpl": 22.12247111575227
-      },
-      "dropFromSSGI": -1.2141208192928552,
-      "pass": true
-    },
-    {
-      "scene": "khronos-transmission-test-w",
-      "reference": "three-gpu-pathtracer",
-      "psnr": {
-        "three-new": 18.75155259516395,
-        "three-new-light-bake": 21.020733436234863,
-        "three-new-light-probe-ddgi": 23.08714497954592,
-        "three-new-vpl": 21.125003514281193
-      },
-      "dropFromSSGI": -2.373450919117243,
-      "pass": true
-    },
-    {
       "scene": "model-bedroom",
       "reference": "blender",
       "psnr": {
@@ -536,30 +417,6 @@
         "three-new-vpl": 21.48974599348785
       },
       "dropFromSSGI": -5.757271140688118,
-      "pass": true
-    },
-    {
-      "scene": "model-coffee-maker-w",
-      "reference": "blender",
-      "psnr": {
-        "three-new": 15.100417314199204,
-        "three-new-light-bake": 21.790548749036176,
-        "three-new-light-probe-ddgi": 21.938488928965572,
-        "three-new-vpl": 19.754173060488363
-      },
-      "dropFromSSGI": -4.653755746289159,
-      "pass": true
-    },
-    {
-      "scene": "model-coffee-maker-w",
-      "reference": "three-gpu-pathtracer",
-      "psnr": {
-        "three-new": 14.549042117490668,
-        "three-new-light-bake": 21.292493140093566,
-        "three-new-light-probe-ddgi": 21.102659730431093,
-        "three-new-vpl": 19.203071766429055
-      },
-      "dropFromSSGI": -4.654029648938387,
       "pass": true
     },
     {
@@ -752,6 +609,15 @@
         "three-new-vpl": 17.364829917456756
       },
       "dropFromSSGI": 0.12475656685209557,
+      "pass": false
+    },
+    {
+      "scene": "model-breakfast-room-no-normal-bias",
+      "reference": "three-gpu-pathtracer",
+      "psnr": {
+        "three-new-vpl": 24.932644356675418
+      },
+      "dropFromSSGI": null,
       "pass": false
     },
     {
@@ -1043,7 +909,7 @@
       "pass": false
     },
     {
-      "scene": "ssgi-animated-visible-walls",
+      "scene": "cornell-box-animated-visible-walls",
       "reference": "blender",
       "psnr": {
         "three-new": 25.187543786593196,
@@ -1055,7 +921,7 @@
       "pass": true
     },
     {
-      "scene": "ssgi-animated-visible-walls",
+      "scene": "cornell-box-animated-visible-walls",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 27.780542478073727,
@@ -1067,7 +933,7 @@
       "pass": false
     },
     {
-      "scene": "ssr-diag-odd-size",
+      "scene": "diag-odd-size",
       "reference": "blender",
       "psnr": {
         "three-new": 46.70152520226357,
@@ -1079,7 +945,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-odd-size",
+      "scene": "diag-odd-size",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 37.976115200954816,
@@ -1091,7 +957,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-mirror",
+      "scene": "diag-mirror",
       "reference": "blender",
       "psnr": {
         "three-new": 40.04942356013133,
@@ -1103,7 +969,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-mirror",
+      "scene": "diag-mirror",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 36.584615217883126,
@@ -1115,7 +981,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-rough-10",
+      "scene": "diag-rough-10",
       "reference": "blender",
       "psnr": {
         "three-new": 40.546077114819425,
@@ -1127,7 +993,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-rough-10",
+      "scene": "diag-rough-10",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 36.77039093275087,
@@ -1139,7 +1005,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-rough-30",
+      "scene": "diag-rough-30",
       "reference": "blender",
       "psnr": {
         "three-new": 42.740703677767684,
@@ -1151,7 +1017,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-rough-30",
+      "scene": "diag-rough-30",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 37.123640120104675,
@@ -1163,7 +1029,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-rough-60",
+      "scene": "diag-rough-60",
       "reference": "blender",
       "psnr": {
         "three-new": 38.92477601486027,
@@ -1175,7 +1041,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-rough-60",
+      "scene": "diag-rough-60",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 26.034626295175265,
@@ -1187,7 +1053,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-dielectric-0",
+      "scene": "diag-dielectric-0",
       "reference": "blender",
       "psnr": {
         "three-new": 37.505677965393865,
@@ -1199,7 +1065,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-dielectric-0",
+      "scene": "diag-dielectric-0",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 40.06945549700796,
@@ -1211,7 +1077,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-dielectric-30",
+      "scene": "diag-dielectric-30",
       "reference": "blender",
       "psnr": {
         "three-new": 37.758617384916995,
@@ -1223,7 +1089,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-dielectric-30",
+      "scene": "diag-dielectric-30",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 40.3411208666853,
@@ -1235,7 +1101,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-grazing",
+      "scene": "diag-grazing",
       "reference": "blender",
       "psnr": {
         "three-new": 39.58933581138966,
@@ -1247,7 +1113,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-grazing",
+      "scene": "diag-grazing",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 34.21029811108766,
@@ -1259,7 +1125,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-offscreen",
+      "scene": "diag-offscreen",
       "reference": "blender",
       "psnr": {
         "three-new": 31.401699417571113,
@@ -1271,7 +1137,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-offscreen",
+      "scene": "diag-offscreen",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 29.99268875908431,
@@ -1283,7 +1149,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-occlusion",
+      "scene": "diag-occlusion",
       "reference": "blender",
       "psnr": {
         "three-new": 45.8947536964018,
@@ -1295,7 +1161,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-occlusion",
+      "scene": "diag-occlusion",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 36.632211016456885,
@@ -1307,7 +1173,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-wall",
+      "scene": "diag-wall",
       "reference": "blender",
       "psnr": {
         "three-new": 23.393743332512145,
@@ -1319,7 +1185,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-wall",
+      "scene": "diag-wall",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 23.081615923780767,
@@ -1331,7 +1197,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-sphere",
+      "scene": "diag-sphere",
       "reference": "blender",
       "psnr": {
         "three-new": 24.769710637619326,
@@ -1343,7 +1209,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-sphere",
+      "scene": "diag-sphere",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 24.576038897528733,
@@ -1355,7 +1221,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-metal-hit",
+      "scene": "diag-metal-hit",
       "reference": "blender",
       "psnr": {
         "three-new": 32.46373073467939,
@@ -1367,7 +1233,7 @@
       "pass": true
     },
     {
-      "scene": "ssr-diag-metal-hit",
+      "scene": "diag-metal-hit",
       "reference": "three-gpu-pathtracer",
       "psnr": {
         "three-new": 31.945230435876418,

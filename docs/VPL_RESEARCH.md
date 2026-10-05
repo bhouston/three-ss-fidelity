@@ -54,11 +54,13 @@ Use `--frames 192` for final comparisons: 128 lighting iterations plus 64 stable
 
 The native Dawn GPU checks in [physics.json](history/vpl/physics.json) verify unit-radiance furnace irradiance (3.06445 versus pi), complete indirect occlusion (zero), and perpendicular-emitter concave transport (1.50488 versus the analytic 1.51725, about 0.8% low). A fixed point-light seed gives 0.999023 versus the analytic 0.999044. They also verify budget completion, camera preservation, light-change invalidation and scene restoration. Run `scripts/vpl-validate.mjs` to reproduce these checks.
 
-At 192 frames, Cornell (`ssgi-basic`) gives 34.6135 dB against Blender versus SSGI's 22.4524 dB and the cosine-ray bake's 28.3534 dB. Against the GPU path tracer, it gives 26.2604 dB versus SSGI's 27.4811 dB and the bake's 30.6960 dB. These are decoded sRGB8 AVIF comparisons; the disagreement between references is a reason to publish both rather than declare one method uniformly better.
+At 192 frames, Cornell (`cornell-box-basic`) gives 34.6135 dB against Blender versus SSGI's 22.4524 dB and the cosine-ray bake's 28.3534 dB. Against the GPU path tracer, it gives 26.2604 dB versus SSGI's 27.4811 dB and the bake's 30.6960 dB. These are decoded sRGB8 AVIF comparisons; the disagreement between references is a reason to publish both rather than declare one method uniformly better.
 
-The complete 58-scene [comparison report](history/vpl/quality.json) uses a 0.1 dB maximum-drop allowance against SSGI. VPL passes 55/58 comparisons against Blender and 46/58 against the GPU path tracer. This is **not** a uniform fidelity-gate pass; the report lists every regression. Emissive corner/enclosure scenes improve strongly, while environment-lit, animated, and some low-albedo scenes remain weaker. Existing renderers stay available.
+The complete 53-scene [comparison report](history/vpl/quality.json) uses a 0.1 dB maximum-drop allowance against SSGI. VPL passes 49/52 available comparisons against Blender and 40/53 against the GPU path tracer. This is **not** a uniform fidelity-gate pass; the report lists every regression. Emissive corner/enclosure scenes improve strongly, while environment-lit, animated, and some low-albedo scenes remain weaker. Existing renderers stay available.
 
-Build, types, lint and 242 unit tests pass. Native GPU transport/lifecycle checks and both live browser tests (VPL and the original bake) pass. The browser verifies accumulation, visible bounce illumination, camera movement without a reset, and clean renderer switching; [live capture](history/vpl/live.png). Dependency audit reports two existing high-severity `extract-zip` advisories through Puppeteer; this feature does not change dependencies.
+Build, types, lint and 236 unit tests pass. Native GPU transport/lifecycle checks and both live browser tests (VPL and the original bake) pass. The browser verifies accumulation, visible bounce illumination, camera movement without a reset, and clean renderer switching; [live capture](history/vpl/live.png). Dependency audit reports two existing high-severity `extract-zip` advisories through Puppeteer; this feature does not change dependencies.
+
+The benchmark and capture-time logs preserve the scene names used when measured, before the catalog rename on main. The retired steampunk roughness, transmission-white and coffee-maker-white presets are omitted from the current comparison; the newly added breakfast-room shadow-bias diagnostic is included.
 
 The isolated [native benchmark](history/vpl/benchmark.json) ([HTML report](history/vpl/benchmark.html)) compares cached rendering at 640×480 after 192 warmup frames, with 120 measured frames and three fresh, alternating-order repetitions per scene. Median VPL/bake speedups are 0.998× in Cornell and 1.002× in the high-albedo room: effectively equal after accumulation. This does **not** establish faster convergence. The [single-capture times](history/vpl/capture-times.json) include compilation and accumulation and vary sharply with surface-atlas size; they are not a repeated speed benchmark. Fresh 192-frame captures took 5.3 s for VPL versus 3.3 s for baking in Cornell, and 1.0 s versus 0.6 s in the high-albedo room. The work budgets differ (2,048 VPL reservoirs plus near rays versus 1,024 bake rays per receiver), so these are default-policy costs, not equal-quality convergence times.
 
@@ -74,7 +76,7 @@ node scripts/vpl-quality.mjs
 # For the generic gate, temporarily enable three-new in fidelity.json before processing.
 pnpm cli quality-gate three-new three-new-vpl --out /tmp/vpl-quality-gate.json
 pnpm cli bench --renderers three-new-light-bake,three-new-vpl \
-  --scenes ssgi-basic,gi-room-high-albedo --width 640 --height 480 \
+  --scenes cornell-box-basic,gi-room-high-albedo --width 640 --height 480 \
   --warmup 192 --measure 120 --duration 0.1 --repeats 3 --batch 20 \
   --out /tmp/vpl-benchmark.json
 ```

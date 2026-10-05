@@ -6,7 +6,7 @@ test('startup explains every live load, captures bounded early shader work, and 
 }, testInfo) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('/?scene=ssgi-basic&renderer=three-new&width=128&height=96');
+  await page.goto('/?scene=cornell-box-basic&renderer=three-new&width=128&height=96');
   await expect(page.locator('#live-status')).toHaveText('Interactive', { timeout: 90000 });
   await expect(page.locator('#startup')).toHaveAttribute('data-state', 'ready');
   await expect(page.locator('#startup-coverage')).toContainText('Capture finished', { timeout: 90000 });

@@ -52,7 +52,7 @@ for (const renderer of rendererNames) option('renderer', renderer);
 for (const experiment of hierarchyExperiments) option('experiment', experiment);
 const params = new URLSearchParams(location.search);
 select('scene').value =
-  params.get('scene') && listSceneNames().includes(params.get('scene')!) ? params.get('scene')! : 'ssgi-basic';
+  params.get('scene') && listSceneNames().includes(params.get('scene')!) ? params.get('scene')! : 'cornell-box-basic';
 select('renderer').value =
   params.get('renderer') && rendererNames.includes(params.get('renderer') as RendererName)
     ? params.get('renderer')!

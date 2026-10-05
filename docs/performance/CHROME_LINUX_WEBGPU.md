@@ -1,14 +1,17 @@
 # Chrome WebGPU issues on Linux (NVIDIA, Vulkan)
 
-These issues block valid browser performance measurements on the `build001` benchmark machine. Each was reproduced with [`scripts/chrome-webgpu-linux-probe.mjs`](../../scripts/chrome-webgpu-linux-probe.mjs), which uses a plain WebGPU page with no three.js code. Every measurement below comes from one run of that script.
+These issues block valid browser performance measurements on the `build001` benchmark machine. Each was reproduced with [`scripts/chrome-webgpu-linux-probe.mjs`](../../scripts/chrome-webgpu-linux-probe.mjs), which uses a plain WebGPU page with no three.js code. Measurements come from runs of that script; issue 6 lists results from three runs because it is not fully deterministic.
 
-| #   | Issue                                                                                     | Severity for benchmarking                                       | Workaround                                           |
-| --- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------- |
-| 1   | Headless Chrome uses SwiftShader (software) for WebGPU and WebGL unless Vulkan is forced  | Results are meaningless or rejected                             | `--enable-features=Vulkan --use-angle=vulkan`        |
-| 2   | First `navigator.gpu.requestAdapter()` after launch returns `null` with Vulkan enabled    | three.js silently falls back to its WebGL2 backend              | Retry `requestAdapter()` once after launch (warm-up) |
-| 3   | Headless rendering has no frame backpressure, even with vsync on                          | Frame rate and GPU queue are both wrong; captures time out      | None in headless; run headful                        |
-| 4   | `--disable-frame-rate-limit` removes backpressure, even headful                           | Uncapped (vsync-off) frame rates cannot be measured             | None found; keep the frame-rate limit                |
-| 5   | A deep GPU queue blocks `canvas.toBlob()` and `onSubmittedWorkDone()` for tens of seconds | End-of-run screenshots time out and the page main thread stalls | Consequence of 3 and 4                               |
+**Working configuration on this machine:** headful Chrome, vsync on, and no extra GPU flags. Headful Chrome selects the NVIDIA GPU by default, keeps frame backpressure, and reads back correct pixels.
+
+| #   | Issue                                                                                     | Severity for benchmarking                                       | Workaround                                                                   |
+| --- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 1   | Headless Chrome uses SwiftShader (software) for WebGPU and WebGL unless Vulkan is forced  | Results are meaningless or rejected                             | Headless only: `--enable-features=Vulkan --use-angle=vulkan`; or run headful |
+| 2   | First `navigator.gpu.requestAdapter()` after launch returns `null` with Vulkan enabled    | three.js silently falls back to its WebGL2 backend              | Retry `requestAdapter()` once after launch (warm-up)                         |
+| 3   | Headless rendering has no frame backpressure, even with vsync on                          | Frame rate and GPU queue are both wrong; captures time out      | None in headless; run headful                                                |
+| 4   | `--disable-frame-rate-limit` removes backpressure, even headful                           | Uncapped (vsync-off) frame rates cannot be measured             | None found; keep the frame-rate limit                                        |
+| 5   | A deep GPU queue blocks `canvas.toBlob()` and `onSubmittedWorkDone()` for tens of seconds | End-of-run screenshots time out and the page main thread stalls | Consequence of 3 and 4                                                       |
+| 6   | Headful Chrome with `--enable-features=Vulkan` returns corrupted pixels from `toBlob()`   | Screenshots are noise although the on-screen frame is correct   | Do not pass `--enable-features=Vulkan` when headful                          |
 
 ## Environment
 
@@ -34,7 +37,7 @@ Vulkan flags   requestAdapter() -> null, nvidia/pascal, nvidia/pascal
                WebGL2 renderer  -> ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA GeForce GTX 1050), NVIDIA)
 ```
 
-`--enable-features=Vulkan` alone still gives SwiftShader; `--use-angle=vulkan` is also required. Headful Chrome on the same machine selects the NVIDIA adapter with default flags. performance-kit rejects software adapters, so without these flags every workload fails as a software-GPU result.
+`--enable-features=Vulkan` alone still gives SwiftShader; `--use-angle=vulkan` is also required. Headful Chrome on the same machine selects the NVIDIA adapter with default flags, and there `--enable-features=Vulkan` must be avoided because of issue 6. performance-kit rejects software adapters, so without these flags every workload fails as a software-GPU result.
 
 With the Vulkan flags, headless `chrome://gpu` also logs `Failed to initialize vulkan surface` (from `skia_output_device_vulkan.cc`). It then reports GPU compositing as disabled and "WebGPU: Hardware accelerated but at reduced performance".
 
@@ -90,18 +93,39 @@ With `--disable-frame-rate-limit`, headful or headless, `requestAnimationFrame` 
 
 `canvas.toBlob()` on the WebGPU canvas, and `device.queue.onSubmittedWorkDone()`, have to wait for all queued work. Under issues 3 and 4 that takes tens of seconds. In the real benchmark, the renderer iframe's main thread stopped responding to DevTools `Runtime.evaluate` calls for more than 4.5 seconds while a `toBlob()` was pending. The 60-second capture wait then timed out and performance-kit discarded the run, recording `status: "timeout"` and `Timeout waiting for capture`.
 
-`toBlob()` itself works: on an idle queue it returns in 40 to 70 ms in every mode. In headless mode the PNG was about half the size of the headful one (0.71 MB against 1.52 MB for the same frame); this hasn't been investigated.
+On an idle queue `toBlob()` returns in 40 to 70 ms in every mode. The headful PNGs in the backpressure probe were about twice the size of the headless ones (1.52 MB against 0.71 MB for the same frame), because those headful runs used `--enable-features=Vulkan` and their pixels were corrupted noise (issue 6), which compresses poorly.
 
 **Expected:** this is mostly a consequence of issues 3 and 4. It's still worth noting that a pending `toBlob()` blocks the main thread rather than resolving asynchronously.
+
+## 6. Corrupted `toBlob()` pixels with `--enable-features=Vulkan` in headful mode
+
+In headful Chrome with `--enable-features=Vulkan`, `canvas.toBlob()` on a WebGPU canvas returns an image of coloured noise and moiré patterns. The frame shown on screen at the same time is correct, and so are the frame rates. The canvas is configured as three.js `WebGPURenderer` does by default: format `rgba8unorm` (the preferred format here), `alphaMode: 'premultiplied'`, `usage: RENDER_ATTACHMENT | COPY_SRC` and standard tone mapping. Opaque alpha mode and `RENDER_ATTACHMENT` usage alone give the same corruption.
+
+The probe renders a known 960×540 gradient, calls `toBlob()` after `onSubmittedWorkDone()`, and compares sampled pixels with the expected values; a mean absolute error under 3 (of 255) is rounding. It checks the PNG twice: decoded in Node, and decoded in the page through `createImageBitmap()` and a 2D canvas `getImageData()`.
+
+| Case                                          | `toBlob()` PNG, 3 runs | In-page decode, 3 runs | Mean error when corrupted |
+| --------------------------------------------- | ---------------------- | ---------------------- | ------------------------- |
+| Headful, default flags                        | correct 3/3            | correct 3/3            |                           |
+| Headful, `--use-angle=vulkan`                 | correct 3/3            | correct 3/3            |                           |
+| Headful, `--enable-features=Vulkan`           | **corrupted 3/3**      | **corrupted 3/3**      | 106.8                     |
+| Headful, both Vulkan flags                    | **corrupted 3/3**      | **corrupted 3/3**      | 106.8                     |
+| Headful, both Vulkan flags, X11 (not Wayland) | **corrupted 2/3**      | **corrupted 3/3**      | 106.8                     |
+| Headless, both Vulkan flags                   | correct 3/3            | correct 3/3            |                           |
+
+The corruption follows `--enable-features=Vulkan`, not ANGLE's Vulkan backend, and happens on both Wayland and X11. On X11 the PNG was sometimes correct while the in-page decode of that same PNG was still corrupted, so a second readback path, image decode and 2D canvas `getImageData()`, is affected as well. A corrupted PNG is also much larger (122,685 against 15,816 bytes) because noise compresses poorly.
+
+In the three.js benchmark the same thing happened: the run's on-screen frame was a correct Cornell box, while the captured `screenshot.avif` was noise. Dropping the flag fixed every capture.
+
+**Expected:** pixels read back from a canvas match what is presented, whichever Skia/GPU backend is enabled.
 
 ## Effect on this repository's benchmarks
 
 - **Mitigated in performance-kit:**
-  - `run --chrome-arg` passes the Vulkan flags for issue 1 and records them in `environment.chromeFlags`.
+  - `run --chrome-arg` passes extra Chrome flags, such as the headless Vulkan flags for issue 1, and records them in `environment.chromeFlags`.
   - The launch probe retries `requestAdapter()`, which works around issue 2 and records the real adapter.
-- **Not mitigated:** issues 3 and 4 mean a headless or vsync-off run on `build001` cannot produce frame rates comparable to the MacBook Air M3 results.
-  - A valid run on this machine has to be headful with the frame-rate limit enabled, so frame rates are capped at 60 Hz.
-  - The renderer could add its own backpressure, for example by waiting for `onSubmittedWorkDone()` before the next frame or by bounding frames in flight. That would change the measurement method for every machine.
+  - `run --vsync on|off` overrides a suite's vsync mode and records it in `config.vsync`.
+- **How `build001` is measured:** `--headful --vsync on` with no extra flags. This avoids issues 1, 3, 4, 5 and 6, but frame rates are capped at the 59.96 Hz display rate. In the October 2026 run no workload exceeded 36 fps, so the cap did not limit any result.
+- **Still different from macOS:** the MacBook Air M3 results use vsync off. The `build001` results are valid on their own, but their `config.vsync` differs. The renderer could add its own backpressure, for example by bounding frames in flight, to allow uncapped measurement here; that would change the method for every machine.
 
 ## Reproduce
 
@@ -109,10 +133,11 @@ With `--disable-frame-rate-limit`, headful or headless, `requestAnimationFrame` 
 pnpm install
 node scripts/chrome-webgpu-linux-probe.mjs adapter       # issues 1 and 2
 node scripts/chrome-webgpu-linux-probe.mjs backpressure  # issues 3 to 5 (opens headful windows)
+node scripts/chrome-webgpu-linux-probe.mjs readback      # issue 6 (opens headful windows)
 node scripts/chrome-webgpu-linux-probe.mjs all --chrome /path/to/chrome
 ```
 
-The backpressure probe opens 1920×1080 browser windows on the current display for the headful cases. It takes about five minutes.
+The backpressure and readback probes open browser windows on the current display for the headful cases. The backpressure probe takes about five minutes, the readback probe about one. Note that the headful backpressure cases pass both Vulkan flags, so their PNGs are affected by issue 6; this does not change their frame timings.
 
 ## Unrelated tooling issue found at the same time
 

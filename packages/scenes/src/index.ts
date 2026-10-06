@@ -8,6 +8,7 @@ import { higharcScenes } from './higharc.js';
 import { RGBAKTX2Loader } from './ktx2.js';
 import { giDiagnosticScenes } from './gi-diagnostics.js';
 import { visibleWallScenes } from './gi-visible-walls.js';
+import { mirrorSunScenes } from './mirror-sun.js';
 import { ssgiScenes } from './ssgi.js';
 import { ssrScenes } from './ssr.js';
 import { ssrDiagnosticScenes } from './ssr-diagnostics.js';
@@ -21,6 +22,7 @@ export { ANIMATED_POSE_TIME } from './ssgi.js';
 const scenes = new Map<string, SceneDefinition>(
   [
     ...ssgiScenes,
+    ...mirrorSunScenes,
     ...ssrScenes,
     ...higharcScenes,
     ...gltfExampleScenes,

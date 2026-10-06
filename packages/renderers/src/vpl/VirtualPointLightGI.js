@@ -258,6 +258,10 @@ export class VirtualPointLightGI extends ProgressiveLightBake {
             });
           });
         });
+        // sun spots and lamp light that reach this texel by bouncing off a mirror
+        sum.addAssign(
+          this.mirrorDirectAt(p.xyz, n, this.random(this.iteration.add(0.5)), tracer).mul(this.samplesPerFrame),
+        );
       });
       // Shared finite multibounce iteration policy: keep adapting source radiance.
       const weight = float(1).div(this.iteration.add(1)).max(0.04);

@@ -6,6 +6,7 @@ import {
   DoubleSide,
   FloatType,
   HalfFloatType,
+  Matrix4,
   UnsignedByteType,
   LinearFilter,
   NearestFilter,
@@ -233,48 +234,57 @@ export class ProgressiveLightBake {
   trace(origin, direction, maxDist = 0, tracer) {
     return tracer(origin, direction, float(maxDist)).toVar();
   }
+  /** Direction to, distance to, and unshadowed irradiance weight of one light at point p (random: area-light sample). */
+  lightSample(light, p, random) {
+    const location = new Vector3().setFromMatrixPosition(light.matrixWorld);
+    const intensity = color(light.color).mul(light.intensity);
+    let direction,
+      distance,
+      contribution,
+      position = null;
+    if (light.isDirectionalLight) {
+      direction = vec3(location.sub(new Vector3().setFromMatrixPosition(light.target.matrixWorld)).normalize());
+      distance = float(0);
+      contribution = intensity;
+    } else {
+      let lightPosition = vec3(location);
+      if (light.isRectAreaLight) {
+        const e = light.matrixWorld.elements;
+        lightPosition = lightPosition
+          .add(vec3(e[0], e[1], e[2]).mul(random.x.sub(0.5).mul(light.width)))
+          .add(vec3(e[4], e[5], e[6]).mul(random.y.sub(0.5).mul(light.height)));
+      }
+      position = lightPosition;
+      const delta = lightPosition.sub(p).toVar();
+      distance = delta.length().toVar();
+      direction = delta.div(distance.max(1e-6)).toVar();
+      contribution = intensity.div(distance.pow(light.decay ?? 2).max(0.01));
+      if (light.distance > 0)
+        contribution = contribution.mul(distance.div(light.distance).pow(4).oneMinus().clamp().pow(2));
+      if (light.isSpotLight) {
+        const axis = vec3(new Vector3().setFromMatrixPosition(light.target.matrixWorld).sub(location).normalize());
+        contribution = contribution.mul(
+          direction
+            .negate()
+            .dot(axis)
+            .smoothstep(Math.cos(light.angle), Math.cos(light.angle * (1 - light.penumbra))),
+        );
+      }
+      if (light.isRectAreaLight) {
+        const e = light.matrixWorld.elements;
+        contribution = intensity
+          .mul(light.width * light.height)
+          .mul(direction.dot(vec3(e[8], e[9], e[10])).max(0))
+          .div(distance.pow(2).max(0.01));
+      }
+    }
+    return { direction, distance, contribution, position };
+  }
   directAt(p, n, random, tracer) {
     const sum = vec3(0).toVar();
     // Host specialization for a small heterogeneous light list; sample loop stays on the GPU.
     for (const light of this.lights) {
-      const location = new Vector3().setFromMatrixPosition(light.matrixWorld);
-      const intensity = color(light.color).mul(light.intensity);
-      let direction, distance, contribution;
-      if (light.isDirectionalLight) {
-        direction = vec3(location.sub(new Vector3().setFromMatrixPosition(light.target.matrixWorld)).normalize());
-        distance = float(0);
-        contribution = intensity;
-      } else {
-        let lightPosition = vec3(location);
-        if (light.isRectAreaLight) {
-          const e = light.matrixWorld.elements;
-          lightPosition = lightPosition
-            .add(vec3(e[0], e[1], e[2]).mul(random.x.sub(0.5).mul(light.width)))
-            .add(vec3(e[4], e[5], e[6]).mul(random.y.sub(0.5).mul(light.height)));
-        }
-        const delta = lightPosition.sub(p).toVar();
-        distance = delta.length().toVar();
-        direction = delta.div(distance.max(1e-6)).toVar();
-        contribution = intensity.div(distance.pow(light.decay ?? 2).max(0.01));
-        if (light.distance > 0)
-          contribution = contribution.mul(distance.div(light.distance).pow(4).oneMinus().clamp().pow(2));
-        if (light.isSpotLight) {
-          const axis = vec3(new Vector3().setFromMatrixPosition(light.target.matrixWorld).sub(location).normalize());
-          contribution = contribution.mul(
-            direction
-              .negate()
-              .dot(axis)
-              .smoothstep(Math.cos(light.angle), Math.cos(light.angle * (1 - light.penumbra))),
-          );
-        }
-        if (light.isRectAreaLight) {
-          const e = light.matrixWorld.elements;
-          contribution = intensity
-            .mul(light.width * light.height)
-            .mul(direction.dot(vec3(e[8], e[9], e[10])).max(0))
-            .div(distance.pow(2).max(0.01));
-        }
-      }
+      const { direction, distance, contribution } = this.lightSample(light, p, random);
       const cosine = n.dot(direction).max(0).toVar();
       If(cosine.greaterThan(0), () => {
         const hit = this.trace(p.add(n.mul(this.epsilon)), direction, distance, tracer);
@@ -282,6 +292,61 @@ export class ProgressiveLightBake {
           sum.addAssign(contribution.mul(cosine));
         });
       });
+    }
+    return sum;
+  }
+  /** The light as a mirror shows it: itself reflected across the mirror's plane. */
+  reflectedLight(light, mirror) {
+    const { x, y, z } = mirror.normal;
+    const d = mirror.normal.dot(mirror.point);
+    // prettier-ignore
+    const reflection = new Matrix4().set(
+      1 - 2 * x * x, -2 * x * y, -2 * x * z, 2 * d * x,
+      -2 * x * y, 1 - 2 * y * y, -2 * y * z, 2 * d * y,
+      -2 * x * z, -2 * y * z, 1 - 2 * z * z, 2 * d * z,
+      0, 0, 0, 1,
+    );
+    const image = Object.create(light);
+    image.matrixWorld = new Matrix4().multiplyMatrices(reflection, light.matrixWorld);
+    if (light.target)
+      image.target = { matrixWorld: new Matrix4().multiplyMatrices(reflection, light.target.matrixWorld) };
+    return image;
+  }
+  /**
+   * Irradiance at p from lights seen in a mirror (a sun spot bounced off a mirror): the path runs to the light's
+   * mirror image, must first meet the mirror, and the leg from there to the real light must be unblocked.
+   */
+  mirrorDirectAt(p, n, random, tracer) {
+    const sum = vec3(0).toVar();
+    for (const mirror of this.mirrors) {
+      const planeNormal = vec3(mirror.normal);
+      const planePoint = vec3(mirror.point);
+      const tint = vec3(mirror.color.r, mirror.color.g, mirror.color.b);
+      for (const light of this.lights) {
+        const { direction, distance, contribution } = this.lightSample(this.reflectedLight(light, mirror), p, random);
+        const cosine = n.dot(direction).max(0).toVar();
+        const side = p.sub(planePoint).dot(planeNormal);
+        If(cosine.greaterThan(0).and(side.greaterThan(this.epsilon)), () => {
+          const origin = p.add(n.mul(this.epsilon)).toVar();
+          const first = this.trace(origin, direction, distance, tracer);
+          const reflection = origin.add(direction.mul(first.get('dist'))).toVar();
+          const onMirror = reflection
+            .sub(planePoint)
+            .dot(planeNormal)
+            .abs()
+            .lessThan(this.epsilon * 20);
+          If(first.get('didHit').and(onMirror), () => {
+            const bounce = reflection.add(planeNormal.mul(this.epsilon)).toVar();
+            const real = this.lightSample(light, bounce, random);
+            If(real.direction.dot(planeNormal).greaterThan(0), () => {
+              const second = this.trace(bounce, real.direction, real.distance, tracer);
+              If(second.get('didHit').not(), () => {
+                sum.addAssign(contribution.mul(cosine).mul(tint));
+              });
+            });
+          });
+        });
+      }
     }
     return sum;
   }
@@ -358,6 +423,10 @@ export class ProgressiveLightBake {
             sum.addAssign(outgoing);
           });
         });
+        // sun spots and lamp light that reach this texel by bouncing off a mirror
+        sum.addAssign(
+          this.mirrorDirectAt(p.xyz, n, this.random(this.iteration.add(0.5)), tracer).mul(this.samplesPerFrame),
+        );
       });
       const weight = float(1).div(this.iteration.add(1)).max(0.04);
       return vec4(mix(previous.rgb, sum.div(this.samplesPerFrame), weight), p.w);

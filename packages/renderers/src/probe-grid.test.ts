@@ -42,7 +42,7 @@ describe('automatic probe placement', () => {
 
 const state = vi.hoisted(() => ({
   fail: false,
-  grids: [] as { dispose: ReturnType<typeof vi.fn>; bake: ReturnType<typeof vi.fn> }[],
+  grids: [] as { visible: boolean; dispose: ReturnType<typeof vi.fn>; bake: ReturnType<typeof vi.fn> }[],
 }));
 vi.mock('three/addons/lighting/LightProbeGrid.js', () => ({
   LightProbeGrid: class extends Light {
@@ -93,7 +93,7 @@ it('restores borrowed scene state and removes failed captures', async () => {
   expect(scene.children).toHaveLength(1);
   expect(state.grids[0]!.dispose).toHaveBeenCalledTimes(1);
 });
-it('returns after the first batch, keeps baking in the background and stops on release', async () => {
+it('previews with a coarse grid, bakes the full grid hidden, then swaps them', async () => {
   const scene = new Scene();
   scene.add(new Mesh(new BoxGeometry(), new MeshBasicMaterial()));
   const background = new Color('red');
@@ -105,14 +105,33 @@ it('returns after the first batch, keeps baking in the background and stops on r
       throw error;
     },
   });
-  const grid = state.grids[0]!;
+  const [preview] = state.grids;
+  expect(state.grids).toHaveLength(1);
   expect(progress[0]).toBeLessThan(1);
   expect(scene.background).toBe(background);
   await vi.waitFor(() => expect(progress.at(-1)).toBe(1), { timeout: 10_000 });
-  expect(grid.bake.mock.calls.length).toBeGreaterThan(3);
+  const [, full] = state.grids;
+  expect(preview!.dispose).toHaveBeenCalledTimes(1);
+  expect(scene.children).toContain(full);
+  expect(scene.children).not.toContain(preview);
+  expect(full!.visible).toBe(true);
+  expect(full!.bake.mock.calls.reduce((n, call) => n + (call[2].pass === 0 ? call[2].count : 0), 0)).toBe(
+    fitProbeGrid(scene).count,
+  );
+  // the preview never sees the full grid's light and vice versa
+  expect(preview!.bake.mock.calls.length).toBeLessThan(full!.bake.mock.calls.length);
   expect(scene.background).toBe(background);
   release();
-  expect(grid.dispose).toHaveBeenCalledTimes(1);
+  expect(full!.dispose).toHaveBeenCalledTimes(1);
+});
+it('stops baking when released mid-way', async () => {
+  const scene = new Scene();
+  scene.add(new Mesh(new BoxGeometry(), new MeshBasicMaterial()));
+  const release = await bakeProbeGrid({} as never, scene, false, { onProgress: () => {}, onError: () => {} });
+  release();
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(state.grids).toHaveLength(1);
+  expect(state.grids[0]!.dispose).toHaveBeenCalledTimes(1);
 });
 it('reports background bake failures through onError', async () => {
   const scene = new Scene();

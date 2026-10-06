@@ -276,7 +276,7 @@ pnpm performance:process          # migrate legacy raw results and rebuild the i
 pnpm performance:build            # unified static website in site/
 ```
 
-Install the matching browser with `pnpm --filter fidelity-kit exec puppeteer browsers install chrome`, or pass `--executable-path <chrome>` to render and benchmark commands.
+Install the matching browser with `node submodules/fidelity-kit/scripts/install-test-browser.mjs`, or pass `--executable-path <chrome>` to render and benchmark commands.
 
 ### Benchmark machines
 

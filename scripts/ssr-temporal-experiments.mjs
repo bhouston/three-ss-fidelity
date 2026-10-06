@@ -16,7 +16,7 @@ async function worker(job) {
   headless.install();
   const { seededRandom } = await import('../packages/runtime/dist/index.js');
   Math.random = seededRandom(1);
-  const { getScene, disposeSceneSetup } = await import('../packages/scenes/dist/index.js');
+  const { getScene, disposeSceneInstance } = await import('../packages/scenes/dist/index.js');
   const { createNodeSceneContext } = await import('../packages/scenes/dist/node.js');
   const { createRenderer, createRendererFrameDriver, completeRenderer } =
     await import('../packages/renderers/dist/index.js');
@@ -89,7 +89,7 @@ async function worker(job) {
     );
   } finally {
     live.dispose();
-    disposeSceneSetup(setup);
+    disposeSceneInstance(setup);
   }
 }
 

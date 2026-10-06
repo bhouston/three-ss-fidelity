@@ -12,7 +12,7 @@ import {
 } from 'three';
 import type { Material } from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import type { SceneContext, SceneDefinition, SceneEffects, SceneSetup } from './types.js';
+import type { SceneContext, SceneDefinition, SceneEffects, SceneInstance } from './types.js';
 
 const WIDTH = 640;
 const HEIGHT = 480;
@@ -25,7 +25,7 @@ const effects: SceneEffects = {
   frames: 16,
 };
 
-async function createSteampunkCamera(ctx: SceneContext): Promise<SceneSetup> {
+async function createSteampunkCamera(ctx: SceneContext): Promise<SceneInstance> {
   const camera = new PerspectiveCamera(35, WIDTH / HEIGHT, 0.1, 50);
   camera.position.set(3, 2, 3);
   const target = new Vector3(0, 0, 0); // OrbitControls default target

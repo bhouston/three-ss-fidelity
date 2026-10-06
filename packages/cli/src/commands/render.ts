@@ -1,3 +1,5 @@
+import { renderSuite } from 'fidelity-kit/render';
+import registry from '../../../../registry.json' with { type: 'json' };
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -54,6 +56,12 @@ export const command = defineCommand({
   builder: (yargs) =>
     yargs
       .strictOptions()
+      .option('native', {
+        type: 'boolean',
+        default: false,
+        describe: 'Use native diagnostic backends instead of the shared browser host',
+      })
+      .option('root-url', { type: 'string', describe: 'Browser render server URL' })
       .option('scenes', { type: 'string', default: '*', describe: 'Scene name glob(s), comma separated' })
       .option('renderers', {
         type: 'string',
@@ -92,6 +100,26 @@ export const command = defineCommand({
       })
       .option('output', { type: 'string', default: resultsDir, describe: 'Results directory' }),
   handler: async (argv) => {
+    if (!argv.native) {
+      if (argv.motion || argv.ssrDebug || argv.missingOnly || argv.width || argv.height)
+        throw new Error('Native diagnostic options require --native');
+      return renderSuite({
+        registry: 'registry.json',
+        rootUrl: argv.rootUrl,
+        out: argv.output,
+        scene: selectNames(
+          registry.scenes.map((s) => s.id),
+          argv.scenes,
+          'scene',
+        ),
+        renderer: selectNames(
+          registry.renderers.map((r) => r.id),
+          argv.renderers,
+          'renderer',
+        ),
+        frames: argv.frames,
+      });
+    }
     const scenes = selectNames(listSceneNames(), argv.scenes, 'scene');
     const profiles = selectNames(cliRendererNames, argv.renderers, 'renderer').map((name) => profilesByName.get(name)!);
     let failed = false;

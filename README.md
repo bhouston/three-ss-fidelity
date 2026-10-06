@@ -50,11 +50,11 @@ in `submodules/three.js`. There is only ever one copy of three.
 ### `packages/scenes`
 
 - `src/types.ts` holds the contract. A `SceneDefinition` has a `name`, `description`, `width`/`height` and an async
-  `create(ctx)`, which returns a `SceneSetup`: the scene, camera, orbit `target`, `effects` (SSGI/SSR parameters,
+  `create(ctx)`, which returns a `SceneInstance`: the scene, camera, orbit `target`, `effects` (SSGI/SSR parameters,
   `temporalDenoise`, tone mapping, `frames` to render before capture).
 - `src/index.ts` is the registry (`listSceneNames`, `getScene`). Scene families each live in their own file:
   `ssgi.ts`, `ssr.ts` (steampunk), `ssr-diagnostics.ts` (`diag-*`), `gi-diagnostics.ts` and
-  `gi-visible-walls.ts` (`gi-*`), `traa-diagnostics.ts` (`traa-*`), `gltf-examples.ts` (`gltf-*`), `higharc.ts`.
+  `gi-visible-walls.ts` (`gi-*`), `traa-diagnostics.ts` (`traa-*`), `gltf-scenes.ts` (`gltf-*`), `higharc.ts`.
 - Assets (glTF, HDR) are loaded from paths relative to `submodules/three.js/examples/`. `src/node.ts` provides the
   node-side `SceneContext`. Repository assets use the `suite-assets/` prefix, served by the playground from `assets/`.
 - **To add a scene:** add a `SceneDefinition` to the family file (or a new file), make sure it is spread into the
@@ -261,9 +261,9 @@ The JSON and PNG files in `docs/history/` are the data behind those logs. Most w
 
 Blender reference rendering calls `fidelity-kit-blender/three` directly. Set `BLENDER_EXECUTABLE` to choose an installation; otherwise the package discovers Blender on PATH or in macOS Applications. The suite explicitly bakes procedural IBL and passes environment intensity/rotation, background, bounce count, and Three.js tone-mapping/sRGB settings. The package owns GLB export, camera/light translation, Blender execution, and linear output processing. Unsupported suite features emit diagnostics.
 
-## Performance-kit
+## Performance
 
-The independent [performance-kit](https://github.com/bhouston/performance-kit) submodule supplies performance measurement, a CLI, and its own report website. Fidelity images live in `fidelity-results/`; performance snapshots live in `performance-results/`.
+[fidelity-kit](https://github.com/bhouston/fidelity-kit), developed in `submodules/fidelity-kit`, owns the fidelity CLI, performance harness, browser reporter, and unified website. `registry.json` is the shared renderer/scene configuration; fidelity artifacts remain in `fidelity-results/` and machine-specific measurements remain in `performance-results/`. The [migration plan](docs/UNIFIED-KIT-DESIGN.md) describes the design.
 
 ```sh
 pnpm build
@@ -273,12 +273,14 @@ pnpm performance:run --renderer three-current
 pnpm performance:dev              # watch results and refresh changed entries over SSE
 pnpm performance:serve            # static reader; no watcher or SSE
 pnpm performance:process          # migrate legacy raw results and rebuild the index
-pnpm performance:build            # portable static report in performance-site/
+pnpm performance:build            # unified static website in site/
 ```
+
+Install the matching browser with `node submodules/fidelity-kit/scripts/install-test-browser.mjs`, or pass `--executable-path <chrome>` to render and benchmark commands.
 
 ### Benchmark machines
 
-Performance results are stored per benchmark machine, under `performance-results/<machine-id>/` and `performance-convergence-results/<machine-id>/`. Each machine folder has a `machine.json` with its display name. When more than one machine has results, the report shows a **Machines** selector in the navigation bar.
+Performance results are stored per benchmark machine, under `performance-results/<machine-id>/`. Each machine folder has a `machine.json` with its display name. When more than one machine has results, the report shows a **Machines** selector in the navigation bar.
 
 | Machine ID     | Description                       |
 | -------------- | --------------------------------- |
@@ -290,31 +292,30 @@ The `performance:run`, `performance:metallic` and `performance:convergence` scri
 
 ```sh
 PERFORMANCE_MACHINE=macbookairm3 pnpm performance:metallic
-PERFORMANCE_MACHINE=build001 pnpm performance:metallic --headful --vsync on
+PERFORMANCE_MACHINE=build001 pnpm performance:metallic --headful
 ```
 
-On Linux (`build001`), run headful with vsync on and no extra GPU flags. Headless Chrome and vsync off both lack frame backpressure there, and `--enable-features=Vulkan` corrupts screenshots; see [Chrome WebGPU issues on Linux](docs/performance/CHROME_LINUX_WEBGPU.md). The [build001 notes](docs/performance/REALTIME-BUILD001.md) record its first results.
+Automated benchmarks always disable vsync and frame-rate limits. They warm up for one second, then count GPU-completed frames over the configured sustained window. Bounded batches prevent an unbounded GPU queue, and each run drains its work before teardown. Earlier Linux behavior is recorded in the [Chrome WebGPU notes](docs/performance/CHROME_LINUX_WEBGPU.md) and [build001 results](docs/performance/REALTIME-BUILD001.md).
 
-To add a machine, create `performance-results/<machine-id>/machine.json` (and the matching convergence folder) containing `{ "id": "<machine-id>", "name": "<description>" }`, then run the suite with that `PERFORMANCE_MACHINE`. Only compare results recorded on the same machine.
+To add a machine, create `performance-results/<machine-id>/machine.json` containing `{ "id": "<machine-id>", "name": "<description>" }`, then run the suite with that `PERFORMANCE_MACHINE`. Only compare results recorded on the same machine.
 
-`performance-suite.json` contains entries with explicit renderer and scene IDs for Three-Base (the stock `three-current` renderer), the other real-time Three variants (including VPL), and every Three-New experiment. Blender and path tracers are excluded. Change renderer and scene references, durations in a copied suite and pass it with `pnpm performance:run --suite <file>`. The dedicated `/performance.html` renderer supports `params.scene`, `renderer`, `experiment`, `width`, `height`, `seed`, and `motion` (`static` or `orbit`). Each entry gets a fresh scene and renderer, shader preparation, immediate measurement from ready, then end-of-run capture.
+`registry.json` defines renderers once, with browser settings or an external command (Blender), and scenes once. Its `performance` collections explicitly opt in renderer/scene pairs; `default`, `metallic`, and `convergence` preserve the previous suites. `fidelity-kit benchmark --registry registry.json --collection default --root-url http://127.0.0.1:5173/` runs the shared browser host. Fidelity captures use `pnpm render`; the project CLI's native backend requires `pnpm cli render --native` for diagnostic-only features. Browser references use accumulated sample targets, while screen-space captures use configured frames. Existing committed captures are retained until explicitly regenerated.
 
-Open `/performance.html` directly for the React live benchmark viewer. It shares scene creation, renderer setup, shader preparation and drawing with the automated renderer, but disables harness reporting and result persistence. The renderer picker includes the main suite’s renderer configurations and experiment settings. Choose a scenario and renderer, then click **Start Benchmark** to load it at a fixed 1920×1080 physical resolution (the display scales to the available width). Selection changes take effect only on the next start; every start resets the camera and charts. Drag to orbit, scroll to zoom, or click the canvas and move with WASD / arrow keys. Local setup telemetry appears after the first completed frame, with the same load/process/compile boundaries as automation. Frame rate and mean CPU frame time update once per second, with the most recent 300 samples charted below the view. Ordinary browser vsync applies. The diagnostic playground remains at `/` for GPU-pass profiling, captures and its independent benchmark protocols. The live charts are reusable React components in `packages/playground/src/performance-charts.tsx`, styled with the results viewer stylesheet and square borders.
+Open `/performance.html` directly for the React live benchmark viewer. It shares scene creation, renderer setup, shader preparation and drawing with the automated renderer, but disables harness reporting and result persistence. The renderer picker includes the main suite’s renderer configurations and experiment settings. Choose a scene and renderer, then click **Start Benchmark** to load it at a fixed 1920×1080 physical resolution (the display scales to the available width). Selection changes take effect only on the next start; every start resets the camera and charts. Drag to orbit, scroll to zoom, or click the canvas and move with WASD / arrow keys. Local setup telemetry appears after the first completed frame, with the same load/process/compile boundaries as automation. Frame rate and mean CPU frame time update once per second, with the most recent 300 samples charted below the view. Ordinary browser vsync applies. The diagnostic playground remains at `/` for GPU-pass profiling, captures and its independent benchmark protocols. The live charts are reusable React components exported by `fidelity-kit/charts`, styled with the results viewer stylesheet and square borders.
 
 The harness uses `localhost`, while renderer entries use `127.0.0.1`, to allow Chrome site isolation. In automated harness mode, the renderer page runs no controls or charts. Keep the pinned browser, hardware and drivers consistent when comparing performance snapshots. Results record the vsync mode and network profile; comparisons reject mixed modes or network conditions. Existing `cli bench` remains available for the native diagnostic protocols documented in [docs/PERF.md](docs/PERF.md).
 
-To run all 27 real-time Three configurations on the Cornell box with a mirror sphere, build once and run `pnpm performance:metallic`. It serves the built renderer independently of Vite/HMR, running each workload once with vsync disabled at 1920×1080 and 10 s measured from ready, without warmup. Use `--executable-path <chrome>` if your bundled browser installation needs repair.
+To run all 27 real-time Three configurations on the Cornell box with a mirror sphere, build once and run `pnpm performance:metallic`. It serves the built renderer independently of Vite/HMR, running each workload once with vsync disabled at 1920×1080 and 10 s of GPU-completed throughput after a one-second warmup. Use `--executable-path <chrome>` if your bundled browser installation needs repair.
 
 The [current benchmark notes](docs/performance/REALTIME.md) record the refreshed 81 workloads across all three performance scenes, including VPL.
 
 The performance report introduction comes from `performance-results/README.md`. Edit this Markdown file to describe the suite; `performance:dev` refreshes it as it changes, while `performance:build` includes it in the static export.
 
-Each performance configuration uses `performance-results/<machine-id>/<renderer-id>/<scene-id>/` with `screenshot.avif` and directly saved `metrics.json`. The viewer uses one shared time scale across filtered timelines, combines setup phases and frame timing with hover values, and links to shareable details pages with one combined timing chart, histograms, bandwidth, and a Phases table with total setup time. Timing and bandwidth charts start at example navigation. Examples initialize automatically using workload params supplied in their URL, report ready, and then receive the measured run request. Uncovered initialization spans appear automatically as `unknown` phases. Harness and client timestamps are retained independently; precision clock synchronization and discrepancy tables are removed. `performance:process` validates current metrics and refreshes their report index.
+Each performance configuration uses `performance-results/<machine-id>/<renderer-id>/<scene-id>/` with `screenshot.avif` and directly saved `metrics.json`. The viewer shows setup phases, completed-frame throughput, bandwidth, and shareable details. Historical frame timings and histograms remain visible for previous runs; new benchmarks collect no individual frame timings. Timing and bandwidth charts start at scene navigation. Scenes initialize automatically using workload params supplied in their URL, report ready, and then receive the measured run request. Uncovered initialization spans appear automatically as `unknown` phases. Harness and client timestamps are retained independently; precision clock synchronization and discrepancy tables are removed. `performance:process` validates current metrics and refreshes their report index.
 
 The performance suites define `unthrottled`, `fast-4g`, `slow-4g`, and `3g`
-network profiles, defaulting to `unthrottled`. To test a slower connection, copy a
-suite, set `defaults.networkProfile` to `slow-4g` (or another profile name), and
-run it with `pnpm performance:run --suite <file> --out <separate-directory>`.
+network profiles, defaulting to `unthrottled`. To test a slower connection, edit a registry performance collection, set its `defaults.networkProfile` to `slow-4g` (or another profile name), and
+run it with `pnpm performance:run --registry <file> --out <separate-directory>`.
 Profiles specify uniform latency and download/upload bytes per second; `-1`
 means uncapped. Every run disables HTTP cache and bypasses service workers,
 including the isolated renderer iframe. Use separate output directories per
@@ -329,3 +330,13 @@ performance timeline. The chart approximates uniform byte arrival and uses the
 same time axis as frame charts, including downloads before the reporter starts.
 
 For timed GI quality comparisons, run `pnpm performance:convergence` after building. See [GI performance and convergence](docs/performance/GI_CONVERGENCE.md) for the optional reference workflow and initial results.
+
+## Unified website and deployment
+
+Run `pnpm live` for the render server and `pnpm site:dev` for the website. The website has Home, Fidelity, Performance, and Live navigation, with detailed fidelity comparisons and machine-specific performance details. Home displays `fidelity-results/README.md` alongside the configured reference hero.
+
+Build with `pnpm build` then `pnpm site:build`. Publish `site/` on a static host. Build the independent render server using `node scripts/build-render-server.mjs --out render-site`; publish `render-site/` at its own URL. It includes the browser entry and the upstream/suite assets needed by scene loaders. `registry.json` uses `renderServer.developmentUrl` locally and `renderServer.deployedUrl` for static builds. Pass `--root-url https://renderer.example/` to override the endpoint; the Pages workflow also accepts the `RENDER_SERVER_URL` repository variable. Its default deployment packages the renderer at `site/render/`.
+
+Live mode uses a fixed 1920 × 1080 canvas. Changing the selection does not replace the running renderer until Start Benchmark is clicked. Each start resets setup/FPS charts. Live telemetry is sent only to the website and is never saved as a benchmark. The optional fidelity reference is a display target; measured convergence requires the same resolution and camera pose.
+
+Scene is the canonical term in the schema, browser protocol parameters, CLI, types, filenames, and UI. Upstream three.js `examples/` asset paths retain their actual names.

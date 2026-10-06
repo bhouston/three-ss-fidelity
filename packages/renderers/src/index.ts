@@ -1,4 +1,4 @@
-import type { SceneSetup } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@ss-fidelity/scenes';
 import { createRenderer as createPathTracerRenderer } from 'fidelity-kit-three-gpu-pathtracer';
 import { createCurrentRenderer } from './three-current.js';
 import { createThreeNewRenderer } from './three-new.js';
@@ -16,7 +16,7 @@ export { createCurrentRenderer } from './three-current.js';
 export function createRenderer(
   name: RendererName,
   canvas: HTMLCanvasElement,
-  setup: SceneSetup,
+  setup: SceneInstance,
   options: RendererOptions,
 ): Promise<LiveRenderer> {
   if (options.hierarchyExperiment !== undefined && !hierarchyExperiments.includes(options.hierarchyExperiment)) {

@@ -1,7 +1,7 @@
 import { Vector3 } from 'three';
 import { expect, it } from 'vitest';
 import { getScene } from './index.js';
-import { disposeSceneSetup } from './lifecycle.js';
+import { disposeSceneInstance } from './lifecycle.js';
 import { createNodeSceneContext } from './node.js';
 
 // Serialization UUIDs differ between instances; their ordered values should match exactly.
@@ -32,7 +32,7 @@ it('reproduces the oblique live-viewer camera while preserving the basic Cornell
     expect(oblique.effects).toEqual(basic.effects);
     expect(normalize(oblique.scene.toJSON())).toEqual(normalize(basic.scene.toJSON()));
   } finally {
-    disposeSceneSetup(basic);
-    disposeSceneSetup(oblique);
+    disposeSceneInstance(basic);
+    disposeSceneInstance(oblique);
   }
 });

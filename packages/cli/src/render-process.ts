@@ -56,7 +56,7 @@ async function main(job: RenderJob): Promise<void> {
   headless.install();
   const { createRenderer, hierarchyImageName, completeRenderer, createRendererFrameDriver, disabledScenes } =
     await import('@ss-fidelity/renderers');
-  const { getScene, disposeSceneSetup } = await import('@ss-fidelity/scenes');
+  const { getScene, disposeSceneInstance } = await import('@ss-fidelity/scenes');
   const { createNodeSceneContext } = await import('@ss-fidelity/scenes/node');
   const { renderPath } = await import('./paths.js');
   const { RESULT_AVIF } = await import('./compare.js');
@@ -129,7 +129,7 @@ async function main(job: RenderJob): Promise<void> {
       process.removeListener('SIGINT', interrupt);
       process.removeListener('SIGTERM', terminate);
       renderer.dispose();
-      disposeSceneSetup(setup);
+      disposeSceneInstance(setup);
     }
     const renderMs = performance.now() - renderStart;
     const file = renderPath(name, job.ssrDebug ? `${outputName}@${job.ssrDebug}` : outputName, job.outDir);
@@ -144,7 +144,7 @@ async function main(job: RenderJob): Promise<void> {
   }
 
   /** Blender is a single batch render, not a `LiveRenderer` with an incremental frame loop: its own branch. */
-  // oxlint-disable-next-line typescript/no-explicit-any -- headless SceneSetup import is dynamic (see main())
+  // oxlint-disable-next-line typescript/no-explicit-any -- headless SceneInstance import is dynamic (see main())
   async function renderBlenderJob(
     name: string,
     setup: any,

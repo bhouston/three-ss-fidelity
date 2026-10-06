@@ -13,12 +13,12 @@ import {
   Scene,
   Vector3,
 } from 'three';
-import type { SceneDefinition, SceneSetup } from './types.js';
+import type { SceneDefinition, SceneInstance } from './types.js';
 
 const WIDTH = 640;
 const HEIGHT = 480;
 
-function createMirrorSun(): SceneSetup {
+function createMirrorSun(): SceneInstance {
   const camera = new PerspectiveCamera(50, WIDTH / HEIGHT, 0.1, 100);
   camera.position.set(0, 4, 13);
   const target = new Vector3(-1, 2, 0);

@@ -10,6 +10,7 @@ const stockRoot = normalizePath(dirname(dirname(stockRequire.resolve('three-r186
 
 const source = (name: string) => fileURLToPath(new URL(`../${name}/src/index.ts`, import.meta.url));
 export default defineConfig({
+  base: './',
   plugins: [
     {
       name: 'stock-three-self-imports',
@@ -47,9 +48,6 @@ export default defineConfig({
       '@ss-fidelity/runtime': source('runtime'),
       '@ss-fidelity/renderers': source('renderers'),
       '@ss-fidelity/scenes': source('scenes'),
-      'performance-kit-reporter': fileURLToPath(
-        new URL('../../submodules/performance-kit/packages/reporter/src/index.ts', import.meta.url),
-      ),
     },
   },
   // Keep one TSL stack per Three.js version; prebundling can embed additional runtime copies.

@@ -75,7 +75,7 @@ WebGL uses `EXT_disjoint_timer_query_webgl2` when supported, waits for availabil
 
 `@ss-fidelity/runtime` exports `LivePipeline`, `RenderSession`, `FrameContext`, `benchmark`, `capture`, statistics and versioned reports. It imports no Three.js or Node APIs. The benchmark runner owns the fresh session returned by its factory and disposes it on success, failure or cancellation. Capture operates on a borrowed session and leaves disposal to the caller.
 
-`@ss-fidelity/renderers` exports renderer setup helpers used by the stock and experimental adapters: `configureRenderer`, `setRenderSize`, `prepareScene`, `createLivePipeline`, `createRendererFrameDriver`, and `completeRenderer`. `prepareScene` accepts injected environment baking and gradient-node creation, retaining control over the renderer version/backend. It restores borrowed scene state and releases its generated environment target on disposal. `disposeSceneSetup` separately releases caller-owned scene assets.
+`@ss-fidelity/renderers` exports renderer setup helpers used by the stock and experimental adapters: `configureRenderer`, `setRenderSize`, `prepareScene`, `createLivePipeline`, `createRendererFrameDriver`, and `completeRenderer`. `prepareScene` accepts injected environment baking and gradient-node creation, retaining control over the renderer version/backend. It restores borrowed scene state and releases its generated environment target on disposal. `disposeSceneInstance` separately releases caller-owned scene assets.
 
 A custom graph can use ordinary Three.js objects:
 
@@ -155,3 +155,5 @@ Expand **Shader and pipeline details** to see pass names, shader-generation CPU 
 **Exact GPU compiler time is unavailable in the browser.** `createRenderPipeline` often returns before driver compilation finishes. The GPU wait includes deferred compilation, uploads and rendering; pipeline API time is a dispatch observation, and repeated calls may hit caches. This display identifies whether assets, JavaScript generation, setup or deferred GPU work dominated a load without inventing compiler-only durations. No GPU timestamp queries are needed for startup capture.
 
 Use **Download startup JSON** to preserve the load's timings, settings, pass details and raw shader events/metrics. Failures include their message and stack when available. The UI clears the previous load's data on every attempt. See [the startup investigation](history/SHADER_STARTUP.md) for cache controls, native-versus-browser timing differences and Dawn repros.
+
+Automated throughput benchmarks disable vsync and frame-rate limits, warm up for one second, then count GPU-completed frames over the configured sustained window. Bounded batches include the full render pipeline and drain GPU work before publication and teardown. Individual frame timings are retained only when reading historical results; new throughput runs do not collect them. Live UI telemetry remains interactive and unpersisted.

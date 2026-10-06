@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { DirectionalLight, Mesh, MeshPhysicalMaterial, PerspectiveCamera, Vector3 } from 'three';
 import { complexModelScenes } from '../../../scenes/src/complex-models.js';
 import { createNodeSceneContext } from '../../../scenes/src/node.js';
-import { disposeSceneSetup } from '../../../scenes/src/lifecycle.js';
+import { disposeSceneInstance } from '../../../scenes/src/lifecycle.js';
 import { prepareAtlas } from './atlas.js';
 
 describe('complex model assets', () => {
@@ -68,7 +68,7 @@ describe('complex model assets', () => {
           entry.mesh.geometry = entry.originalGeometry;
           entry.geometry.dispose();
         }
-        disposeSceneSetup(setup);
+        disposeSceneInstance(setup);
       }
     },
     30_000,

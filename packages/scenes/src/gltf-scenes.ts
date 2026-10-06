@@ -19,7 +19,7 @@ import {
   Vector3,
 } from 'three';
 import type { DataTexture } from 'three';
-import type { SceneContext, SceneDefinition, SceneEffects, SceneSetup } from './types.js';
+import type { SceneContext, SceneDefinition, SceneEffects, SceneInstance } from './types.js';
 
 const WIDTH = 640;
 const HEIGHT = 480;
@@ -123,7 +123,7 @@ export function extractLights(hdr: DataTexture, maxLights = 3): DirectionalLight
   });
 }
 
-interface GLTFExample {
+interface GLTFScene {
   name: string;
   description: string;
   /** Relative to three.js examples/. */
@@ -136,15 +136,15 @@ interface GLTFExample {
   fitOffset: number;
 }
 
-async function createGLTFExample(example: GLTFExample, ctx: SceneContext): Promise<SceneSetup> {
+async function createGLTFScene(definition: GLTFScene, ctx: SceneContext): Promise<SceneInstance> {
   const scene = new Scene();
-  const hdr = await ctx.loadHDR(`textures/equirectangular/${example.hdr}`);
+  const hdr = await ctx.loadHDR(`textures/equirectangular/${definition.hdr}`);
   hdr.mapping = EquirectangularReflectionMapping;
   scene.environment = hdr;
   scene.background = hdr;
   for (const light of extractLights(hdr)) scene.add(light, light.target);
 
-  const gltf = await ctx.loadGLTF(example.model);
+  const gltf = await ctx.loadGLTF(definition.model);
   const model = gltf.scene;
   const clip = gltf.animations[0];
   if (clip) {
@@ -172,15 +172,15 @@ async function createGLTFExample(example: GLTFExample, ctx: SceneContext): Promi
   scene.add(floor);
 
   const target = new Vector3(0, (box.max.y - box.min.y) / 2, 0);
-  const distance = example.fitOffset / (2 * Math.tan((example.fov * Math.PI) / 360));
-  const camera = new PerspectiveCamera(example.fov, WIDTH / HEIGHT, distance / 100, distance * 100);
-  camera.position.copy(target).addScaledVector(example.view.clone().normalize(), distance);
+  const distance = definition.fitOffset / (2 * Math.tan((definition.fov * Math.PI) / 360));
+  const camera = new PerspectiveCamera(definition.fov, WIDTH / HEIGHT, distance / 100, distance * 100);
+  camera.position.copy(target).addScaledVector(definition.view.clone().normalize(), distance);
   camera.lookAt(target);
 
   return { scene, camera, target, effects };
 }
 
-const examples: GLTFExample[] = [
+const definitions: GLTFScene[] = [
   {
     name: 'gltf-damaged-helmet',
     description:
@@ -212,10 +212,10 @@ const examples: GLTFExample[] = [
   },
 ];
 
-export const gltfExampleScenes: SceneDefinition[] = examples.map((example) => ({
-  name: example.name,
-  description: example.description,
+export const gltfScenes: SceneDefinition[] = definitions.map((definition) => ({
+  name: definition.name,
+  description: definition.description,
   width: WIDTH,
   height: HEIGHT,
-  create: (ctx) => createGLTFExample(example, ctx),
+  create: (ctx) => createGLTFScene(definition, ctx),
 }));

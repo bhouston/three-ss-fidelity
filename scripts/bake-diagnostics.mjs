@@ -12,7 +12,7 @@ const { WebGPURenderer } = await import('../packages/renderers/node_modules/thre
 const { ProgressiveLightBake } = await import('../packages/renderers/dist/light-bake/ProgressiveLightBake.js');
 const { VirtualPointLightGI } = await import('../packages/renderers/dist/vpl/VirtualPointLightGI.js');
 const { completeRenderer } = await import('../packages/renderers/dist/index.js');
-const { getScene, disposeSceneSetup } = await import('../packages/scenes/dist/index.js');
+const { getScene, disposeSceneInstance } = await import('../packages/scenes/dist/index.js');
 const { createNodeSceneContext } = await import('../packages/scenes/dist/node.js');
 
 const { values, positionals } = parseArgs({
@@ -274,5 +274,5 @@ for (const name of values.probe.split(',')) {
 baker.dispose();
 diag.dispose();
 renderer.dispose();
-disposeSceneSetup(setup);
+disposeSceneInstance(setup);
 process.exit(0);

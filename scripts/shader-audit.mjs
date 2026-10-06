@@ -46,7 +46,7 @@ GPUDevice.prototype.createRenderPipeline = function (descriptor) {
 };
 const { createRenderer, completeRenderer, createRendererFrameDriver } =
   await import('../packages/renderers/dist/index.js');
-const { getScene, disposeSceneSetup } = await import('../packages/scenes/dist/index.js');
+const { getScene, disposeSceneInstance } = await import('../packages/scenes/dist/index.js');
 const { createNodeSceneContext } = await import('../packages/scenes/dist/node.js');
 const { seededRandom } = await import('../packages/runtime/dist/index.js');
 Math.random = seededRandom(1);
@@ -180,5 +180,5 @@ if (profile) {
 await writeFile(join(out, 'report.json'), JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify(report));
 live.dispose();
-disposeSceneSetup(setup);
+disposeSceneInstance(setup);
 process.exit(0);

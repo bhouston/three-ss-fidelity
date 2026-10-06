@@ -49,9 +49,26 @@ it('reports unsupported timestamps and completes WebGPU or WebGL through explici
   await completeRenderer({ backend: { device: { queue: { onSubmittedWorkDone } } } });
   expect(onSubmittedWorkDone).toHaveBeenCalledOnce();
   const finish = vi.fn();
-  await completeRenderer({ getContext: () => ({ finish }) });
+  await completeRenderer({ getContext: () => ({ finish, isContextLost: () => false }) });
   expect(finish).toHaveBeenCalledOnce();
   await expect(completeRenderer({})).rejects.toThrow('completion adapter');
+});
+
+it('rejects WebGL completion when the context is already lost or becomes lost while draining work', async () => {
+  const finish = vi.fn();
+  await expect(completeRenderer({ getContext: () => ({ finish, isContextLost: () => true }) })).rejects.toThrow(
+    'WebGL context lost before GPU completion',
+  );
+  expect(finish).not.toHaveBeenCalled();
+
+  let lost = false;
+  finish.mockImplementation(() => {
+    lost = true;
+  });
+  await expect(completeRenderer({ getContext: () => ({ finish, isContextLost: () => lost }) })).rejects.toThrow(
+    'WebGL context lost during GPU completion',
+  );
+  expect(finish).toHaveBeenCalledOnce();
 });
 
 it('advances temporal-node state for every submission even inside the same display tick', () => {

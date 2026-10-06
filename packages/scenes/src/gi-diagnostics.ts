@@ -11,7 +11,7 @@ import {
   Scene,
   Vector3,
 } from 'three';
-import type { SceneDefinition, SceneEffects, SceneSetup, SSGIEffect } from './types.js';
+import type { SceneDefinition, SceneEffects, SceneInstance, SSGIEffect } from './types.js';
 
 const WIDTH = 480;
 const HEIGHT = 360;
@@ -54,7 +54,7 @@ function plane(
   scene.add(mesh);
 }
 
-function setup(fov = 65): SceneSetup {
+function setup(fov = 65): SceneInstance {
   const scene = new Scene();
   scene.background = new Color(0);
   const camera = new PerspectiveCamera(fov, WIDTH / HEIGHT, 0.1, 100);
@@ -76,7 +76,7 @@ function walls(scene: Scene, surface: MeshPhysicalMaterial): void {
   plane(scene, 'ceiling', 10, 10, surface, [0, 6, 0], [Math.PI / 2, 0, 0]);
 }
 
-function corner(overrides: Partial<SSGIEffect> = {}): SceneSetup {
+function corner(overrides: Partial<SSGIEffect> = {}): SceneInstance {
   const result = setup(55);
   result.camera.position.set(0, 6, 10);
   result.target.set(0, 2, 0);
@@ -90,7 +90,7 @@ function corner(overrides: Partial<SSGIEffect> = {}): SceneSetup {
 }
 
 // High-frequency radiance next to a depth discontinuity: catches color bleeding that a smooth wall hides.
-function hierarchyDiscontinuity(): SceneSetup {
+function hierarchyDiscontinuity(): SceneInstance {
   const result = corner({ sliceCount: 8, stepCount: 32, radius: 32 });
   result.scene.remove(result.scene.getObjectByName('emitter')!);
   for (let x = 0; x < 16; x++) {
@@ -105,7 +105,7 @@ function hierarchyDiscontinuity(): SceneSetup {
   return result;
 }
 
-function enclosure(fov: number): SceneSetup {
+function enclosure(fov: number): SceneInstance {
   const result = setup(fov);
   floor(result.scene, material(0.5));
   walls(result.scene, material(0, 0.5));
@@ -114,7 +114,7 @@ function enclosure(fov: number): SceneSetup {
   return result;
 }
 
-function diffuseRoom(albedo: number, open = false): SceneSetup {
+function diffuseRoom(albedo: number, open = false): SceneInstance {
   const result = setup(90);
   const surface = material(albedo);
   floor(result.scene, surface);
@@ -137,7 +137,7 @@ function diffuseRoom(albedo: number, open = false): SceneSetup {
 }
 
 /** Sealed black partition: the right-hand floor has no physical path to the left-hand emitter. */
-function probePartition(thickness: number): SceneSetup {
+function probePartition(thickness: number): SceneInstance {
   const result = setup(65);
   floor(result.scene, material(0.5));
   walls(result.scene, material(0));
@@ -154,7 +154,7 @@ function probePartition(thickness: number): SceneSetup {
   return result;
 }
 
-function diagnostic(name: string, description: string, create: () => SceneSetup): SceneDefinition {
+function diagnostic(name: string, description: string, create: () => SceneInstance): SceneDefinition {
   return { name, description, width: WIDTH, height: HEIGHT, create: async () => create() };
 }
 

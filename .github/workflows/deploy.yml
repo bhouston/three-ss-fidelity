@@ -32,11 +32,13 @@ jobs:
           node-version-file: '.nvmrc'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build:performance-kit
-      - name: Build fidelity viewer
-        run: pnpm exec fidelity-kit build fidelity-results --out site/
-      - name: Build performance viewer
-        run: node submodules/performance-kit/packages/cli/dist/bin.js build --out performance-results --site site/performance
+      - run: pnpm build
+      - name: Build unified website
+        env:
+          RENDER_SERVER_URL: ${{ vars.RENDER_SERVER_URL }}
+        run: pnpm site:build ${RENDER_SERVER_URL:+--root-url "$RENDER_SERVER_URL"}
+      - name: Package browser render server
+        run: node scripts/build-render-server.mjs --out site/render
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site/

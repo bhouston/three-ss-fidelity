@@ -1,6 +1,6 @@
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Vector3 } from 'three';
-import type { SceneSetup } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@ss-fidelity/scenes';
 import type { LiveRenderer } from '@ss-fidelity/renderers';
 
 export interface CameraPose {
@@ -14,7 +14,7 @@ export interface NavigationOptions {
 }
 
 export function createNavigation(
-  setup: SceneSetup,
+  setup: SceneInstance,
   live: LiveRenderer,
   canvas: HTMLCanvasElement,
   { initial, onChange }: NavigationOptions = {},

@@ -17,7 +17,7 @@ import {
   Scene,
   Vector3,
 } from 'three';
-import type { SceneDefinition, SceneEffects, SceneSetup } from './types.js';
+import type { SceneDefinition, SceneEffects, SceneInstance } from './types.js';
 
 const WIDTH = 480;
 const HEIGHT = 360;
@@ -85,7 +85,7 @@ function checkerScene(): Scene {
   return scene;
 }
 
-function checkerSetup(): SceneSetup {
+function checkerSetup(): SceneInstance {
   const camera = new PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 100);
   camera.position.set(0, 1.1, 2.6);
   const target = new Vector3(0, 0.4, -1.8);
@@ -94,7 +94,7 @@ function checkerSetup(): SceneSetup {
 }
 
 /** A static background checker plane plus an opaque foreground slab that CLI `--motion-object` slides across it. */
-function disocclusionSetup(): SceneSetup {
+function disocclusionSetup(): SceneInstance {
   const scene = new Scene();
   scene.background = new Color(0x000000);
 
@@ -117,7 +117,7 @@ function disocclusionSetup(): SceneSetup {
   return { scene, camera, target, effects };
 }
 
-function diagnostic(name: string, description: string, create: () => SceneSetup): SceneDefinition {
+function diagnostic(name: string, description: string, create: () => SceneInstance): SceneDefinition {
   return { name, description, width: WIDTH, height: HEIGHT, create: async () => create() };
 }
 

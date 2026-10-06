@@ -11,7 +11,7 @@ import {
   Scene,
   Vector3,
 } from 'three';
-import type { SceneContext, SceneDefinition, SceneSetup } from './types.js';
+import type { SceneContext, SceneDefinition, SceneInstance } from './types.js';
 
 const WIDTH = 640;
 const HEIGHT = 480;
@@ -19,7 +19,7 @@ const HEIGHT = 480;
 // The model is in meters; the original viewer works in inches, so its distances are scaled by this.
 const INCH = 0.0254;
 
-async function createDogwood(ctx: SceneContext): Promise<SceneSetup> {
+async function createDogwood(ctx: SceneContext): Promise<SceneInstance> {
   const scene = new Scene();
 
   const hdr = await ctx.loadHDR('textures/equirectangular/blouberg_sunrise_2_1k.hdr');

@@ -1,13 +1,13 @@
 import { Vector3 } from 'three';
 import type { Material, Mesh, Texture } from 'three';
-import type { SceneSetup } from './types.js';
+import type { SceneInstance } from './types.js';
 
 /** Caller owns scene assets. Pipelines own their generated targets and renderer resources. */
-export function disposeSceneSetup(setup: SceneSetup): void {
+export function disposeSceneInstance(setup: SceneInstance): void {
   const geometries = new Set<Mesh['geometry']>();
   const materials = new Set<Material>();
   const textures = new Set<Texture>();
-  const collect = (scene: SceneSetup['scene']) => {
+  const collect = (scene: SceneInstance['scene']) => {
     scene.traverse((object) => {
       const mesh = object as Mesh;
       if (mesh.geometry) geometries.add(mesh.geometry);
@@ -27,7 +27,11 @@ export function disposeSceneSetup(setup: SceneSetup): void {
 }
 
 /** Replay a closed camera trajectory using frame indices, never wall-clock speed. */
-export function createOrbitWorkload(setup: SceneSetup, cycleFrames: number, degrees: number): (index: number) => void {
+export function createOrbitWorkload(
+  setup: SceneInstance,
+  cycleFrames: number,
+  degrees: number,
+): (index: number) => void {
   if (!Number.isSafeInteger(cycleFrames) || cycleFrames < 1 || !Number.isFinite(degrees))
     throw new Error('Invalid orbit workload');
   const position = setup.camera.position.clone().sub(setup.target);

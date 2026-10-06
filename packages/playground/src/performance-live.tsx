@@ -9,12 +9,12 @@ import { createUrlStateWriter } from './url-state';
 import { createLiveTelemetry } from './performance-telemetry';
 import type { FrameMetric, SetupMetric } from './performance-telemetry';
 import { FrameChart, SetupChart } from './performance-charts';
-import '../../../submodules/performance-kit/packages/viewer/src/style.css';
+import './report-style.css';
 import './performance-live.css';
 
 function LiveViewer() {
   const scenes = listSceneNames();
-  // Scenario, renderer, running state and camera live in the query, so a reload resumes where it was.
+  // Scene, renderer, running state and camera live in the query, so a reload resumes where it was.
   const [initial] = useState<LiveUrlState>(() =>
     parseLiveUrl(
       location.search,
@@ -29,7 +29,7 @@ function LiveViewer() {
   const [scene, setScene] = useState(initial.scene);
   const [renderer, setRenderer] = useState<string>(initial.renderer);
   const [active, setActive] = useState<{ scene: string; renderer: string }>();
-  const [status, setStatus] = useState('Choose a scenario and renderer, then start.');
+  const [status, setStatus] = useState('Choose a scene and renderer, then start.');
   const [loading, setLoading] = useState(false);
   const [setup, setSetup] = useState<SetupMetric>();
   const [frames, setFrames] = useState<FrameMetric[]>([]);
@@ -132,7 +132,7 @@ function LiveViewer() {
     return () => clearTimeout(timer);
   }, []);
 
-  function selectScenario(nextScene: string, nextRenderer: string) {
+  function selectScene(nextScene: string, nextRenderer: string) {
     setScene(nextScene);
     setRenderer(nextRenderer);
     // The saved camera belongs to the running scene, so it is dropped once the selection moves away from it.
@@ -157,12 +157,8 @@ function LiveViewer() {
       <main className="live-main">
         <section className="live-panel live-controls">
           <label>
-            Scenario
-            <select
-              aria-label="Scenario"
-              value={scene}
-              onChange={(event) => selectScenario(event.target.value, renderer)}
-            >
+            Scene
+            <select aria-label="Scene" value={scene} onChange={(event) => selectScene(event.target.value, renderer)}>
               {scenes.map((name) => (
                 <option key={name}>{name}</option>
               ))}
@@ -170,11 +166,7 @@ function LiveViewer() {
           </label>
           <label>
             Renderer
-            <select
-              aria-label="Renderer"
-              value={renderer}
-              onChange={(event) => selectScenario(scene, event.target.value)}
-            >
+            <select aria-label="Renderer" value={renderer} onChange={(event) => selectScene(scene, event.target.value)}>
               {liveRendererPresets.map((preset) => (
                 <option key={preset.id} value={preset.id}>
                   {preset.name}

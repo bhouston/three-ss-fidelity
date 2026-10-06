@@ -59,7 +59,7 @@ export interface SceneEnvironment {
   sigma: number;
 }
 
-export interface SceneSetup {
+export interface SceneInstance {
   scene: Scene;
   camera: PerspectiveCamera;
   /** Point the camera looks at (the example's OrbitControls target), for orbiting in live views. */
@@ -76,5 +76,5 @@ export interface SceneDefinition {
   description: string;
   width: number;
   height: number;
-  create(ctx: SceneContext): Promise<SceneSetup>;
+  create(ctx: SceneContext): Promise<SceneInstance>;
 }

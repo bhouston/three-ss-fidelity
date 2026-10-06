@@ -19,7 +19,7 @@ import {
   Vector3,
 } from 'three';
 import type { BufferGeometry, Material } from 'three';
-import type { SceneDefinition, SceneEffects, SceneEnvironment, SceneSetup } from './types.js';
+import type { SceneDefinition, SceneEffects, SceneEnvironment, SceneInstance } from './types.js';
 
 const WIDTH = 480;
 const HEIGHT = 360;
@@ -122,7 +122,7 @@ function baseSetup(
   fov: number,
   maxDistance: number,
   thickness: number,
-): SceneSetup {
+): SceneInstance {
   const scene = new Scene();
   const camera = new PerspectiveCamera(fov, WIDTH / HEIGHT, 0.1, 100);
   camera.position.set(...cameraPos);
@@ -138,21 +138,21 @@ function baseSetup(
   };
 }
 
-function mirror(receiver: Material): SceneSetup {
+function mirror(receiver: Material): SceneInstance {
   const setup = baseSetup([0, 2.3, 3.2], [0, 0.3, -0.8], 50, 6, 0.05);
   floor(setup.scene, receiver);
   standardEmitters(setup.scene);
   return setup;
 }
 
-function grazing(): SceneSetup {
+function grazing(): SceneInstance {
   const setup = baseSetup([0, 0.9, 3.6], [0, 0.3, -0.8], 50, 8, 0.05);
   floor(setup.scene, metal(0));
   standardEmitters(setup.scene);
   return setup;
 }
 
-function offscreen(): SceneSetup {
+function offscreen(): SceneInstance {
   const setup = baseSetup([0, 1.6, 2.6], [0, 0.3, -0.8], 35, 8, 0.05);
   floor(setup.scene, metal(0));
   standardEmitters(setup.scene);
@@ -161,7 +161,7 @@ function offscreen(): SceneSetup {
   return setup;
 }
 
-function occlusion(): SceneSetup {
+function occlusion(): SceneInstance {
   const setup = baseSetup([0, 1.8, 3.0], [0, 0.4, -0.8], 45, 6, 0.05);
   floor(setup.scene, metal(0));
   addEmitter(setup.scene, new BoxGeometry(0.7, 1.3, 0.4), GREEN, [0, 0.65, -1.3], 'box-far');
@@ -170,7 +170,7 @@ function occlusion(): SceneSetup {
   return setup;
 }
 
-function wall(): SceneSetup {
+function wall(): SceneInstance {
   const setup = baseSetup([0, 1.6, 4.5], [0, 1.2, -2], 45, 6, 0.05);
   floor(setup.scene, matte());
   const wallMesh = new Mesh(new PlaneGeometry(8, 4), metal(0.05));
@@ -183,7 +183,7 @@ function wall(): SceneSetup {
   return setup;
 }
 
-function sphere(): SceneSetup {
+function sphere(): SceneInstance {
   const setup = baseSetup([0, 2.2, 5], [0, 1.2, 0], 45, 6, 0.05);
   floor(setup.scene, matte());
   const sphereMesh = new Mesh(new SphereGeometry(1.2, 48, 32), metal(0.1));
@@ -203,7 +203,7 @@ function sphere(): SceneSetup {
  * floor sees the metals from below and the camera sees them from above, so a reflection of a metal differs strongly
  * from the camera's view of it: this isolates the view dependence of SSR hit radiance.
  */
-function metalHit(): SceneSetup {
+function metalHit(): SceneInstance {
   const setup = baseSetup([0, 2.3, 3.2], [0, 0.3, -0.8], 50, 6, 0.05);
   floor(setup.scene, metal(0));
   // floating, so each reflection is separated from its object and shows the object's underside
@@ -226,7 +226,7 @@ function metalHit(): SceneSetup {
   return setup;
 }
 
-function diagnostic(name: string, description: string, create: () => SceneSetup): SceneDefinition {
+function diagnostic(name: string, description: string, create: () => SceneInstance): SceneDefinition {
   return { name, description, width: WIDTH, height: HEIGHT, create: async () => create() };
 }
 

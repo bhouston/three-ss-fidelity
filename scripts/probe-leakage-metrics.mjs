@@ -7,7 +7,7 @@ import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 const requireThree = createRequire(new URL('../packages/renderers/package.json', import.meta.url));
 const { Raycaster, Vector2 } = await import(pathToFileURL(requireThree.resolve('three/webgpu')).href);
-import { getScene, disposeSceneSetup } from '../packages/scenes/dist/index.js';
+import { getScene, disposeSceneInstance } from '../packages/scenes/dist/index.js';
 import { readRgb } from '../packages/cli/dist/compare.js';
 const { values } = parseArgs({ options: { out: { type: 'string', default: '.output/ddgi-quality' } } });
 const report = JSON.parse(await readFile(path.join(values.out, 'report.json'), 'utf8'));
@@ -74,7 +74,7 @@ for (const name of ['gi-probe-thin-wall', 'gi-probe-thick-wall']) {
   metrics.leakageReductionFraction =
     1 - metrics.renderers['ddgi-probes'].meanLinearLuminance / metrics.renderers['sh-probes'].meanLinearLuminance;
   results[name] = metrics;
-  disposeSceneSetup(setup);
+  disposeSceneInstance(setup);
 }
 await writeFile(
   path.join(values.out, 'leakage.json'),

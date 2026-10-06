@@ -44,7 +44,7 @@ import { ssgi } from './ssgi-fast/SSGINode.js';
 import { bilateralUpsample } from './ssgi-fast/bilateralUpsample.js';
 import { newSSR } from './ssr/NewSSRNode.js';
 import { BoxProjectedProbe } from './box-projected.js';
-import type { SceneSetup } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@ss-fidelity/scenes';
 import { ssgiWorkExperiments } from './types.js';
 import type { LiveRenderer, RendererOptions, SSGIWorkExperiment } from './types.js';
 import { VirtualPointLightGI } from './vpl/VirtualPointLightGI.js';
@@ -79,7 +79,7 @@ const SSR_OPTIONS = {
 
 function createPipeline(
   renderer: WebGPURenderer,
-  setup: SceneSetup,
+  setup: SceneInstance,
   ssrDebug: RendererOptions['ssrDebug'],
   hierarchyExperiment: RendererOptions['hierarchyExperiment'],
   ssrTemporalProfile: RendererOptions['ssrTemporalProfile'],
@@ -328,7 +328,7 @@ function createPipeline(
 
 export async function createThreeNewRenderer(
   canvas: HTMLCanvasElement,
-  sceneSetup: SceneSetup,
+  sceneSetup: SceneInstance,
   {
     width,
     height,

@@ -207,8 +207,12 @@ export async function completeRenderer(renderer: unknown): Promise<void> {
     getContext?: () => WebGL2RenderingContext;
   };
   if (gpu.backend?.device) await gpu.backend.device.queue.onSubmittedWorkDone();
-  else if (gpu.getContext) gpu.getContext().finish();
-  else throw new Error('Renderer needs a GPU completion adapter');
+  else if (gpu.getContext) {
+    const context = gpu.getContext();
+    if (context.isContextLost()) throw new Error('WebGL context lost before GPU completion');
+    context.finish();
+    if (context.isContextLost()) throw new Error('WebGL context lost during GPU completion');
+  } else throw new Error('Renderer needs a GPU completion adapter');
 }
 
 export function createRendererProfiler(renderer: unknown): PipelineProfiler {

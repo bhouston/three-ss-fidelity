@@ -42,7 +42,7 @@ import {
 import { ssgi } from 'three-r186/addons/tsl/display/SSGINode.js';
 import { ssr } from 'three-r186/addons/tsl/display/SSRNode.js';
 import { traa } from 'three-r186/addons/tsl/display/TRAANode.js';
-import type { SceneSetup } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@ss-fidelity/scenes';
 import type { LiveRenderer, RendererOptions } from './types.js';
 import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
 
@@ -61,11 +61,11 @@ const forkLights: [AnyNode, AnyNode][] = [
   [LightProbeNode, Fork.LightProbe],
 ];
 
-function createPipeline(renderer: WebGPURenderer, setup: SceneSetup): RenderPipeline {
+function createPipeline(renderer: WebGPURenderer, setup: SceneInstance): RenderPipeline {
   const { scene, camera, effects } = setup as AnyNode as {
     scene: AnyNode;
     camera: AnyNode;
-    effects: SceneSetup['effects'];
+    effects: SceneInstance['effects'];
   };
   const renderPipeline = new RenderPipeline(renderer);
 
@@ -140,7 +140,7 @@ function createPipeline(renderer: WebGPURenderer, setup: SceneSetup): RenderPipe
 
 export async function createCurrentRenderer(
   canvas: HTMLCanvasElement,
-  sceneSetup: SceneSetup,
+  sceneSetup: SceneInstance,
   { width, height, trackTimestamp = false }: RendererOptions,
 ): Promise<LiveRenderer> {
   const setup = sceneSetup;

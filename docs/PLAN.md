@@ -75,7 +75,7 @@ Point-light scenes match plain `bounces = 1` (50 dB, noise). Measured difference
 (cosine-weighted hemisphere rays against the scene BVH; a hit within the radius occludes, occluders are infinitely
 thick), rasterized over the baked scene geometry, 1024 rays per pixel. Settings (`passEffects`):
 
-- Radius: `SceneSetup.aoRadius` in world units (scene scale is scene data): 4 for the Cornell box, 0.25 for the
+- Radius: `SceneInstance.aoRadius` in world units (scene scale is scene data): 4 for the Cornell box, 0.25 for the
   steampunk camera, 120" for higharc. SSGI samples in world space (`useScreenSpaceSampling: false`), `aoIntensity` 1
   (linear visibility), no distance fade; slice/step counts, thickness and resolution scale stay the scene's (the ssgi
   example's 2 slices / 8 steps for the SSR scenes), with temporal denoising and 128 frames.
@@ -92,10 +92,10 @@ Results: 18.0–18.6 dB (Cornell box), 19.4 dB (steampunk camera), 19.0 dB (high
 
 ## Fidelity decisions
 
-Both renderers get the same `SceneSetup` objects (fresh per render); each adapter only translates what the other
+Both renderers get the same `SceneInstance` objects (fresh per render); each adapter only translates what the other
 renderer cannot express. Everything else is the example verbatim.
 
-- **Camera**: the example's initial pose looking at its OrbitControls target (`SceneSetup.target`); aspect from the
+- **Camera**: the example's initial pose looking at its OrbitControls target (`SceneInstance.target`); aspect from the
   scene's `width`/`height` (640×480).
 - **Tone mapping / output**: `effects.toneMapping`/`toneMappingExposure` on both renderers (none for the SSGI scenes,
   ACES for the SSR scenes), sRGB output. The pathtracer's final blit is replaced by one that tone maps and encodes with
@@ -110,10 +110,10 @@ renderer cannot express. Everything else is the example verbatim.
   ceiling around the disc was lit in three-ss and shadowed in the pathtracer.
 - **Background**: a `scene.background` colour never lights the scene in either renderer (the pathtracer only uses it for
   camera rays; with no `scene.environment` its environment intensity is 0, so the open front of the Cornell box is
-  black to bounced rays). The SSR example's TSL `backgroundNode` gradient is data (`SceneSetup.gradientBackground`):
+  black to bounced rays). The SSR example's TSL `backgroundNode` gradient is data (`SceneInstance.gradientBackground`):
   three-ss builds the same TSL node; the pathtracer renders camera-ray misses black with alpha 0 and its blit composites
   the same gradient under the accumulated radiance before tone mapping.
-- **Environment**: the SSR example's `RoomEnvironment` is data (`SceneSetup.environment`). three-ss builds the example's
+- **Environment**: the SSR example's `RoomEnvironment` is data (`SceneInstance.environment`). three-ss builds the example's
   PMREM (`fromScene(room, 0.04)`); the pathtracer renders the same scene into a 256² half-float cube map with a
   `CubeCamera` and converts it to an importance-sampled equirect. Same `scene.environmentIntensity` (1.25). The PMREM's
   0.04 rad pre-blur is not applied on the pathtracer side.
@@ -158,7 +158,7 @@ incremental frame loop, so it's a CLI-only renderer name (`RenderJob.renderer: R
   source, since it only changes when sampling stops, not what a fully sampled pixel's value would be.
 - The scene is exported as glTF (`GLTFExporter`) plus its lighting environment as an equirect EXR
   (`environmentEquirect()` in `packages/renderers/src/pathtracer.ts`, reusing the same cube-camera bake the pathtracer
-  uses for `SceneSetup.environment`, then `CubeToEquirectGenerator`). Blender path traces to a linear EXR, which
+  uses for `SceneInstance.environment`, then `CubeToEquirectGenerator`). Blender path traces to a linear EXR, which
   `packages/cli/src/blender.ts`'s `encodeLinear` composites under the scene's background, ACES-tone-maps and
   sRGB-encodes in Node, bit-matching three.js's own blit (`encodeLinear` is unit tested without a Blender binary;
   actually invoking Blender is not exercised by CI, which has no Blender install).

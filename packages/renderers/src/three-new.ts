@@ -49,6 +49,9 @@ import type { LiveRenderer, RendererOptions, SSGIWorkExperiment } from './types.
 import { VirtualPointLightGI } from './vpl/VirtualPointLightGI.js';
 import { ProgressiveLightBake } from './light-bake/ProgressiveLightBake.js';
 import { bakeProbeGrid } from './probe-grid.js';
+import { createMirrors, findMirrorPlanes } from './mirror/mirrors.js';
+import type { Mirrors } from './mirror/mirrors.js';
+import { MirrorAwareVelocityNode } from './mirror/velocity.js';
 import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
 
 // The fork's TSL nodes are ahead of @types/three; the graph is built exactly as in the examples, so it is typed loosely.
@@ -80,6 +83,7 @@ function createPipeline(
   hierarchyExperiment: RendererOptions['hierarchyExperiment'],
   ssrTemporalProfile: RendererOptions['ssrTemporalProfile'],
   useProbes = false,
+  mirrorVelocity = false,
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const resolutionScale = effects.resolutionScale ?? 1;
@@ -111,7 +115,8 @@ function createPipeline(
   prePass.setMRT(
     mrt({
       output: packNormalToRGB(normalView),
-      velocity,
+      // mirror pixels move like their reflected content, not like the mirror surface
+      velocity: mirrorVelocity ? new MirrorAwareVelocityNode() : velocity,
       // the texture-mapped material properties
       metalRoughness: vec2(metalness, roughness),
       // SSR re-evaluates the specular of its hits for the reflected ray's direction (see NewSSRNode.js)
@@ -317,9 +322,10 @@ export async function createThreeNewRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
   { width, height, trackTimestamp = false, ssrDebug, hierarchyExperiment, ssrTemporalProfile }: RendererOptions,
-  probeMode?: 'light-probe' | 'light-probe-ddgi' | 'light-bake' | 'vpl',
+  probeMode?: 'light-probe' | 'light-probe-ddgi' | 'light-bake' | 'vpl' | 'vpl-mirror' | 'vpl-box-projected',
 ): Promise<LiveRenderer> {
   const useProbes = probeMode !== undefined;
+  const isVpl = probeMode?.startsWith('vpl') ?? false;
   const setup = sceneSetup;
   const { camera, effects } = setup;
   const renderer = new WebGPURenderer({ canvas, antialias: false, trackTimestamp });
@@ -340,18 +346,31 @@ export async function createThreeNewRenderer(
   });
 
   let releaseProbes: (() => void) | undefined;
+  let mirrors: Mirrors | undefined;
   let baker: ProgressiveLightBake | undefined;
   const createSurfaceLighting = () =>
-    probeMode === 'vpl'
-      ? new VirtualPointLightGI(renderer, setup.scene)
+    isVpl
+      ? new VirtualPointLightGI(renderer, setup.scene, {
+          mirrors: probeMode === 'vpl-mirror' ? findMirrorPlanes(setup.scene) : [],
+        })
       : new ProgressiveLightBake(renderer, setup.scene);
   let renderPipeline: RenderPipeline;
   try {
-    if (probeMode === 'light-bake' || probeMode === 'vpl') baker = createSurfaceLighting();
+    if (probeMode === 'light-bake' || isVpl) baker = createSurfaceLighting();
     if (useProbes && !baker && effects.ssgi)
       releaseProbes = await bakeProbeGrid(renderer, setup.scene, probeMode === 'light-probe-ddgi');
-    renderPipeline = createPipeline(renderer, setup, ssrDebug, hierarchyExperiment, ssrTemporalProfile, useProbes);
+    if (probeMode === 'vpl-mirror') mirrors = createMirrors(setup.scene);
+    renderPipeline = createPipeline(
+      renderer,
+      setup,
+      ssrDebug,
+      hierarchyExperiment,
+      ssrTemporalProfile,
+      useProbes,
+      probeMode === 'vpl-mirror',
+    );
   } catch (error) {
+    mirrors?.dispose();
     baker?.dispose();
     releaseProbes?.();
     releaseScene();
@@ -409,8 +428,11 @@ export async function createThreeNewRenderer(
         const signature = bakeSignature();
         if (signature !== bakedSignature) {
           // Conservative invalidation: a blocker can affect distant transport, so rebuild the whole bake.
+          // the baker restores the original materials and geometry, taking the mirror slots with them
+          mirrors?.dispose();
           baker.dispose();
           baker = createSurfaceLighting();
+          if (mirrors) mirrors = createMirrors(setup.scene);
           bakedSignature = bakeSignature();
         }
         if (baker.step()) {
@@ -432,6 +454,7 @@ export async function createThreeNewRenderer(
       // RenderPipeline.dispose() and Renderer.dispose() don't reach the rtt() render targets (see docs/history/SSGI_FAST.md)
       for (const disposable of (renderPipeline as AnyNode).rttDisposables) disposable.dispose();
       renderPipeline.dispose();
+      mirrors?.dispose();
       baker?.dispose();
       releaseProbes?.();
       releaseScene();

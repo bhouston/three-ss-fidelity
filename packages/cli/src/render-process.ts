@@ -54,7 +54,7 @@ async function main(job: RenderJob): Promise<void> {
   const screenSpace = !usesSamples(job.renderer);
   const headless = usesWebGL(job.renderer) ? await import('./headless/webgl.js') : await import('./headless/webgpu.js');
   headless.install();
-  const { createRenderer, hierarchyImageName, completeRenderer, createRendererFrameDriver } =
+  const { createRenderer, hierarchyImageName, completeRenderer, createRendererFrameDriver, disabledScenes } =
     await import('@ss-fidelity/renderers');
   const { getScene, disposeSceneSetup } = await import('@ss-fidelity/scenes');
   const { createNodeSceneContext } = await import('@ss-fidelity/scenes/node');
@@ -63,7 +63,20 @@ async function main(job: RenderJob): Promise<void> {
   const ctx = createNodeSceneContext();
   const outputName = hierarchyImageName(job.renderer, job.hierarchyExperiment);
 
-  for (const name of job.scenes) await render(name);
+  for (const name of job.scenes) {
+    if (job.renderer !== 'blender' && disabledScenes[job.renderer]?.includes(name)) await writeDisabled(name);
+    else await render(name);
+  }
+
+  /** The viewer only shows images, so a deliberately skipped scene gets a "Disabled" placeholder. */
+  async function writeDisabled(name: string): Promise<void> {
+    const { width, height } = getScene(name);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><rect width="100%" height="100%" fill="#222"/><text x="50%" y="50%" fill="#aaa" font-family="sans-serif" font-size="${Math.round(height / 8)}" text-anchor="middle" dominant-baseline="middle">Disabled</text></svg>`;
+    const file = renderPath(name, outputName, job.outDir);
+    await mkdir(path.dirname(file), { recursive: true });
+    await sharp(Buffer.from(svg)).avif(RESULT_AVIF).toFile(file);
+    console.log(`${name} | ${outputName}: disabled -> ${path.relative(process.cwd(), file)}`);
+  }
 
   async function render(name: string): Promise<void> {
     const definition = getScene(name);

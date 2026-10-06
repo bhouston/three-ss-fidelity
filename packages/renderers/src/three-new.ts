@@ -49,6 +49,8 @@ import type { LiveRenderer, RendererOptions, SSGIWorkExperiment } from './types.
 import { VirtualPointLightGI } from './vpl/VirtualPointLightGI.js';
 import { ProgressiveLightBake } from './light-bake/ProgressiveLightBake.js';
 import { bakeProbeGrid } from './probe-grid.js';
+import { createMirrors } from './mirror/mirrors.js';
+import type { Mirrors } from './mirror/mirrors.js';
 import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
 
 // The fork's TSL nodes are ahead of @types/three; the graph is built exactly as in the examples, so it is typed loosely.
@@ -341,6 +343,7 @@ export async function createThreeNewRenderer(
   });
 
   let releaseProbes: (() => void) | undefined;
+  let mirrors: Mirrors | undefined;
   let baker: ProgressiveLightBake | undefined;
   const createSurfaceLighting = () =>
     isVpl ? new VirtualPointLightGI(renderer, setup.scene) : new ProgressiveLightBake(renderer, setup.scene);
@@ -349,8 +352,10 @@ export async function createThreeNewRenderer(
     if (probeMode === 'light-bake' || isVpl) baker = createSurfaceLighting();
     if (useProbes && !baker && effects.ssgi)
       releaseProbes = await bakeProbeGrid(renderer, setup.scene, probeMode === 'light-probe-ddgi');
+    if (probeMode === 'vpl-mirror') mirrors = createMirrors(setup.scene);
     renderPipeline = createPipeline(renderer, setup, ssrDebug, hierarchyExperiment, ssrTemporalProfile, useProbes);
   } catch (error) {
+    mirrors?.dispose();
     baker?.dispose();
     releaseProbes?.();
     releaseScene();
@@ -431,6 +436,7 @@ export async function createThreeNewRenderer(
       // RenderPipeline.dispose() and Renderer.dispose() don't reach the rtt() render targets (see docs/history/SSGI_FAST.md)
       for (const disposable of (renderPipeline as AnyNode).rttDisposables) disposable.dispose();
       renderPipeline.dispose();
+      mirrors?.dispose();
       baker?.dispose();
       releaseProbes?.();
       releaseScene();

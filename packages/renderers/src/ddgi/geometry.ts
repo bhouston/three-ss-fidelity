@@ -150,10 +150,12 @@ export function octBorderTexel(x: number, y: number, size: number): [number, num
   return [x, y];
 }
 
+/** Normalized-distance slack before Chebyshev rejection; texel-footprint depth error on slanted walls otherwise flips weights. Keep in sync with DDGIProbeGrid.js. */
+export const VISIBILITY_BIAS = 0.03;
+
 /** Normalized distance moments: receiver and moments must use the same distance scale. */
 export function momentVisibility(distance: number, mean: number, secondMoment: number) {
-  if (distance <= mean) return 1;
   const variance = Math.max(secondMoment - mean * mean, 1e-6);
-  const delta = distance - mean;
+  const delta = Math.max(distance - mean - VISIBILITY_BIAS, 0);
   return (variance / (variance + delta * delta)) ** 3;
 }

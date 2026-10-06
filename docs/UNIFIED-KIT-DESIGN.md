@@ -140,6 +140,57 @@ Preserve performance-kit's isolation, browser flags, fixed DPR, network/cache po
 
 Preserve stock/fork runtime isolation from the recent Three-Base fix. One adapter may deliberately use another Three.js version; bundling must keep each TSL runtime consistent. Shared scene content does not justify redirecting every import to one global engine copy.
 
+## Fidelity-kit owns render production and the CLI
+
+Move the orchestration currently in ss-fidelity's `cli render` into fidelity-kit itself, rather than requiring each consuming project to keep its own render CLI. Fidelity-kit owns workload selection, fresh browser/process isolation, frame/sample stopping rules, capture, encoding, artifact naming, cancellation, progress, skip-current behavior and result publication. The project owns scene construction, renderer implementations, adapter-specific option validation and asset serving. Native diagnostic tools can remain project-specific; they are not a prerequisite for generating the fidelity suite.
+
+A configuration file plus a **renderer server root URL** is sufficient for browser production. The configuration describes the scene/renderer catalogue, workloads, capture policies and a browser entry point relative to that root. It need not require fidelity-kit to load the project's scene source or know its framework. A TypeScript registry can generate this config, but a project may also author the validated JSON directly; either way there is one authoritative catalogue, not separate renderer lists in the server and CLI.
+
+Illustrative proposed endpoint metadata:
+
+```json
+{
+  "execution": {
+    "browser": {
+      "entry": "./renderer.html",
+      "protocolVersion": 1,
+      "catalogueHash": "<hash-of-generated-catalogue>"
+    },
+    "external": {
+      "blender": { "adapterModule": "./adapters/blender.mjs" }
+    }
+  }
+}
+```
+
+Illustrative proposed commands:
+
+```sh
+# The project starts its existing renderer/asset server.
+pnpm live
+
+# Fidelity-kit supplies both orchestration commands.
+fidelity-kit render --suite suite.json --root-url http://127.0.0.1:5173/ --out results/
+fidelity-kit benchmark --suite suite.json --root-url http://127.0.0.1:5173/ --collection realtime --machine workstation --out results/
+fidelity-kit build results/ --out site/
+```
+
+The root URL is an execution-location override, not part of rendering identity. Resolve the relative entry against a normalized directory URL, preserving hosted subpaths; do not silently replace `/my-project/` with the origin root. The CLI can target an existing development server or a separately started static renderer build. A later convenience option can serve a supplied renderer directory, using the same contract. `build` includes project-supplied renderer bundles/assets for deployed live views; it cannot infer them merely from a reachable development URL.
+
+### The render producer interface and browser transport
+
+Use the browser session interface above behind a small renderer-host helper supplied by `fidelity-kit/browser`. A project registers its adapter once, for example through a proposed `mountRendererHost(adapter)` API. The host selects live interaction, bounded fidelity production or performance measurement from a validated request and invokes the same adapter factory. The ordinary interactive website does not need to implement automation controls itself.
+
+The wire contract carries a run ID, protocol version, catalogue/build identity, resolved workload and execution policy. It reports preparation phases, readiness, progress, structured errors, rendered frame/sample counts and requested output captures with pixel-format metadata. The kit checks catalogue/build identity before accepting output, so a stale server cannot silently run different options from those in the config. Session disposal and cancellation are explicit; successful artifact publication requires completed capture and validated output metadata.
+
+Pass configuration before initialization, as performance-kit currently does with navigation parameters or an injected page bridge. Let the browser host execute the frame loop and stopping policy locally. **Do not make an HTTP request or Puppeteer call for every frame.** In performance mode, preserve buffered reporting and avoid polling/progress traffic during measurement. Fidelity mode can emit throttled progress and transfer captures when the declared frame/sample budget is complete. Large pixel captures may need chunked transfer; the transport should not require embedding raw image data into navigation URLs.
+
+There is no requirement for the project server to expose REST endpoints for scene creation or each render step: it can simply serve the renderer page, compiled adapter and assets. Fidelity-kit launches the browser and communicates with the host through the existing iframe/page bridge model. Capability negotiation can also be served as generated static metadata; it must agree with the authoritative catalogue.
+
+At the CLI boundary, model a render producer with browser and external implementations. Browser production uses the URL/host protocol. An external producer is a configured Node adapter with cancellation/progress hooks that returns declared captures through a native job call. Blender uses the existing adapter under that interface; it is not forced through a browser URL. The runner selects producers from renderer capabilities, allowing one `fidelity-kit render` invocation to generate browser captures and external references. Load external adapter modules only in the Node process, never in the browser bundle.
+
+This removes ss-fidelity's duplicated selection/profile/child-process/capture/encoding orchestration once parity is established. Project-specific renderer options, motion definitions and scene semantics remain inside registered adapters and workload metadata; fidelity-kit coordinates them without accumulating Three.js/SSR-specific branches.
+
 ## Canonical fidelity, machine-specific performance
 
 Store fidelity images/references once per workload, renderer configuration, output and capture-policy revision. A producer may record optional provenance, but **machine is not an axis in fidelity storage or navigation**. Accept the requested cross-machine quality assumption for equivalent software and resolved settings. Retain hashes/revisions and capture policy so that renderer changes or differing camera/resolution are not presented as machine differences.
@@ -217,7 +268,7 @@ Retain query-based scene routes and base-path handling so static subdirectory ho
 
 1. **Use a fidelity-kit submodule without changing behavior.** Add the requested `git@github.com:bhouston/fidelity-kit.git` at `submodules/fidelity-kit`, pin a reviewed commit, include its CLI/viewer workspace packages and replace `fidelity-kit: ^2.3.0` with `workspace:*`. Reconcile the two repositories' pnpm versions, overrides and package-name collisions before linking; update build order, CI submodule checkout and docs. Prove existing fidelity process/build output still works. Keep performance-kit until its functionality is ported.
 2. **Unify identities and configuration in ss-fidelity.** Introduce the suite registry, complete renderer profiles and resolved workloads. Generate compatibility fidelity/performance manifests from it. Derive live choices from capabilities, not performance entries. Test round trips for experiment IDs and disabled combinations. Existing images and performance results remain in place.
-3. **Unify browser execution.** Generalize the shared session and add browser fidelity capture. Validate a stock renderer, an experimental configuration and the browser path tracer against current capture baselines, with lossless pixels and explicit frame/sample rules. Assert visible scene pixels and shader failures, not only readiness/FPS. Keep Node diagnostics and Blender outside the browser bundle.
+3. **Unify browser execution.** Generalize the shared session, register it with the kit renderer host, and add `fidelity-kit render` driven by config plus a root URL. Validate a stock renderer, an experimental configuration and the browser path tracer against current capture baselines, with lossless pixels and explicit frame/sample rules. Assert visible scene pixels and shader failures, not only readiness/FPS. Keep Node diagnostics and Blender outside the browser bundle; expose Blender as an external render producer to the same CLI.
 4. **Bring performance machinery into fidelity-kit.** Port schema/derivation, reporter/protocol, runner/isolation, downloads, machine storage and optional convergence, preserving timing semantics. Package browser exports independently of Node dependencies. Add adapters for current schema-v3 metrics/schema-v2 indexes and legacy fidelity folders. Run current kit and merged runner side by side on the same host/policies.
 5. **Ship one site and build.** Join existing artifacts under one index, port charts into the fidelity viewer, package live modules/assets, and update deployment to one build. Verify a scene with fidelity-only data, a sparse multi-machine benchmark, multiple references and a browser live session. Static hosting must work with no local renderer service installed.
 6. **Remove duplication.** Change project commands/imports to fidelity-kit, delete hand-maintained duplicate manifests, retire performance-kit submodule and transitional wrappers once its consumers migrate. Consolidate diagnostic features or retain them as an explicitly separate development host using the same session/configuration.
@@ -230,6 +281,8 @@ The smallest useful milestone is **submodule development + shared registry + gen
 
 Acceptance criteria for the overall migration:
 
+- A project exposing only a validated config, renderer page and assets can produce browser fidelity captures using `fidelity-kit render --root-url`, without a project-specific render CLI.
+- A stale catalogue/server mismatch fails before publishing artifacts, and render loops require no per-frame cross-process commands.
 - One complete renderer configuration resolves identically in live, browser fidelity and performance hosts; only declared execution policy differs.
 - Adding a scene/renderer makes it eligible for supported live/fidelity modes without automatically adding a benchmark entry.
 - Canonical fidelity is shared across two machines, while performance runs retain independent machine/run records.

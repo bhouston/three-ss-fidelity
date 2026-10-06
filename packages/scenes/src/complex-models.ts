@@ -1,6 +1,7 @@
 import {
   ACESFilmicToneMapping,
   Box3,
+  BufferGeometry,
   CircleGeometry,
   DirectionalLight,
   EquirectangularReflectionMapping,
@@ -27,6 +28,12 @@ const windowSun: Record<string, { direction: [number, number, number]; portals?:
   'contemporary-bathroom': { direction: [-1, 0.7, 0.2], portals: ['Light_0001'] },
   'country-kitchen': { direction: [0.3, 0.7, -1], portals: ['mesh_295'] },
   'grey-and-white-room': { direction: [-1, 0.6, 0.2] },
+};
+// The bathroom's source asset ships window casing pieces inside out (winding and normals face away from the room)
+// and nested inside larger casing. Rays leaving them hit back faces of the enclosing piece and the baked lightmap
+// is black; flip them so they face the room. See PR #193 findings.
+export const invertedMeshes: Record<string, string[]> = {
+  'contemporary-bathroom': ['WhiteWood_0001', 'WhiteWood_0002'],
 };
 const models = [
   {
@@ -68,6 +75,35 @@ const models = [
   },
 ];
 
+/** Swap two indices per triangle and negate normals so the mesh faces the opposite way. */
+export function flipWinding(geometry: BufferGeometry): void {
+  const index = geometry.index;
+  if (index) {
+    for (let i = 0; i < index.count; i += 3) {
+      const b = index.getX(i + 1);
+      index.setX(i + 1, index.getX(i + 2));
+      index.setX(i + 2, b);
+    }
+    index.needsUpdate = true;
+  } else {
+    // Non-indexed: swap the vertices of every attribute.
+    for (const attribute of Object.values(geometry.attributes)) {
+      for (let i = 0; i < attribute.count; i += 3)
+        for (let k = 0; k < attribute.itemSize; k++) {
+          const b = attribute.array[(i + 1) * attribute.itemSize + k]!;
+          attribute.array[(i + 1) * attribute.itemSize + k] = attribute.array[(i + 2) * attribute.itemSize + k]!;
+          attribute.array[(i + 2) * attribute.itemSize + k] = b;
+        }
+      attribute.needsUpdate = true;
+    }
+  }
+  const normal = geometry.getAttribute('normal');
+  if (normal) {
+    for (let i = 0; i < normal.count; i++) normal.setXYZ(i, -normal.getX(i), -normal.getY(i), -normal.getZ(i));
+    normal.needsUpdate = true;
+  }
+}
+
 async function createModel(
   entry: (typeof models)[number],
   ctx: SceneContext,
@@ -95,6 +131,7 @@ async function createModel(
       // Daylight and the sun replace the source area emitters covering window openings.
       if (windowSun[entry.file]?.portals?.includes(child.name)) child.visible = false;
       child.receiveShadow = true;
+      if (invertedMeshes[entry.file]?.includes(child.name)) flipWinding(mesh.geometry);
     }
   });
   scene.add(model);

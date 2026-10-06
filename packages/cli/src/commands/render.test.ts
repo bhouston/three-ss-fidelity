@@ -49,6 +49,7 @@ async function render(...args: string[]): Promise<void> {
     .exitProcess(false)
     .parseAsync([
       'render',
+      '--native',
       ...(args.includes('--scenes') ? [] : ['--scenes', scenes[0]!]),
       ...(args.includes('--renderers') ? [] : ['--renderers', 'three-new-baseline']),
       '--output',
@@ -144,7 +145,7 @@ test('default missing-only includes every full renderer name and skips existing 
   await yargs()
     .command(command)
     .exitProcess(false)
-    .parseAsync(['render', '--missing-only', '--scenes', scenes[0]!, '--output', output]);
+    .parseAsync(['render', '--native', '--missing-only', '--scenes', scenes[0]!, '--output', output]);
   expect(jobs.map((job) => [job.renderer, job.hierarchyExperiment])).toEqual([
     ['three-new', 'ssr-radiance-mips'],
     ['three-new', 'ssgi-radiance-mips'],

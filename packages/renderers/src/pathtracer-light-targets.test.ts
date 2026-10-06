@@ -3,7 +3,7 @@ import { DirectionalLight, Group, Scene, SpotLight, Vector3 } from 'three';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
 import { getScene } from '@ss-fidelity/scenes';
 import { createNodeSceneContext } from '@ss-fidelity/scenes/node';
-import type { SceneSetup } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@ss-fidelity/scenes';
 import { cloneScene } from 'fidelity-kit-three-gpu-pathtracer';
 
 function direction(light: DirectionalLight | SpotLight): Vector3 {
@@ -47,7 +47,7 @@ it.each([DirectionalLight, SpotLight])('resolves parented targets for %s', (Ligh
     .applyAxisAngle(new Vector3(0, 1, 0), parent.rotation.y)
     .add(parent.position);
   const expected = light.position.clone().sub(expectedTarget).normalize();
-  const setup = { scene, effects: {} } as SceneSetup;
+  const setup = { scene, effects: {} } as SceneInstance;
   const after = cloneScene(setup.scene);
   expect(
     direction(after.getObjectByName(light.name) as DirectionalLight | SpotLight).distanceTo(expected),

@@ -7,11 +7,11 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {
   createBrowserSceneContext,
   createOrbitWorkload,
-  disposeSceneSetup,
+  disposeSceneInstance,
   getScene,
   listSceneNames,
 } from '@ss-fidelity/scenes';
-import type { SceneSetup } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@ss-fidelity/scenes';
 import {
   completeRenderer,
   createRenderer,
@@ -126,7 +126,7 @@ let active:
   | {
       session: RenderSession;
       live: LiveRenderer;
-      setup: SceneSetup;
+      setup: SceneInstance;
       canvas: HTMLCanvasElement;
       advance(frame: FrameContext): void;
     }
@@ -298,7 +298,7 @@ async function session(
   const originalRandom = Math.random;
   const random = seededRandom(config.seed);
   Math.random = random;
-  let setup: SceneSetup | undefined;
+  let setup: SceneInstance | undefined;
   let live: LiveRenderer | undefined;
   try {
     setup = startup
@@ -348,14 +348,14 @@ async function session(
         try {
           renderer.dispose();
         } finally {
-          disposeSceneSetup(sceneSetup);
+          disposeSceneInstance(sceneSetup);
         }
       },
     };
     return { session: result, live: renderer, setup: sceneSetup, canvas, advance };
   } catch (error) {
     live?.dispose();
-    if (setup) disposeSceneSetup(setup);
+    if (setup) disposeSceneInstance(setup);
     throw error;
   } finally {
     Math.random = originalRandom;

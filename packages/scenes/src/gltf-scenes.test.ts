@@ -1,6 +1,6 @@
 import { DataTexture, FloatType, RGBAFormat, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
-import { extractLights } from './gltf-examples.js';
+import { extractLights } from './gltf-scenes.js';
 
 const WIDTH = 64;
 const HEIGHT = 32;

@@ -1,16 +1,10 @@
-import suite from '../../../performance-suite.json';
-
-/** Use the benchmark's renderer identities and experiment settings in the live picker. */
-export const liveRendererPresets = [
-  ...new Map(
-    suite.entries.map((entry) => [
-      entry.renderer.id,
-      {
-        id: entry.renderer.id,
-        name: entry.renderer.name,
-        renderer: entry.params.renderer,
-        experiment: 'experiment' in entry.params ? entry.params.experiment : 'baseline',
-      },
-    ]),
-  ).values(),
-];
+import suite from '../../../registry.json';
+/** One renderer catalogue for fidelity, performance and live. */
+export const liveRendererPresets = suite.renderers
+  .filter((item) => !('kind' in item && item.kind === 'external'))
+  .map((item) => ({
+    id: item.id,
+    name: item.name,
+    renderer: item.params.renderer,
+    experiment: 'experiment' in item.params ? item.params.experiment : 'baseline',
+  }));

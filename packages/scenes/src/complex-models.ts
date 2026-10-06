@@ -11,9 +11,9 @@ import {
   Scene,
   Vector3,
 } from 'three';
-import { extractLights } from './gltf-examples.js';
+import { extractLights } from './gltf-scenes.js';
 import { makeMaterialsWhite } from './white-materials.js';
-import type { SceneContext, SceneDefinition, SceneSetup } from './types.js';
+import type { SceneContext, SceneDefinition, SceneInstance } from './types.js';
 
 const WIDTH = 640;
 const HEIGHT = 480;
@@ -109,7 +109,7 @@ async function createModel(
   ctx: SceneContext,
   white = false,
   normalBiasFactor = 0.001,
-): Promise<SceneSetup> {
+): Promise<SceneInstance> {
   const scene = new Scene();
   const gltf = await ctx.loadGLTF(`suite-assets/complex-scenes/${entry.file}.glb`);
   const model = gltf.scene;

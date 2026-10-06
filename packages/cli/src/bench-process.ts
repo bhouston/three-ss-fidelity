@@ -24,7 +24,7 @@ async function main(job: BenchJob): Promise<void> {
       : await import('./headless/webgpu.js');
   headless.install();
   const { createRenderer, completeRenderer, createRendererFrameDriver } = await import('@ss-fidelity/renderers');
-  const { getScene, disposeSceneSetup, createOrbitWorkload } = await import('@ss-fidelity/scenes');
+  const { getScene, disposeSceneInstance, createOrbitWorkload } = await import('@ss-fidelity/scenes');
   const { createNodeSceneContext } = await import('@ss-fidelity/scenes/node');
   const ctx = createNodeSceneContext();
   let settings: unknown;
@@ -46,7 +46,7 @@ async function main(job: BenchJob): Promise<void> {
             hierarchyExperiment: job.hierarchyExperiment,
           });
         } catch (error) {
-          disposeSceneSetup(setup);
+          disposeSceneInstance(setup);
           throw error;
         }
         const renderer = live;
@@ -72,7 +72,7 @@ async function main(job: BenchJob): Promise<void> {
             try {
               renderer.dispose();
             } finally {
-              disposeSceneSetup(setup);
+              disposeSceneInstance(setup);
             }
           },
         };

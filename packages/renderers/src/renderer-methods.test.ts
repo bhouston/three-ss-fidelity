@@ -1,5 +1,5 @@
 import { beforeEach, expect, it, vi } from 'vitest';
-import type { SceneSetup } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@ss-fidelity/scenes';
 import { createRenderer } from './index.js';
 import { createThreeNewRenderer } from './three-new.js';
 import { createCurrentRenderer } from './three-current.js';
@@ -13,7 +13,7 @@ vi.mock('fidelity-kit-three-gpu-pathtracer', () => ({ createRenderer: vi.fn(), d
 beforeEach(() => vi.clearAllMocks());
 
 it('dispatches each renderer name to its own pipeline without changing the scene setup', () => {
-  const setup = { effects: { ssgi: { sliceCount: 8, stepCount: 32, radius: 32, thickness: 4 } } } as SceneSetup;
+  const setup = { effects: { ssgi: { sliceCount: 8, stepCount: 32, radius: 32, thickness: 4 } } } as SceneInstance;
   const before = structuredClone(setup);
   const canvas = {} as HTMLCanvasElement;
   const options = { width: 640, height: 480 };
@@ -28,7 +28,7 @@ it('dispatches each renderer name to its own pipeline without changing the scene
 
 it('rejects the retired WebGPU path tracer before initializing a GPU', () => {
   expect(() =>
-    createRenderer('three-gpu-pathtracer-webgpu' as RendererName, {} as HTMLCanvasElement, {} as SceneSetup, {
+    createRenderer('three-gpu-pathtracer-webgpu' as RendererName, {} as HTMLCanvasElement, {} as SceneInstance, {
       width: 1,
       height: 1,
     }),
@@ -39,7 +39,7 @@ it('rejects the retired WebGPU path tracer before initializing a GPU', () => {
 
 it('rejects unknown renderer names rather than silently choosing a method', () => {
   expect(() =>
-    createRenderer('unknown' as RendererName, {} as HTMLCanvasElement, {} as SceneSetup, {
+    createRenderer('unknown' as RendererName, {} as HTMLCanvasElement, {} as SceneInstance, {
       width: 1,
       height: 1,
     }),
@@ -50,17 +50,17 @@ it('rejects unknown renderer names rather than silently choosing a method', () =
 
 it('rejects experiments on other renderers before initializing a GPU', () => {
   const options = { width: 640, height: 480, hierarchyExperiment: 'ssr-hiz-tight' as const };
-  expect(() => createRenderer('three-current', {} as HTMLCanvasElement, {} as SceneSetup, options)).toThrow(
+  expect(() => createRenderer('three-current', {} as HTMLCanvasElement, {} as SceneInstance, options)).toThrow(
     'require the three-new',
   );
   expect(createCurrentRenderer).not.toHaveBeenCalled();
-  createRenderer('three-new', {} as HTMLCanvasElement, {} as SceneSetup, options);
+  createRenderer('three-new', {} as HTMLCanvasElement, {} as SceneInstance, options);
   expect(createThreeNewRenderer).toHaveBeenCalledWith({}, {}, options);
 });
 
 it('rejects misspelled experiment names instead of quietly benchmarking the baseline', () => {
   expect(() =>
-    createRenderer('three-new', {} as HTMLCanvasElement, {} as SceneSetup, {
+    createRenderer('three-new', {} as HTMLCanvasElement, {} as SceneInstance, {
       width: 640,
       height: 480,
       hierarchyExperiment: 'ssr-hzi-tight' as HierarchyExperiment,
@@ -82,7 +82,7 @@ it('uses suite-compatible experiment image identifiers while preserving baseline
 // A misspelled or unsupported experiment must not silently produce baseline measurements.
 it('rejects SSR temporal profiles on other renderers before initializing a GPU', () => {
   expect(() =>
-    createRenderer('three-current', {} as HTMLCanvasElement, {} as SceneSetup, {
+    createRenderer('three-current', {} as HTMLCanvasElement, {} as SceneInstance, {
       width: 1,
       height: 1,
       ssrTemporalProfile: 'validated',
@@ -92,7 +92,7 @@ it('rejects SSR temporal profiles on other renderers before initializing a GPU',
 });
 it('rejects unknown SSR temporal profiles before initializing a GPU', () => {
   expect(() =>
-    createRenderer('three-new', {} as HTMLCanvasElement, {} as SceneSetup, {
+    createRenderer('three-new', {} as HTMLCanvasElement, {} as SceneInstance, {
       width: 1,
       height: 1,
       ssrTemporalProfile: 'validtaed' as import('./types.js').SSRTemporalProfile,
@@ -102,35 +102,35 @@ it('rejects unknown SSR temporal profiles before initializing a GPU', () => {
 });
 
 it('dispatches the basic probe renderer as a separately named pipeline', () => {
-  const setup = { effects: {} } as SceneSetup;
+  const setup = { effects: {} } as SceneInstance;
   const options = { width: 640, height: 480 };
   createRenderer('three-new-light-probe', {} as HTMLCanvasElement, setup, options);
   expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'light-probe');
 });
 
 it('dispatches the DDGI extension without changing the basic probe mode', () => {
-  const setup = { effects: {} } as SceneSetup;
+  const setup = { effects: {} } as SceneInstance;
   const options = { width: 640, height: 480 };
   createRenderer('three-new-light-probe-ddgi', {} as HTMLCanvasElement, setup, options);
   expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'light-probe-ddgi');
 });
 
 it('dispatches progressive surface baking independently of probe lighting', () => {
-  const setup = { effects: {} } as SceneSetup;
+  const setup = { effects: {} } as SceneInstance;
   const options = { width: 640, height: 480 };
   createRenderer('three-new-light-bake', {} as HTMLCanvasElement, setup, options);
   expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'light-bake');
 });
 
 it('dispatches surface VPL transport independently of baking and probes', () => {
-  const setup = { effects: {} } as SceneSetup;
+  const setup = { effects: {} } as SceneInstance;
   const options = { width: 640, height: 480 };
   createRenderer('three-new-vpl', {} as HTMLCanvasElement, setup, options);
   expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'vpl');
 });
 
 it('dispatches the VPL mirror and box-projected variants', () => {
-  const setup = { effects: {} } as SceneSetup;
+  const setup = { effects: {} } as SceneInstance;
   const options = { width: 640, height: 480 };
   createRenderer('three-new-vpl-mirror', {} as HTMLCanvasElement, setup, options);
   expect(createThreeNewRenderer).toHaveBeenLastCalledWith({}, setup, options, 'vpl-mirror');

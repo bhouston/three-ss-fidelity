@@ -180,7 +180,7 @@ console.log(
 // Exercise invalidation through the public renderer, including TRAA integration.
 const { createRenderer, completeRenderer, createRendererFrameDriver } =
   await import('../packages/renderers/dist/index.js');
-const { getScene, disposeSceneSetup } = await import('../packages/scenes/dist/index.js');
+const { getScene, disposeSceneInstance } = await import('../packages/scenes/dist/index.js');
 const { createNodeSceneContext } = await import('../packages/scenes/dist/node.js');
 const setup = await getScene('gi-room-low-albedo').create(createNodeSceneContext());
 const live = await createRenderer('three-new-vpl', headless.createCanvas(32, 32), setup, {
@@ -210,6 +210,6 @@ await frame(129);
 assert.equal(live.lightBake.phase, 'accumulating', 'Lighting changes must restart the bake');
 assert.equal(live.lightBake.samples, 16);
 live.dispose();
-disposeSceneSetup(setup);
+disposeSceneInstance(setup);
 console.log(JSON.stringify({ cameraPreservesBake: true, lightChangeInvalidatesBake: true }));
 process.exit(0);

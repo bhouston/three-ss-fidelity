@@ -19,7 +19,7 @@ import {
   Vector3,
 } from 'three';
 import type { Object3D } from 'three';
-import type { SceneContext, SceneDefinition, SceneEffects, SceneSetup } from './types.js';
+import type { SceneContext, SceneDefinition, SceneEffects, SceneInstance } from './types.js';
 
 const WIDTH = 640;
 const HEIGHT = 480;
@@ -51,7 +51,7 @@ function shadowed<T extends Object3D>(object: T): T {
   return object;
 }
 
-async function createCornellBox(setup: Setup, ctx: SceneContext): Promise<SceneSetup> {
+async function createCornellBox(setup: Setup, ctx: SceneContext): Promise<SceneInstance> {
   const camera = new PerspectiveCamera(40, WIDTH / HEIGHT, 0.1, 100);
   camera.position.set(0, 10, 30);
   const target = new Vector3(0, 7, 0); // OrbitControls target of the example

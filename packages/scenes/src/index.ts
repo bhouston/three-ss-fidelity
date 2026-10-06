@@ -2,7 +2,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
-import { gltfExampleScenes } from './gltf-examples.js';
+import { gltfScenes } from './gltf-scenes.js';
 import { complexModelScenes } from './complex-models.js';
 import { higharcScenes } from './higharc.js';
 import { RGBAKTX2Loader } from './ktx2.js';
@@ -25,7 +25,7 @@ const scenes = new Map<string, SceneDefinition>(
     ...mirrorSunScenes,
     ...ssrScenes,
     ...higharcScenes,
-    ...gltfExampleScenes,
+    ...gltfScenes,
     ...complexModelScenes,
     ...giDiagnosticScenes,
     ...visibleWallScenes,

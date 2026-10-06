@@ -1,0 +1,1427 @@
+{
+  "schemaVersion": 1,
+  "title": "three-ss-fidelity",
+  "home": {
+    "hero": {
+      "scene": "cornell-box-basic",
+      "renderer": "three-gpu-pathtracer",
+      "output": "beauty"
+    }
+  },
+  "renderServer": {
+    "developmentUrl": "http://127.0.0.1:5173/",
+    "deployedUrl": "https://bhouston.github.io/three-ss-fidelity/render/",
+    "entry": "performance.html"
+  },
+  "renderers": [
+    {
+      "id": "three-gpu-pathtracer",
+      "name": "pathtracer",
+      "reference": true,
+      "enabled": true,
+      "params": {
+        "renderer": "three-gpu-pathtracer",
+        "samples": 4096
+      }
+    },
+    {
+      "id": "blender",
+      "name": "Blender Cycles",
+      "reference": true,
+      "enabled": true,
+      "params": {
+        "renderer": "blender",
+        "samples": 4096
+      },
+      "kind": "external",
+      "command": ["node", "packages/cli/dist/render-process.js", "{job}"]
+    },
+    {
+      "id": "three-current",
+      "name": "Three Base",
+      "reference": false,
+      "enabled": true,
+      "params": {
+        "renderer": "three-current"
+      }
+    },
+    {
+      "id": "three-new",
+      "name": "SSGI + SSR",
+      "reference": false,
+      "enabled": false,
+      "params": {
+        "renderer": "three-new"
+      }
+    },
+    {
+      "id": "three-new-ssr-hiz-tight",
+      "name": "Tight Hi-Z SSR",
+      "reference": false,
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssr-hiz-tight"
+      },
+      "legacyIds": ["three-new--ssr-hiz-tight"]
+    },
+    {
+      "id": "three-new-ssr-radiance-mips",
+      "name": "SSR Radiance Mips",
+      "reference": false,
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssr-radiance-mips"
+      },
+      "legacyIds": ["three-new--ssr-radiance-mips"]
+    },
+    {
+      "id": "three-new-ssgi-radiance-mips",
+      "name": "GI Radiance Mips",
+      "reference": false,
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-radiance-mips"
+      },
+      "legacyIds": ["three-new--ssgi-radiance-mips"]
+    },
+    {
+      "id": "three-new-hierarchy-combined",
+      "name": "Combined Hierarchy",
+      "reference": false,
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "hierarchy-combined"
+      },
+      "legacyIds": ["three-new--hierarchy-combined"]
+    },
+    {
+      "id": "three-new-ssr-temporal-validated",
+      "name": "Validated SSR History",
+      "reference": false,
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssr-temporal-validated"
+      },
+      "legacyIds": ["three-new--ssr-temporal-validated"]
+    },
+    {
+      "id": "three-new-ssr-temporal-gaussian",
+      "name": "Gaussian SSR Clipping",
+      "reference": false,
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssr-temporal-gaussian"
+      },
+      "legacyIds": ["three-new--ssr-temporal-gaussian"]
+    },
+    {
+      "id": "three-new-ssgi-half",
+      "name": "Half-Resolution SSGI",
+      "reference": false,
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-half"
+      },
+      "legacyIds": ["three-new--ssgi-half"]
+    },
+    {
+      "id": "three-new-ssgi-third",
+      "name": "Third-Resolution SSGI",
+      "reference": false,
+      "enabled": true,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-third"
+      },
+      "legacyIds": ["three-new--ssgi-third"]
+    },
+    {
+      "id": "three-new-light-probe",
+      "name": "SH Light Probes",
+      "reference": false,
+      "enabled": false,
+      "params": {
+        "renderer": "three-new-light-probe"
+      }
+    },
+    {
+      "id": "three-new-light-probe-ddgi",
+      "name": "DDGI Light Probes",
+      "reference": false,
+      "enabled": true,
+      "params": {
+        "renderer": "three-new-light-probe-ddgi"
+      }
+    },
+    {
+      "id": "three-new-light-bake",
+      "name": "Progressive BVH Lightmaps",
+      "reference": false,
+      "enabled": true,
+      "params": {
+        "renderer": "three-new-light-bake"
+      }
+    },
+    {
+      "id": "three-new-vpl",
+      "name": "Virtual Point Lights (RIS)",
+      "reference": false,
+      "enabled": true,
+      "params": {
+        "renderer": "three-new-vpl"
+      }
+    },
+    {
+      "id": "three-new-vpl-mirror",
+      "name": "VPL Mirror",
+      "reference": false,
+      "enabled": true,
+      "params": {
+        "renderer": "three-new-vpl-mirror"
+      }
+    },
+    {
+      "id": "three-new-vpl-box-projected",
+      "name": "VPL Box Projected",
+      "reference": false,
+      "enabled": true,
+      "params": {
+        "renderer": "three-new-vpl-box-projected"
+      }
+    },
+    {
+      "id": "three-new-ssgi-early-exit",
+      "name": "ssgi-early-exit",
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-early-exit"
+      },
+      "legacyIds": ["three-new--ssgi-early-exit"]
+    },
+    {
+      "id": "three-new-ssgi-reuse-texels",
+      "name": "ssgi-reuse-texels",
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-reuse-texels"
+      },
+      "legacyIds": ["three-new--ssgi-reuse-texels"]
+    },
+    {
+      "id": "three-new-ssgi-redundant-work",
+      "name": "ssgi-redundant-work",
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-redundant-work"
+      },
+      "legacyIds": ["three-new--ssgi-redundant-work"]
+    },
+    {
+      "id": "three-new-ssgi-4x32",
+      "name": "ssgi-4x32",
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-4x32"
+      },
+      "legacyIds": ["three-new--ssgi-4x32"]
+    },
+    {
+      "id": "three-new-ssgi-8x16",
+      "name": "ssgi-8x16",
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-8x16"
+      },
+      "legacyIds": ["three-new--ssgi-8x16"]
+    },
+    {
+      "id": "three-new-ssgi-4x16",
+      "name": "ssgi-4x16",
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-4x16"
+      },
+      "legacyIds": ["three-new--ssgi-4x16"]
+    },
+    {
+      "id": "three-new-ssgi-2x16",
+      "name": "ssgi-2x16",
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-2x16"
+      },
+      "legacyIds": ["three-new--ssgi-2x16"]
+    },
+    {
+      "id": "three-new-ssgi-2x8",
+      "name": "ssgi-2x8",
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-2x8"
+      },
+      "legacyIds": ["three-new--ssgi-2x8"]
+    },
+    {
+      "id": "three-new-ssgi-6x32",
+      "name": "ssgi-6x32",
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-6x32"
+      },
+      "legacyIds": ["three-new--ssgi-6x32"]
+    },
+    {
+      "id": "three-new-ssgi-8x24",
+      "name": "ssgi-8x24",
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-8x24"
+      },
+      "legacyIds": ["three-new--ssgi-8x24"]
+    },
+    {
+      "id": "three-new-ssgi-6x24",
+      "name": "ssgi-6x24",
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-6x24"
+      },
+      "legacyIds": ["three-new--ssgi-6x24"]
+    },
+    {
+      "id": "three-new-ssgi-7x32",
+      "name": "ssgi-7x32",
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-7x32"
+      },
+      "legacyIds": ["three-new--ssgi-7x32"]
+    },
+    {
+      "id": "three-new-ssgi-8x28",
+      "name": "ssgi-8x28",
+      "enabled": false,
+      "params": {
+        "renderer": "three-new",
+        "experiment": "ssgi-8x28"
+      },
+      "legacyIds": ["three-new--ssgi-8x28"]
+    }
+  ],
+  "scenes": [
+    {
+      "id": "cornell-box-basic",
+      "name": "Cornell box \u00b7 two boxes",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "steampunk-camera",
+      "name": "Steampunk camera \u00b7 authored roughness",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "cornell-box-metallic",
+      "name": "Cornell box \u00b7 metallic sphere",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "cornell-box-rounded",
+      "name": "Cornell box with a cone and a sphere.",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "cornell-box-animated",
+      "name": "Cornell box with Michelle.glb frozen at t=1s.",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "cornell-box-mirror",
+      "name": "Cornell box with a tall and a short box and a planar mirror for the back wall.",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "cornell-box-basic-oblique",
+      "name": "Cornell Box Basic Oblique",
+      "params": {},
+      "fidelity": {
+        "width": 960,
+        "height": 540,
+        "frames": 64
+      }
+    },
+    {
+      "id": "mirror-sun-room",
+      "name": "Mirror Sun Room",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "higharc_dogwood",
+      "name": "Higharc Dogwood",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gltf-damaged-helmet",
+      "name": "Gltf Damaged Helmet",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gltf-coffeemat",
+      "name": "Gltf Coffeemat",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gltf-littlest-tokyo",
+      "name": "Gltf Littlest Tokyo",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "khronos-transmission-test",
+      "name": "Khronos transmission, roughness and thickness reference grid.",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-bedroom",
+      "name": "Bitterli bedroom interior with glass and indirect illumination.",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-bedroom-w",
+      "name": "Model Bedroom W",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-breakfast-room",
+      "name": "Bitterli breakfast room with detailed furniture and daylight.",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-breakfast-room-w",
+      "name": "Model Breakfast Room W",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-coffee-maker",
+      "name": "Bitterli coffee maker with transmissive glass.",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-contemporary-bathroom",
+      "name": "Bitterli contemporary bathroom with glass and reflective fixtures.",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-contemporary-bathroom-w",
+      "name": "Model Contemporary Bathroom W",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-country-kitchen",
+      "name": "Bitterli country kitchen with detailed furniture and materials.",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-country-kitchen-w",
+      "name": "Model Country Kitchen W",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-grey-and-white-room",
+      "name": "Bitterli grey and white room with reflective and transmissive surfaces.",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-grey-and-white-room-w",
+      "name": "Model Grey And White Room W",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-headphone-with-stand",
+      "name": "Headphone and stand with curved surfaces and glossy materials.",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-headphone-with-stand-w",
+      "name": "Model Headphone With Stand W",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "model-breakfast-room-no-normal-bias",
+      "name": "Breakfast room with zero shadow normal bias to isolate blind shadow displacement.",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gi-probe-thin-wall",
+      "name": "Gi Probe Thin Wall",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gi-probe-thick-wall",
+      "name": "Same sealed probe-leakage control with a 0.6-unit solid partition.",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gi-hierarchy-discontinuity",
+      "name": "Gi Hierarchy Discontinuity",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gi-emitter-corner",
+      "name": "Single-bounce control: gray floor lit only by a visible black-albedo emissive wall.",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gi-emitter-corner-dense",
+      "name": "Same single-bounce corner, with 8 slices / 32 steps instead of 2 / 8.",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gi-emitter-corner-thick",
+      "name": "Same single-bounce corner, with thickness 4 instead of 1.",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gi-emitter-enclosure-wide",
+      "name": "Gray floor surrounded by five equal-radiance emitting walls; wide view sees some emitters.",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gi-emitter-enclosure-crop",
+      "name": "Gi Emitter Enclosure Crop",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gi-room-low-albedo",
+      "name": "Gi Room Low Albedo",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gi-room-high-albedo",
+      "name": "Same closed room with linear albedo 0.8; strong higher-bounce contribution.",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gi-room-open-low-albedo",
+      "name": "Albedo 0.2 room with the off-screen front wall and ceiling physically removed.",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "gi-room-open-high-albedo",
+      "name": "Albedo 0.8 room with the off-screen front wall and ceiling physically removed.",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "cornell-box-animated-visible-walls",
+      "name": "Cornell Box Animated Visible Walls",
+      "params": {},
+      "fidelity": {
+        "width": 640,
+        "height": 480,
+        "frames": 64
+      }
+    },
+    {
+      "id": "diag-odd-size",
+      "name": "Thin emissive pole and overlapping objects at 481x361: odd-sized Hi-Z edge coverage.",
+      "params": {},
+      "fidelity": {
+        "width": 481,
+        "height": 361,
+        "frames": 64
+      }
+    },
+    {
+      "id": "diag-mirror",
+      "name": "Diag Mirror",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "diag-rough-10",
+      "name": "Same mirror layout with floor roughness 0.1.",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "diag-rough-30",
+      "name": "Same mirror layout with floor roughness 0.3.",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "diag-rough-60",
+      "name": "Same mirror layout with floor roughness 0.6.",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "diag-dielectric-0",
+      "name": "Diag Dielectric 0",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "diag-dielectric-30",
+      "name": "Diag Dielectric 30",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "diag-grazing",
+      "name": "Mirror floor viewed at a low ~8\u00b0 grazing angle: stretching, Fresnel, depth precision.",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "diag-offscreen",
+      "name": "Diag Offscreen",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "diag-occlusion",
+      "name": "Diag Occlusion",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "diag-wall",
+      "name": "Vertical metal mirror wall (roughness 0.05) reflecting emitters, over a matte black floor.",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "diag-sphere",
+      "name": "Diag Sphere",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "diag-metal-hit",
+      "name": "Diag Metal Hit",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "traa-checker",
+      "name": "Traa Checker",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    },
+    {
+      "id": "traa-disocclusion",
+      "name": "Traa Disocclusion",
+      "params": {},
+      "fidelity": {
+        "width": 480,
+        "height": 360,
+        "frames": 64
+      }
+    }
+  ],
+  "performance": {
+    "default": {
+      "defaults": {
+        "initTimeoutMs": 60000,
+        "capture": true,
+        "vsync": "off",
+        "networkProfile": "unthrottled"
+      },
+      "entries": [
+        {
+          "renderer": "three-current",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-light-bake",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-vpl",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-light-probe",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-light-probe-ddgi",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssr-hiz-tight",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssr-radiance-mips",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-radiance-mips",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-hierarchy-combined",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-half",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-third",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssr-temporal-validated",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssr-temporal-gaussian",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-early-exit",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-reuse-texels",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-redundant-work",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-4x32",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-8x16",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-4x16",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-2x16",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-2x8",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-6x32",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-8x24",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-6x24",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-7x32",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-8x28",
+          "scene": "cornell-box-basic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-current",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-light-bake",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-vpl",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-light-probe",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-light-probe-ddgi",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssr-hiz-tight",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssr-radiance-mips",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-radiance-mips",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-hierarchy-combined",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-half",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-third",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssr-temporal-validated",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssr-temporal-gaussian",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-early-exit",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-reuse-texels",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-redundant-work",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-4x32",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-8x16",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-4x16",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-2x16",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-2x8",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-6x32",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-8x24",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-6x24",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-7x32",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-8x28",
+          "scene": "steampunk-camera",
+          "durationMs": 10000,
+          "params": {}
+        }
+      ]
+    },
+    "metallic": {
+      "defaults": {
+        "initTimeoutMs": 60000,
+        "capture": true,
+        "vsync": "off",
+        "networkProfile": "unthrottled"
+      },
+      "entries": [
+        {
+          "renderer": "three-current",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-light-bake",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-vpl",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-light-probe",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-light-probe-ddgi",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssr-hiz-tight",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssr-radiance-mips",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-radiance-mips",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-hierarchy-combined",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-half",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-third",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssr-temporal-validated",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssr-temporal-gaussian",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-early-exit",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-reuse-texels",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-redundant-work",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-4x32",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-8x16",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-4x16",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-2x16",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-2x8",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-6x32",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-8x24",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-6x24",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-7x32",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        },
+        {
+          "renderer": "three-new-ssgi-8x28",
+          "scene": "cornell-box-metallic",
+          "durationMs": 10000,
+          "params": {}
+        }
+      ]
+    },
+    "convergence": {
+      "defaults": {
+        "initTimeoutMs": 60000,
+        "capture": true,
+        "vsync": "off"
+      },
+      "entries": [
+        {
+          "renderer": "three-new-light-bake",
+          "scene": "cornell-box-basic",
+          "durationMs": 15000,
+          "params": {
+            "width": 640,
+            "height": 480
+          },
+          "reference": {
+            "image": "./fidelity-results/cornell-box-basic/beauty/blender.avif",
+            "intervalMs": 250,
+            "targetPsnr": 30
+          }
+        },
+        {
+          "renderer": "three-new-vpl",
+          "scene": "cornell-box-basic",
+          "durationMs": 15000,
+          "params": {
+            "width": 640,
+            "height": 480
+          },
+          "reference": {
+            "image": "./fidelity-results/cornell-box-basic/beauty/blender.avif",
+            "intervalMs": 250,
+            "targetPsnr": 30
+          }
+        }
+      ]
+    }
+  }
+}

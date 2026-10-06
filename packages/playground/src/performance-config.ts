@@ -1,7 +1,7 @@
 import { hierarchyExperiments, rendererNames } from '@ss-fidelity/renderers';
 import type { HierarchyExperiment, RendererName } from '@ss-fidelity/renderers';
 
-export const performanceRendererNames = rendererNames.filter((name) => name !== 'three-gpu-pathtracer');
+export const performanceRendererNames = rendererNames;
 
 /** Three-Base is the fixed, stock r186 baseline named three-current by the renderer factory. */
 export function performanceConfiguration(params: Record<string, unknown>) {

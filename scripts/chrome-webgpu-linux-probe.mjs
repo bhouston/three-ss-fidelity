@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // Reproduces Chrome WebGPU issues on Linux described in docs/performance/CHROME_LINUX_WEBGPU.md.
 // Usage: node scripts/chrome-webgpu-linux-probe.mjs [adapter|backpressure|readback|all] [--chrome <path>]
-// Uses the puppeteer installed for performance-kit and its bundled Chrome unless --chrome is given.
+// Uses the puppeteer installed for fidelity-kit and its bundled Chrome unless --chrome is given.
 import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
 
-const require = createRequire(new URL('../submodules/performance-kit/packages/cli/package.json', import.meta.url));
+const require = createRequire(new URL('../submodules/fidelity-kit/packages/cli/package.json', import.meta.url));
 const { default: puppeteer } = await import(require.resolve('puppeteer'));
 const { default: sharp } = await import(require.resolve('sharp'));
 

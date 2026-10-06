@@ -1,7 +1,7 @@
-import type { SceneSetup } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@ss-fidelity/scenes';
 import type { LiveRenderer } from '@ss-fidelity/renderers';
 import type { FrameContext } from '@ss-fidelity/runtime';
-import type { Reporter } from 'performance-kit-reporter';
+import type { Reporter } from 'fidelity-kit/browser';
 import type { NavigationOptions } from './performance-navigation';
 
 export type PerformanceReporter = Pick<
@@ -17,9 +17,9 @@ export async function createPerformanceSession(
   navigationOptions?: NavigationOptions,
 ) {
   let live: LiveRenderer | undefined;
-  let setup: SceneSetup | undefined;
+  let setup: SceneInstance | undefined;
   let navigation: { update(deltaSeconds: number): void; dispose(): void } | undefined;
-  let cleanupScene: ((setup: SceneSetup) => void) | undefined;
+  let cleanupScene: ((setup: SceneInstance) => void) | undefined;
   const canvas = document.createElement('canvas');
   try {
     const [scenes, renderers, runtime, { performanceConfiguration }] = await Promise.all([
@@ -32,11 +32,18 @@ export async function createPerformanceSession(
     const previousRandom = Math.random;
     try {
       Math.random = runtime.seededRandom(config.seed);
-      setup = await scenes.getScene(config.scene).create(scenes.createBrowserSceneContext('/'));
+      setup = await scenes
+        .getScene(config.scene)
+        .create(
+          scenes.createBrowserSceneContext(
+            new URL('./', location.href).href,
+            new URL('suite-assets/', location.href).href,
+          ),
+        );
     } finally {
       Math.random = previousRandom;
     }
-    cleanupScene = scenes.disposeSceneSetup;
+    cleanupScene = scenes.disposeSceneInstance;
     reporter.phaseEnd('load');
     reporter.phaseStart('process');
     canvas.width = config.width;
@@ -116,6 +123,7 @@ export async function createPerformanceSession(
     let disposed = false;
     return {
       canvas,
+      accumulated: () => current.frames,
       draw,
       complete,
       dispose() {

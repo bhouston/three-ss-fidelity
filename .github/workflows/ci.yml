@@ -25,12 +25,12 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - name: Build performance report from committed results
-        run: node submodules/performance-kit/packages/cli/dist/bin.js build --out performance-results --site performance-site
+      - name: Build unified website from committed results
+        run: pnpm site:build
       - uses: actions/upload-artifact@v4
         with:
-          name: performance-report
-          path: performance-site/
+          name: unified-website
+          path: site/
           if-no-files-found: error
       - run: pnpm tsc
       - run: pnpm lint

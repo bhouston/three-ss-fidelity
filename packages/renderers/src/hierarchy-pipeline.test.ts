@@ -1,6 +1,6 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import { NoToneMapping, PerspectiveCamera, Scene, Vector3 } from 'three';
-import type { SceneSetup } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@ss-fidelity/scenes';
 import { createThreeNewRenderer } from './three-new.js';
 import { hierarchyExperiments, ssgiWorkExperiments } from './types.js';
 import { ssgi } from './ssgi-fast/SSGINode.js';
@@ -41,7 +41,7 @@ vi.mock('./ssr/NewSSRNode.js', async (original) => {
 });
 beforeEach(() => vi.clearAllMocks());
 
-function setup(scale = 1, gi = true, ssr = true): SceneSetup {
+function setup(scale = 1, gi = true, ssr = true): SceneInstance {
   return {
     scene: new Scene(),
     camera: new PerspectiveCamera(),

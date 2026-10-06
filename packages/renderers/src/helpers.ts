@@ -1,6 +1,6 @@
 import type { PerspectiveCamera, ToneMapping, Texture } from 'three';
 import type { FrameContext, PipelineProfiler } from '@ss-fidelity/runtime';
-import type { SceneSetup, GradientBackground, SceneEnvironment } from '@ss-fidelity/scenes';
+import type { SceneInstance, GradientBackground, SceneEnvironment } from '@ss-fidelity/scenes';
 
 interface SizedRenderer {
   setSize(width: number, height: number, updateStyle?: boolean): void;
@@ -52,7 +52,7 @@ export function configureRenderer<T extends { toneMapping: ToneMapping; toneMapp
 
 /** Inject backend/version-specific baking and TSL; restore borrowed scene state on disposal. */
 export function prepareScene(
-  setup: SceneSetup,
+  setup: SceneInstance,
   helpers: {
     createGradient(background: GradientBackground): unknown;
     bakeEnvironment(environment: SceneEnvironment): { texture: Texture; dispose(): void };

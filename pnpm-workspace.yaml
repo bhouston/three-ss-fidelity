@@ -1,12 +1,14 @@
 packages:
   - packages/*
-  - submodules/performance-kit/packages/*
+  - submodules/fidelity-kit/packages/cli
+  - submodules/fidelity-kit/packages/viewer
   - submodules/three.js
   - submodules/three-gpu-pathtracer
   - submodules/fidelity-kit-blender
   - submodules/fidelity-kit-three-gpu-pathtracer
 
 allowBuilds:
+  core-js: false
   esbuild: true
   sharp: true
   webgpu: true
@@ -17,6 +19,8 @@ link-workspace-packages: false
 
 # one copy of three everywhere (three-mesh-bvh, three-gpu-pathtracer, scenes, renderers): the fork in the submodule
 overrides:
+  tinypool: '>=2.1.2'
+  source-map-js: '>=1.2.2'
   basic-ftp: '>=6.2.1'
   three: 'workspace:*'
   three-gpu-pathtracer: 'workspace:*'

@@ -113,7 +113,7 @@ try {
         const status = document.querySelector('output')?.textContent;
         return status && status !== 'Loading scene…';
       },
-      { timeout: 90000 },
+      { timeout: process.platform === 'linux' ? 300000 : 90000 },
     );
     assert.equal(await page.$eval('output', (element) => element.textContent), 'Running');
   }

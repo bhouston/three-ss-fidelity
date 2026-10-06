@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Light } from 'three';
+import { Box3, Triangle, Vector3, type Light, type Mesh } from 'three';
 import { getScene } from './index.js';
 import { createNodeSceneContext } from './node.js';
 
@@ -46,5 +46,39 @@ it.each(['model-bedroom', 'model-bedroom-w'])(
       expect((mesh.material as import('three').Material).transparent).toBe(true);
     }
     expect(scene.getObjectByName('Window_0001')?.castShadow).toBe(true);
+  },
+);
+
+it.each(['model-contemporary-bathroom', 'model-contemporary-bathroom-w'])(
+  'faces the inverted bathroom casing pieces toward the room in %s',
+  async (name) => {
+    const { scene } = await getScene(name).create(createNodeSceneContext());
+    scene.updateMatrixWorld(true);
+    const floor = new Box3().setFromObject(scene.getObjectByName('Floor')!);
+    const room = floor.getCenter(new Vector3()).add(new Vector3(0, 1, 0));
+    for (const piece of ['WhiteWood_0001', 'WhiteWood_0002']) {
+      const mesh = scene.getObjectByName(piece) as Mesh;
+      const position = mesh.geometry.attributes.position!,
+        normal = mesh.geometry.attributes.normal!,
+        index = mesh.geometry.index!;
+      const tri = new Triangle(),
+        n = new Vector3(),
+        vertexNormal = new Vector3();
+      let toward = 0,
+        agree = 0;
+      const count = index.count / 3;
+      for (let t = 0; t < count; t++) {
+        (['a', 'b', 'c'] as const).forEach((k, j) =>
+          tri[k].fromBufferAttribute(position, index.getX(t * 3 + j)).applyMatrix4(mesh.matrixWorld),
+        );
+        tri.getNormal(n);
+        toward += n.dot(room.clone().sub(tri.a)) > 0 ? 1 : 0;
+        vertexNormal.fromBufferAttribute(normal, index.getX(t * 3)).transformDirection(mesh.matrixWorld);
+        agree += vertexNormal.dot(n) > 0 ? 1 : 0;
+      }
+      // Source asset: 0.13 and 0.05; the mirrored, correct WhiteWood_0003 is 0.96.
+      expect(toward / count).toBeGreaterThan(0.8);
+      expect(agree / count).toBe(1);
+    }
   },
 );

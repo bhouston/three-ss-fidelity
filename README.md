@@ -263,6 +263,8 @@ Blender reference rendering calls `fidelity-kit-blender/three` directly. Set `BL
 
 ## Performance-kit
 
+See [the unified fidelity-kit proposal](docs/UNIFIED-KIT-DESIGN.md) for the proposed shared registry, browser session, machine-specific performance records, references and migration into one package/site.
+
 The independent [performance-kit](https://github.com/bhouston/performance-kit) submodule supplies performance measurement, a CLI, and its own report website. Fidelity images live in `fidelity-results/`; performance snapshots live in `performance-results/`.
 
 ```sh

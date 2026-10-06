@@ -329,7 +329,15 @@ function createPipeline(
 export async function createThreeNewRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
-  { width, height, trackTimestamp = false, ssrDebug, hierarchyExperiment, ssrTemporalProfile }: RendererOptions,
+  {
+    width,
+    height,
+    trackTimestamp = false,
+    ssrDebug,
+    hierarchyExperiment,
+    ssrTemporalProfile,
+    progressiveProbes,
+  }: RendererOptions,
   probeMode?: 'light-probe' | 'light-probe-ddgi' | 'light-bake' | 'vpl' | 'vpl-mirror' | 'vpl-box-projected',
 ): Promise<LiveRenderer> {
   const useProbes = probeMode !== undefined;
@@ -354,6 +362,10 @@ export async function createThreeNewRenderer(
   });
 
   let releaseProbes: (() => void) | undefined;
+  // Set only while a progressive probe bake is in flight or done; undefined when baking is not progressive.
+  let probeProgress: number | undefined;
+  let probeDirty = false;
+  let probeError: unknown;
   let boxProbe: BoxProjectedProbe | undefined;
   let mirrors: Mirrors | undefined;
   let baker: ProgressiveLightBake | undefined;
@@ -367,7 +379,22 @@ export async function createThreeNewRenderer(
   try {
     if (probeMode === 'light-bake' || isVpl) baker = createSurfaceLighting();
     if (useProbes && !baker && effects.ssgi)
-      releaseProbes = await bakeProbeGrid(renderer, setup.scene, probeMode === 'light-probe-ddgi');
+      releaseProbes = await bakeProbeGrid(
+        renderer,
+        setup.scene,
+        probeMode === 'light-probe-ddgi',
+        progressiveProbes
+          ? {
+              onProgress(fraction) {
+                probeProgress = fraction;
+                probeDirty = true;
+              },
+              onError(error) {
+                probeError = error;
+              },
+            }
+          : undefined,
+      );
     if (probeMode === 'vpl-box-projected') boxProbe = new BoxProjectedProbe(renderer, setup.scene);
     if (probeMode === 'vpl-mirror') mirrors = createMirrors(setup.scene);
     renderPipeline = createPipeline(
@@ -419,6 +446,13 @@ export async function createThreeNewRenderer(
       return frames;
     },
     get lightBake() {
+      if (!baker && probeProgress !== undefined)
+        return {
+          phase: probeProgress >= 1 ? 'converged' : 'baking',
+          samples: Math.round(probeProgress * 1000),
+          maxSamples: 1000,
+          progress: probeProgress,
+        };
       return baker
         ? {
             phase: baker.phase,
@@ -429,6 +463,12 @@ export async function createThreeNewRenderer(
         : undefined;
     },
     render() {
+      if (probeError) throw probeError;
+      if (probeDirty) {
+        probeDirty = false;
+        // each baked batch changes the lighting, so history from earlier frames is stale
+        progressive?.resetAccumulation();
+      }
       if (progressive) {
         // ponytail: sums every world matrix per frame, O(objects); a scene version counter if scenes get big
         let signature = 0;

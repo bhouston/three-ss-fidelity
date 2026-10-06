@@ -43,8 +43,22 @@ export function fitProbeGrid(scene: Scene, budget = PROBE_BUDGET) {
   };
 }
 
-/** Bake reflected/emitted diffuse radiance; leave the existing environment term applied exactly once. */
-export async function bakeProbeGrid(renderer: WebGPURenderer, scene: Scene, ddgi = false): Promise<() => void> {
+export interface ProbeBakeBackground {
+  onProgress(fraction: number): void;
+  onError(error: unknown): void;
+}
+
+/**
+ * Bake reflected/emitted diffuse radiance; leave the existing environment term applied exactly once.
+ * With `background`, resolve after the first small batch and keep baking between rendered frames, so the
+ * partially baked grid lights the live view; otherwise resolve once the grid is fully baked.
+ */
+export async function bakeProbeGrid(
+  renderer: WebGPURenderer,
+  scene: Scene,
+  ddgi = false,
+  background?: ProbeBakeBackground,
+): Promise<() => void> {
   const fitted = fitProbeGrid(scene);
   const { DDGIProbeGrid } = ddgi ? await import('./ddgi/DDGIProbeGrid.js') : { DDGIProbeGrid: undefined };
   const visibility = ddgi ? await (await import('./ddgi/visibility.js')).bakeVisibility(scene, fitted) : undefined;
@@ -61,35 +75,54 @@ export async function bakeProbeGrid(renderer: WebGPURenderer, scene: Scene, ddgi
         );
   grid.position.copy(fitted.center);
   scene.add(grid);
-  const originalBackground = scene.background;
-  const originalBackgroundNode = scene.backgroundNode;
-  const originalBackgroundIntensity = scene.backgroundIntensity;
   const started = performance.now();
-  try {
-    // A presentation gradient/color is not an emitter. Capturing the environment here as well as
-    // applying material IBL would double-count escaped radiance. Surface shading still uses IBL.
-    scene.backgroundNode = null;
-    scene.background = new Color(0);
-    scene.backgroundIntensity = 1;
-    for (let pass = 0; pass <= PROBE_BAKE.bounces; pass++) {
-      for (let start = 0; start < fitted.count; start += 32) {
-        grid.bake(renderer, scene, {
-          cubemapSize: PROBE_BAKE.cubemapSize,
-          sampleCount: PROBE_BAKE.sampleCount,
-          near:
-            Math.min(
-              ...fitted.size.toArray().map((value, axis) => value / (fitted.resolution.getComponent(axis) - 1)),
-            ) * 0.01,
-          far: fitted.size.length() * 2,
-          start,
-          count: Math.min(32, fitted.count - start),
-          pass,
-        });
-        // Bound queued GPU work, and yield so live startup can keep showing progress.
-        await completeRenderer(renderer);
-        await new Promise<void>((resolve) => setTimeout(resolve, 0));
-      }
+  // Smaller batches keep frames responsive while the bake shares the GPU with rendering.
+  const batch = background ? 8 : 32;
+  const steps: { pass: number; start: number }[] = [];
+  for (let pass = 0; pass <= PROBE_BAKE.bounces; pass++)
+    for (let start = 0; start < fitted.count; start += batch) steps.push({ pass, start });
+  const near =
+    Math.min(...fitted.size.toArray().map((value, axis) => value / (fitted.resolution.getComponent(axis) - 1))) * 0.01;
+  let next = 0;
+  let cancelled = false;
+  const bakeStep = () => {
+    const { pass, start } = steps[next++]!;
+    const originalBackground = scene.background;
+    const originalBackgroundNode = scene.backgroundNode;
+    const originalBackgroundIntensity = scene.backgroundIntensity;
+    try {
+      // A presentation gradient/color is not an emitter. Capturing the environment here as well as
+      // applying material IBL would double-count escaped radiance. Surface shading still uses IBL.
+      // Restored after every batch so frames rendered between batches keep their real background.
+      scene.backgroundNode = null;
+      scene.background = new Color(0);
+      scene.backgroundIntensity = 1;
+      grid.bake(renderer, scene, {
+        cubemapSize: PROBE_BAKE.cubemapSize,
+        sampleCount: PROBE_BAKE.sampleCount,
+        near,
+        far: fitted.size.length() * 2,
+        start,
+        count: Math.min(batch, fitted.count - start),
+        pass,
+      });
+    } finally {
+      scene.background = originalBackground;
+      scene.backgroundNode = originalBackgroundNode;
+      scene.backgroundIntensity = originalBackgroundIntensity;
     }
+    // The DDGI atlas is derived from the SH grid; refresh it so partial results are visible.
+    if (visibility && background && 'convertIrradiance' in grid) grid.convertIrradiance(renderer);
+  };
+  const advance = async () => {
+    while (next < steps.length && !cancelled) {
+      bakeStep();
+      // Bound queued GPU work, and yield so live startup and frames can keep running.
+      await completeRenderer(renderer);
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      background?.onProgress(next / steps.length);
+    }
+    if (cancelled) return;
     if (visibility && 'convertIrradiance' in grid) {
       grid.convertIrradiance(renderer);
       await completeRenderer(renderer);
@@ -97,16 +130,24 @@ export async function bakeProbeGrid(renderer: WebGPURenderer, scene: Scene, ddgi
     console.info(
       `SH probe grid: ${fitted.resolution.toArray().join('x')} (${fitted.count} probes), ${PROBE_BAKE.bounces + 1} passes, bake ${(performance.now() - started).toFixed(0)} ms`,
     );
+  };
+  try {
+    if (background) {
+      // The first batch allocates the grid's textures, so lights using it can be built before it returns.
+      bakeStep();
+      await completeRenderer(renderer);
+      background.onProgress(next / steps.length);
+      advance().catch((error) => {
+        if (!cancelled) background.onError(error);
+      });
+    } else await advance();
   } catch (error) {
     grid.removeFromParent();
     grid.dispose();
     throw error;
-  } finally {
-    scene.background = originalBackground;
-    scene.backgroundNode = originalBackgroundNode;
-    scene.backgroundIntensity = originalBackgroundIntensity;
   }
   return () => {
+    cancelled = true;
     grid.removeFromParent();
     grid.dispose();
   };

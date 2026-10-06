@@ -93,3 +93,34 @@ it('restores borrowed scene state and removes failed captures', async () => {
   expect(scene.children).toHaveLength(1);
   expect(state.grids[0]!.dispose).toHaveBeenCalledTimes(1);
 });
+it('returns after the first batch, keeps baking in the background and stops on release', async () => {
+  const scene = new Scene();
+  scene.add(new Mesh(new BoxGeometry(), new MeshBasicMaterial()));
+  const background = new Color('red');
+  scene.background = background;
+  const progress: number[] = [];
+  const release = await bakeProbeGrid({} as never, scene, false, {
+    onProgress: (fraction) => progress.push(fraction),
+    onError: (error) => {
+      throw error;
+    },
+  });
+  const grid = state.grids[0]!;
+  expect(progress[0]).toBeLessThan(1);
+  expect(scene.background).toBe(background);
+  await vi.waitFor(() => expect(progress.at(-1)).toBe(1), { timeout: 10_000 });
+  expect(grid.bake.mock.calls.length).toBeGreaterThan(3);
+  expect(scene.background).toBe(background);
+  release();
+  expect(grid.dispose).toHaveBeenCalledTimes(1);
+});
+it('reports background bake failures through onError', async () => {
+  const scene = new Scene();
+  scene.add(new Mesh(new BoxGeometry(), new MeshBasicMaterial()));
+  const errors: unknown[] = [];
+  await bakeProbeGrid({} as never, scene, false, {
+    onProgress: () => (state.fail = true),
+    onError: (e) => errors.push(e),
+  });
+  await vi.waitFor(() => expect(errors).toHaveLength(1));
+});

@@ -217,7 +217,7 @@ try {
   const suite = JSON.parse(await readFile('registry.json', 'utf8'));
   suite.performance = {
     default: {
-      defaults: { capture: true, vsync: 'off' },
+      defaults: { capture: true, vsync: 'off', initTimeoutMs: process.platform === 'linux' ? 300000 : 60000 },
       entries: [
         { scene: 'cornell-box-basic', renderer: smokeRenderer, durationMs: 5000, params: { width: 320, height: 180 } },
       ],
@@ -240,6 +240,7 @@ try {
     '--cooldown-ms',
     '0',
     '--allow-software',
+    '--fail-on-error=false',
     '--executable-path',
     chrome,
   ]);
@@ -247,7 +248,7 @@ try {
     await readFile(join(metrics, `smoke/${smokeRenderer}/cornell-box-basic/metrics.json`), 'utf8'),
   );
   // CI may use a software adapter; this verifies contracts, not comparative hardware performance.
-  assert.equal(result.status, 'ok');
+  assert.equal(result.status, 'ok', JSON.stringify(result.error ?? result));
   assert.ok(result.statistics.averageFps > 0);
   assert.ok(result.throughput.completedFrames > 0);
   assert.ok(result.throughput.elapsed >= 5);

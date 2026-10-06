@@ -142,7 +142,7 @@ try {
   suite.performance = {
     default: {
       defaults: { capture: true, vsync: 'off' },
-      entries: [{ scene: 'cornell-box-basic', renderer: 'three-current', durationMs: 1000 }],
+      entries: [{ scene: 'cornell-box-basic', renderer: 'three-current', durationMs: 5000 }],
     },
   };
   const suiteFile = join(work, 'registry.json');
@@ -169,7 +169,7 @@ try {
   assert.equal(result.status, 'ok');
   assert.ok(result.statistics.averageFps > 0);
   assert.ok(result.throughput.completedFrames > 0);
-  assert.ok(result.throughput.elapsed >= 1);
+  assert.ok(result.throughput.elapsed >= 5);
   assert.equal(result.statistics.cpuSampleCount, 0);
   assert.equal(result.statistics.intervalCount, 0);
   console.log(

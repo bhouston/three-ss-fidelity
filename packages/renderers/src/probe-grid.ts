@@ -5,6 +5,8 @@ import { completeRenderer } from './profiling.js';
 
 export const PROBE_BUDGET = 2048;
 export const PROBE_BAKE = { cubemapSize: 16, sampleCount: 512, bounces: 2 } as const;
+/** Progressive mode: bounce passes on the cheap coarsest grid, so the first lit frames already hold bounces. */
+const COARSE_PASSES = 3;
 
 /** Spend a bounded budget on approximately equal world-space spacing, including flat scenes. */
 export function fitProbeGrid(scene: Scene, budget = PROBE_BUDGET) {
@@ -64,10 +66,10 @@ function scaled(fitted: Fitted, scale: number): Fitted {
 /**
  * Bake reflected/emitted diffuse radiance; leave the existing environment term applied exactly once.
  *
- * With `background`, resolve once a coarse first grid lights the scene and keep baking between rendered
- * frames, one grid per bounce at 1/4, 1/2, then full resolution. A grid is a light, so each level captures the
- * previous (visible) level as its indirect light and holds one more bounce; each finished level replaces the
- * last. Otherwise bake one full-resolution grid with the addon's own bounce passes and resolve when done.
+ * With `background`, resolve after the first batch of a coarse 1/4-resolution grid, which is visible while it
+ * bakes its own bounce passes between rendered frames. Then 1/2 and full resolution grids follow: a grid is a
+ * light, so each captures the previous (visible) level as its indirect light and holds one more bounce, and
+ * replaces it when finished. Live bounce depth therefore exceeds the blocking bake's. Otherwise bake one full-resolution grid with the addon's own bounce passes and resolve when done.
  */
 export async function bakeProbeGrid(
   renderer: WebGPURenderer,
@@ -91,9 +93,12 @@ export async function bakeProbeGrid(
   const levels = PROBE_BAKE.bounces + 1;
   const levelFit = (level: number) => (level === levels - 1 ? fitted : scaled(fitted, 2 ** (level + 1 - levels)));
   const steps = (fit: Fitted, passes: number) => passes * Math.ceil(fit.count / batch);
+  const levelPasses = (level: number) => (level === 0 ? COARSE_PASSES : 1);
   const total = background
-    ? Array.from({ length: levels }, (_, level) => steps(levelFit(level), 1)).reduce((a, b) => a + b)
+    ? Array.from({ length: levels }, (_, level) => steps(levelFit(level), levelPasses(level))).reduce((a, b) => a + b)
     : steps(fitted, levels);
+  let firstBatch = () => {};
+  const ready = new Promise<void>((resolve) => (firstBatch = resolve));
   let done = 0;
 
   const createGrid = async (fit: Fitted, final: boolean) => {
@@ -144,6 +149,7 @@ export async function bakeProbeGrid(
         done++;
         // Bound queued GPU work, and yield so live startup and frames can keep running.
         await completeRenderer(renderer);
+        firstBatch();
         await new Promise<void>((resolve) => setTimeout(resolve, 0));
         background?.onProgress(done / total);
       }
@@ -159,8 +165,9 @@ export async function bakeProbeGrid(
     const fit = levelFit(level);
     const grid = await createGrid(fit, level === levels - 1);
     if (!grid) return;
-    grid.visible = false;
-    await bakeGrid(grid, fit, 1);
+    // The coarsest grid is shown while it bakes; its tiny size makes the partial fill short-lived.
+    grid.visible = level === 0;
+    await bakeGrid(grid, fit, levelPasses(level));
     if (cancelled) return;
     grid.visible = true;
     const [previous] = grids.splice(0, grids.length - 1);
@@ -173,11 +180,13 @@ export async function bakeProbeGrid(
     );
   try {
     if (background) {
-      await bakeLevel(0);
-      (async () => {
-        for (let level = 1; level < levels && !cancelled; level++) await bakeLevel(level);
+      const chain = (async () => {
+        for (let level = 0; level < levels && !cancelled; level++) await bakeLevel(level);
         if (!cancelled) finish();
-      })().catch((error) => {
+      })();
+      // Resolve after the first batch (the grid's textures exist); a failure before then rejects.
+      await Promise.race([ready, chain]);
+      chain.catch((error) => {
         if (!cancelled) background.onError(error);
       });
     } else {

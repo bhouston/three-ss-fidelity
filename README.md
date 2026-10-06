@@ -261,7 +261,7 @@ The JSON and PNG files in `docs/history/` are the data behind those logs. Most w
 
 Blender reference rendering calls `fidelity-kit-blender/three` directly. Set `BLENDER_EXECUTABLE` to choose an installation; otherwise the package discovers Blender on PATH or in macOS Applications. The suite explicitly bakes procedural IBL and passes environment intensity/rotation, background, bounce count, and Three.js tone-mapping/sRGB settings. The package owns GLB export, camera/light translation, Blender execution, and linear output processing. Unsupported suite features emit diagnostics.
 
-## Performance-kit
+## Performance
 
 [fidelity-kit](https://github.com/bhouston/fidelity-kit), developed in `submodules/fidelity-kit`, owns the fidelity CLI, performance harness, browser reporter, and unified website. `registry.json` is the shared renderer/scene configuration; fidelity artifacts remain in `fidelity-results/` and machine-specific measurements remain in `performance-results/`. The [migration plan](docs/UNIFIED-KIT-DESIGN.md) describes the design.
 
@@ -273,12 +273,14 @@ pnpm performance:run --renderer three-current
 pnpm performance:dev              # watch results and refresh changed entries over SSE
 pnpm performance:serve            # static reader; no watcher or SSE
 pnpm performance:process          # migrate legacy raw results and rebuild the index
-pnpm performance:build            # portable static report in performance-site/
+pnpm performance:build            # unified static website in site/
 ```
+
+Install the matching browser with `pnpm --filter fidelity-kit exec puppeteer browsers install chrome`, or pass `--executable-path <chrome>` to render and benchmark commands.
 
 ### Benchmark machines
 
-Performance results are stored per benchmark machine, under `performance-results/<machine-id>/` and `performance-convergence-results/<machine-id>/`. Each machine folder has a `machine.json` with its display name. When more than one machine has results, the report shows a **Machines** selector in the navigation bar.
+Performance results are stored per benchmark machine, under `performance-results/<machine-id>/`. Each machine folder has a `machine.json` with its display name. When more than one machine has results, the report shows a **Machines** selector in the navigation bar.
 
 | Machine ID     | Description                       |
 | -------------- | --------------------------------- |
@@ -290,12 +292,12 @@ The `performance:run`, `performance:metallic` and `performance:convergence` scri
 
 ```sh
 PERFORMANCE_MACHINE=macbookairm3 pnpm performance:metallic
-PERFORMANCE_MACHINE=build001 pnpm performance:metallic --headful --vsync on
+PERFORMANCE_MACHINE=build001 pnpm performance:metallic --headful
 ```
 
-On Linux (`build001`), run headful with vsync on and no extra GPU flags. Headless Chrome and vsync off both lack frame backpressure there, and `--enable-features=Vulkan` corrupts screenshots; see [Chrome WebGPU issues on Linux](docs/performance/CHROME_LINUX_WEBGPU.md). The [build001 notes](docs/performance/REALTIME-BUILD001.md) record its first results.
+Automated benchmarks always disable vsync and frame-rate limits. They warm up for one second, then count GPU-completed frames over the configured sustained window. Bounded batches prevent an unbounded GPU queue, and each run drains its work before teardown. Earlier Linux behavior is recorded in the [Chrome WebGPU notes](docs/performance/CHROME_LINUX_WEBGPU.md) and [build001 results](docs/performance/REALTIME-BUILD001.md).
 
-To add a machine, create `performance-results/<machine-id>/machine.json` (and the matching convergence folder) containing `{ "id": "<machine-id>", "name": "<description>" }`, then run the suite with that `PERFORMANCE_MACHINE`. Only compare results recorded on the same machine.
+To add a machine, create `performance-results/<machine-id>/machine.json` containing `{ "id": "<machine-id>", "name": "<description>" }`, then run the suite with that `PERFORMANCE_MACHINE`. Only compare results recorded on the same machine.
 
 `registry.json` defines renderers once, with browser settings or an external command (Blender), and scenes once. Its `performance` collections explicitly opt in renderer/scene pairs; `default`, `metallic`, and `convergence` preserve the previous suites. `fidelity-kit benchmark --registry registry.json --collection default --root-url http://127.0.0.1:5173/` runs the shared browser host. Fidelity captures use `pnpm render`; the project CLI's native backend requires `pnpm cli render --native` for diagnostic-only features. Browser references use accumulated sample targets, while screen-space captures use configured frames. Existing committed captures are retained until explicitly regenerated.
 
@@ -303,18 +305,17 @@ Open `/performance.html` directly for the React live benchmark viewer. It shares
 
 The harness uses `localhost`, while renderer entries use `127.0.0.1`, to allow Chrome site isolation. In automated harness mode, the renderer page runs no controls or charts. Keep the pinned browser, hardware and drivers consistent when comparing performance snapshots. Results record the vsync mode and network profile; comparisons reject mixed modes or network conditions. Existing `cli bench` remains available for the native diagnostic protocols documented in [docs/PERF.md](docs/PERF.md).
 
-To run all 27 real-time Three configurations on the Cornell box with a mirror sphere, build once and run `pnpm performance:metallic`. It serves the built renderer independently of Vite/HMR, running each workload once with vsync disabled at 1920×1080 and 10 s measured from ready, without warmup. Use `--executable-path <chrome>` if your bundled browser installation needs repair.
+To run all 27 real-time Three configurations on the Cornell box with a mirror sphere, build once and run `pnpm performance:metallic`. It serves the built renderer independently of Vite/HMR, running each workload once with vsync disabled at 1920×1080 and 10 s of GPU-completed throughput after a one-second warmup. Use `--executable-path <chrome>` if your bundled browser installation needs repair.
 
 The [current benchmark notes](docs/performance/REALTIME.md) record the refreshed 81 workloads across all three performance scenes, including VPL.
 
 The performance report introduction comes from `performance-results/README.md`. Edit this Markdown file to describe the suite; `performance:dev` refreshes it as it changes, while `performance:build` includes it in the static export.
 
-Each performance configuration uses `performance-results/<machine-id>/<renderer-id>/<scene-id>/` with `screenshot.avif` and directly saved `metrics.json`. The viewer uses one shared time scale across filtered timelines, combines setup phases and frame timing with hover values, and links to shareable details pages with one combined timing chart, histograms, bandwidth, and a Phases table with total setup time. Timing and bandwidth charts start at example navigation. Examples initialize automatically using workload params supplied in their URL, report ready, and then receive the measured run request. Uncovered initialization spans appear automatically as `unknown` phases. Harness and client timestamps are retained independently; precision clock synchronization and discrepancy tables are removed. `performance:process` validates current metrics and refreshes their report index.
+Each performance configuration uses `performance-results/<machine-id>/<renderer-id>/<scene-id>/` with `screenshot.avif` and directly saved `metrics.json`. The viewer shows setup phases, completed-frame throughput, bandwidth, and shareable details. Historical frame timings and histograms remain visible for previous runs; new benchmarks collect no individual frame timings. Timing and bandwidth charts start at scene navigation. Scenes initialize automatically using workload params supplied in their URL, report ready, and then receive the measured run request. Uncovered initialization spans appear automatically as `unknown` phases. Harness and client timestamps are retained independently; precision clock synchronization and discrepancy tables are removed. `performance:process` validates current metrics and refreshes their report index.
 
 The performance suites define `unthrottled`, `fast-4g`, `slow-4g`, and `3g`
-network profiles, defaulting to `unthrottled`. To test a slower connection, copy a
-suite, set `defaults.networkProfile` to `slow-4g` (or another profile name), and
-run it with `pnpm performance:run --suite <file> --out <separate-directory>`.
+network profiles, defaulting to `unthrottled`. To test a slower connection, edit a registry performance collection, set its `defaults.networkProfile` to `slow-4g` (or another profile name), and
+run it with `pnpm performance:run --registry <file> --out <separate-directory>`.
 Profiles specify uniform latency and download/upload bytes per second; `-1`
 means uncapped. Every run disables HTTP cache and bypasses service workers,
 including the isolated renderer iframe. Use separate output directories per

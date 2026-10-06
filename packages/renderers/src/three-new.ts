@@ -317,9 +317,10 @@ export async function createThreeNewRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneSetup,
   { width, height, trackTimestamp = false, ssrDebug, hierarchyExperiment, ssrTemporalProfile }: RendererOptions,
-  probeMode?: 'light-probe' | 'light-probe-ddgi' | 'light-bake' | 'vpl',
+  probeMode?: 'light-probe' | 'light-probe-ddgi' | 'light-bake' | 'vpl' | 'vpl-mirror' | 'vpl-box-projected',
 ): Promise<LiveRenderer> {
   const useProbes = probeMode !== undefined;
+  const isVpl = probeMode?.startsWith('vpl') ?? false;
   const setup = sceneSetup;
   const { camera, effects } = setup;
   const renderer = new WebGPURenderer({ canvas, antialias: false, trackTimestamp });
@@ -342,12 +343,10 @@ export async function createThreeNewRenderer(
   let releaseProbes: (() => void) | undefined;
   let baker: ProgressiveLightBake | undefined;
   const createSurfaceLighting = () =>
-    probeMode === 'vpl'
-      ? new VirtualPointLightGI(renderer, setup.scene)
-      : new ProgressiveLightBake(renderer, setup.scene);
+    isVpl ? new VirtualPointLightGI(renderer, setup.scene) : new ProgressiveLightBake(renderer, setup.scene);
   let renderPipeline: RenderPipeline;
   try {
-    if (probeMode === 'light-bake' || probeMode === 'vpl') baker = createSurfaceLighting();
+    if (probeMode === 'light-bake' || isVpl) baker = createSurfaceLighting();
     if (useProbes && !baker && effects.ssgi)
       releaseProbes = await bakeProbeGrid(renderer, setup.scene, probeMode === 'light-probe-ddgi');
     renderPipeline = createPipeline(renderer, setup, ssrDebug, hierarchyExperiment, ssrTemporalProfile, useProbes);

@@ -6,12 +6,20 @@ export const rendererNames = [
   'three-new',
   'three-new-light-bake',
   'three-new-vpl',
+  'three-new-vpl-mirror',
+  'three-new-vpl-box-projected',
   'three-new-light-probe',
   'three-new-light-probe-ddgi',
   'three-current',
   'three-gpu-pathtracer',
 ] as const;
 export type RendererName = (typeof rendererNames)[number];
+
+/** Scenes a renderer deliberately skips; the CLI writes a "Disabled" placeholder image for each. */
+export const disabledScenes: Partial<Record<RendererName, readonly string[]>> = {
+  'three-new-vpl-mirror': ['higharc_dogwood', 'steampunk-camera'],
+  'three-new-vpl-box-projected': ['higharc_dogwood', 'steampunk-camera'],
+};
 
 export interface SSGIWorkExperiment {
   earlyExit?: boolean;

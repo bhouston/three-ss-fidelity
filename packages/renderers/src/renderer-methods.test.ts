@@ -128,3 +128,12 @@ it('dispatches surface VPL transport independently of baking and probes', () => 
   createRenderer('three-new-vpl', {} as HTMLCanvasElement, setup, options);
   expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'vpl');
 });
+
+it('dispatches the VPL mirror and box-projected variants', () => {
+  const setup = { effects: {} } as SceneSetup;
+  const options = { width: 640, height: 480 };
+  createRenderer('three-new-vpl-mirror', {} as HTMLCanvasElement, setup, options);
+  expect(createThreeNewRenderer).toHaveBeenLastCalledWith({}, setup, options, 'vpl-mirror');
+  createRenderer('three-new-vpl-box-projected', {} as HTMLCanvasElement, setup, options);
+  expect(createThreeNewRenderer).toHaveBeenLastCalledWith({}, setup, options, 'vpl-box-projected');
+});

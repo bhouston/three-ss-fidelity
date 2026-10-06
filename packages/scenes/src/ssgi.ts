@@ -43,7 +43,7 @@ const effects: SceneEffects = {
   frames: 128,
 };
 
-type Setup = 'basic' | 'rounded' | 'metallic' | 'animated';
+type Setup = 'basic' | 'rounded' | 'metallic' | 'animated' | 'mirror';
 
 function shadowed<T extends Object3D>(object: T): T {
   object.castShadow = true;
@@ -84,7 +84,10 @@ async function createCornellBox(setup: Setup, ctx: SceneContext): Promise<SceneS
   floor.receiveShadow = true;
   scene.add(floor);
 
-  const backWall = new Mesh(wallGeometry, whiteMaterial);
+  const backWall = new Mesh(
+    wallGeometry,
+    setup === 'mirror' ? new MeshPhysicalMaterial({ color: '#fff', metalness: 1, roughness: 0 }) : whiteMaterial,
+  );
   backWall.scale.set(15, 20, 1);
   backWall.rotation.z = Math.PI * -0.5;
   backWall.position.set(0, 7.5, -10);
@@ -105,7 +108,7 @@ async function createCornellBox(setup: Setup, ctx: SceneContext): Promise<SceneS
     return mesh;
   };
 
-  if (setup === 'basic') {
+  if (setup === 'basic' || setup === 'mirror') {
     const tallBox = shadowed(new Mesh(new BoxGeometry(5, 7, 5), whiteMaterial));
     tallBox.rotation.y = Math.PI * 0.25;
     tallBox.position.set(-3, 3.5, -2);
@@ -168,16 +171,19 @@ const descriptions: Record<Setup, string> = {
   basic: 'Cornell box with a tall and a short box.',
   rounded: 'Cornell box with a cone and a sphere.',
   metallic: 'Cornell box with a cone and a mirror sphere.',
+  mirror: 'Cornell box with a tall and a short box and a planar mirror for the back wall.',
   animated: `Cornell box with Michelle.glb frozen at t=${ANIMATED_POSE_TIME}s.`,
 };
 
-export const ssgiScenes: SceneDefinition[] = (['basic', 'rounded', 'metallic', 'animated'] as const).map((setup) => ({
-  name: `cornell-box-${setup}`,
-  description: descriptions[setup],
-  width: WIDTH,
-  height: HEIGHT,
-  create: (ctx) => createCornellBox(setup, ctx),
-}));
+export const ssgiScenes: SceneDefinition[] = (['basic', 'rounded', 'metallic', 'animated', 'mirror'] as const).map(
+  (setup) => ({
+    name: `cornell-box-${setup}`,
+    description: descriptions[setup],
+    width: WIDTH,
+    height: HEIGHT,
+    create: (ctx) => createCornellBox(setup, ctx),
+  }),
+);
 
 ssgiScenes.push({
   name: 'cornell-box-basic-oblique',

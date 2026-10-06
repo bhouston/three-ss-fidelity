@@ -48,11 +48,11 @@ Both kits already compare encoded sRGB8 RGB and represent infinite PSNR as `null
 
 ## Consistent scene terminology
 
-Use **scene** for the renderable content entity everywhere in the unified package: configuration/schema fields, exported APIs, CLI flags/help, routes/search parameters, selectors, headings, breadcrumbs, errors and documentation. Use `sceneId`, `scenes`, `SceneDefinition` and `SceneInstance` in new contracts. Existing names such as this project's `SceneSetup` are adapter migration inputs, not a second public entity model. Do not call scenes “examples,” “scenarios” or “setups.”
+Use **scene** as both the internal and public name for the renderable content entity everywhere in the unified package: types, variables, functions, module/file names, tests, configuration/schema fields, protocol messages, exported APIs, CLI flags/help, routes/search parameters, selectors, headings, breadcrumbs, errors and documentation. Use `sceneId`, `scenes`, `SceneDefinition` and `SceneInstance` in new contracts. Existing names such as this project's `SceneSetup` are adapter migration inputs, not a second public entity model. Do not call scenes “examples,” “scenarios” or “setups.”
 
 A renderer configuration and a workload remain distinct concepts: a workload combines a scene with a renderer, dimensions, camera and other resolved inputs. That distinction does not rename the scene. “Setup time” may describe initialization timing, and documentation may contain code examples; neither is an alternate name for a scene.
 
-During migration, translate old scene-related labels/keys at compatibility boundaries, retaining deprecated aliases only where consumers actually depend on them. New generated metadata and UI use the canonical scene names. Include a terminology review of both kits, imported CLI commands and live controls in the migration acceptance criteria.
+Rename existing entity-specific `example`/`scenario` types, variables, modules, schema keys, protocol fields and UI labels to scene terminology. Do not keep parallel internal models or ongoing CLI/API aliases under those names. Where old persisted data needs import, a narrowly scoped legacy importer translates its keys immediately into the scene model; new records never emit those keys. Upstream asset paths and literal code-sample prose are not entity names. Include a terminology review of both kits, imported CLI commands and live controls in the migration acceptance criteria.
 
 ## One registry, complete renderer configurations, explicit workloads
 
@@ -313,7 +313,7 @@ Acceptance criteria for the overall migration:
 - Switching renderers leaves no cross-runtime shader state or leaked GPU resources; cancellation/failure publishes explicit state and no successful partial run.
 - Blender appears as a reference producer without being offered as an executable browser renderer; optional server progress degrades cleanly on static hosting.
 - One website provides Fidelity, Fidelity details (renderer/scene), Performance, Performance details (renderer/machine/scene) and Live pages with shareable URLs, preserved selections and static subdirectory support.
-- Scene is the consistent content-entity term in public APIs, config, CLI, routes, UI and docs; imported example/scenario/setup aliases do not become competing concepts.
+- Scene is the only internal and public content-entity term in types, variables, modules, tests, schema/protocol fields, APIs, CLI, routes, UI and docs. No example/scenario entity names or ongoing aliases remain outside narrowly scoped historical-data import.
 - Existing image-only fidelity suites still process and build; current performance results remain readable; one static export exposes all available views from a subdirectory.
 
 The central decision is the registry/session contract. Once that is agreed, absorbing performance-kit's implementation into fidelity-kit is a staged code migration rather than a second redesign of rendering and measurement.

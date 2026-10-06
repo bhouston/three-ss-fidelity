@@ -4,6 +4,7 @@ import { BufferAttribute, Object3D, Quaternion, Vector3 } from 'three';
 import type { Color, Mesh, MeshStandardMaterial, Scene } from 'three';
 import { MeshStandardNodeMaterial } from 'three/webgpu';
 import { color, reflector } from 'three/tsl';
+import { reflectedVelocity } from './velocity.js';
 
 /** A metal this smooth reflects like silvered glass, and SSR can't show it faithfully. */
 const MIN_METALNESS = 0.9;
@@ -144,7 +145,7 @@ export function createMirrors(scene: Scene): Mirrors {
       target.position.copy(face.point);
       target.quaternion.copy(new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), face.normal));
       target.updateMatrixWorld(true);
-      const node = reflector({ target, bounces: false });
+      const node = reflector({ target, bounces: false, depth: true });
       nodes.push(node);
       // black, fully rough and non-metal so no lighting or SSR shows; the reflection is the surface's own emission
       const material = new MeshStandardNodeMaterial({
@@ -154,6 +155,9 @@ export function createMirrors(scene: Scene): Mirrors {
         roughness: 1,
       });
       material.emissiveNode = node.mul(color(original.color));
+      // the pre-pass velocity of this surface is that of the reflected content (see MirrorAwareVelocityNode)
+      material.userData.mirrorVelocity = reflectedVelocity(node);
+      material.customProgramCacheKey = () => 'mirror';
       return material;
     });
     mesh.material = [original, ...materials];

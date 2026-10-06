@@ -51,6 +51,7 @@ import { ProgressiveLightBake } from './light-bake/ProgressiveLightBake.js';
 import { bakeProbeGrid } from './probe-grid.js';
 import { createMirrors, findMirrorPlanes } from './mirror/mirrors.js';
 import type { Mirrors } from './mirror/mirrors.js';
+import { MirrorAwareVelocityNode } from './mirror/velocity.js';
 import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
 
 // The fork's TSL nodes are ahead of @types/three; the graph is built exactly as in the examples, so it is typed loosely.
@@ -82,6 +83,7 @@ function createPipeline(
   hierarchyExperiment: RendererOptions['hierarchyExperiment'],
   ssrTemporalProfile: RendererOptions['ssrTemporalProfile'],
   useProbes = false,
+  mirrorVelocity = false,
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
   const resolutionScale = effects.resolutionScale ?? 1;
@@ -113,7 +115,8 @@ function createPipeline(
   prePass.setMRT(
     mrt({
       output: packNormalToRGB(normalView),
-      velocity,
+      // mirror pixels move like their reflected content, not like the mirror surface
+      velocity: mirrorVelocity ? new MirrorAwareVelocityNode() : velocity,
       // the texture-mapped material properties
       metalRoughness: vec2(metalness, roughness),
       // SSR re-evaluates the specular of its hits for the reflected ray's direction (see NewSSRNode.js)
@@ -357,7 +360,15 @@ export async function createThreeNewRenderer(
     if (useProbes && !baker && effects.ssgi)
       releaseProbes = await bakeProbeGrid(renderer, setup.scene, probeMode === 'light-probe-ddgi');
     if (probeMode === 'vpl-mirror') mirrors = createMirrors(setup.scene);
-    renderPipeline = createPipeline(renderer, setup, ssrDebug, hierarchyExperiment, ssrTemporalProfile, useProbes);
+    renderPipeline = createPipeline(
+      renderer,
+      setup,
+      ssrDebug,
+      hierarchyExperiment,
+      ssrTemporalProfile,
+      useProbes,
+      probeMode === 'vpl-mirror',
+    );
   } catch (error) {
     mirrors?.dispose();
     baker?.dispose();

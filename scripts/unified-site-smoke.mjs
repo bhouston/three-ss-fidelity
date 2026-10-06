@@ -12,18 +12,12 @@ const sharp = require('sharp');
 const work = await mkdtemp(join(tmpdir(), 'unified-kit-'));
 const site = join(work, 'site');
 const cli = resolve('submodules/fidelity-kit/packages/cli/dist/bin.js');
+const smokeRenderer = process.env.SMOKE_RENDERER ?? 'three-current';
 const correctnessChromeArgs = [
   '--no-sandbox',
   '--enable-unsafe-webgpu',
   '--enable-unsafe-swiftshader',
-  ...(process.platform === 'linux'
-    ? [
-        '--enable-features=Vulkan',
-        '--use-angle=swiftshader',
-        '--use-vulkan=swiftshader',
-        '--use-webgpu-adapter=swiftshader',
-      ]
-    : []),
+  ...(process.platform === 'linux' ? ['--use-gl=angle', '--use-angle=swiftshader-webgl'] : []),
 ];
 const execute = async (args) => {
   const browserArgs = ['render', 'benchmark'].includes(args[0])
@@ -136,7 +130,9 @@ try {
   await page.goto(detail, { waitUntil: 'networkidle0' });
   await page.waitForSelector('.performance-report .detail');
   assert.ok(new URL(page.url()).searchParams.get('result'));
-  await page.goto(website + '?view=live&renderer=three-current&scene=cornell-box-basic', { waitUntil: 'networkidle0' });
+  await page.goto(website + `?view=live&renderer=${smokeRenderer}&scene=cornell-box-basic`, {
+    waitUntil: 'networkidle0',
+  });
   await page.evaluate(() => {
     window.liveHarnessMessages = 0;
     window.addEventListener('message', (event) => {
@@ -164,10 +160,19 @@ try {
   browser = undefined;
   // Exercise the actual CLI paths against the same separately hosted browser entry.
   const capture = join(work, 'fidelity');
+  const captureRegistry = JSON.parse(await readFile('registry.json', 'utf8'));
+  // A correctness capture needs two samples; the published reference target is 4096.
+  const captureScene = captureRegistry.scenes.find((scene) => scene.id === 'cornell-box-basic');
+  captureScene.fidelity.width = 320;
+  captureScene.fidelity.height = 180;
+  const captureRenderer = captureRegistry.renderers.find((renderer) => renderer.id === smokeRenderer);
+  if (captureRenderer.params.samples) captureRenderer.params.samples = 2;
+  const captureRegistryFile = join(work, 'capture-registry.json');
+  await writeFile(captureRegistryFile, JSON.stringify(captureRegistry));
   await execute([
     'render',
     '--registry',
-    'registry.json',
+    captureRegistryFile,
     '--root-url',
     renderer + 'render/',
     '--out',
@@ -175,14 +180,14 @@ try {
     '--scene',
     'cornell-box-basic',
     '--renderer',
-    'three-current',
+    smokeRenderer,
     '--frames',
     '2',
     '--executable-path',
     chrome,
   ]);
   assert.ok(
-    (await sharp(join(capture, 'cornell-box-basic/beauty/three-current.avif')).stats()).channels.some(
+    (await sharp(join(capture, `cornell-box-basic/beauty/${smokeRenderer}.avif`)).stats()).channels.some(
       (channel) => channel.stdev > 10,
     ),
   );
@@ -190,7 +195,9 @@ try {
   suite.performance = {
     default: {
       defaults: { capture: true, vsync: 'off' },
-      entries: [{ scene: 'cornell-box-basic', renderer: 'three-current', durationMs: 5000 }],
+      entries: [
+        { scene: 'cornell-box-basic', renderer: smokeRenderer, durationMs: 5000, params: { width: 320, height: 180 } },
+      ],
     },
   };
   const suiteFile = join(work, 'registry.json');
@@ -213,7 +220,7 @@ try {
     chrome,
   ]);
   const result = JSON.parse(
-    await readFile(join(metrics, 'smoke/three-current/cornell-box-basic/metrics.json'), 'utf8'),
+    await readFile(join(metrics, `smoke/${smokeRenderer}/cornell-box-basic/metrics.json`), 'utf8'),
   );
   // CI may use a software adapter; this verifies contracts, not comparative hardware performance.
   assert.equal(result.status, 'ok');

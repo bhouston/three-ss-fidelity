@@ -118,6 +118,15 @@ export async function createPerformanceSession(
     // Compile the entire post-processing graph, including lazily built passes, during init.
     draw();
     await complete();
+    // The pathtracer defers its first sample until parallel shader compilation finishes.
+    // Give browser tasks a turn and keep that work in setup before capture or measurement.
+    const compileDeadline = performance.now() + 60000;
+    while (config.renderer === 'three-gpu-pathtracer' && current.frames < 1) {
+      if (performance.now() > compileDeadline) throw new Error('Pathtracer did not complete its first sample');
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      draw();
+      await complete();
+    }
     reporter.phaseEnd('compile');
     reporter.ready();
     let disposed = false;

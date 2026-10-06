@@ -19,7 +19,7 @@ Implementation checklist:
 - [x] Rename internal scene entities, including the former SceneSetup type and glTF scene definitions.
 - [x] Export a deployable unified website and independent render server assets.
 - [x] Complete build, type, lint, coverage, browser, and dependency checks.
-- [ ] Open coordinated package and consumer PRs.
+- [x] Open coordinated package and consumer PRs: [fidelity-kit #69](https://github.com/bhouston/fidelity-kit/pull/69) and [three-ss-fidelity #209](https://github.com/bhouston/three-ss-fidelity/pull/209). Merge the package first.
 
 The historical analysis below records the design constraints behind the migration. Implementation uses `registry.json`, explicit performance collections, a browser host, and the existing fidelity/performance storage formats. Workload hashing and a future common artifact index remain extensions; this migration retains existing historical IDs and formats instead of rewriting result history.
 

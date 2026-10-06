@@ -13,6 +13,8 @@ const work = await mkdtemp(join(tmpdir(), 'unified-kit-'));
 const site = join(work, 'site');
 const cli = resolve('submodules/fidelity-kit/packages/cli/dist/bin.js');
 const smokeRenderer = process.env.SMOKE_RENDERER ?? 'three-current';
+const liveFixture = process.env.SMOKE_LIVE_FIXTURE;
+let cube;
 const correctnessChromeArgs = [
   '--no-sandbox',
   '--enable-unsafe-webgpu',
@@ -73,6 +75,10 @@ let browser;
 try {
   const website = await serve('/project/');
   const renderer = await serve('/');
+  if (liveFixture === 'cube') {
+    const { createCubeServer } = await import('../submodules/fidelity-kit/scripts/cube-server.mjs');
+    cube = await createCubeServer();
+  }
   await execute([
     'build',
     'fidelity-results',
@@ -86,6 +92,14 @@ try {
     renderer + 'render/',
   ]);
   await promisify(execFile)(process.execPath, ['scripts/build-render-server.mjs', '--out', join(site, 'render')]);
+  if (cube) {
+    // Exercise full-HD UI/host contracts with a lightweight real GPU fixture on software CI.
+    // Project pathtracer capture and throughput checks below still use the actual render bundle.
+    const manifestFile = join(site, 'data/site.json');
+    const manifest = JSON.parse(await readFile(manifestFile, 'utf8'));
+    manifest.rendererUrl = cube.url + 'index.html';
+    await writeFile(manifestFile, JSON.stringify(manifest));
+  }
   const chrome =
     process.env.CHROME_EXECUTABLE ??
     (process.platform === 'darwin'
@@ -136,7 +150,7 @@ try {
   await page.goto(website + `?view=live&renderer=${smokeRenderer}&scene=cornell-box-basic`, {
     waitUntil: 'networkidle0',
   });
-  console.log(`Checking live renderer: ${smokeRenderer}`);
+  console.log(`Checking live renderer: ${cube ? 'WebGL cube contract fixture' : smokeRenderer}`);
   await page.evaluate(() => {
     window.liveHarnessMessages = 0;
     window.addEventListener('message', (event) => {
@@ -151,9 +165,11 @@ try {
   const original = await page.$eval('iframe', (frame) => frame.src);
   const renderFrame = page.frames().find((frame) => frame.url() === original);
   assert.deepEqual(await renderFrame.$eval('canvas', (canvas) => [canvas.width, canvas.height]), [1920, 1080]);
+  console.log('Checking live canvas screenshot');
   const image = await (await renderFrame.$('canvas')).screenshot({ type: 'png' });
   assert.ok((await sharp(image).stats()).channels.some((channel) => channel.stdev > 10));
   await page.select('select[aria-label="Scene"]', 'cornell-box-basic-oblique');
+  console.log('Checking live scene reset');
   assert.equal(await page.$eval('iframe', (frame) => frame.src), original);
   await page.click('button');
   assert.equal(await page.$eval('[aria-label="Live frame rate"]', (element) => element.textContent), '— FPS');
@@ -243,6 +259,7 @@ try {
   if (process.env.SMOKE_ARTIFACTS) await cp(site, resolve(process.env.SMOKE_ARTIFACTS), { recursive: true });
 } finally {
   await browser?.close();
+  await cube?.close();
   for (const server of servers) {
     server.closeAllConnections();
     await new Promise((done) => server.close(done));

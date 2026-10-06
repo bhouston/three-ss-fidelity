@@ -38,9 +38,11 @@ jobs:
       - name: Install Chrome for unified browser contracts
         run: node submodules/fidelity-kit/scripts/install-test-browser.mjs
       - name: Check unified website and renderer contracts
+        timeout-minutes: 10
         env:
-          # Exercise the real WebGL pathtracer; SwiftShader WebGPU crashes on this runner.
+          # Real pathtracer captures/benchmarks use small images; full-HD UI uses the GPU cube fixture.
           SMOKE_RENDERER: three-gpu-pathtracer
+          SMOKE_LIVE_FIXTURE: cube
         run: xvfb-run --auto-servernum pnpm test:unified
       - name: Audit dependencies
         id: audit

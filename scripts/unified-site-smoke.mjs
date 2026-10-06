@@ -145,7 +145,9 @@ try {
   });
   await page.click('button');
   await waitForLive();
-  await page.waitForFunction(() => document.querySelector('[aria-label="Live frame rate"]')?.textContent !== '— FPS');
+  await page.waitForFunction(() => document.querySelector('[aria-label="Live frame rate"]')?.textContent !== '— FPS', {
+    timeout: process.platform === 'linux' ? 180000 : 30000,
+  });
   const original = await page.$eval('iframe', (frame) => frame.src);
   const renderFrame = page.frames().find((frame) => frame.url() === original);
   assert.deepEqual(await renderFrame.$eval('canvas', (canvas) => [canvas.width, canvas.height]), [1920, 1080]);

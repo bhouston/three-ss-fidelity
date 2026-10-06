@@ -43,6 +43,7 @@ import { traa } from './traa/TRAANode.js';
 import { ssgi } from './ssgi-fast/SSGINode.js';
 import { bilateralUpsample } from './ssgi-fast/bilateralUpsample.js';
 import { newSSR } from './ssr/NewSSRNode.js';
+import { BoxProjectedProbe } from './box-projected.js';
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import { ssgiWorkExperiments } from './types.js';
 import type { LiveRenderer, RendererOptions, SSGIWorkExperiment } from './types.js';
@@ -83,6 +84,7 @@ function createPipeline(
   hierarchyExperiment: RendererOptions['hierarchyExperiment'],
   ssrTemporalProfile: RendererOptions['ssrTemporalProfile'],
   useProbes = false,
+  boxRadiance: AnyNode = null,
   mirrorVelocity = false,
 ): RenderPipeline {
   const { scene, camera, effects } = setup;
@@ -204,7 +206,8 @@ function createPipeline(
 
   let reflections: AnyNode = null;
   let debugOutput: AnyNode = null;
-  if (effects.ssr) {
+  // box-projected mode takes every specular reflection from the captured cube map instead of SSR
+  if (effects.ssr && !boxRadiance) {
     const params = effects.ssr;
     // depth of the nearest back faces, so SSR knows how thick each solid actually is
     const backPass = pass(scene, camera);
@@ -281,11 +284,16 @@ function createPipeline(
 
   // builtinRadianceContext leaves transparent-flagged materials on the environment map. The pre-passes include them
   // (steampunk's opaque Lense_Casing), so they take the SSR radiance too.
-  const radiance = !reflections
-    ? null
-    : (context as AnyNode)(null, {
-        getRadiance: (inputNode: AnyNode) => (inputNode !== null ? inputNode.add(reflections) : reflections),
-      });
+  const radiance = boxRadiance
+    ? (context as AnyNode)(null, {
+        // replaces the environment radiance; transparent materials keep it
+        getRadiance: (inputNode: AnyNode, { material }: AnyNode) => (material.transparent ? inputNode : boxRadiance),
+      })
+    : !reflections
+      ? null
+      : (context as AnyNode)(null, {
+          getRadiance: (inputNode: AnyNode) => (inputNode !== null ? inputNode.add(reflections) : reflections),
+        });
   if (giPass) {
     const aoSignal = temporal ? temporalDenoise(giPass.getAONode(), giResolutionScale) : giPass.getAONode();
     const giSignal = temporal ? temporalDenoise(giPass.getGINode(), giResolutionScale) : giPass.getGINode();
@@ -346,6 +354,7 @@ export async function createThreeNewRenderer(
   });
 
   let releaseProbes: (() => void) | undefined;
+  let boxProbe: BoxProjectedProbe | undefined;
   let mirrors: Mirrors | undefined;
   let baker: ProgressiveLightBake | undefined;
   const createSurfaceLighting = () =>
@@ -359,6 +368,7 @@ export async function createThreeNewRenderer(
     if (probeMode === 'light-bake' || isVpl) baker = createSurfaceLighting();
     if (useProbes && !baker && effects.ssgi)
       releaseProbes = await bakeProbeGrid(renderer, setup.scene, probeMode === 'light-probe-ddgi');
+    if (probeMode === 'vpl-box-projected') boxProbe = new BoxProjectedProbe(renderer, setup.scene);
     if (probeMode === 'vpl-mirror') mirrors = createMirrors(setup.scene);
     renderPipeline = createPipeline(
       renderer,
@@ -367,9 +377,11 @@ export async function createThreeNewRenderer(
       hierarchyExperiment,
       ssrTemporalProfile,
       useProbes,
+      boxProbe?.radiance,
       probeMode === 'vpl-mirror',
     );
   } catch (error) {
+    boxProbe?.dispose();
     mirrors?.dispose();
     baker?.dispose();
     releaseProbes?.();
@@ -424,6 +436,7 @@ export async function createThreeNewRenderer(
         if (signature !== sceneSignature) progressive.resetAccumulation();
         sceneSignature = signature;
       }
+      let refreshProbe = false;
       if (baker) {
         const signature = bakeSignature();
         if (signature !== bakedSignature) {
@@ -436,12 +449,15 @@ export async function createThreeNewRenderer(
           bakedSignature = bakeSignature();
         }
         if (baker.step()) {
+          // the capture is expensive: refresh it periodically while the bake accumulates and once it converges
+          refreshProbe = !!boxProbe && (baker.phase === 'converged' || baker.pass % 32 === 0);
           progressive?.resetAccumulation();
           // Initial lightMap assignment updates material versions once.
           bakedSignature = bakeSignature();
         }
       }
       renderPipeline.render();
+      if (refreshProbe) boxProbe?.update();
       frames++;
     },
     setSize(w, h) {
@@ -454,6 +470,7 @@ export async function createThreeNewRenderer(
       // RenderPipeline.dispose() and Renderer.dispose() don't reach the rtt() render targets (see docs/history/SSGI_FAST.md)
       for (const disposable of (renderPipeline as AnyNode).rttDisposables) disposable.dispose();
       renderPipeline.dispose();
+      boxProbe?.dispose();
       mirrors?.dispose();
       baker?.dispose();
       releaseProbes?.();

@@ -3,9 +3,25 @@ import { Vector3 } from 'three';
 import type { SceneSetup } from '@ss-fidelity/scenes';
 import type { LiveRenderer } from '@ss-fidelity/renderers';
 
-export function createNavigation(setup: SceneSetup, live: LiveRenderer, canvas: HTMLCanvasElement) {
+export interface CameraPose {
+  position: number[];
+  target: number[];
+}
+export interface NavigationOptions {
+  /** Start from this pose instead of the scene's default camera. */
+  initial?: CameraPose;
+  onChange?(pose: CameraPose): void;
+}
+
+export function createNavigation(
+  setup: SceneSetup,
+  live: LiveRenderer,
+  canvas: HTMLCanvasElement,
+  { initial, onChange }: NavigationOptions = {},
+) {
   const controls = new OrbitControls(setup.camera, canvas);
-  controls.target.copy(setup.target);
+  if (initial) setup.camera.position.fromArray(initial.position);
+  controls.target.fromArray(initial?.target ?? setup.target.toArray());
   controls.enableDamping = true;
   controls.update();
   canvas.tabIndex = 0;
@@ -23,7 +39,10 @@ export function createNavigation(setup: SceneSetup, live: LiveRenderer, canvas: 
   };
   const clear = () => keys.clear();
   const focus = () => canvas.focus({ preventScroll: true });
-  const changed = () => live.setCamera(setup.camera);
+  const changed = () => {
+    live.setCamera(setup.camera);
+    onChange?.({ position: setup.camera.position.toArray(), target: controls.target.toArray() });
+  };
   canvas.addEventListener('keydown', keydown);
   canvas.addEventListener('keyup', keyup);
   canvas.addEventListener('blur', clear);

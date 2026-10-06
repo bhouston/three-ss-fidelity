@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client';
 import { listSceneNames } from '@ss-fidelity/scenes';
 import { liveRendererPresets } from './performance-presets';
 import { createPerformanceSession } from './performance-session';
+import { parseLiveUrl, serializeLiveUrl } from './performance-live-url';
+import type { LiveUrlState } from './performance-live-url';
+import { createUrlStateWriter } from './url-state';
 import { createLiveTelemetry } from './performance-telemetry';
 import type { FrameMetric, SetupMetric } from './performance-telemetry';
 import { FrameChart, SetupChart } from './performance-charts';
@@ -11,8 +14,20 @@ import './performance-live.css';
 
 function LiveViewer() {
   const scenes = listSceneNames();
-  const [scene, setScene] = useState('cornell-box-basic');
-  const [renderer, setRenderer] = useState<string>('three-current');
+  // Scenario, renderer, running state and camera live in the query, so a reload resumes where it was.
+  const [initial] = useState<LiveUrlState>(() =>
+    parseLiveUrl(
+      location.search,
+      scenes,
+      liveRendererPresets.map((preset) => preset.id),
+      { scene: 'cornell-box-basic', renderer: 'three-current', run: false },
+    ),
+  );
+  const url = useRef(initial);
+  const restorePose = useRef(initial.pose);
+  const urlWriter = useRef<ReturnType<typeof createUrlStateWriter>>(null);
+  const [scene, setScene] = useState(initial.scene);
+  const [renderer, setRenderer] = useState<string>(initial.renderer);
   const [active, setActive] = useState<{ scene: string; renderer: string }>();
   const [status, setStatus] = useState('Choose a scenario and renderer, then start.');
   const [loading, setLoading] = useState(false);
@@ -26,8 +41,17 @@ function LiveViewer() {
       generation.current++;
       stop.current();
     };
+    urlWriter.current = createUrlStateWriter((mode) => {
+      const next = serializeLiveUrl(url.current);
+      if (next !== location.search)
+        history[mode === 'push' ? 'pushState' : 'replaceState'](null, '', next + location.hash);
+    });
     window.addEventListener('pagehide', cleanup);
+    // Back/forward reloads so every setting and the camera restore through the same path as a fresh load.
+    const popstate = () => location.reload();
+    window.addEventListener('popstate', popstate);
     return () => {
+      window.removeEventListener('popstate', popstate);
       window.removeEventListener('pagehide', cleanup);
       cleanup();
     };
@@ -40,6 +64,11 @@ function LiveViewer() {
     setSetup(undefined);
     setFrames([]);
     setActive({ scene, renderer });
+    // A manual start resets the camera; only the first start after loading the page restores the saved pose.
+    const initialPose = restorePose.current;
+    restorePose.current = undefined;
+    url.current = { scene, renderer, run: true, pose: initialPose };
+    urlWriter.current?.settings();
     setLoading(true);
     setStatus('Loading scene and preparing the first frame…');
     const telemetry = createLiveTelemetry(
@@ -57,6 +86,14 @@ function LiveViewer() {
         telemetry.reporter,
         host.current!,
         true,
+        {
+          initial: initialPose,
+          onChange(pose) {
+            if (generation.current !== run) return;
+            url.current = { ...url.current, pose };
+            urlWriter.current?.camera();
+          },
+        },
       );
       if (generation.current !== run) {
         session.dispose();
@@ -89,6 +126,24 @@ function LiveViewer() {
       if (generation.current === run) setLoading(false);
     }
   }
+  useEffect(() => {
+    // Deferred so the render that restores the state has finished before start() updates it.
+    const timer = setTimeout(() => initial.run && void start(), 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  function selectScenario(nextScene: string, nextRenderer: string) {
+    setScene(nextScene);
+    setRenderer(nextRenderer);
+    // The saved camera belongs to the running scene, so it is dropped once the selection moves away from it.
+    url.current = {
+      ...url.current,
+      scene: nextScene,
+      renderer: nextRenderer,
+      pose: active?.scene === nextScene ? url.current.pose : undefined,
+    };
+    urlWriter.current?.settings();
+  }
   const pending = active && (active.scene !== scene || active.renderer !== renderer);
   return (
     <>
@@ -103,7 +158,11 @@ function LiveViewer() {
         <section className="live-panel live-controls">
           <label>
             Scenario
-            <select aria-label="Scenario" value={scene} onChange={(event) => setScene(event.target.value)}>
+            <select
+              aria-label="Scenario"
+              value={scene}
+              onChange={(event) => selectScenario(event.target.value, renderer)}
+            >
               {scenes.map((name) => (
                 <option key={name}>{name}</option>
               ))}
@@ -111,7 +170,11 @@ function LiveViewer() {
           </label>
           <label>
             Renderer
-            <select aria-label="Renderer" value={renderer} onChange={(event) => setRenderer(event.target.value)}>
+            <select
+              aria-label="Renderer"
+              value={renderer}
+              onChange={(event) => selectScenario(scene, event.target.value)}
+            >
               {liveRendererPresets.map((preset) => (
                 <option key={preset.id} value={preset.id}>
                   {preset.name}

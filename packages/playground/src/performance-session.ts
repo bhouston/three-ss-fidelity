@@ -2,6 +2,7 @@ import type { SceneSetup } from '@ss-fidelity/scenes';
 import type { LiveRenderer } from '@ss-fidelity/renderers';
 import type { FrameContext } from '@ss-fidelity/runtime';
 import type { Reporter } from 'performance-kit-reporter';
+import type { NavigationOptions } from './performance-navigation';
 
 export type PerformanceReporter = Pick<
   Reporter,
@@ -13,6 +14,7 @@ export async function createPerformanceSession(
   reporter: PerformanceReporter,
   host: HTMLElement,
   interactive = false,
+  navigationOptions?: NavigationOptions,
 ) {
   let live: LiveRenderer | undefined;
   let setup: SceneSetup | undefined;
@@ -72,7 +74,7 @@ export async function createPerformanceSession(
     const complete = () => renderers.completeRenderer(current.renderer);
     if (interactive) {
       const { createNavigation } = await import('./performance-navigation');
-      navigation = createNavigation(setup, current, canvas);
+      navigation = createNavigation(setup, current, canvas, navigationOptions);
     }
     // Read the adapter selected by the renderer; probing another adapter can misidentify software fallbacks.
     // GPU query readbacks schedule promises and polling per frame. Keep the standard

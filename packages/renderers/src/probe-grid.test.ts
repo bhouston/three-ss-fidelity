@@ -93,7 +93,7 @@ it('restores borrowed scene state and removes failed captures', async () => {
   expect(scene.children).toHaveLength(1);
   expect(state.grids[0]!.dispose).toHaveBeenCalledTimes(1);
 });
-it('previews with a coarse grid, bakes the full grid hidden, then swaps them', async () => {
+it('bakes one grid per bounce at rising resolution, each showing only after it finishes', async () => {
   const scene = new Scene();
   scene.add(new Mesh(new BoxGeometry(), new MeshBasicMaterial()));
   const background = new Color('red');
@@ -105,41 +105,40 @@ it('previews with a coarse grid, bakes the full grid hidden, then swaps them', a
       throw error;
     },
   });
-  const [preview] = state.grids;
-  expect(state.grids).toHaveLength(1);
+  // returns once the coarsest grid is baked and visible; finer levels continue in the background
+  expect(state.grids[0]!.visible).toBe(true);
   expect(progress[0]).toBeLessThan(1);
   expect(scene.background).toBe(background);
   await vi.waitFor(() => expect(progress.at(-1)).toBe(1), { timeout: 10_000 });
-  const [, full] = state.grids;
-  expect(preview!.dispose).toHaveBeenCalledTimes(1);
-  expect(scene.children).toContain(full);
-  expect(scene.children).not.toContain(preview);
-  expect(full!.visible).toBe(true);
-  expect(full!.bake.mock.calls.reduce((n, call) => n + (call[2].pass === 0 ? call[2].count : 0), 0)).toBe(
-    fitProbeGrid(scene).count,
-  );
-  // the preview never sees the full grid's light and vice versa
-  expect(preview!.bake.mock.calls.length).toBeLessThan(full!.bake.mock.calls.length);
+  expect(state.grids).toHaveLength(3);
+  const counts = state.grids.map((grid) => grid.bake.mock.calls.reduce((n, call) => n + call[2].count, 0));
+  expect(counts[0]).toBeLessThan(counts[1]!);
+  expect(counts[1]).toBeLessThanOrEqual(counts[2]!);
+  expect(counts[2]).toBe(fitProbeGrid(scene).count);
+  // every level is a direct-light pass; bounces come from the previous level being visible
+  for (const grid of state.grids) for (const call of grid.bake.mock.calls) expect(call[2].pass).toBe(0);
+  expect(state.grids.map((grid) => grid.dispose.mock.calls.length)).toEqual([1, 1, 0]);
+  expect(scene.children).toEqual([expect.anything(), state.grids[2]]);
+  expect(state.grids[2]!.visible).toBe(true);
   expect(scene.background).toBe(background);
   release();
-  expect(full!.dispose).toHaveBeenCalledTimes(1);
+  expect(state.grids[2]!.dispose).toHaveBeenCalledTimes(1);
 });
 it('stops baking when released mid-way', async () => {
   const scene = new Scene();
   scene.add(new Mesh(new BoxGeometry(), new MeshBasicMaterial()));
   const release = await bakeProbeGrid({} as never, scene, false, { onProgress: () => {}, onError: () => {} });
   release();
+  const bakes = state.grids.map((grid) => grid.bake.mock.calls.length);
   await new Promise((resolve) => setTimeout(resolve, 50));
-  expect(state.grids).toHaveLength(1);
-  expect(state.grids[0]!.dispose).toHaveBeenCalledTimes(1);
+  expect(state.grids.map((grid) => grid.bake.mock.calls.length)).toEqual(bakes);
+  expect(state.grids.at(-1)!.dispose).toHaveBeenCalledTimes(1);
 });
 it('reports background bake failures through onError', async () => {
   const scene = new Scene();
   scene.add(new Mesh(new BoxGeometry(), new MeshBasicMaterial()));
   const errors: unknown[] = [];
-  await bakeProbeGrid({} as never, scene, false, {
-    onProgress: () => (state.fail = true),
-    onError: (e) => errors.push(e),
-  });
+  await bakeProbeGrid({} as never, scene, false, { onProgress: () => {}, onError: (e) => errors.push(e) });
+  state.fail = true;
   await vi.waitFor(() => expect(errors).toHaveLength(1));
 });

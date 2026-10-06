@@ -12,7 +12,12 @@ const sharp = require('sharp');
 const work = await mkdtemp(join(tmpdir(), 'unified-kit-'));
 const site = join(work, 'site');
 const cli = resolve('submodules/fidelity-kit/packages/cli/dist/bin.js');
-const execute = async (args) => promisify(execFile)(process.execPath, [cli, ...args], { maxBuffer: 16 * 1024 * 1024 });
+const execute = async (args) => {
+  const browserArgs = ['render', 'benchmark'].includes(args[0])
+    ? ['--chrome-arg=--no-sandbox', '--chrome-arg=--enable-unsafe-swiftshader']
+    : [];
+  return promisify(execFile)(process.execPath, [cli, ...args, ...browserArgs], { maxBuffer: 16 * 1024 * 1024 });
+};
 const types = {
   '.html': 'text/html',
   '.js': 'text/javascript',
@@ -67,7 +72,11 @@ try {
     (process.platform === 'darwin'
       ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
       : puppeteer.executablePath());
-  browser = await puppeteer.launch({ headless: true, executablePath: chrome, args: ['--enable-unsafe-webgpu'] });
+  browser = await puppeteer.launch({
+    headless: true,
+    executablePath: chrome,
+    args: ['--enable-unsafe-webgpu', '--enable-unsafe-swiftshader', '--no-sandbox'],
+  });
   const page = await browser.newPage();
   await page.setViewport({ width: 1440, height: 1100 });
   const errors = [];
@@ -160,12 +169,14 @@ try {
     'smoke',
     '--cooldown-ms',
     '0',
+    '--allow-software',
     '--executable-path',
     chrome,
   ]);
   const result = JSON.parse(
     await readFile(join(metrics, 'smoke/three-current/cornell-box-basic/metrics.json'), 'utf8'),
   );
+  // CI may use a software adapter; this verifies contracts, not comparative hardware performance.
   assert.equal(result.status, 'ok');
   assert.ok(result.statistics.averageFps > 0);
   assert.ok(result.throughput.completedFrames > 0);

@@ -35,6 +35,10 @@ jobs:
       - run: pnpm tsc
       - run: pnpm lint
       - run: pnpm test --coverage
+      - name: Install Chrome for unified browser contracts
+        run: pnpm --filter fidelity-kit exec puppeteer browsers install chrome
+      - name: Check unified website and renderer contracts
+        run: pnpm test:unified
       - name: Audit dependencies
         id: audit
         continue-on-error: true

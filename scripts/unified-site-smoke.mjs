@@ -12,9 +12,23 @@ const sharp = require('sharp');
 const work = await mkdtemp(join(tmpdir(), 'unified-kit-'));
 const site = join(work, 'site');
 const cli = resolve('submodules/fidelity-kit/packages/cli/dist/bin.js');
+const correctnessChromeArgs = [
+  '--no-sandbox',
+  '--enable-unsafe-webgpu',
+  '--enable-unsafe-swiftshader',
+  ...(process.platform === 'linux'
+    ? [
+        '--enable-features=Vulkan',
+        '--use-angle=vulkan',
+        '--use-vulkan=swiftshader',
+        '--use-webgpu-adapter=swiftshader',
+        '--disable-vulkan-surface',
+      ]
+    : []),
+];
 const execute = async (args) => {
   const browserArgs = ['render', 'benchmark'].includes(args[0])
-    ? ['--chrome-arg=--no-sandbox', '--chrome-arg=--enable-unsafe-swiftshader']
+    ? correctnessChromeArgs.map((flag) => `--chrome-arg=${flag}`)
     : [];
   return promisify(execFile)(process.execPath, [cli, ...args, ...browserArgs], { maxBuffer: 16 * 1024 * 1024 });
 };
@@ -75,12 +89,28 @@ try {
   browser = await puppeteer.launch({
     headless: true,
     executablePath: chrome,
-    args: ['--enable-unsafe-webgpu', '--enable-unsafe-swiftshader', '--no-sandbox'],
+    args: correctnessChromeArgs,
   });
   const page = await browser.newPage();
   await page.setViewport({ width: 1440, height: 1100 });
   const errors = [];
-  page.on('pageerror', (error) => errors.push(error.message));
+  page.on('pageerror', (error) => {
+    errors.push(error.message);
+    console.error(`Browser error: ${error.message}`);
+  });
+  page.on('console', (message) => {
+    if (message.type() === 'error') console.error(`Browser console: ${message.text()}`);
+  });
+  async function waitForLive() {
+    await page.waitForFunction(
+      () => {
+        const status = document.querySelector('output')?.textContent;
+        return status && status !== 'Loading scene…';
+      },
+      { timeout: 90000 },
+    );
+    assert.equal(await page.$eval('output', (element) => element.textContent), 'Running');
+  }
   await page.goto(website, { waitUntil: 'networkidle0' });
   assert.equal(await page.$eval('h1', (element) => element.textContent), 'three-ss-fidelity');
   assert.ok(await page.$eval('figure img', (image) => image.naturalWidth > 0));
@@ -105,7 +135,7 @@ try {
     });
   });
   await page.click('button');
-  await page.waitForFunction(() => document.querySelector('output')?.textContent === 'Running', { timeout: 90000 });
+  await waitForLive();
   await page.waitForFunction(() => document.querySelector('[aria-label="Live frame rate"]')?.textContent !== '— FPS');
   const original = await page.$eval('iframe', (frame) => frame.src);
   const renderFrame = page.frames().find((frame) => frame.url() === original);
@@ -117,7 +147,7 @@ try {
   await page.click('button');
   assert.equal(await page.$eval('[aria-label="Live frame rate"]', (element) => element.textContent), '— FPS');
   assert.notEqual(await page.$eval('iframe', (frame) => frame.src), original);
-  await page.waitForFunction(() => document.querySelector('output')?.textContent === 'Running', { timeout: 90000 });
+  await waitForLive();
   assert.equal(await page.evaluate(() => window.liveHarnessMessages), 0);
   await page.goto(website, { waitUntil: 'networkidle0' });
   assert.deepEqual(errors, []);

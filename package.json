@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "prepare": "husky",
-    "build": "pnpm build:fidelity-kit && tsc -b && pnpm build:three && pnpm -r --if-present --filter './packages/*' build",
+    "build": "pnpm build:fidelity-kit && tsc -b && pnpm build:three && pnpm -r --if-present --filter \"@ss-fidelity/*\" build",
     "dev": "pnpm -r --parallel --stream dev",
     "tsc": "tsc -b && pnpm --filter @ss-fidelity/playground tsc",
     "format": "oxfmt .",

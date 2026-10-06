@@ -17,7 +17,10 @@ const correctnessChromeArgs = [
   '--no-sandbox',
   '--enable-unsafe-webgpu',
   '--enable-unsafe-swiftshader',
-  ...(process.platform === 'linux' ? ['--use-gl=angle', '--use-angle=swiftshader-webgl'] : []),
+  // Full-HD pathtracing can exceed Chrome's watchdog on the software CI adapter.
+  ...(process.platform === 'linux'
+    ? ['--use-gl=angle', '--use-angle=swiftshader-webgl', '--disable-gpu-watchdog']
+    : []),
 ];
 const execute = async (args) => {
   const browserArgs = ['render', 'benchmark'].includes(args[0])
@@ -133,6 +136,7 @@ try {
   await page.goto(website + `?view=live&renderer=${smokeRenderer}&scene=cornell-box-basic`, {
     waitUntil: 'networkidle0',
   });
+  console.log(`Checking live renderer: ${smokeRenderer}`);
   await page.evaluate(() => {
     window.liveHarnessMessages = 0;
     window.addEventListener('message', (event) => {
@@ -159,6 +163,7 @@ try {
   await browser.close();
   browser = undefined;
   // Exercise the actual CLI paths against the same separately hosted browser entry.
+  console.log('Checking fidelity capture');
   const capture = join(work, 'fidelity');
   const captureRegistry = JSON.parse(await readFile('registry.json', 'utf8'));
   // A correctness capture needs two samples; the published reference target is 4096.
@@ -203,6 +208,7 @@ try {
   const suiteFile = join(work, 'registry.json');
   await writeFile(suiteFile, JSON.stringify(suite));
   const metrics = join(work, 'performance');
+  console.log('Checking completed-frame benchmark');
   await execute([
     'benchmark',
     '--registry',

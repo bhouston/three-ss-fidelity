@@ -84,6 +84,8 @@ export interface RendererOptions {
    * 'hitcolor' shows the scene color the hit read.
    */
   ssrDebug?: 'hits' | 'hitcolor';
+  /** Probe renderers: render frames while the grid bakes instead of waiting for it (live viewer only). */
+  progressiveProbes?: boolean;
 }
 
 /** Incremental renderer over one scene: call render() once per animation frame (browser) or in a loop (node). */

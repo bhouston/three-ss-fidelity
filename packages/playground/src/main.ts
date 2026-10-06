@@ -315,6 +315,7 @@ async function session(
         height: config.height,
         trackTimestamp: profile,
         hierarchyExperiment: config.experiment,
+        progressiveProbes: true,
       });
     live = startup ? await startup.measure('renderer', create) : await create();
     const renderer = live;

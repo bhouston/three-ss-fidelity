@@ -133,6 +133,12 @@ export async function createPerformanceSession(
     return {
       canvas,
       accumulated: () => current.frames,
+      resize(width: number, height: number) {
+        current.setSize(width, height);
+        setup!.camera.aspect = width / height;
+        setup!.camera.updateProjectionMatrix();
+        current.setCamera(setup!.camera);
+      },
       draw,
       complete,
       dispose() {

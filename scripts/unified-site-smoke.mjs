@@ -164,7 +164,23 @@ try {
   });
   const original = await page.$eval('iframe', (frame) => frame.src);
   const renderFrame = page.frames().find((frame) => frame.url() === original);
-  assert.deepEqual(await renderFrame.$eval('canvas', (canvas) => [canvas.width, canvas.height]), [1920, 1080]);
+  const checkLiveSize = async () => {
+    const dimensions = await page.$eval('iframe', (frame) => [frame.clientWidth, frame.clientHeight]);
+    await renderFrame.waitForFunction(
+      (width, height) => {
+        const canvas = document.querySelector('canvas');
+        return canvas?.width === width && canvas?.height === height;
+      },
+      {},
+      ...dimensions,
+    );
+    assert.ok(await page.$eval('iframe', (frame) => frame.getBoundingClientRect().right <= innerWidth));
+  };
+  await checkLiveSize();
+  await page.setViewport({ width: 800, height: 700 });
+  await checkLiveSize();
+  await page.setViewport({ width: 1200, height: 900 });
+  await checkLiveSize();
   console.log('Checking live canvas screenshot');
   const image = await (await renderFrame.$('canvas')).screenshot({ type: 'png' });
   assert.ok((await sharp(image).stats()).channels.some((channel) => channel.stdev > 10));
@@ -255,7 +271,7 @@ try {
   assert.equal(result.statistics.cpuSampleCount, 0);
   assert.equal(result.statistics.intervalCount, 0);
   console.log(
-    'Passed: subpath home/hero, fidelity detail, performance detail, cross-origin live, fixed canvas, nonblack output, selection/reset, reporting disabled, shared browser render and benchmark CLIs.',
+    'Passed: subpath home/hero, fidelity detail, performance detail, cross-origin live, responsive canvas, nonblack output, selection/reset, reporting disabled, shared browser render and benchmark CLIs.',
   );
   if (process.env.SMOKE_ARTIFACTS) await cp(site, resolve(process.env.SMOKE_ARTIFACTS), { recursive: true });
 } finally {

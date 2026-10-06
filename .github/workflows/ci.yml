@@ -38,7 +38,7 @@ jobs:
       - name: Install Chrome for unified browser contracts
         run: node submodules/fidelity-kit/scripts/install-test-browser.mjs
       - name: Check unified website and renderer contracts
-        run: pnpm test:unified
+        run: xvfb-run --auto-servernum pnpm test:unified
       - name: Audit dependencies
         id: audit
         continue-on-error: true

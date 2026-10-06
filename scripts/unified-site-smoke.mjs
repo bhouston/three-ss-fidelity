@@ -19,10 +19,9 @@ const correctnessChromeArgs = [
   ...(process.platform === 'linux'
     ? [
         '--enable-features=Vulkan',
-        '--use-angle=vulkan',
+        '--use-angle=swiftshader',
         '--use-vulkan=swiftshader',
         '--use-webgpu-adapter=swiftshader',
-        '--disable-vulkan-surface',
       ]
     : []),
 ];
@@ -30,7 +29,16 @@ const execute = async (args) => {
   const browserArgs = ['render', 'benchmark'].includes(args[0])
     ? correctnessChromeArgs.map((flag) => `--chrome-arg=${flag}`)
     : [];
-  return promisify(execFile)(process.execPath, [cli, ...args, ...browserArgs], { maxBuffer: 16 * 1024 * 1024 });
+  return promisify(execFile)(
+    process.execPath,
+    [
+      cli,
+      ...args,
+      ...browserArgs,
+      ...(['render', 'benchmark'].includes(args[0]) && process.env.DISPLAY ? ['--headful'] : []),
+    ],
+    { maxBuffer: 16 * 1024 * 1024 },
+  );
 };
 const types = {
   '.html': 'text/html',
@@ -87,7 +95,8 @@ try {
       ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
       : puppeteer.executablePath());
   browser = await puppeteer.launch({
-    headless: true,
+    headless: !process.env.DISPLAY,
+    dumpio: process.env.CI === 'true',
     executablePath: chrome,
     args: correctnessChromeArgs,
   });

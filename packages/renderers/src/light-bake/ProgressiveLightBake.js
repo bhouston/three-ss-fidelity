@@ -44,7 +44,9 @@ const PI = Math.PI;
 
 /** Fixed work budget and finite bake; camera motion never invalidates surface lighting. */
 export class ProgressiveLightBake {
-  constructor(renderer, scene, { samples = 1024, samplesPerFrame = 16, density = 16 } = {}) {
+  constructor(renderer, scene, { samples = 1024, samplesPerFrame = 16, density = 16, mirrors = [] } = {}) {
+    /** Planar mirrors as {normal, point, color}; the VPL gather connects through them (see VirtualPointLightGI). */
+    this.mirrors = mirrors;
     this.renderer = renderer;
     this.scene = scene;
     this.samples = samples;

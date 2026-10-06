@@ -49,7 +49,7 @@ import type { LiveRenderer, RendererOptions, SSGIWorkExperiment } from './types.
 import { VirtualPointLightGI } from './vpl/VirtualPointLightGI.js';
 import { ProgressiveLightBake } from './light-bake/ProgressiveLightBake.js';
 import { bakeProbeGrid } from './probe-grid.js';
-import { createMirrors } from './mirror/mirrors.js';
+import { createMirrors, findMirrorPlanes } from './mirror/mirrors.js';
 import type { Mirrors } from './mirror/mirrors.js';
 import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
 
@@ -346,7 +346,11 @@ export async function createThreeNewRenderer(
   let mirrors: Mirrors | undefined;
   let baker: ProgressiveLightBake | undefined;
   const createSurfaceLighting = () =>
-    isVpl ? new VirtualPointLightGI(renderer, setup.scene) : new ProgressiveLightBake(renderer, setup.scene);
+    isVpl
+      ? new VirtualPointLightGI(renderer, setup.scene, {
+          mirrors: probeMode === 'vpl-mirror' ? findMirrorPlanes(setup.scene) : [],
+        })
+      : new ProgressiveLightBake(renderer, setup.scene);
   let renderPipeline: RenderPipeline;
   try {
     if (probeMode === 'light-bake' || isVpl) baker = createSurfaceLighting();
@@ -413,8 +417,11 @@ export async function createThreeNewRenderer(
         const signature = bakeSignature();
         if (signature !== bakedSignature) {
           // Conservative invalidation: a blocker can affect distant transport, so rebuild the whole bake.
+          // the baker restores the original materials and geometry, taking the mirror slots with them
+          mirrors?.dispose();
           baker.dispose();
           baker = createSurfaceLighting();
+          if (mirrors) mirrors = createMirrors(setup.scene);
           bakedSignature = bakeSignature();
         }
         if (baker.step()) {

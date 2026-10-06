@@ -1,7 +1,7 @@
 // Planar mirrors for the VPL Mirror renderer: flat faces of near-perfect metal meshes are detected and shown through
 // the fork's TSL ReflectorNode (a mirrored virtual camera with an oblique clip plane) instead of SSR.
 import { BufferAttribute, Object3D, Quaternion, Vector3 } from 'three';
-import type { Mesh, MeshStandardMaterial, Scene } from 'three';
+import type { Color, Mesh, MeshStandardMaterial, Scene } from 'three';
 import { MeshStandardNodeMaterial } from 'three/webgpu';
 import { color, reflector } from 'three/tsl';
 
@@ -71,6 +71,26 @@ export function detectMirrorFaces(mesh: Mesh): MirrorFace[] {
   return faces
     .filter((f) => f.area >= total * MIN_AREA_SHARE)
     .map(({ normal, point, triangles: tris, area }) => ({ normal, point: point.divideScalar(area), triangles: tris }));
+}
+
+export interface MirrorPlane {
+  normal: Vector3;
+  point: Vector3;
+  /** Tint of the reflection (the mirror's metal color). */
+  color: Color;
+}
+
+/** World planes of every mirror face, for transport that must bounce light off them. */
+export function findMirrorPlanes(scene: Scene): MirrorPlane[] {
+  scene.updateMatrixWorld(true);
+  const planes: MirrorPlane[] = [];
+  scene.traverse((object) => {
+    const mesh = object as Mesh;
+    if (!mesh.isMesh) return;
+    for (const { normal, point } of detectMirrorFaces(mesh))
+      planes.push({ normal, point, color: (mesh.material as MeshStandardMaterial).color });
+  });
+  return planes;
 }
 
 export interface Mirrors {

@@ -108,6 +108,11 @@ export class VirtualPointLightGI extends ProgressiveLightBake {
           const selectedNormal = vec3(0).toVar();
           const selectedContribution = vec3(0).toVar();
           const selectedTarget = float(0).toVar();
+          // -1: a direct connection; otherwise the mirror whose image of the source was selected
+          const selectedMirror = float(-1).toVar();
+          const selectedImage = vec3(0).toVar();
+          const selectedPlaneNormal = vec3(0).toVar();
+          const selectedPlanePoint = vec3(0).toVar();
           const weightSum = float(0).toVar();
           // RIS: eight unshadowed candidates, one selected visibility ray. Empty
           // atlas texels remain zero-weight trials in the proposal distribution.
@@ -159,6 +164,54 @@ export class VirtualPointLightGI extends ProgressiveLightBake {
                 selectedNormal.assign(sn);
                 selectedContribution.assign(contribution);
                 selectedTarget.assign(target);
+                selectedMirror.assign(-1);
+              });
+              // Light that reaches the receiver through a planar mirror comes from the source's mirror image:
+              // same estimator, with the path length, source orientation and tint of the reflected route.
+              this.mirrors.forEach((mirror, mirrorIndex) => {
+                const planeNormal = vec3(mirror.normal);
+                const planePoint = vec3(mirror.point);
+                const receiverSide = p.xyz.sub(planePoint).dot(planeNormal);
+                const sourceSide = source.xyz.sub(planePoint).dot(planeNormal);
+                If(receiverSide.greaterThan(this.epsilon).and(sourceSide.greaterThan(this.epsilon)), () => {
+                  const image = source.xyz.sub(planeNormal.mul(sourceSide.mul(2))).toVar();
+                  const imageNormal = sn.sub(planeNormal.mul(sn.dot(planeNormal).mul(2))).toVar();
+                  const imageDelta = image.sub(p.xyz).toVar();
+                  const imageDistanceSquared = imageDelta.dot(imageDelta).toVar();
+                  const imageDirection = imageDelta.div(imageDistanceSquared.max(1e-12).sqrt()).toVar();
+                  const imageCosines = n
+                    .dot(imageDirection)
+                    .max(0)
+                    .mul(imageNormal.dot(imageDirection.negate()).max(0));
+                  const imageNear = imageDistanceSquared.div(radiusSquared).oneMinus().clamp().pow(2);
+                  const imageContribution = radiance
+                    .mul(vec3(mirror.color.r, mirror.color.g, mirror.color.b))
+                    .mul(imageCosines)
+                    .mul(sourceNormal.w)
+                    .mul(imageNear.oneMinus())
+                    .div(imageDistanceSquared.max(1e-12))
+                    .toVar();
+                  const imageTarget = imageContribution.dot(vec3(0.2126, 0.7152, 0.0722)).toVar();
+                  const imageWeight = imageTarget.mul(this.atlas.size * this.atlas.size).toVar();
+                  weightSum.addAssign(imageWeight);
+                  const imageRandom = index
+                    .add(1 + 7919 * (mirrorIndex + 1))
+                    .mul(91.3458)
+                    .add(screenCoordinate.xy.toVec2().dot(vec2(17, 59)))
+                    .sin()
+                    .mul(47453.5453)
+                    .fract();
+                  If(imageTarget.greaterThan(0).and(imageRandom.mul(weightSum).lessThan(imageWeight)), () => {
+                    selectedPosition.assign(source.xyz);
+                    selectedNormal.assign(sn);
+                    selectedContribution.assign(imageContribution);
+                    selectedTarget.assign(imageTarget);
+                    selectedMirror.assign(mirrorIndex);
+                    selectedImage.assign(image);
+                    selectedPlaneNormal.assign(planeNormal);
+                    selectedPlanePoint.assign(planePoint);
+                  });
+                });
               });
             });
           });
@@ -166,12 +219,41 @@ export class VirtualPointLightGI extends ProgressiveLightBake {
             // Offset both ends into the respective outgoing hemispheres, then
             // trace just the connecting segment to exclude the emitter itself.
             const origin = p.xyz.add(n.mul(this.epsilon)).toVar();
-            const delta = selectedPosition.add(selectedNormal.mul(this.epsilon)).sub(origin).toVar();
-            const distance = delta.length().toVar();
-            If(distance.greaterThan(this.epsilon * 2), () => {
-              const hit = tracer(origin, delta.div(distance), distance.sub(this.epsilon)).toVar();
-              If(hit.get('didHit').not(), () => {
-                sum.addAssign(selectedContribution.mul(weightSum.div(selectedTarget.mul(8))));
+            If(selectedMirror.lessThan(0), () => {
+              const delta = selectedPosition.add(selectedNormal.mul(this.epsilon)).sub(origin).toVar();
+              const distance = delta.length().toVar();
+              If(distance.greaterThan(this.epsilon * 2), () => {
+                const hit = tracer(origin, delta.div(distance), distance.sub(this.epsilon)).toVar();
+                If(hit.get('didHit').not(), () => {
+                  sum.addAssign(selectedContribution.mul(weightSum.div(selectedTarget.mul(8))));
+                });
+              });
+            });
+            If(selectedMirror.greaterThanEqual(0), () => {
+              // Receiver -> mirror: the first surface along the ray to the image must be the mirror itself.
+              const toImage = selectedImage.sub(origin).toVar();
+              const imageDistance = toImage.length().toVar();
+              const imageDirection = toImage.div(imageDistance.max(1e-12)).toVar();
+              const first = tracer(origin, imageDirection, imageDistance).toVar();
+              const reflection = origin.add(imageDirection.mul(first.get('dist'))).toVar();
+              const onMirror = reflection
+                .sub(selectedPlanePoint)
+                .dot(selectedPlaneNormal)
+                .abs()
+                .lessThan(this.epsilon * 20);
+              If(first.get('didHit').and(onMirror), () => {
+                // Mirror -> source.
+                const bounceOrigin = reflection.add(selectedPlaneNormal.mul(this.epsilon)).toVar();
+                const toSource = selectedPosition.add(selectedNormal.mul(this.epsilon)).sub(bounceOrigin).toVar();
+                const sourceDistance = toSource.length().toVar();
+                const second = tracer(
+                  bounceOrigin,
+                  toSource.div(sourceDistance.max(1e-12)),
+                  sourceDistance.sub(this.epsilon),
+                ).toVar();
+                If(second.get('didHit').not(), () => {
+                  sum.addAssign(selectedContribution.mul(weightSum.div(selectedTarget.mul(8))));
+                });
               });
             });
           });

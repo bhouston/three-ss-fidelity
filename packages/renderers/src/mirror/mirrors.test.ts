@@ -1,6 +1,6 @@
-import { BoxGeometry, Mesh, MeshStandardMaterial, PlaneGeometry, SphereGeometry } from 'three';
+import { BoxGeometry, Mesh, MeshStandardMaterial, PlaneGeometry, Scene, SphereGeometry } from 'three';
 import { expect, it } from 'vitest';
-import { detectMirrorFaces } from './mirrors.js';
+import { detectMirrorFaces, findMirrorPlanes } from './mirrors.js';
 
 const mirrorMaterial = () => new MeshStandardMaterial({ metalness: 1, roughness: 0 });
 
@@ -35,4 +35,15 @@ it('lets a mirror name opt in a texture-driven material', () => {
   expect(detectMirrorFaces(mesh)).toHaveLength(0);
   mesh.name = 'Mirror';
   expect(detectMirrorFaces(mesh)).toHaveLength(1);
+});
+
+it('exports mirror planes with their tint for light transport', () => {
+  const scene = new Scene();
+  const floor = new Mesh(new PlaneGeometry(4, 4).rotateX(-Math.PI / 2), mirrorMaterial());
+  floor.position.y = 2;
+  scene.add(floor, new Mesh(new SphereGeometry(1, 16, 12), mirrorMaterial()));
+  const planes = findMirrorPlanes(scene);
+  expect(planes).toHaveLength(1);
+  expect(planes[0]!.point.y).toBeCloseTo(2);
+  expect(planes[0]!.color.getHex()).toBe(0xffffff);
 });

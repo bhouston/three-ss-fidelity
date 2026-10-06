@@ -361,6 +361,61 @@ export class ProgressiveLightBake {
       return vec4(mix(previous.rgb, sum.div(this.samplesPerFrame), weight), p.w);
     })();
   }
+  /** Opt-in diagnostic: per-texel counts over `rays` hemisphere rays, as rgba = escaped, front hit, back hit,
+   * hit within 10 epsilon of the origin (starts-inside signal; also counted in front/back). Caller owns the target. */
+  diagnoseRays(rays = 256) {
+    const graph = Fn((builder) => {
+      rayIntersectionResultStruct.setup(builder);
+      const tracer = this.createTrace();
+      const pixel = ivec2(screenCoordinate.xy),
+        p = this.position.load(pixel).toVar(),
+        n = unpackRGBToNormal(this.normal.load(pixel).xyz).normalize().toVar();
+      const count = vec4(0).toVar();
+      If(p.w.greaterThan(0), () => {
+        const tangent = n.z
+          .abs()
+          .lessThan(0.999)
+          .select(vec3(0, 0, 1), vec3(1, 0, 0))
+          .cross(n)
+          .normalize()
+          .toVar();
+        const bitangent = n.cross(tangent).toVar();
+        Loop({ start: 0, end: rays, name: 'diagSample' }, ({ diagSample }) => {
+          const r = this.random(float(diagSample)).toVar();
+          const phi = r.y.mul(2 * PI),
+            radius = r.x.sqrt();
+          const direction = tangent
+            .mul(radius.mul(phi.cos()))
+            .add(bitangent.mul(radius.mul(phi.sin())))
+            .add(n.mul(r.x.oneMinus().sqrt()))
+            .toVar();
+          const hit = this.trace(p.xyz.add(n.mul(this.epsilon)), direction, 0, tracer);
+          If(hit.get('didHit').not(), () => count.x.addAssign(1))
+            .ElseIf(hit.get('side').greaterThan(0), () => count.y.addAssign(1))
+            .Else(() => count.z.addAssign(1));
+          If(hit.get('didHit').and(hit.get('dist').lessThan(this.epsilon * 10)), () => count.w.addAssign(1));
+        });
+      });
+      return count;
+    })();
+    const target = new RenderTarget(this.atlas.size, this.atlas.size, {
+      type: FloatType,
+      depthBuffer: false,
+      minFilter: NearestFilter,
+      magFilter: NearestFilter,
+    });
+    const material = this.material(graph);
+    const previousTarget = this.renderer.getRenderTarget();
+    try {
+      this.renderer.setClearColor(0, 0);
+      this.renderer.setRenderTarget(target);
+      this.renderer.clear();
+      this.draw(material, target);
+    } finally {
+      this.renderer.setRenderTarget(previousTarget);
+    }
+    return target;
+  }
   dilateGraph() {
     return Fn(() => {
       if (!this.dilateSource) return vec4(0);

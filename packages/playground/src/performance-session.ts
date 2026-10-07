@@ -71,7 +71,6 @@ export async function createPerformanceSession(
         width: config.width,
         height: config.height,
         hierarchyExperiment: config.experiment,
-        progressiveProbes: interactive,
       });
     } finally {
       if (navigatorGPU && requestAdapter) navigatorGPU.requestAdapter = requestAdapter;

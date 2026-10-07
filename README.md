@@ -351,3 +351,23 @@ Build with `pnpm build` then `pnpm site:build`. Publish `site/` on a static host
 Live mode uses a fixed 1920 × 1080 canvas. Changing the selection does not replace the running renderer until Start Benchmark is clicked. Each start resets setup/FPS charts. Live telemetry is sent only to the website and is never saved as a benchmark. The optional fidelity reference is a display target; measured convergence requires the same resolution and camera pose.
 
 Scene is the canonical term in the schema, browser protocol parameters, CLI, types, filenames, and UI. Upstream three.js `examples/` asset paths retain their actual names.
+
+### Representative performance batch
+
+The `representative` collection benchmarks all browser renderer configurations, including
+experiments disabled in the fidelity defaults, on `model-breakfast-room-w`,
+`cornell-box-basic`, `higharc_dogwood`, and `model-coffee-maker`. It excludes offline Blender
+and the VPL mirror/box-projected variants on Dogwood, which those renderers deliberately skip.
+It contains 118 workloads at 1920?1080, DPR 1, vsync off, and 10 seconds per measurement.
+Complex-model setup is allowed up to three minutes. Run serially on the hardware GPU.
+
+```sh
+pnpm build
+node scripts/build-render-server.mjs
+pnpm performance:representative --machine window001 --new-run --renderer '*' --scene 'model-breakfast-room-w,cornell-box-basic,higharc_dogwood,model-coffee-maker'
+# Resume the original dated run after an interruption:
+pnpm performance:representative --machine window001 --session latest --renderer 'three-new-*' --scene 'higharc_*'
+```
+
+Glob filters select entries already defined in the collection. Resuming and remeasuring
+an entry replaces its result in that session; other entries remain intact.

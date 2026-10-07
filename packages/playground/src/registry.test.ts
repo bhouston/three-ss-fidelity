@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { disabledScenes } from '@ss-fidelity/renderers';
+import type { RendererName } from '@ss-fidelity/renderers';
 import { getScene, listSceneNames } from '@ss-fidelity/scenes';
 import { parseRegistry, performanceSuite, rendererParams } from 'fidelity-kit/registry';
 import registry from '../../../registry.json';
@@ -22,5 +24,25 @@ describe('shared project registry', () => {
       expect(performance.entries.length).toBeGreaterThan(0);
       for (const entry of performance.entries) expect(() => performanceConfiguration(entry.params ?? {})).not.toThrow();
     }
+  });
+  it('covers all browser configurations on the four representative scenes except deliberate exclusions', () => {
+    const suite = parseRegistry(registry);
+    const entries = performanceSuite(suite, 'representative').entries;
+    const scenes = ['model-breakfast-room-w', 'cornell-box-basic', 'higharc_dogwood', 'model-coffee-maker'];
+    const expected = scenes.flatMap((scene) =>
+      suite.renderers
+        .filter(
+          (renderer) =>
+            renderer.kind === 'browser' && !disabledScenes[renderer.params.renderer as RendererName]?.includes(scene),
+        )
+        .map((renderer) => `${scene}/${renderer.id}`),
+    );
+    expect(entries.map((entry) => `${entry.scene.id}/${entry.renderer.id}`).toSorted()).toEqual(expected.toSorted());
+    expect(new Set(entries.map((entry) => `${entry.scene.id}/${entry.renderer.id}`)).size).toBe(entries.length);
+    expect(
+      entries.every(
+        (entry) => entry.durationMs === 10000 && entry.params?.width === 1920 && entry.params?.height === 1080,
+      ),
+    ).toBe(true);
   });
 });

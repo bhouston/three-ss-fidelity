@@ -200,7 +200,7 @@ export function createWebGLProfiler(gl: WebGL2RenderingContext): PipelineProfile
   };
 }
 
-/** GPU completion without pixel copying. WebGL finish is used only at explicit batch boundaries. */
+/** GPU completion without pixel copying, at explicit batch boundaries. */
 export async function completeRenderer(renderer: unknown): Promise<void> {
   const gpu = renderer as {
     backend?: { device?: { queue: { onSubmittedWorkDone(): Promise<void> } } };
@@ -210,7 +210,20 @@ export async function completeRenderer(renderer: unknown): Promise<void> {
   else if (gpu.getContext) {
     const context = gpu.getContext();
     if (context.isContextLost()) throw new Error('WebGL context lost before GPU completion');
-    context.finish();
+    const sync = context.fenceSync(context.SYNC_GPU_COMMANDS_COMPLETE, 0);
+    if (!sync) throw new Error('Could not create WebGL GPU completion fence');
+    try {
+      context.flush();
+      for (;;) {
+        if (context.isContextLost()) throw new Error('WebGL context lost during GPU completion');
+        const status = context.clientWaitSync(sync, 0, 0);
+        if (status === context.ALREADY_SIGNALED || status === context.CONDITION_SATISFIED) break;
+        if (status === context.WAIT_FAILED) throw new Error('WebGL GPU completion wait failed');
+        await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      }
+    } finally {
+      context.deleteSync(sync);
+    }
     if (context.isContextLost()) throw new Error('WebGL context lost during GPU completion');
   } else throw new Error('Renderer needs a GPU completion adapter');
 }

@@ -230,6 +230,25 @@ try {
       (channel) => channel.stdev > 10,
     ),
   );
+  console.log('Checking combined render filters preserve existing captures without starting Chrome');
+  const capturedFile = join(capture, `cornell-box-basic/beauty/${smokeRenderer}.avif`);
+  const beforeSkip = await stat(capturedFile);
+  const skipped = await execute([
+    'render',
+    '--registry',
+    captureRegistryFile,
+    '--out',
+    capture,
+    '--missing-only',
+    '--scenes',
+    'cornell-box-basi?',
+    '--renderers',
+    `?${smokeRenderer.slice(1)}`,
+    '--executable-path',
+    join(work, 'chrome-must-not-start'),
+  ]);
+  assert.ok(skipped.stdout.includes('skipped (image already exists)'));
+  assert.equal((await stat(capturedFile)).mtimeMs, beforeSkip.mtimeMs);
   const suite = JSON.parse(await readFile('registry.json', 'utf8'));
   suite.performance = {
     default: {

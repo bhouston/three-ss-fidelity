@@ -358,7 +358,7 @@ The `representative` collection benchmarks all browser renderer configurations, 
 experiments disabled in the fidelity defaults, on `model-breakfast-room-w`,
 `cornell-box-basic`, `higharc_dogwood`, and `model-coffee-maker`. It excludes offline Blender
 and the VPL mirror/box-projected variants on Dogwood, which those renderers deliberately skip.
-It contains 118 workloads at 1920?1080, DPR 1, vsync off, and 10 seconds per measurement.
+It contains 118 workloads at 1920 x 1080, DPR 1, vsync off, and 10 seconds per measurement.
 Complex-model setup is allowed up to three minutes. Run serially on the hardware GPU.
 
 ```sh
@@ -371,3 +371,5 @@ pnpm performance:representative --machine window001 --session latest --renderer 
 
 Glob filters select entries already defined in the collection. Resuming and remeasuring
 an entry replaces its result in that session; other entries remain intact.
+
+Recorded Windows001 results and measurement conditions are described in [the representative run notes](docs/performance/REPRESENTATIVE-WINDOWS001.md).

@@ -2,6 +2,21 @@ import { expect, it, vi } from 'vitest';
 import { createWebGPUProfiler, completeRenderer } from './profiling.js';
 import { createRendererFrameDriver } from './helpers.js';
 
+function completionContext() {
+  return {
+    SYNC_GPU_COMMANDS_COMPLETE: 1,
+    ALREADY_SIGNALED: 2,
+    CONDITION_SATISFIED: 3,
+    WAIT_FAILED: 4,
+    TIMEOUT_EXPIRED: 5,
+    fenceSync: vi.fn(() => ({})),
+    flush: vi.fn(),
+    deleteSync: vi.fn(),
+    clientWaitSync: vi.fn(() => 2),
+    isContextLost: vi.fn(() => false),
+  };
+}
+
 it('associates GPU query intervals with logical frames, sums repeated passes, and consumes resolved data once', async () => {
   let uid = '';
   let call = 0;
@@ -48,27 +63,34 @@ it('reports unsupported timestamps and completes WebGPU or WebGL through explici
   const onSubmittedWorkDone = vi.fn(async () => {});
   await completeRenderer({ backend: { device: { queue: { onSubmittedWorkDone } } } });
   expect(onSubmittedWorkDone).toHaveBeenCalledOnce();
-  const finish = vi.fn();
-  await completeRenderer({ getContext: () => ({ finish, isContextLost: () => false }) });
-  expect(finish).toHaveBeenCalledOnce();
+  const context = completionContext();
+  context.clientWaitSync.mockReturnValueOnce(context.TIMEOUT_EXPIRED);
+  await completeRenderer({ getContext: () => context });
+  expect(context.flush).toHaveBeenCalledOnce();
+  expect(context.clientWaitSync).toHaveBeenCalledTimes(2);
+  expect(context.deleteSync).toHaveBeenCalledOnce();
   await expect(completeRenderer({})).rejects.toThrow('completion adapter');
 });
 
 it('rejects WebGL completion when the context is already lost or becomes lost while draining work', async () => {
-  const finish = vi.fn();
-  await expect(completeRenderer({ getContext: () => ({ finish, isContextLost: () => true }) })).rejects.toThrow(
+  const context = completionContext();
+  context.isContextLost.mockReturnValue(true);
+  await expect(completeRenderer({ getContext: () => context })).rejects.toThrow(
     'WebGL context lost before GPU completion',
   );
-  expect(finish).not.toHaveBeenCalled();
-
-  let lost = false;
-  finish.mockImplementation(() => {
-    lost = true;
-  });
-  await expect(completeRenderer({ getContext: () => ({ finish, isContextLost: () => lost }) })).rejects.toThrow(
+  expect(context.fenceSync).not.toHaveBeenCalled();
+  context.isContextLost.mockReturnValueOnce(false).mockReturnValue(true);
+  await expect(completeRenderer({ getContext: () => context })).rejects.toThrow(
     'WebGL context lost during GPU completion',
   );
-  expect(finish).toHaveBeenCalledOnce();
+  expect(context.deleteSync).toHaveBeenCalledOnce();
+});
+
+it('cleans up WebGL fences when the driver rejects the wait', async () => {
+  const context = completionContext();
+  context.clientWaitSync.mockReturnValue(context.WAIT_FAILED);
+  await expect(completeRenderer({ getContext: () => context })).rejects.toThrow('completion wait failed');
+  expect(context.deleteSync).toHaveBeenCalledOnce();
 });
 
 it('advances temporal-node state for every submission even inside the same display tick', () => {

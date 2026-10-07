@@ -279,9 +279,8 @@ try {
     '--executable-path',
     chrome,
   ]);
-  const result = JSON.parse(
-    await readFile(join(metrics, `smoke/${smokeRenderer}/cornell-box-basic/metrics.json`), 'utf8'),
-  );
+  const history = JSON.parse(await readFile(join(metrics, 'index.json'), 'utf8'));
+  const result = JSON.parse(await readFile(join(metrics, history.results[0].metrics), 'utf8'));
   // CI may use a software adapter; this verifies contracts, not comparative hardware performance.
   assert.equal(result.status, 'ok', JSON.stringify(result.error ?? result));
   assert.ok(result.statistics.averageFps > 0);

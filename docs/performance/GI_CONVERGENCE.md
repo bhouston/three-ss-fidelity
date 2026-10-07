@@ -2,7 +2,7 @@
 
 Run `pnpm build`, then `pnpm performance:convergence`. Add `--executable-path /path/to/chrome` if Chrome is not discovered automatically. The suite measures Cornell box light baking and VPL for 15 seconds each, with a 640×480 Blender reference, a 250 ms sampling cadence and a 30 dB PSNR target.
 
-Results are written to `performance-convergence-results/<machine-id>/`; set `PERFORMANCE_MACHINE` as described in the [README](../../README.md#benchmark-machines). The existing results were measured on the MacBook Air M3 (`macbookairm3`). Each workload includes processed metrics, the final screenshot, a lossless reference and a lossless 4× absolute RGB diff. To create a portable report:
+Results are written to `performance-convergence-results/<machine-id>/<YYYY-MM-DD-HH-MM>/`; set `PERFORMANCE_MACHINE` as described in the [README](../../README.md#benchmark-machines). The existing results were measured on the MacBook Air M3 (`macbookairm3`). Each workload includes processed metrics, the final screenshot, a lossless reference and a lossless 4× absolute RGB diff. To create a portable report:
 
 ```sh
 node submodules/performance-kit/packages/cli/dist/bin.js build --out performance-convergence-results --site performance-convergence-site
@@ -32,3 +32,5 @@ The new optional reference supports that question without combining the two kits
 The current Cornell basic and rounded Blender images have approximately 27% and 26% higher mean luminance than the GPU path tracer, measured after sRGB decoding. VPL is approximately 21% and 20% brighter than the GPU path tracer. Fitting one linear RGB gain to the path tracer increases its linear-RGB PSNR against Blender by roughly 11 dB in these two scenes. Brightness explains much of their reference disagreement, but this does not establish which reference is physically correct. The rooms show additional spatial differences; VPL’s whole-image mean is slightly lower than the path tracer in the grey-and-white room.
 
 Both reference adapters configure eight bounces and use the scene’s exposure and tone mapping. Different bounce accounting and material scattering remain possibilities to investigate, rather than established causes. Do not compensate a renderer with a fitted brightness gain in fidelity scoring.
+
+Existing checked-in convergence measurements were assigned the migration run `2026-10-06-12-00` UTC on October 6, 2026. Their metrics and assets are unchanged.

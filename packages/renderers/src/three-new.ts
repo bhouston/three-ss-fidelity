@@ -48,6 +48,7 @@ import type { SceneInstance } from '@ss-fidelity/scenes';
 import { ssgiWorkExperiments } from './types.js';
 import type { LiveRenderer, RendererOptions, SSGIWorkExperiment } from './types.js';
 import { VirtualPointLightGI } from './vpl/VirtualPointLightGI.js';
+import { ShadowMapVPL } from './vpl/ShadowMapVPL.js';
 import { ProgressiveLightBake } from './light-bake/ProgressiveLightBake.js';
 import { bakeProbeGrid } from './probe-grid.js';
 import { createMirrors, findMirrorPlanes } from './mirror/mirrors.js';
@@ -330,7 +331,14 @@ export async function createThreeNewRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneInstance,
   { width, height, trackTimestamp = false, ssrDebug, hierarchyExperiment, ssrTemporalProfile }: RendererOptions,
-  probeMode?: 'light-probe' | 'light-probe-ddgi' | 'light-bake' | 'vpl' | 'vpl-mirror' | 'vpl-box-projected',
+  probeMode?:
+    | 'light-probe'
+    | 'light-probe-ddgi'
+    | 'light-bake'
+    | 'vpl'
+    | 'vpl-mirror'
+    | 'vpl-box-projected'
+    | 'vpl-shadow-maps',
 ): Promise<LiveRenderer> {
   const useProbes = probeMode !== undefined;
   const isVpl = probeMode?.startsWith('vpl') ?? false;
@@ -356,13 +364,15 @@ export async function createThreeNewRenderer(
   let releaseProbes: (() => void) | undefined;
   let boxProbe: BoxProjectedProbe | undefined;
   let mirrors: Mirrors | undefined;
-  let baker: ProgressiveLightBake | undefined;
+  let baker: ProgressiveLightBake | ShadowMapVPL | undefined;
   const createSurfaceLighting = () =>
-    isVpl
-      ? new VirtualPointLightGI(renderer, setup.scene, {
-          mirrors: probeMode === 'vpl-mirror' ? findMirrorPlanes(setup.scene) : [],
-        })
-      : new ProgressiveLightBake(renderer, setup.scene);
+    probeMode === 'vpl-shadow-maps'
+      ? new ShadowMapVPL(renderer, setup.scene)
+      : isVpl
+        ? new VirtualPointLightGI(renderer, setup.scene, {
+            mirrors: probeMode === 'vpl-mirror' ? findMirrorPlanes(setup.scene) : [],
+          })
+        : new ProgressiveLightBake(renderer, setup.scene);
   let renderPipeline: RenderPipeline;
   try {
     if (probeMode === 'light-bake' || isVpl) baker = createSurfaceLighting();
@@ -417,6 +427,17 @@ export async function createThreeNewRenderer(
     renderer,
     get frames() {
       return frames;
+    },
+    get virtualLights() {
+      return baker instanceof ShadowMapVPL
+        ? {
+            count: baker.generator.count,
+            rays: baker.generator.rayCount,
+            candidates: baker.generator.candidateCount,
+            bounces: baker.options.bounces,
+            candidateMultiplier: baker.options.candidateMultiplier,
+          }
+        : undefined;
     },
     get lightBake() {
       return baker

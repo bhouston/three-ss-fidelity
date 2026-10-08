@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" /><title>VPL fidelity and timing comparison</title
+  ><style>
+    body {
+      font: 16px system-ui;
+      background: #151a22;
+      color: #eee;
+      margin: 32px;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    td,
+    th {
+      padding: 12px;
+      border: 1px solid #566;
+      text-align: left;
+    }
+    .images {
+      display: flex;
+      gap: 12px;
+    }
+    figure {
+      margin: 0;
+      flex: 1;
+      min-width: 0;
+    }
+    img {
+      width: 100%;
+    }
+    figcaption {
+      margin-bottom: 8px;
+    }
+    p {
+      max-width: 1000px;
+    }
+  </style>
+  <h1>VPL fidelity and timing comparison</h1>
+  <p>
+    The new method improves substantially over the branch defaults, but does not meet the old lightmap fidelity. Keep
+    the RIS renderer as the enabled baseline and the shadow-map renderer experimental. No BVH dependency was added to
+    the new method.
+  </p>
+  <p>
+    Three Cornell scenes · 640×480 · NVIDIA Ampere · Chrome WebGPU. Quality uses Blender reference PSNR; timings include
+    CPU submission and GPU completion. Startup includes renderer setup and 192 frames. Main comparisons use three
+    fresh-browser repetitions. This is a static-camera comparison on one machine, not a full-suite or cross-hardware
+    result.
+  </p>
+  <table>
+    <tr>
+      <th>Scene</th>
+      <th>Old RIS</th>
+      <th>Original branch</th>
+      <th>Improved VPL</th>
+    </tr>
+    <tr>
+      <td>cornell-box-basic</td>
+      <td>33.86 dB<br />3.13 ms<br />3.65 s startup</td>
+      <td>18.35 dB<br />3.11 ms<br />2.24 s startup</td>
+      <td>23.01 dB<br />2.97 ms<br />2.24 s startup</td>
+    </tr>
+    <tr>
+      <td>cornell-box-rounded</td>
+      <td>34.57 dB<br />3.15 ms<br />4.19 s startup</td>
+      <td>19.75 dB<br />3.77 ms<br />3.00 s startup</td>
+      <td>24.00 dB<br />3.11 ms<br />2.25 s startup</td>
+    </tr>
+    <tr>
+      <td>cornell-box-metallic</td>
+      <td>29.94 dB<br />2.92 ms<br />4.34 s startup</td>
+      <td>19.85 dB<br />3.05 ms<br />2.71 s startup</td>
+      <td>23.80 dB<br />3.16 ms<br />2.39 s startup</td>
+    </tr>
+  </table>
+  <p>
+    Improved configuration: 128 GPU VPLs, up to eight diffuse reflections, 16× CPU candidate generation, source-power
+    allocation, emissive triangles, spatially ordered flux importance resampling, 64×64 shadow faces and a
+    three-world-unit distance clamp. The clamp is tuned for these Cornell scenes; it is not a universally optimal
+    setting.
+  </p>
+  <p>
+    The old method samples every lightmap texel and explicitly handles near-field transport. The new method shares a
+    small finite VPL set, uses approximate visibility and caps diffuse paths. Those approximations leave a fidelity gap
+    even after including emissive surfaces. See <a href="report.json">the JSON report</a> for both references, ablations
+    and complete settings.
+  </p>
+  <h2>cornell-box-basic</h2>
+  <div class="images">
+    <figure>
+      <figcaption>Old RIS</figcaption>
+      <img src="before/cornell-box-basic/capture-1.png" />
+    </figure>
+    <figure>
+      <figcaption>Original branch</figcaption>
+      <img src="after/cornell-box-basic/capture-1.png" />
+    </figure>
+    <figure>
+      <figcaption>Improved shadow-map VPL</figcaption>
+      <img src="final/cornell-box-basic/capture-1.png" />
+    </figure>
+  </div>
+  <h2>cornell-box-rounded</h2>
+  <div class="images">
+    <figure>
+      <figcaption>Old RIS</figcaption>
+      <img src="before/cornell-box-rounded/capture-1.png" />
+    </figure>
+    <figure>
+      <figcaption>Original branch</figcaption>
+      <img src="after/cornell-box-rounded/capture-1.png" />
+    </figure>
+    <figure>
+      <figcaption>Improved shadow-map VPL</figcaption>
+      <img src="final/cornell-box-rounded/capture-1.png" />
+    </figure>
+  </div>
+  <h2>cornell-box-metallic</h2>
+  <div class="images">
+    <figure>
+      <figcaption>Old RIS</figcaption>
+      <img src="before/cornell-box-metallic/capture-1.png" />
+    </figure>
+    <figure>
+      <figcaption>Original branch</figcaption>
+      <img src="after/cornell-box-metallic/capture-1.png" />
+    </figure>
+    <figure>
+      <figcaption>Improved shadow-map VPL</figcaption>
+      <img src="final/cornell-box-metallic/capture-1.png" />
+    </figure>
+  </div>
+</html>

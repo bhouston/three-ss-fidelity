@@ -132,6 +132,7 @@ export async function createPerformanceSession(
     return {
       canvas,
       accumulated: () => current.frames,
+      lighting: () => ({ bake: current.lightBake, virtualLights: current.virtualLights }),
       resize(width: number, height: number) {
         current.setSize(width, height);
         setup!.camera.aspect = width / height;

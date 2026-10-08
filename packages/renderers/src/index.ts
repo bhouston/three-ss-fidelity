@@ -45,6 +45,9 @@ export function createRenderer(
         get lightBake() {
           return live.lightBake;
         },
+        get virtualLights() {
+          return live.virtualLights;
+        },
         profiler,
         render: live.render.bind(live),
         setSize: live.setSize.bind(live),
@@ -79,6 +82,8 @@ export function createRenderer(
       return instrument(createCurrentRenderer(canvas, setup, options));
     case 'three-new-vpl':
       return instrument(createThreeNewRenderer(canvas, setup, options, 'vpl'));
+    case 'three-new-vpl-shadow-maps':
+      return instrument(createThreeNewRenderer(canvas, setup, options, 'vpl-shadow-maps'));
     case 'three-new-vpl-mirror':
       return instrument(createThreeNewRenderer(canvas, setup, options, 'vpl-mirror'));
     case 'three-new-vpl-box-projected':

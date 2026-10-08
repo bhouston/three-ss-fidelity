@@ -129,6 +129,13 @@ it('dispatches surface VPL transport independently of baking and probes', () => 
   expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'vpl');
 });
 
+it('dispatches shadow-map VPL transport independently of the retained RIS baseline', () => {
+  const setup = { effects: {} } as SceneInstance;
+  const options = { width: 640, height: 480 };
+  createRenderer('three-new-vpl-shadow-maps', {} as HTMLCanvasElement, setup, options);
+  expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'vpl-shadow-maps');
+});
+
 it('dispatches the VPL mirror and box-projected variants', () => {
   const setup = { effects: {} } as SceneInstance;
   const options = { width: 640, height: 480 };

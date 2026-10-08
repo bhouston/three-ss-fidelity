@@ -193,13 +193,14 @@ function instrument(time: number, interval: number, cpu: number) {
   if (time - lastInstrumentUpdate < 250) return;
   lastInstrumentUpdate = time;
   const bake = current?.live.lightBake;
+  const isVirtualLighting = current?.live.name === 'three-new-vpl' || current?.live.virtualLights !== undefined;
   element('bake-status').hidden = !bake;
   element('bake-status').textContent = bake
     ? bake.phase === 'converged'
-      ? current?.live.name === 'three-new-vpl'
+      ? isVirtualLighting
         ? 'Virtual light GI converged'
         : 'Indirect lighting baked'
-      : `${current?.live.name === 'three-new-vpl' ? 'Accumulating virtual light GI' : 'Baking indirect lighting'} · ${Math.round(bake.progress * 100)}%`
+      : `${isVirtualLighting ? 'Accumulating virtual light GI' : 'Baking indirect lighting'} · ${Math.round(bake.progress * 100)}%`
     : '';
   if (rollingIntervals.length) {
     const timing = statistics(rollingIntervals);

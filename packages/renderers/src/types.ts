@@ -6,6 +6,7 @@ export const rendererNames = [
   'three-new',
   'three-new-light-bake',
   'three-new-vpl',
+  'three-new-vpl-shadow-maps',
   'three-new-vpl-mirror',
   'three-new-vpl-box-projected',
   'three-new-light-probe',
@@ -94,6 +95,13 @@ export interface LiveRenderer extends LivePipeline {
   readonly frames: number;
   /** Surface baking progresses independently of camera history. */
   readonly lightBake?: { phase: string; samples: number; maxSamples: number; progress: number };
+  readonly virtualLights?: {
+    count: number;
+    rays: number;
+    candidates: number;
+    bounces: number;
+    candidateMultiplier: number;
+  };
   /** Renders one frame / one full-frame sample to the canvas. */
   /** Resizes the drawing buffer and the camera aspect. */
   setSize(width: number, height: number): void;

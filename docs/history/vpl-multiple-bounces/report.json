@@ -1,0 +1,600 @@
+{
+  "metric": "PSNR over decoded sRGB8 RGB; PNG test captures and committed AVIF references",
+  "gpu": "NVIDIA GeForce RTX 3060 Ti (Ampere), driver 32.0.16.1714, Chrome WebGPU on Windows",
+  "cpu": "AMD Ryzen 9 5950X",
+  "browser": "Chrome 154.0.8037.98",
+  "improvedThreeCommit": "ae2955336b8a65373cbd850f52198c2d46a2599b",
+  "originalBranchCompatibility": "Finite point-light attenuation was supported to retain the Cornell scenes' existing distance cutoff; other original branch algorithm/default settings were retained.",
+  "resolution": [640, 480],
+  "captureFrames": 342,
+  "timing": "192 startup/warmup frames, then five 30-frame batches with a GPU fence per batch; medians of three fresh-browser repetitions for old/original/final; single-run exploratory ablations",
+  "visibilityResolution": 64,
+  "originalLocalThreeCommit": "24201509d9",
+  "originalProjectThreeCommit": "83c310af72715ae558beea12d169f00c62ea48eb",
+  "settings": {
+    "before": {
+      "method": "RIS lightmaps",
+      "samplesPerTexel": 2048,
+      "iterations": 128,
+      "candidatesPerReservoir": 8,
+      "nearFieldRayPerReservoir": true,
+      "visibility": "BVH"
+    },
+    "after": {
+      "method": "original branch shadow-map VPL",
+      "count": 128,
+      "bounces": 2,
+      "candidateMultiplier": 1,
+      "minDistance": 1,
+      "emissive": false
+    },
+    "tuned512": {
+      "count": 512,
+      "bounces": 4,
+      "minDistance": 1,
+      "emissive": false
+    },
+    "importance-emissive": {
+      "count": 128,
+      "bounces": 4,
+      "candidateMultiplier": 4,
+      "minDistance": 1,
+      "spatialResampling": false,
+      "emissive": true
+    },
+    "importance-eight": {
+      "count": 128,
+      "bounces": 8,
+      "candidateMultiplier": 16,
+      "minDistance": 3,
+      "spatialResampling": false,
+      "emissive": true
+    },
+    "spatial-importance": {
+      "count": 128,
+      "bounces": 8,
+      "candidateMultiplier": 16,
+      "minDistance": 3,
+      "spatialResampling": true,
+      "emissive": true
+    },
+    "spatial256": {
+      "count": 256,
+      "bounces": 8,
+      "candidateMultiplier": 16,
+      "minDistance": 3,
+      "spatialResampling": true,
+      "emissive": true
+    },
+    "no-emissive": {
+      "count": 128,
+      "bounces": 8,
+      "candidateMultiplier": 16,
+      "minDistance": 3,
+      "spatialResampling": true,
+      "emissive": false
+    },
+    "no-importance": {
+      "count": 128,
+      "bounces": 8,
+      "candidateMultiplier": 16,
+      "minDistance": 3,
+      "spatialResampling": true,
+      "importanceSampling": false,
+      "emissive": true
+    },
+    "final": {
+      "count": 128,
+      "bounces": 8,
+      "candidateMultiplier": 16,
+      "minDistance": 3,
+      "spatialResampling": true,
+      "emissive": true,
+      "sourceImportanceSampling": true
+    }
+  },
+  "comparisons": [
+    {
+      "scene": "cornell-box-basic",
+      "old": {
+        "scene": "cornell-box-basic",
+        "stage": "before",
+        "repetitions": 3,
+        "frameMs": 3.1333333333333333,
+        "startupMs": 3652.099999964237,
+        "psnr": {
+          "blender": 33.86241596726346,
+          "three-gpu-pathtracer": 26.41179497881437
+        }
+      },
+      "branch": {
+        "scene": "cornell-box-basic",
+        "stage": "after",
+        "repetitions": 3,
+        "frameMs": 3.1066666662693025,
+        "startupMs": 2244.899999976158,
+        "psnr": {
+          "blender": 18.349580952406782,
+          "three-gpu-pathtracer": 22.060635940164847
+        }
+      },
+      "final": {
+        "scene": "cornell-box-basic",
+        "stage": "final",
+        "repetitions": 3,
+        "frameMs": 2.9733333329359692,
+        "startupMs": 2240,
+        "psnr": {
+          "blender": 23.007729245534406,
+          "three-gpu-pathtracer": 22.47751087226231
+        },
+        "lighting": {
+          "bake": {
+            "phase": "converged",
+            "samples": 2048,
+            "maxSamples": 2048,
+            "progress": 1
+          },
+          "virtualLights": {
+            "count": 128,
+            "rays": 851,
+            "candidates": 754,
+            "bounces": 8,
+            "candidateMultiplier": 16
+          }
+        }
+      },
+      "frameChangeVsOldPercent": -5.106382991405233,
+      "startupSpeedupVsOld": 1.6304017856983202,
+      "qualityGainVsBranchDb": 4.658148293127624,
+      "qualityLossVsOldDb": 10.854686721729053,
+      "replacementGatePassed": false
+    },
+    {
+      "scene": "cornell-box-rounded",
+      "old": {
+        "scene": "cornell-box-rounded",
+        "stage": "before",
+        "repetitions": 3,
+        "frameMs": 3.15,
+        "startupMs": 4185.300000011921,
+        "psnr": {
+          "blender": 34.571497585086306,
+          "three-gpu-pathtracer": 26.274023301109516
+        }
+      },
+      "branch": {
+        "scene": "cornell-box-rounded",
+        "stage": "after",
+        "repetitions": 3,
+        "frameMs": 3.769999998807907,
+        "startupMs": 2995.599999964237,
+        "psnr": {
+          "blender": 19.750905161016007,
+          "three-gpu-pathtracer": 24.535682301896827
+        }
+      },
+      "final": {
+        "scene": "cornell-box-rounded",
+        "stage": "final",
+        "repetitions": 3,
+        "frameMs": 3.1066666662693025,
+        "startupMs": 2248.399999976158,
+        "psnr": {
+          "blender": 23.995682233382276,
+          "three-gpu-pathtracer": 23.09276035710347
+        },
+        "lighting": {
+          "bake": {
+            "phase": "converged",
+            "samples": 2048,
+            "maxSamples": 2048,
+            "progress": 1
+          },
+          "virtualLights": {
+            "count": 128,
+            "rays": 789,
+            "candidates": 686,
+            "bounces": 8,
+            "candidateMultiplier": 16
+          }
+        }
+      },
+      "frameChangeVsOldPercent": -1.375661388276106,
+      "startupSpeedupVsOld": 1.861457036139611,
+      "qualityGainVsBranchDb": 4.2447770723662686,
+      "qualityLossVsOldDb": 10.57581535170403,
+      "replacementGatePassed": false
+    },
+    {
+      "scene": "cornell-box-metallic",
+      "old": {
+        "scene": "cornell-box-metallic",
+        "stage": "before",
+        "repetitions": 3,
+        "frameMs": 2.923333332935969,
+        "startupMs": 4343.800000011921,
+        "psnr": {
+          "blender": 29.943662996498084,
+          "three-gpu-pathtracer": 27.409068299479298
+        }
+      },
+      "branch": {
+        "scene": "cornell-box-metallic",
+        "stage": "after",
+        "repetitions": 3,
+        "frameMs": 3.05,
+        "startupMs": 2711.400000035763,
+        "psnr": {
+          "blender": 19.85356939257533,
+          "three-gpu-pathtracer": 24.44151349520411
+        }
+      },
+      "final": {
+        "scene": "cornell-box-metallic",
+        "stage": "final",
+        "repetitions": 3,
+        "frameMs": 3.163333332538605,
+        "startupMs": 2388.100000023842,
+        "psnr": {
+          "blender": 23.80348335282236,
+          "three-gpu-pathtracer": 24.772038441994187
+        },
+        "lighting": {
+          "bake": {
+            "phase": "converged",
+            "samples": 2048,
+            "maxSamples": 2048,
+            "progress": 1
+          },
+          "virtualLights": {
+            "count": 128,
+            "rays": 810,
+            "candidates": 706,
+            "bounces": 8,
+            "candidateMultiplier": 16
+          }
+        }
+      },
+      "frameChangeVsOldPercent": 8.209806144877717,
+      "startupSpeedupVsOld": 1.8189355554493338,
+      "qualityGainVsBranchDb": 3.949913960247031,
+      "qualityLossVsOldDb": 6.140179643675722,
+      "replacementGatePassed": false
+    }
+  ],
+  "rows": [
+    {
+      "scene": "cornell-box-basic",
+      "stage": "before",
+      "repetitions": 3,
+      "frameMs": 3.1333333333333333,
+      "startupMs": 3652.099999964237,
+      "psnr": {
+        "blender": 33.86241596726346,
+        "three-gpu-pathtracer": 26.41179497881437
+      }
+    },
+    {
+      "scene": "cornell-box-basic",
+      "stage": "after",
+      "repetitions": 3,
+      "frameMs": 3.1066666662693025,
+      "startupMs": 2244.899999976158,
+      "psnr": {
+        "blender": 18.349580952406782,
+        "three-gpu-pathtracer": 22.060635940164847
+      }
+    },
+    {
+      "scene": "cornell-box-basic",
+      "stage": "tuned512",
+      "repetitions": 1,
+      "frameMs": 4.329999999205271,
+      "startupMs": 2810.100000023842,
+      "psnr": {
+        "blender": 22.81167839884727,
+        "three-gpu-pathtracer": 25.81629059014507
+      }
+    },
+    {
+      "scene": "cornell-box-basic",
+      "stage": "importance-emissive",
+      "repetitions": 1,
+      "frameMs": 3.1700000007947287,
+      "startupMs": 2315.899999976158,
+      "psnr": {
+        "blender": 20.01465103686218,
+        "three-gpu-pathtracer": 22.95953096019888
+      }
+    },
+    {
+      "scene": "cornell-box-basic",
+      "stage": "importance-eight",
+      "repetitions": 1,
+      "frameMs": 3.1799999992052714,
+      "startupMs": 2285.2999999523163,
+      "psnr": {
+        "blender": 22.821439465354587,
+        "three-gpu-pathtracer": 22.091946609188696
+      }
+    },
+    {
+      "scene": "cornell-box-basic",
+      "stage": "spatial-importance",
+      "repetitions": 1,
+      "frameMs": 3.226666667064031,
+      "startupMs": 2233.099999964237,
+      "psnr": {
+        "blender": 23.007729245534406,
+        "three-gpu-pathtracer": 22.47751087226231
+      }
+    },
+    {
+      "scene": "cornell-box-basic",
+      "stage": "spatial256",
+      "repetitions": 1,
+      "frameMs": 3.873333332935969,
+      "startupMs": 2575.300000011921,
+      "psnr": {
+        "blender": 25.513361726042064,
+        "three-gpu-pathtracer": 25.03534045238049
+      }
+    },
+    {
+      "scene": "cornell-box-basic",
+      "stage": "no-emissive",
+      "repetitions": 1,
+      "frameMs": 3.1333333333333333,
+      "startupMs": 2287.599999964237,
+      "psnr": {
+        "blender": 22.354465204599677,
+        "three-gpu-pathtracer": 26.0338255544098
+      }
+    },
+    {
+      "scene": "cornell-box-basic",
+      "stage": "no-importance",
+      "repetitions": 1,
+      "frameMs": 3.2,
+      "startupMs": 2201.599999964237,
+      "psnr": {
+        "blender": 22.081759350677256,
+        "three-gpu-pathtracer": 24.40649368512218
+      }
+    },
+    {
+      "scene": "cornell-box-basic",
+      "stage": "final",
+      "repetitions": 3,
+      "frameMs": 2.9733333329359692,
+      "startupMs": 2240,
+      "psnr": {
+        "blender": 23.007729245534406,
+        "three-gpu-pathtracer": 22.47751087226231
+      },
+      "lighting": {
+        "bake": {
+          "phase": "converged",
+          "samples": 2048,
+          "maxSamples": 2048,
+          "progress": 1
+        },
+        "virtualLights": {
+          "count": 128,
+          "rays": 851,
+          "candidates": 754,
+          "bounces": 8,
+          "candidateMultiplier": 16
+        }
+      }
+    },
+    {
+      "scene": "cornell-box-rounded",
+      "stage": "before",
+      "repetitions": 3,
+      "frameMs": 3.15,
+      "startupMs": 4185.300000011921,
+      "psnr": {
+        "blender": 34.571497585086306,
+        "three-gpu-pathtracer": 26.274023301109516
+      }
+    },
+    {
+      "scene": "cornell-box-rounded",
+      "stage": "after",
+      "repetitions": 3,
+      "frameMs": 3.769999998807907,
+      "startupMs": 2995.599999964237,
+      "psnr": {
+        "blender": 19.750905161016007,
+        "three-gpu-pathtracer": 24.535682301896827
+      }
+    },
+    {
+      "scene": "cornell-box-rounded",
+      "stage": "tuned512",
+      "repetitions": 1,
+      "frameMs": 4.493333333730698,
+      "startupMs": 2715.199999988079,
+      "psnr": {
+        "blender": 24.34933152898148,
+        "three-gpu-pathtracer": 25.797356592770882
+      }
+    },
+    {
+      "scene": "cornell-box-rounded",
+      "stage": "importance-emissive",
+      "repetitions": 1,
+      "frameMs": 3.033333333333333,
+      "startupMs": 2209,
+      "psnr": {
+        "blender": 21.902426835062926,
+        "three-gpu-pathtracer": 25.273944298030365
+      }
+    },
+    {
+      "scene": "cornell-box-rounded",
+      "stage": "importance-eight",
+      "repetitions": 1,
+      "frameMs": 3.163333334525426,
+      "startupMs": 2247.5,
+      "psnr": {
+        "blender": 23.02552193442843,
+        "three-gpu-pathtracer": 23.93728195100927
+      }
+    },
+    {
+      "scene": "cornell-box-rounded",
+      "stage": "spatial-importance",
+      "repetitions": 1,
+      "frameMs": 3.1433333337306975,
+      "startupMs": 2223.300000011921,
+      "psnr": {
+        "blender": 23.995682233382276,
+        "three-gpu-pathtracer": 23.09276035710347
+      }
+    },
+    {
+      "scene": "cornell-box-rounded",
+      "stage": "spatial256",
+      "repetitions": 1,
+      "frameMs": 4.063333332538605,
+      "startupMs": 2468.2000000476837,
+      "psnr": {
+        "blender": 25.91012525936254,
+        "three-gpu-pathtracer": 23.78243113320059
+      }
+    },
+    {
+      "scene": "cornell-box-rounded",
+      "stage": "final",
+      "repetitions": 3,
+      "frameMs": 3.1066666662693025,
+      "startupMs": 2248.399999976158,
+      "psnr": {
+        "blender": 23.995682233382276,
+        "three-gpu-pathtracer": 23.09276035710347
+      },
+      "lighting": {
+        "bake": {
+          "phase": "converged",
+          "samples": 2048,
+          "maxSamples": 2048,
+          "progress": 1
+        },
+        "virtualLights": {
+          "count": 128,
+          "rays": 789,
+          "candidates": 686,
+          "bounces": 8,
+          "candidateMultiplier": 16
+        }
+      }
+    },
+    {
+      "scene": "cornell-box-metallic",
+      "stage": "before",
+      "repetitions": 3,
+      "frameMs": 2.923333332935969,
+      "startupMs": 4343.800000011921,
+      "psnr": {
+        "blender": 29.943662996498084,
+        "three-gpu-pathtracer": 27.409068299479298
+      }
+    },
+    {
+      "scene": "cornell-box-metallic",
+      "stage": "after",
+      "repetitions": 3,
+      "frameMs": 3.05,
+      "startupMs": 2711.400000035763,
+      "psnr": {
+        "blender": 19.85356939257533,
+        "three-gpu-pathtracer": 24.44151349520411
+      }
+    },
+    {
+      "scene": "cornell-box-metallic",
+      "stage": "tuned512",
+      "repetitions": 1,
+      "frameMs": 4.613333334525426,
+      "startupMs": 2819.7000000476837,
+      "psnr": {
+        "blender": 23.613293863277747,
+        "three-gpu-pathtracer": 26.380438157947907
+      }
+    },
+    {
+      "scene": "cornell-box-metallic",
+      "stage": "importance-emissive",
+      "repetitions": 1,
+      "frameMs": 3.1899999996026356,
+      "startupMs": 2335.100000023842,
+      "psnr": {
+        "blender": 22.005195313292738,
+        "three-gpu-pathtracer": 25.526048968347787
+      }
+    },
+    {
+      "scene": "cornell-box-metallic",
+      "stage": "importance-eight",
+      "repetitions": 1,
+      "frameMs": 3.1866666674613953,
+      "startupMs": 2320,
+      "psnr": {
+        "blender": 24.166117601260126,
+        "three-gpu-pathtracer": 24.26344843248525
+      }
+    },
+    {
+      "scene": "cornell-box-metallic",
+      "stage": "spatial-importance",
+      "repetitions": 1,
+      "frameMs": 3.1666666666666665,
+      "startupMs": 2325.399999976158,
+      "psnr": {
+        "blender": 23.80348335282236,
+        "three-gpu-pathtracer": 24.772038441994187
+      }
+    },
+    {
+      "scene": "cornell-box-metallic",
+      "stage": "spatial256",
+      "repetitions": 1,
+      "frameMs": 4.060000000397364,
+      "startupMs": 2604.599999964237,
+      "psnr": {
+        "blender": 24.528772038643822,
+        "three-gpu-pathtracer": 25.909928234271238
+      }
+    },
+    {
+      "scene": "cornell-box-metallic",
+      "stage": "final",
+      "repetitions": 3,
+      "frameMs": 3.163333332538605,
+      "startupMs": 2388.100000023842,
+      "psnr": {
+        "blender": 23.80348335282236,
+        "three-gpu-pathtracer": 24.772038441994187
+      },
+      "lighting": {
+        "bake": {
+          "phase": "converged",
+          "samples": 2048,
+          "maxSamples": 2048,
+          "progress": 1
+        },
+        "virtualLights": {
+          "count": 128,
+          "rays": 810,
+          "candidates": 706,
+          "bounces": 8,
+          "candidateMultiplier": 16
+        }
+      }
+    }
+  ],
+  "conclusion": "The new method improves substantially over the branch defaults, but does not meet the old lightmap fidelity. Keep the RIS renderer as the enabled baseline and the shadow-map renderer experimental. No BVH dependency was added to the new method."
+}

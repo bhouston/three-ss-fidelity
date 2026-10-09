@@ -133,3 +133,12 @@ it('permits only the explicit approximations shared with the reference pathtrace
     warn.mockRestore();
   }
 });
+
+it('rejects CPU procedural export before attempting any graphics context', async () => {
+  const source = setup();
+  source.environment = { scene: new Scene(), sigma: 0 };
+  await expect(renderBlender(source, { ...options, captureLane: 'cpu' })).rejects.toThrow(
+    'Procedural environment export requires the GPU capture lane',
+  );
+  expect(adapter.renderScene).not.toHaveBeenCalled();
+});

@@ -376,3 +376,5 @@ Glob filters select entries already defined in the collection. Resuming and reme
 an entry replaces its result in that session; other entries remain intact.
 
 Recorded Windows001 results and measurement conditions are described in [the representative run notes](docs/performance/REPRESENTATIVE-WINDOWS001.md).
+
+The unified suite imports all 200 sibling path-tracer scenes and 545 historical images. Use renderer groups, searchable selection and the Path-tracer fidelity preset to keep comparisons focused. See [historical provenance](docs/HISTORICAL-RESULTS.md), [asset setup](docs/IMPORTED-ASSETS.md) and [distributed capture](docs/DISTRIBUTED-CAPTURE.md). Hosted CI uses Canvas2D for UI contracts; explicit rendering checks require real hardware GPUs.

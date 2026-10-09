@@ -1,0 +1,32 @@
+name: Hardware rendering verification
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  hardware:
+    runs-on: [self-hosted, gpu]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: false
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+      - name: Initialize code submodules
+        run: |
+          npm install --global git-dedup@3.0.2
+          git-dedup submodule update --init submodules/three.js submodules/three-gpu-pathtracer submodules/fidelity-kit submodules/fidelity-kit-blender submodules/fidelity-kit-three-gpu-pathtracer
+          git-dedup store add .
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: node submodules/fidelity-kit/scripts/install-test-browser.mjs
+      - name: Verify completed path-tracer samples on hardware
+        run: node scripts/pathtracer-hardware-smoke.mjs
+      - name: Verify unified live, capture and completed-frame throughput
+        env:
+          SMOKE_RENDERER: three-gpu-pathtracer
+          SMOKE_LIVE_FIXTURE: cube
+        run: pnpm test:unified

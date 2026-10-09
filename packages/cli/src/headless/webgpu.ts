@@ -1,4 +1,5 @@
 // Headless WebGPU (dawn `webgpu` package) with a minimal canvas, ported from vitest-environment-webgpu-node.
+import { requireHardwareGPU } from './hardware.js';
 import { create, globals } from 'webgpu';
 
 const COPY_SRC = 0x01;
@@ -131,8 +132,19 @@ export function install(): void {
   // default (a WebGPU spec mitigation against timing side-channels), which inflates `cli bench --gpu`'s
   // per-pass GPU timings well past wall-clock time when many short passes each round up. Safe in this
   // headless benchmark process (no browser sandbox to protect). allow_unsafe_apis is required to unlock it.
+  const gpu = create(['enable-dawn-features=allow_unsafe_apis,disable_timestamp_quantization']);
+  const requestAdapter = gpu.requestAdapter.bind(gpu);
+  gpu.requestAdapter = async (...args) => {
+    const adapter = await requestAdapter(...args);
+    requireHardwareGPU(
+      adapter
+        ? [adapter.info.vendor, adapter.info.architecture, adapter.info.device, adapter.info.description].join(' ')
+        : '',
+    );
+    return adapter;
+  };
   Object.defineProperty(globalThis.navigator, 'gpu', {
-    value: create(['enable-dawn-features=allow_unsafe_apis,disable_timestamp_quantization']),
+    value: gpu,
     configurable: true,
   });
   scope.self ??= globalThis;

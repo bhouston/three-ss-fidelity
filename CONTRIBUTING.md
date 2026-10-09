@@ -19,6 +19,8 @@ Use `type(optional-scope): description`. Allowed types are `feat`, `fix`, `perf`
 
 ## Development and CI
 
-Use Node 26 and the pinned pnpm version in `package.json`. Clone with submodules (`git clone --recurse-submodules`, or `git submodule update --init` afterwards), then run `pnpm install --frozen-lockfile`.
+Use Node 26 and the pinned pnpm version in `package.json`. Clone with submodules (`git-dedup clone --recurse-submodules`, or `git-dedup submodule update --init` afterwards), then run `pnpm install --frozen-lockfile`.
 
 CI checks builds, types, lint, and tests with coverage. Dependency audit findings appear as warnings so existing advisories remain visible without preventing unrelated fixes. Coverage is uploaded as an artifact.
+
+The unified site build publishes historical provenance alongside fidelity/performance/live views. CI initializes code submodules through git-dedup and adopts them into its shared store, runs grouped-selector and Canvas2D UI contracts, and reports hardware rendering as unavailable on hosted runners. The manual Hardware rendering verification workflow requires a self-hosted runner labeled gpu and rejects software adapters. Native model validation is explicit; see docs/IMPORTED-ASSETS.md.

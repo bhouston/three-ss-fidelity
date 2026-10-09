@@ -94,8 +94,19 @@ async function main(job: RenderJob): Promise<void> {
     const start = performance.now();
     seedRandom(); // before the scene and renderer draw any random numbers
     const setup = await create(ctx);
+    if (job.renderer === 'blender') {
+      try {
+        if (setup.environment && job.captureLane === 'cpu')
+          throw new Error('Procedural environment export requires the GPU capture lane');
+        const canvas = setup.environment
+          ? headless.createCanvas(width, height)
+          : ({ width, height } as HTMLCanvasElement);
+        return await renderBlenderJob(name, setup, canvas, width, height, start);
+      } finally {
+        disposeSceneInstance(setup);
+      }
+    }
     const canvas = headless.createCanvas(width, height);
-    if (job.renderer === 'blender') return renderBlenderJob(name, setup, canvas, width, height, start);
     const renderer = await createRenderer(job.renderer, canvas, setup, {
       width,
       height,

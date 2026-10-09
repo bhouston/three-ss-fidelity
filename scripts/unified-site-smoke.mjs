@@ -14,15 +14,12 @@ const site = join(work, 'site');
 const cli = resolve('submodules/fidelity-kit/packages/cli/dist/bin.js');
 const smokeRenderer = process.env.SMOKE_RENDERER ?? 'three-current';
 const liveFixture = process.env.SMOKE_LIVE_FIXTURE;
+const uiOnly = process.env.SMOKE_UI_ONLY === 'true';
 let cube;
 const correctnessChromeArgs = [
   '--no-sandbox',
   '--enable-unsafe-webgpu',
-  '--enable-unsafe-swiftshader',
-  // Full-HD pathtracing can exceed Chrome's watchdog on the software CI adapter.
-  ...(process.platform === 'linux'
-    ? ['--use-gl=angle', '--use-angle=swiftshader-webgl', '--disable-gpu-watchdog']
-    : []),
+  ...(uiOnly ? ['--disable-gpu', '--disable-webgl', '--disable-webgl2'] : []),
 ];
 const execute = async (args) => {
   const browserArgs = ['render', 'benchmark'].includes(args[0])
@@ -75,25 +72,21 @@ let browser;
 try {
   const website = await serve('/project/');
   const renderer = await serve('/');
-  if (liveFixture === 'cube') {
+  if (uiOnly) {
+    const { createUIFixtureServer } = await import('./ui-fixture-server.mjs');
+    cube = await createUIFixtureServer();
+  } else if (liveFixture === 'cube') {
     const { createCubeServer } = await import('../submodules/fidelity-kit/scripts/cube-server.mjs');
     cube = await createCubeServer();
   }
-  await execute([
-    'build',
-    'fidelity-results',
-    '--registry',
-    'registry.json',
-    '--performance-root',
-    'performance-results',
-    '--out',
-    site,
-    '--root-url',
-    renderer + 'render/',
-  ]);
+  await promisify(execFile)(
+    process.execPath,
+    ['scripts/build-site.mjs', '--out', site, '--root-url', renderer + 'render/'],
+    { maxBuffer: 16 * 1024 * 1024 },
+  );
   await promisify(execFile)(process.execPath, ['scripts/build-render-server.mjs', '--out', join(site, 'render')]);
   if (cube) {
-    // Exercise full-HD UI/host contracts with a lightweight real GPU fixture on software CI.
+    // Exercise full-HD UI/host contracts with a Canvas2D or hardware GPU fixture.
     // Project pathtracer capture and throughput checks below still use the actual render bundle.
     const manifestFile = join(site, 'data/site.json');
     const manifest = JSON.parse(await readFile(manifestFile, 'utf8'));
@@ -132,6 +125,29 @@ try {
     assert.equal(await page.$eval('output', (element) => element.textContent), 'Running');
   }
   await page.goto(website, { waitUntil: 'networkidle0' });
+  if (!uiOnly) {
+    const hardware = await page.evaluate(async () => {
+      const adapter = await navigator.gpu?.requestAdapter();
+      const gpu = adapter
+        ? ['vendor', 'architecture', 'device', 'description'].map((key) => adapter.info[key] ?? '').join(' ')
+        : '';
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl2');
+      const extension = gl?.getExtension('WEBGL_debug_renderer_info');
+      const webgl = gl ? gl.getParameter(extension?.UNMASKED_RENDERER_WEBGL ?? gl.RENDERER) : '';
+      gl?.getExtension('WEBGL_lose_context')?.loseContext();
+      return { gpu, webgl };
+    });
+    assert.ok(
+      hardware.gpu &&
+        hardware.webgl &&
+        !/swiftshader|llvmpipe|lavapipe|softpipe|software|basic render|\bwarp\b/i.test(
+          hardware.gpu + ' ' + hardware.webgl,
+        ),
+      'Rendering verification blocked: real hardware WebGPU and WebGL are required. ' + JSON.stringify(hardware),
+    );
+    console.log('Hardware adapters:', hardware);
+  }
   assert.equal(await page.$eval('h1', (element) => element.textContent), 'three-fidelity');
   assert.ok(await page.$eval('figure img', (image) => image.naturalWidth > 0));
   assert.equal(
@@ -150,7 +166,9 @@ try {
   await page.goto(website + `?view=live&renderer=${smokeRenderer}&scene=cornell-box-basic`, {
     waitUntil: 'networkidle0',
   });
-  console.log(`Checking live renderer: ${cube ? 'WebGL cube contract fixture' : smokeRenderer}`);
+  console.log(
+    `Checking live renderer: ${uiOnly ? 'Canvas2D UI contract fixture' : cube ? 'hardware WebGL cube fixture' : smokeRenderer}`,
+  );
   await page.evaluate(() => {
     window.liveHarnessMessages = 0;
     window.addEventListener('message', (event) => {
@@ -196,101 +214,112 @@ try {
   assert.deepEqual(errors, []);
   await browser.close();
   browser = undefined;
-  // Exercise the actual CLI paths against the same separately hosted browser entry.
-  console.log('Checking fidelity capture');
-  const capture = join(work, 'fidelity');
-  const captureRegistry = JSON.parse(await readFile('registry.json', 'utf8'));
-  // A correctness capture needs two samples; the published reference target is 4096.
-  const captureScene = captureRegistry.scenes.find((scene) => scene.id === 'cornell-box-basic');
-  captureScene.fidelity.width = 320;
-  captureScene.fidelity.height = 180;
-  const captureRenderer = captureRegistry.renderers.find((renderer) => renderer.id === smokeRenderer);
-  if (captureRenderer.params.samples) captureRenderer.params.samples = 2;
-  const captureRegistryFile = join(work, 'capture-registry.json');
-  await writeFile(captureRegistryFile, JSON.stringify(captureRegistry));
-  await execute([
-    'render',
-    '--registry',
-    captureRegistryFile,
-    '--root-url',
-    renderer + 'render/',
-    '--out',
-    capture,
-    '--scene',
-    'cornell-box-basic',
-    '--renderer',
-    smokeRenderer,
-    '--frames',
-    '2',
-    '--executable-path',
-    chrome,
-  ]);
-  assert.ok(
-    (await sharp(join(capture, `cornell-box-basic/beauty/${smokeRenderer}.avif`)).stats()).channels.some(
-      (channel) => channel.stdev > 10,
-    ),
-  );
-  console.log('Checking combined render filters preserve existing captures without starting Chrome');
-  const capturedFile = join(capture, `cornell-box-basic/beauty/${smokeRenderer}.avif`);
-  const beforeSkip = await stat(capturedFile);
-  const skipped = await execute([
-    'render',
-    '--registry',
-    captureRegistryFile,
-    '--out',
-    capture,
-    '--missing-only',
-    '--scenes',
-    'cornell-box-basi?',
-    '--renderers',
-    `?${smokeRenderer.slice(1)}`,
-    '--executable-path',
-    join(work, 'chrome-must-not-start'),
-  ]);
-  assert.ok(skipped.stdout.includes('skipped (image already exists)'));
-  assert.equal((await stat(capturedFile)).mtimeMs, beforeSkip.mtimeMs);
-  const suite = JSON.parse(await readFile('registry.json', 'utf8'));
-  suite.performance = {
-    default: {
-      defaults: { capture: true, vsync: 'off', initTimeoutMs: process.platform === 'linux' ? 300000 : 60000 },
-      entries: [
-        { scene: 'cornell-box-basic', renderer: smokeRenderer, durationMs: 5000, params: { width: 320, height: 180 } },
-      ],
-    },
-  };
-  const suiteFile = join(work, 'registry.json');
-  await writeFile(suiteFile, JSON.stringify(suite));
-  const metrics = join(work, 'performance');
-  console.log('Checking completed-frame benchmark');
-  await execute([
-    'benchmark',
-    '--registry',
-    suiteFile,
-    '--root-url',
-    renderer + 'render/',
-    '--out',
-    metrics,
-    '--machine',
-    'smoke',
-    '--cooldown-ms',
-    '0',
-    '--allow-software',
-    '--fail-on-error=false',
-    '--executable-path',
-    chrome,
-  ]);
-  const history = JSON.parse(await readFile(join(metrics, 'index.json'), 'utf8'));
-  const result = JSON.parse(await readFile(join(metrics, history.results[0].metrics), 'utf8'));
-  // CI may use a software adapter; this verifies contracts, not comparative hardware performance.
-  assert.equal(result.status, 'ok', JSON.stringify(result.error ?? result));
-  assert.ok(result.statistics.averageFps > 0);
-  assert.ok(result.throughput.completedFrames > 0);
-  assert.ok(result.throughput.elapsed >= 5);
-  assert.equal(result.statistics.cpuSampleCount, 0);
-  assert.equal(result.statistics.intervalCount, 0);
-  console.log(
-    'Passed: subpath home/hero, fidelity detail, performance detail, cross-origin live, responsive canvas, nonblack output, selection/reset, reporting disabled, shared browser render and benchmark CLIs.',
-  );
+  if (!uiOnly) {
+    // Exercise the actual CLI paths against the same separately hosted browser entry.
+    console.log('Checking fidelity capture');
+    const capture = join(work, 'fidelity');
+    const captureRegistry = JSON.parse(await readFile('registry.json', 'utf8'));
+    // A correctness capture needs two samples; the published reference target is 4096.
+    const captureScene = captureRegistry.scenes.find((scene) => scene.id === 'cornell-box-basic');
+    captureScene.fidelity.width = 320;
+    captureScene.fidelity.height = 180;
+    const captureRenderer = captureRegistry.renderers.find((renderer) => renderer.id === smokeRenderer);
+    if (captureRenderer.params.samples) captureRenderer.params.samples = 2;
+    const captureRegistryFile = join(work, 'capture-registry.json');
+    await writeFile(captureRegistryFile, JSON.stringify(captureRegistry));
+    await execute([
+      'render',
+      '--registry',
+      captureRegistryFile,
+      '--root-url',
+      renderer + 'render/',
+      '--out',
+      capture,
+      '--scene',
+      'cornell-box-basic',
+      '--renderer',
+      smokeRenderer,
+      '--frames',
+      '2',
+      '--executable-path',
+      chrome,
+    ]);
+    assert.ok(
+      (await sharp(join(capture, `cornell-box-basic/beauty/${smokeRenderer}.avif`)).stats()).channels.some(
+        (channel) => channel.stdev > 10,
+      ),
+    );
+    console.log('Checking combined render filters preserve existing captures without starting Chrome');
+    const capturedFile = join(capture, `cornell-box-basic/beauty/${smokeRenderer}.avif`);
+    const beforeSkip = await stat(capturedFile);
+    const skipped = await execute([
+      'render',
+      '--registry',
+      captureRegistryFile,
+      '--out',
+      capture,
+      '--missing-only',
+      '--scenes',
+      'cornell-box-basi?',
+      '--renderers',
+      `?${smokeRenderer.slice(1)}`,
+      '--executable-path',
+      join(work, 'chrome-must-not-start'),
+    ]);
+    assert.ok(skipped.stdout.includes('skipped (image already exists)'));
+    assert.equal((await stat(capturedFile)).mtimeMs, beforeSkip.mtimeMs);
+    const suite = JSON.parse(await readFile('registry.json', 'utf8'));
+    suite.performance = {
+      default: {
+        defaults: { capture: true, vsync: 'off', initTimeoutMs: process.platform === 'linux' ? 300000 : 60000 },
+        entries: [
+          {
+            scene: 'cornell-box-basic',
+            renderer: smokeRenderer,
+            durationMs: 5000,
+            params: { width: 320, height: 180 },
+          },
+        ],
+      },
+    };
+    const suiteFile = join(work, 'registry.json');
+    await writeFile(suiteFile, JSON.stringify(suite));
+    const metrics = join(work, 'performance');
+    console.log('Checking completed-frame benchmark');
+    await execute([
+      'benchmark',
+      '--registry',
+      suiteFile,
+      '--root-url',
+      renderer + 'render/',
+      '--out',
+      metrics,
+      '--machine',
+      'smoke',
+      '--cooldown-ms',
+      '0',
+      '--fail-on-error=false',
+      '--executable-path',
+      chrome,
+    ]);
+    const history = JSON.parse(await readFile(join(metrics, 'index.json'), 'utf8'));
+    const result = JSON.parse(await readFile(join(metrics, history.results[0].metrics), 'utf8'));
+    // Only hardware adapters reach the completed-frame benchmark.
+    assert.equal(result.status, 'ok', JSON.stringify(result.error ?? result));
+    assert.ok(result.statistics.averageFps > 0);
+    assert.ok(result.throughput.completedFrames > 0);
+    assert.ok(result.throughput.elapsed >= 5);
+    assert.equal(result.statistics.cpuSampleCount, 0);
+    assert.equal(result.statistics.intervalCount, 0);
+    console.log(
+      'Passed: subpath home/hero, fidelity detail, performance detail, cross-origin live, responsive canvas, nonblack output, selection/reset, reporting disabled, shared browser render and benchmark CLIs.',
+    );
+  } else {
+    console.log('Passed: grouped website, navigation, Canvas2D live lifecycle and responsive UI contracts.');
+    console.warn(
+      'Rendering verification blocked in hosted CI: no hardware GPU is provisioned. Hardware checks run separately; no software renderer was used.',
+    );
+  }
   if (process.env.SMOKE_ARTIFACTS) await cp(site, resolve(process.env.SMOKE_ARTIFACTS), { recursive: true });
 } finally {
   await browser?.close();

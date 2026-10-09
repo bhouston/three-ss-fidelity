@@ -1,3 +1,5 @@
+import { DataTexture, Group } from 'three';
+import type { GLTF } from 'three/addons/loaders/GLTFLoader.js';
 import { describe, expect, it } from 'vitest';
 import { pathtracerScenes } from './index.js';
 import mappings from './scene-map.json' with { type: 'json' };
@@ -28,4 +30,28 @@ describe('imported scene identities', () => {
       }
     },
   );
+});
+
+it('supports prototype-based asset contexts while preserving their method receiver', async () => {
+  class Context {
+    paths: string[] = [];
+    async loadGLTF(path: string): Promise<GLTF> {
+      this.paths.push(path);
+      return { scene: new Group() } as GLTF;
+    }
+    async loadHDR(path: string): Promise<DataTexture> {
+      this.paths.push(path);
+      return new DataTexture(new Float32Array([1, 1, 1, 1]), 1, 1);
+    }
+  }
+  const context = new Context();
+  const setup = await pathtracerScenes.find((scene) => scene.name === 'pt-khronos-box')!.create(context);
+  try {
+    expect(context.paths).toEqual([
+      '@/assets/environments/lightroom_14b.hdr',
+      '@/submodules/glTF-Sample-Assets/Models/Box/glTF-Binary/Box.glb',
+    ]);
+  } finally {
+    disposeSceneInstance(setup);
+  }
 });

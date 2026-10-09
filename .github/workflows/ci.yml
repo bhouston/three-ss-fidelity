@@ -45,10 +45,17 @@ jobs:
       - name: Check unified website and renderer contracts
         timeout-minutes: 10
         env:
-          # Real pathtracer captures/benchmarks use small images; full-HD UI uses the GPU cube fixture.
-          SMOKE_RENDERER: three-gpu-pathtracer
-          SMOKE_LIVE_FIXTURE: cube
+          # Hosted CI has no hardware GPU. Canvas2D tests UI contracts; GPU verification is separate.
+          SMOKE_UI_ONLY: 'true'
         run: xvfb-run --auto-servernum pnpm test:unified
+      - name: Check grouped renderer selection
+        working-directory: submodules/fidelity-kit
+        run: node scripts/selection-browser.mjs
+      - name: Check distributed capture contracts
+        run: |
+          node --test scripts/dockergrid-batch.test.mjs scripts/legacy-links.test.mjs
+          python3 docker/test_dockergrid.py
+          python3 scripts/test_dockergrid_collect.py
       - name: Audit dependencies
         id: audit
         continue-on-error: true

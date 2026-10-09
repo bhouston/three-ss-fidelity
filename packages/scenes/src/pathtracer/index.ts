@@ -19,7 +19,8 @@ export const pathtracerScenes: SceneDefinition[] = [
     name,
     async create(ctx) {
       const setup = await definition.create({
-        ...ctx,
+        loadGLTF: (asset) => ctx.loadGLTF(asset),
+        loadHDR: (asset) => ctx.loadHDR(asset),
         loadLDraw: (asset) => {
           if (!ctx.loadLDraw) throw new Error('This scene requires an LDraw asset loader');
           return ctx.loadLDraw(asset);

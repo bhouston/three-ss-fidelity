@@ -8,7 +8,7 @@ The unified suite retains the screen-space, live and performance harness and imp
 - [x] WebGPU path-tracer adapter, completed samples, optional noise stopping, explicit Blender reference settings, and isolated capture queues.
 - [x] Khronos and demo-model scene families with LDraw/Collada loaders and asset provenance.
 - [x] Historical result import with explicit scene/renderer identity mappings and regenerated metrics.
-- [ ] Consolidated CI/deployment and sibling retirement after parity validation.
+- [x] Consolidated CI/deployment and tested legacy redirects, with sibling retirement gated on the unified deployment.
 
 Renderer categories are References, Screen-space, Baked lighting and probes, and Experiments. Comparison presets change compared renderers and reference together, preserving the choice in the URL. Scene categories are independent of tags and benchmark collections; scenes can share tags without belonging to the same family.
 
@@ -33,3 +33,11 @@ Blender 4.5.3 CPU reference capture also passed at 32 by 32 with two samples, us
 Scene import and asset initialization details: [IMPORTED-ASSETS.md](IMPORTED-ASSETS.md). All 200 sibling definitions have distinct pt- IDs.
 
 Historical import: [HISTORICAL-RESULTS.md](HISTORICAL-RESULTS.md). All 545 images retain their original bytes; the combined site includes 255 scenes and regenerated comparison metrics.
+
+## Consolidated operations
+
+All site build commands use one pipeline and publish the migration manifest and provenance documents. Hosted CI verifies the grouped UI using Canvas2D without software 3D rendering. The manual hardware workflow rejects software adapters and checks completed path-tracer samples; local NVIDIA verification also passed the full capture and sustained-throughput harness.
+
+Distributed capture tooling supports CPU Blender jobs and result collection. GPU capture requires a hardware host. Docker image execution remains unverified because Docker is unavailable in this workspace. See [DISTRIBUTED-CAPTURE.md](DISTRIBUTED-CAPTURE.md).
+
+The sibling retirement PR replaces its active site with redirects only after the unified site deploys successfully. All 600 scene/renderer combinations are tested, and all 545 legacy image URLs preserve their bytes. The original repository retains its source, asset pins and a manual archival validation workflow.

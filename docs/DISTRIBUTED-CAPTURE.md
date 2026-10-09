@@ -1,0 +1,11 @@
+# Distributed capture
+
+The sibling's single-task runner, batch generator, atomic collector and source-only container packaging now use canonical three-fidelity scene and renderer IDs. No tasks were submitted as part of migration.
+
+Run node scripts/dockergrid-batch.mjs --scenes 'pt-gi-*' --renderers blender --samples 2 to generate independent native-resolution jobs. The default batch covers all scenes for the two path tracers and Blender. Fixed sample counts are the default; noise thresholds are explicit. The collector verifies expected scene/renderer names, MIME types, sizes and completion, bounds parallel downloads, and atomically replaces valid images. Use python3 scripts/dockergrid-collect.py --help for inputs and --require-complete before processing comparisons.
+
+The Cloud Run/DockerGrid descriptor intentionally exposes CPU Blender only: its existing scheduler contract declares gpu: none. GPU engines require a hardware-capable worker and pass docker/check-hardware.mjs before rendering; the CPU scheduler is not advertised as a GPU service. Use the ordinary native CLI on GPU hosts rather than submitting GPU jobs to the CPU descriptor. The image enables no software GPU fallback. Native WebGL/WebGPU hosts reject software adapters, including SwiftShader, llvmpipe, Lavapipe and WARP. Blender exports without procedural lighting do not create a graphics context; procedural lighting still requires the GPU lane.
+
+Create a context with python3 scripts/docker-context.py context.tar.gz (add --include-model-assets for the large libraries), then build the archived Dockerfile with a Linux Docker host. This includes five code submodules, source files and repository-owned fixtures while excluding historical images and benchmark results. Keep model-library licenses in the context. Provide real GPU drivers/devices for native GPU execution. Without model libraries, the catalog is limited to the Cornell and imported GI fixtures.
+
+Validation covers batch manifests, task parameter validation, hardware-guard ordering, single primary output, collector bounds/atomic replacement and native hardware checks. Docker is unavailable on the migration host, so the container image itself has not been built or executed here. CPU Blender and both native GPU backends have separate hardware smoke validation.

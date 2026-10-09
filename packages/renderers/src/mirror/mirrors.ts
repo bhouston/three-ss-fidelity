@@ -1,4 +1,4 @@
-// Planar mirrors for the VPL Mirror renderer: flat faces of near-perfect metal meshes are detected and shown through
+// Reusable planar mirrors: flat faces of near-perfect metal meshes are detected and shown through
 // the fork's TSL ReflectorNode (a mirrored virtual camera with an oblique clip plane) instead of SSR.
 import { BufferAttribute, Object3D, Quaternion, Vector3 } from 'three';
 import type { Color, Mesh, MeshStandardMaterial, Scene } from 'three';

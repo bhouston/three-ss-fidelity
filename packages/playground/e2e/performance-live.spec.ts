@@ -46,7 +46,7 @@ test('live benchmark defers selections, resets charts and renders at 1080p with 
   await page.keyboard.up('ArrowLeft');
 
   await page.getByLabel('Scene', { exact: true }).selectOption('cornell-box-basic-oblique');
-  await page.getByLabel('Renderer', { exact: true }).selectOption('three-new-ssgi-2x8');
+  await page.getByLabel('Renderer', { exact: true }).selectOption('three-new-ssgi-4x16');
   await expect(page.getByText('Selection changed. Click Start Benchmark to apply.')).toBeVisible();
   await expect(page.locator('.live-summary h2')).toHaveText('cornell-box-basic / three-current');
   await expect(page.getByRole('status')).toHaveText('Running');
@@ -54,7 +54,7 @@ test('live benchmark defers selections, resets charts and renders at 1080p with 
   await expect(page.getByLabel('Setup time chart')).toContainText('Setup measurements appear');
   await expect(page.locator('[aria-label="Frame rate chart"] circle')).toHaveCount(0);
   await expect(page.getByRole('status')).toHaveText('Running', { timeout: 90000 });
-  await expect(page.locator('.live-summary h2')).toHaveText('cornell-box-basic-oblique / three-new-ssgi-2x8');
+  await expect(page.locator('.live-summary h2')).toHaveText('cornell-box-basic-oblique / three-new-ssgi-4x16');
   await expect(page.getByLabel('Live frame rate')).not.toHaveText('— FPS');
   expect(await page.evaluate(() => (window as unknown as { harnessMessages: unknown[] }).harnessMessages)).toEqual([]);
   expect(errors).toEqual([]);

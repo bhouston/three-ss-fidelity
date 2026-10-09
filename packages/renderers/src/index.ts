@@ -84,10 +84,6 @@ export function createRenderer(
       return instrument(createThreeNewRenderer(canvas, setup, options, 'vpl'));
     case 'three-new-vpl-shadow-maps':
       return instrument(createThreeNewRenderer(canvas, setup, options, 'vpl-shadow-maps'));
-    case 'three-new-vpl-mirror':
-      return instrument(createThreeNewRenderer(canvas, setup, options, 'vpl-mirror'));
-    case 'three-new-vpl-box-projected':
-      return instrument(createThreeNewRenderer(canvas, setup, options, 'vpl-box-projected'));
     case 'three-new-light-bake':
       return instrument(createThreeNewRenderer(canvas, setup, options, 'light-bake'));
     case 'three-new-light-probe-ddgi':

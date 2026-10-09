@@ -136,11 +136,12 @@ it('dispatches shadow-map VPL transport independently of the retained RIS baseli
   expect(createThreeNewRenderer).toHaveBeenCalledWith({}, setup, options, 'vpl-shadow-maps');
 });
 
-it('dispatches the VPL mirror and box-projected variants', () => {
+it('rejects the retired VPL mirror and box-projected variants', () => {
   const setup = { effects: {} } as SceneInstance;
   const options = { width: 640, height: 480 };
-  createRenderer('three-new-vpl-mirror', {} as HTMLCanvasElement, setup, options);
-  expect(createThreeNewRenderer).toHaveBeenLastCalledWith({}, setup, options, 'vpl-mirror');
-  createRenderer('three-new-vpl-box-projected', {} as HTMLCanvasElement, setup, options);
-  expect(createThreeNewRenderer).toHaveBeenLastCalledWith({}, setup, options, 'vpl-box-projected');
+  for (const name of ['three-new-vpl-mirror', 'three-new-vpl-box-projected']) {
+    expect(() => createRenderer(name as RendererName, {} as HTMLCanvasElement, setup, options)).toThrow(
+      'Unknown renderer',
+    );
+  }
 });

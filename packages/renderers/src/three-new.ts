@@ -43,7 +43,6 @@ import { traa } from './traa/TRAANode.js';
 import { ssgi } from './ssgi-fast/SSGINode.js';
 import { bilateralUpsample } from './ssgi-fast/bilateralUpsample.js';
 import { newSSR } from './ssr/NewSSRNode.js';
-import { BoxProjectedProbe } from './box-projected.js';
 import type { SceneInstance } from '@ss-fidelity/scenes';
 import { ssgiWorkExperiments } from './types.js';
 import type { LiveRenderer, RendererOptions, SSGIWorkExperiment } from './types.js';
@@ -51,8 +50,6 @@ import { VirtualPointLightGI } from './vpl/VirtualPointLightGI.js';
 import { ShadowMapVPL } from './vpl/ShadowMapVPL.js';
 import { ProgressiveLightBake } from './light-bake/ProgressiveLightBake.js';
 import { bakeProbeGrid } from './probe-grid.js';
-import { createMirrors, findMirrorPlanes } from './mirror/mirrors.js';
-import type { Mirrors } from './mirror/mirrors.js';
 import { MirrorAwareVelocityNode } from './mirror/velocity.js';
 import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
 
@@ -331,14 +328,7 @@ export async function createThreeNewRenderer(
   canvas: HTMLCanvasElement,
   sceneSetup: SceneInstance,
   { width, height, trackTimestamp = false, ssrDebug, hierarchyExperiment, ssrTemporalProfile }: RendererOptions,
-  probeMode?:
-    | 'light-probe'
-    | 'light-probe-ddgi'
-    | 'light-bake'
-    | 'vpl'
-    | 'vpl-mirror'
-    | 'vpl-box-projected'
-    | 'vpl-shadow-maps',
+  probeMode?: 'light-probe' | 'light-probe-ddgi' | 'light-bake' | 'vpl' | 'vpl-shadow-maps',
 ): Promise<LiveRenderer> {
   const useProbes = probeMode !== undefined;
   const isVpl = probeMode?.startsWith('vpl') ?? false;
@@ -362,37 +352,20 @@ export async function createThreeNewRenderer(
   });
 
   let releaseProbes: (() => void) | undefined;
-  let boxProbe: BoxProjectedProbe | undefined;
-  let mirrors: Mirrors | undefined;
   let baker: ProgressiveLightBake | ShadowMapVPL | undefined;
   const createSurfaceLighting = () =>
     probeMode === 'vpl-shadow-maps'
       ? new ShadowMapVPL(renderer, setup.scene)
       : isVpl
-        ? new VirtualPointLightGI(renderer, setup.scene, {
-            mirrors: probeMode === 'vpl-mirror' ? findMirrorPlanes(setup.scene) : [],
-          })
+        ? new VirtualPointLightGI(renderer, setup.scene)
         : new ProgressiveLightBake(renderer, setup.scene);
   let renderPipeline: RenderPipeline;
   try {
     if (probeMode === 'light-bake' || isVpl) baker = createSurfaceLighting();
     if (useProbes && !baker && effects.ssgi)
       releaseProbes = await bakeProbeGrid(renderer, setup.scene, probeMode === 'light-probe-ddgi');
-    if (probeMode === 'vpl-box-projected') boxProbe = new BoxProjectedProbe(renderer, setup.scene);
-    if (probeMode === 'vpl-mirror') mirrors = createMirrors(setup.scene);
-    renderPipeline = createPipeline(
-      renderer,
-      setup,
-      ssrDebug,
-      hierarchyExperiment,
-      ssrTemporalProfile,
-      useProbes,
-      boxProbe?.radiance,
-      probeMode === 'vpl-mirror',
-    );
+    renderPipeline = createPipeline(renderer, setup, ssrDebug, hierarchyExperiment, ssrTemporalProfile, useProbes);
   } catch (error) {
-    boxProbe?.dispose();
-    mirrors?.dispose();
     baker?.dispose();
     releaseProbes?.();
     releaseScene();
@@ -457,28 +430,21 @@ export async function createThreeNewRenderer(
         if (signature !== sceneSignature) progressive.resetAccumulation();
         sceneSignature = signature;
       }
-      let refreshProbe = false;
       if (baker) {
         const signature = bakeSignature();
         if (signature !== bakedSignature) {
           // Conservative invalidation: a blocker can affect distant transport, so rebuild the whole bake.
-          // the baker restores the original materials and geometry, taking the mirror slots with them
-          mirrors?.dispose();
           baker.dispose();
           baker = createSurfaceLighting();
-          if (mirrors) mirrors = createMirrors(setup.scene);
           bakedSignature = bakeSignature();
         }
         if (baker.step()) {
-          // the capture is expensive: refresh it periodically while the bake accumulates and once it converges
-          refreshProbe = !!boxProbe && (baker.phase === 'converged' || baker.pass % 32 === 0);
           progressive?.resetAccumulation();
           // Initial lightMap assignment updates material versions once.
           bakedSignature = bakeSignature();
         }
       }
       renderPipeline.render();
-      if (refreshProbe) boxProbe?.update();
       frames++;
     },
     setSize(w, h) {
@@ -491,8 +457,6 @@ export async function createThreeNewRenderer(
       // RenderPipeline.dispose() and Renderer.dispose() don't reach the rtt() render targets (see docs/history/SSGI_FAST.md)
       for (const disposable of (renderPipeline as AnyNode).rttDisposables) disposable.dispose();
       renderPipeline.dispose();
-      boxProbe?.dispose();
-      mirrors?.dispose();
       baker?.dispose();
       releaseProbes?.();
       releaseScene();

@@ -7,8 +7,6 @@ export const rendererNames = [
   'three-new-light-bake',
   'three-new-vpl',
   'three-new-vpl-shadow-maps',
-  'three-new-vpl-mirror',
-  'three-new-vpl-box-projected',
   'three-new-light-probe',
   'three-new-light-probe-ddgi',
   'three-current',
@@ -17,10 +15,7 @@ export const rendererNames = [
 export type RendererName = (typeof rendererNames)[number];
 
 /** Scenes a renderer deliberately skips; the CLI writes a "Disabled" placeholder image for each. */
-export const disabledScenes: Partial<Record<RendererName, readonly string[]>> = {
-  'three-new-vpl-mirror': ['higharc_dogwood', 'steampunk-camera'],
-  'three-new-vpl-box-projected': ['higharc_dogwood', 'steampunk-camera'],
-};
+export const disabledScenes: Partial<Record<RendererName, readonly string[]>> = {};
 
 export interface SSGIWorkExperiment {
   earlyExit?: boolean;
@@ -37,8 +32,6 @@ export const ssgiWorkExperiments = {
   'ssgi-4x32': { sliceScale: 0.5 },
   'ssgi-8x16': { stepScale: 0.5 },
   'ssgi-4x16': { sliceScale: 0.5, stepScale: 0.5 },
-  'ssgi-2x16': { sliceScale: 0.25, stepScale: 0.5 },
-  'ssgi-2x8': { sliceScale: 0.25, stepScale: 0.25 },
   'ssgi-6x32': { sliceScale: 0.75 },
   'ssgi-8x24': { stepScale: 0.75 },
   'ssgi-6x24': { sliceScale: 0.75, stepScale: 0.75 },

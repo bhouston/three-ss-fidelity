@@ -166,8 +166,6 @@ it('scales scene sample budgets independently and keeps work flags opt-in', asyn
     ['ssgi-4x32', 4, 32, false, false],
     ['ssgi-8x16', 8, 16, false, false],
     ['ssgi-4x16', 4, 16, false, false],
-    ['ssgi-2x16', 2, 16, false, false],
-    ['ssgi-2x8', 2, 8, false, false],
     ['ssgi-6x32', 6, 32, false, false],
     ['ssgi-8x24', 8, 24, false, false],
     ['ssgi-6x24', 6, 24, false, false],
@@ -202,7 +200,7 @@ it('scales scene sample budgets independently and keeps work flags opt-in', asyn
   const live = await createThreeNewRenderer({} as HTMLCanvasElement, scene, {
     width: 160,
     height: 120,
-    hierarchyExperiment: 'ssgi-2x8',
+    hierarchyExperiment: 'ssgi-4x16',
   });
   const gi = vi.mocked(ssgi).mock.results[0]!.value;
   expect([gi.sliceCount.value, gi.stepCount.value]).toEqual([1, 1]);

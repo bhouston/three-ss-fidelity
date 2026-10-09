@@ -11,7 +11,9 @@ describe('performance renderer contract', () => {
     for (const renderer of ['blender', 'webgpu-three-pathtracer'])
       expect(() => performanceConfiguration({ renderer })).toThrow('Unsupported performance renderer');
     expect(() => performanceConfiguration({ renderer: 'three-current', experiment: 'hierarchy-combined' })).toThrow();
-    expect(() => performanceConfiguration({ renderer: 'three-new', experiment: 'ssgi-2x8' })).not.toThrow();
+    expect(() => performanceConfiguration({ renderer: 'three-new', experiment: 'ssgi-4x16' })).not.toThrow();
+    for (const experiment of ['ssgi-2x16', 'ssgi-2x8'])
+      expect(() => performanceConfiguration({ renderer: 'three-new', experiment })).toThrow();
   });
   it('validates dimensions, deterministic seed and workload', () => {
     for (const params of [{ width: 0 }, { height: 1.5 }, { seed: NaN }, { motion: 'random' }])

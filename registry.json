@@ -36,7 +36,8 @@
       },
       "kind": "external",
       "command": ["node", "packages/cli/dist/render-process.js", "{job}"],
-      "category": "References"
+      "category": "References",
+      "captureLane": "either"
     },
     {
       "id": "three-current",
@@ -334,6 +335,19 @@
         "renderer": "vxgi"
       },
       "category": "Experiments"
+    },
+    {
+      "id": "three-gpu-pathtracer-webgpu-experimental",
+      "name": "WebGPU pathtracer (experimental)",
+      "category": "Experiments",
+      "reference": false,
+      "enabled": false,
+      "params": {
+        "renderer": "three-gpu-pathtracer-webgpu-experimental",
+        "samples": 4096,
+        "noiseThreshold": 0,
+        "minSamples": 128
+      }
     }
   ],
   "scenes": [
@@ -359,7 +373,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "cornell-box-metallic",
@@ -827,7 +842,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "diag-mirror",
@@ -839,7 +855,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "diag-rough-10",
@@ -851,7 +868,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "diag-rough-30",
@@ -863,7 +881,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "diag-rough-60",
@@ -875,7 +894,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "diag-dielectric-0",
@@ -887,7 +907,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "diag-dielectric-30",
@@ -899,7 +920,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "diag-grazing",
@@ -911,7 +933,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "diag-offscreen",
@@ -923,7 +946,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "diag-occlusion",
@@ -935,7 +959,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "diag-wall",
@@ -947,7 +972,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "diag-sphere",
@@ -959,7 +985,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "diag-metal-hit",
@@ -971,7 +998,8 @@
         "frames": 64
       },
       "category": "SSR diagnostics",
-      "tags": []
+      "tags": [],
+      "externalCaptureLane": "gpu"
     },
     {
       "id": "traa-checker",
@@ -4412,7 +4440,7 @@
       "id": "path-tracers",
       "name": "Path-tracer fidelity",
       "ref": "blender",
-      "renderers": ["three-gpu-pathtracer"]
+      "renderers": ["three-gpu-pathtracer", "three-gpu-pathtracer-webgpu-experimental"]
     },
     {
       "id": "lighting",

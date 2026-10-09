@@ -30,8 +30,9 @@ export async function createPerformanceSession(
     ]);
     const config = performanceConfiguration(params ?? {});
     const previousRandom = Math.random;
+    const random = runtime.seededRandom(config.seed);
     try {
-      Math.random = runtime.seededRandom(config.seed);
+      Math.random = random;
       setup = await scenes
         .getScene(config.scene)
         .create(
@@ -67,12 +68,14 @@ export async function createPerformanceSession(
         return adapter;
       };
     try {
+      Math.random = random;
       live = await renderers.createRenderer(config.renderer, canvas, setup, {
         width: config.width,
         height: config.height,
         hierarchyExperiment: config.experiment,
       });
     } finally {
+      Math.random = previousRandom;
       if (navigatorGPU && requestAdapter) navigatorGPU.requestAdapter = requestAdapter;
     }
     const current = live;
@@ -108,7 +111,13 @@ export async function createPerformanceSession(
         orbit(frame.index);
         current.setCamera(setup!.camera);
       }
-      current.render(frame);
+      const previous = Math.random;
+      try {
+        Math.random = random;
+        current.render(frame);
+      } finally {
+        Math.random = previous;
+      }
       reporter.frameEnd(token);
     };
     await reporter.convergence(canvas);
@@ -131,7 +140,36 @@ export async function createPerformanceSession(
     let disposed = false;
     return {
       canvas,
-      accumulated: () => current.frames,
+      accumulated: () => current.getCompletedSamples?.() ?? current.frames,
+      capture: config.renderer.startsWith('three-gpu-pathtracer')
+        ? async ({ samples }: { frames: number; samples: number }) => {
+            const readback = document.createElement('canvas');
+            readback.width = canvas.width;
+            readback.height = canvas.height;
+            const context = readback.getContext('2d', { willReadFrequently: true });
+            if (!context) throw new Error('Capture readback context unavailable');
+            return runtime.captureProgressive(
+              {
+                draw: () => draw(),
+                complete,
+                completed: () => current.getCompletedSamples?.() ?? current.frames,
+                limit: current.setSampleLimit?.bind(current),
+              },
+              {
+                samples,
+                width: canvas.width,
+                height: canvas.height,
+                noiseThreshold: params.noiseThreshold === undefined ? 0 : Number(params.noiseThreshold),
+                minSamples: params.minSamples === undefined ? 128 : Number(params.minSamples),
+                async readPixels() {
+                  context.drawImage(canvas, 0, 0);
+                  return new Uint8Array(context.getImageData(0, 0, canvas.width, canvas.height).data);
+                },
+                yield: () => new Promise((resolve) => setTimeout(resolve, 0)),
+              },
+            );
+          }
+        : undefined,
       lighting: () => ({ bake: current.lightBake, virtualLights: current.virtualLights }),
       resize(width: number, height: number) {
         current.setSize(width, height);

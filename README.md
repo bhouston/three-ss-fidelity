@@ -13,6 +13,8 @@ for scoring, diffing, and viewing the committed results.
 Workflow rules (issues, branches, Conventional Commits, PRs, required checks) are in
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
+The path-tracer suite is being consolidated here; see [suite unification](docs/SUITE-UNIFICATION.md). The experimental WebGPU path tracer is available by explicit selection, while the established WebGL and Blender references retain their IDs. Renderer and scene groups and comparison presets keep the larger suite manageable.
+
 ## How the work is done
 
 1. Change an effect in `submodules/three.js`, or in a vendored node under `packages/renderers/src/` (see below).

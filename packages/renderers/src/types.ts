@@ -12,6 +12,7 @@ export const rendererNames = [
   'three-new-light-probe-ddgi',
   'three-current',
   'three-gpu-pathtracer',
+  'three-gpu-pathtracer-webgpu-experimental',
 ] as const;
 export type RendererName = (typeof rendererNames)[number];
 
@@ -87,6 +88,9 @@ export interface LiveRenderer extends LivePipeline {
   readonly renderer: WebGPURenderer | WebGLRenderer;
   /** Pipeline frames (screen-space renderers) or accumulated path-traced samples (three-gpu-pathtracer). */
   readonly frames: number;
+  /** Completed samples per pixel; wavefront updates do not count as samples. */
+  getCompletedSamples?(): Promise<number>;
+  setSampleLimit?(samples: number): void;
   /** Surface baking progresses independently of camera history. */
   readonly lightBake?: { phase: string; samples: number; maxSamples: number; progress: number };
   readonly virtualLights?: {

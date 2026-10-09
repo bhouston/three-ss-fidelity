@@ -203,37 +203,44 @@
       "reference": false,
       "enabled": true,
       "category": "Experiments"
+    },
+    {
+      "id": "three-gpu-pathtracer-webgpu-experimental",
+      "label": "WebGPU pathtracer (experimental)",
+      "category": "Experiments",
+      "enabled": false
     }
   ],
   "comparisonPresets": [
     {
       "id": "screen-space",
       "name": "Screen-space fidelity",
+      "ref": "three-gpu-pathtracer",
       "renderers": [
         "three-current",
         "three-new"
-      ],
-      "ref": "three-gpu-pathtracer"
+      ]
     },
     {
       "id": "path-tracers",
       "name": "Path-tracer fidelity",
+      "ref": "blender",
       "renderers": [
-        "three-gpu-pathtracer"
-      ],
-      "ref": "blender"
+        "three-gpu-pathtracer",
+        "three-gpu-pathtracer-webgpu-experimental"
+      ]
     },
     {
       "id": "lighting",
       "name": "Lighting research",
+      "ref": "three-gpu-pathtracer",
       "renderers": [
         "three-new-light-probe",
         "three-new-light-probe-ddgi",
         "three-new-light-bake",
         "three-new-vpl",
         "three-new-vpl-shadow-maps"
-      ],
-      "ref": "three-gpu-pathtracer"
+      ]
     }
   ],
   "outputs": [

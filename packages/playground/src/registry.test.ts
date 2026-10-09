@@ -33,7 +33,9 @@ describe('shared project registry', () => {
       suite.renderers
         .filter(
           (renderer) =>
-            renderer.kind === 'browser' && !disabledScenes[renderer.params.renderer as RendererName]?.includes(scene),
+            renderer.kind === 'browser' &&
+            renderer.id !== 'three-gpu-pathtracer-webgpu-experimental' &&
+            !disabledScenes[renderer.params.renderer as RendererName]?.includes(scene),
         )
         .map((renderer) => `${scene}/${renderer.id}`),
     );

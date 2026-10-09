@@ -1,5 +1,6 @@
 import type { SceneInstance } from '@three-fidelity/scenes';
 import { createRenderer as createPathTracerRenderer } from 'fidelity-kit-three-gpu-pathtracer';
+import { createWebGPUPathTracerRenderer } from './pathtracer-webgpu.js';
 import { createCurrentRenderer } from './three-current.js';
 import { createVXGIRenderer } from './vxgi.js';
 import { createThreeNewRenderer } from './three-new.js';
@@ -49,6 +50,8 @@ export function createRenderer(
         get virtualLights() {
           return live.virtualLights;
         },
+        getCompletedSamples: live.getCompletedSamples?.bind(live),
+        setSampleLimit: live.setSampleLimit?.bind(live),
         profiler,
         render: live.render.bind(live),
         setSize: live.setSize.bind(live),
@@ -64,6 +67,8 @@ export function createRenderer(
     });
   };
   switch (name) {
+    case 'three-gpu-pathtracer-webgpu-experimental':
+      return instrument(createWebGPUPathTracerRenderer(canvas, setup, options));
     case 'vxgi':
       return instrument(createVXGIRenderer(canvas, setup, options));
     case 'three-gpu-pathtracer':

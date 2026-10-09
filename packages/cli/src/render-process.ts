@@ -3,7 +3,7 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
-import { capture, seededRandom } from '@three-fidelity/runtime';
+import { capture, captureProgressive, seededRandom } from '@three-fidelity/runtime';
 import type { HierarchyExperiment, RendererName } from '@three-fidelity/renderers';
 
 /** A renderer job can also target Blender Cycles, a second ground-truth renderer that isn't a `LiveRenderer`
@@ -22,6 +22,11 @@ export interface RenderJob {
   frames?: number;
   /** three-gpu-pathtracer samples. */
   samples: number;
+  noiseThreshold?: number;
+  minSamples?: number;
+  cyclesNoiseThreshold?: number;
+  blenderDevice?: 'auto' | 'cpu' | 'gpu';
+  captureLane?: 'cpu' | 'gpu';
   /**
    * Temporal evaluation: the camera orbits the scene target by `degrees` (about world Y) back to the scene's pose over
    * `moveFrames` rendered frames, then stays still. One image per entry of `captures` (frames at rest after arriving;
@@ -47,7 +52,7 @@ function usesWebGL(renderer: JobRendererName): boolean {
 
 /** Path tracers report accumulated samples (job.samples); screen-space renderers report accumulated frames. */
 function usesSamples(renderer: JobRendererName): boolean {
-  return renderer === 'three-gpu-pathtracer';
+  return renderer === 'three-gpu-pathtracer' || renderer === 'three-gpu-pathtracer-webgpu-experimental';
 }
 
 async function main(job: RenderJob): Promise<void> {
@@ -108,23 +113,50 @@ async function main(job: RenderJob): Promise<void> {
     process.once('SIGTERM', terminate);
     let pixels: Uint8Array;
     try {
-      pixels = await capture(
-        {
-          pipeline: renderer,
-          beforeFrame: advance,
-          complete: () => completeRenderer(renderer.renderer),
-          dispose() {},
-        },
-        {
-          frames: Math.ceil(target),
-          accumulated: job.renderer === 'three-gpu-pathtracer' ? { count: () => renderer.frames } : undefined,
-        },
-        () => headless.readPixels(canvas),
-        {
-          yield: () => new Promise((resolve) => setImmediate(resolve)),
-        },
-        controller.signal,
-      );
+      if (!screenSpace) {
+        const metadata = await captureProgressive(
+          {
+            draw() {
+              advance({ index: 0, timeSeconds: 0, deltaSeconds: 1 / 60, phase: 'capture' });
+              renderer.render();
+            },
+            complete: () => completeRenderer(renderer.renderer),
+            completed: () => renderer.getCompletedSamples?.() ?? renderer.frames,
+            limit: renderer.setSampleLimit?.bind(renderer),
+          },
+          {
+            samples: job.samples,
+            noiseThreshold: job.noiseThreshold,
+            minSamples: job.minSamples,
+            width,
+            height,
+            readPixels: () => headless.readPixels(canvas),
+            yield: () => new Promise((resolve) => setImmediate(resolve)),
+            signal: controller.signal,
+          },
+        );
+        console.log(
+          `${name} | ${outputName}: completed ${metadata.samples} spp, noise ${metadata.noise ?? 'fixed'}, converged ${metadata.converged}`,
+        );
+        pixels = await headless.readPixels(canvas);
+      } else
+        pixels = await capture(
+          {
+            pipeline: renderer,
+            beforeFrame: advance,
+            complete: () => completeRenderer(renderer.renderer),
+            dispose() {},
+          },
+          {
+            frames: Math.ceil(target),
+            accumulated: job.renderer === 'three-gpu-pathtracer' ? { count: () => renderer.frames } : undefined,
+          },
+          () => headless.readPixels(canvas),
+          {
+            yield: () => new Promise((resolve) => setImmediate(resolve)),
+          },
+          controller.signal,
+        );
     } finally {
       process.removeListener('SIGINT', interrupt);
       process.removeListener('SIGTERM', terminate);
@@ -155,48 +187,17 @@ async function main(job: RenderJob): Promise<void> {
   ): Promise<void> {
     if (job.motion) throw new Error('blender: --motion is not supported');
     if (job.ssrDebug) throw new Error('blender: --ssr-debug is not supported');
-    const { renderScene, exportEnvironment, outputSettings } = await import('fidelity-kit-blender/three');
-    const { bakeEnvironment } = await import('fidelity-kit-three-gpu-pathtracer');
-    const { WebGLRenderer } = await import('three');
+    const { renderBlender } = await import('./blender.js');
     const renderStart = performance.now();
-    // Procedural environments are suite scene data: explicitly bake the same IBL as the path tracer.
-    const baker = new WebGLRenderer({ canvas });
-    let environment;
-    try {
-      const texture = setup.environment ? bakeEnvironment(baker, setup.environment.scene) : null;
-      if (texture) {
-        try {
-          environment = {
-            bytes: await exportEnvironment(texture),
-            intensity: setup.scene.environmentIntensity,
-            rotation: setup.scene.environmentRotation.toArray().slice(0, 3) as [number, number, number],
-          };
-        } finally {
-          texture.dispose();
-        }
-      }
-    } finally {
-      baker.dispose();
-    }
-    const gradient = setup.gradientBackground;
-    const result = await renderScene({
-      scene: setup.scene,
-      camera: setup.camera,
+    const pixels = await renderBlender(setup, {
       width,
       height,
       samples: job.samples,
-      bounces: 8,
-      environment,
-      background: gradient
-        ? { type: 'gradient', center: gradient.center.toArray(), edge: gradient.edge.toArray() }
-        : setup.scene.background === null
-          ? { type: 'color', color: [0, 0, 0] }
-          : undefined,
-      ...outputSettings({ ...setup.effects, outputColorSpace: 'srgb' }),
-      // Existing suite references omit ambient light and approximate unsupported glTF features.
-      unsupported: 'warn',
+      canvas,
+      noiseThreshold: job.cyclesNoiseThreshold,
+      device: job.blenderDevice,
+      captureLane: job.captureLane,
     });
-    const pixels = result.pixels;
     const renderMs = performance.now() - renderStart;
     const file = renderPath(name, 'blender', job.outDir);
     await mkdir(path.dirname(file), { recursive: true });

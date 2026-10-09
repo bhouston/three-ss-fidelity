@@ -1,5 +1,7 @@
 import { renderSuite } from 'fidelity-kit/render';
 import registry from '../../../../registry.json' with { type: 'json' };
+import { runOnLanes, jobLanes } from '../queues.js';
+import os from 'node:os';
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -30,9 +32,18 @@ const cliRendererNames = renderProfiles.map((profile) => profile.name);
 /** Runs one render-process job; resolves with its exit code. */
 export function run(job: RenderJob): Promise<number | null> {
   return new Promise((resolve, reject) => {
-    spawn(process.execPath, [renderProcess, JSON.stringify(job)], { stdio: 'inherit' })
-      .on('error', reject)
-      .on('exit', resolve);
+    const child = spawn(process.execPath, [renderProcess, JSON.stringify(job)], {
+      stdio: 'inherit',
+      windowsHide: true,
+    });
+    if (job.captureLane === 'cpu' && child.pid) {
+      try {
+        os.setPriority(child.pid, os.constants.priority.PRIORITY_BELOW_NORMAL);
+      } catch (error) {
+        console.warn('Unable to lower CPU capture priority:', String(error));
+      }
+    }
+    child.on('error', reject).on('exit', resolve);
   });
 }
 
@@ -65,7 +76,6 @@ export const command = defineCommand({
       .option('scenes', { type: 'string', default: '*', describe: 'Scene name glob(s), comma separated' })
       .option('renderers', {
         type: 'string',
-        default: '*',
         describe: `Renderer name glob(s), comma separated. Available: ${cliRendererNames.join(', ')}`,
       })
       .option('width', { type: 'number', describe: 'Override native scene width' })
@@ -75,6 +85,14 @@ export const command = defineCommand({
         default: 4096,
         describe: 'three-gpu-pathtracer / blender samples per pixel',
       })
+      .option('noise-threshold', {
+        type: 'number',
+        default: 0,
+        describe: 'Path-tracer noise target (0 keeps exact sample counts)',
+      })
+      .option('min-samples', { type: 'number', default: 128 })
+      .option('cycles-noise-threshold', { type: 'number', default: 0 })
+      .option('blender-device', { type: 'string', choices: ['auto', 'cpu', 'gpu'] as const, default: 'auto' as const })
       .option('frames', {
         type: 'number',
         describe: 'Screen-space renderer frames (default: each scene’s effects.frames)',
@@ -113,16 +131,34 @@ export const command = defineCommand({
           'scene',
         ),
         renderer: selectNames(
-          registry.renderers.map((r) => r.id),
-          argv.renderers,
+          registry.renderers.filter((r) => argv.renderers !== undefined || r.enabled !== false).map((r) => r.id),
+          argv.renderers ?? '*',
           'renderer',
         ),
         frames: argv.frames,
+        captureParams: {
+          samples: argv.samples,
+          noiseThreshold: argv.noiseThreshold,
+          minSamples: argv.minSamples,
+          cyclesNoiseThreshold: argv.cyclesNoiseThreshold,
+          blenderDevice: argv.blenderDevice,
+        },
+        externalLane: argv.blenderDevice === 'auto' ? undefined : argv.blenderDevice,
       });
     }
     const scenes = selectNames(listSceneNames(), argv.scenes, 'scene');
-    const profiles = selectNames(cliRendererNames, argv.renderers, 'renderer').map((name) => profilesByName.get(name)!);
+    const enabled = cliRendererNames.filter((name) => {
+      const profile = profilesByName.get(name)!;
+      const id = hierarchyImageName(profile.renderer, profile.hierarchyExperiment);
+      return registry.renderers.some((r) => r.id === id && r.enabled !== false);
+    });
+    const profiles = selectNames(
+      argv.renderers === undefined ? enabled : cliRendererNames,
+      argv.renderers ?? '*',
+      'renderer',
+    ).map((name) => profilesByName.get(name)!);
     let failed = false;
+    const pending: { name: string; job: RenderJob }[] = [];
     // one child process per renderer and scene: dawn and ANGLE don't share a process reliably, and GPU state leaked
     // from one scene's renderer into the next scene's (a red cast from cornell-box-basic in steampunk-camera), so no
     // result may depend on what rendered before it
@@ -136,6 +172,10 @@ export const command = defineCommand({
           width: argv.width,
           height: argv.height,
           samples: argv.samples,
+          noiseThreshold: argv.noiseThreshold,
+          minSamples: argv.minSamples,
+          cyclesNoiseThreshold: argv.cyclesNoiseThreshold,
+          blenderDevice: argv.blenderDevice,
           motion: parseMotion(argv.motion, argv.motionObject),
           ssrDebug: argv.ssrDebug,
           hierarchyExperiment,
@@ -162,13 +202,33 @@ export const command = defineCommand({
             }
           }
         }
-        const code = await run(job);
-        if (code !== 0) {
-          console.error(`${scene} | ${name} failed (exit code ${code})`);
-          failed = true;
-        }
+        pending.push({ name, job });
       }
     }
+    await runOnLanes(
+      pending,
+      ({ job }) => {
+        const required = registry.scenes.find((s) => s.id === job.scenes[0])?.externalCaptureLane;
+        if (job.renderer === 'blender' && required === 'gpu') {
+          if (argv.blenderDevice === 'cpu')
+            throw new Error('Scene requires GPU environment export; select auto or gpu');
+          return ['gpu'];
+        }
+        return jobLanes(job.renderer, argv.blenderDevice);
+      },
+      async ({ name, job }, lane) => {
+        try {
+          const code = await run({ ...job, captureLane: lane });
+          if (code !== 0) {
+            console.error(`${job.scenes[0]} | ${name} failed (exit code ${code})`);
+            failed = true;
+          }
+        } catch (error) {
+          console.error(`${job.scenes[0]} | ${name} failed to start`, error);
+          failed = true;
+        }
+      },
+    );
     if (failed) process.exitCode = 1;
   },
 });

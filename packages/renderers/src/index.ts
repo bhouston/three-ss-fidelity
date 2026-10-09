@@ -1,6 +1,7 @@
 import type { SceneInstance } from '@ss-fidelity/scenes';
 import { createRenderer as createPathTracerRenderer } from 'fidelity-kit-three-gpu-pathtracer';
 import { createCurrentRenderer } from './three-current.js';
+import { createVXGIRenderer } from './vxgi.js';
 import { createThreeNewRenderer } from './three-new.js';
 import { hierarchyExperiments, ssrTemporalProfiles } from './types.js';
 import { createRendererProfiler } from './profiling.js';
@@ -63,6 +64,8 @@ export function createRenderer(
     });
   };
   switch (name) {
+    case 'vxgi':
+      return instrument(createVXGIRenderer(canvas, setup, options));
     case 'three-gpu-pathtracer':
       return instrument(
         createPathTracerRenderer({

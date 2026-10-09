@@ -3,6 +3,7 @@ import type { WebGPURenderer } from 'three/webgpu';
 import type { LivePipeline } from '@ss-fidelity/runtime';
 
 export const rendererNames = [
+  'vxgi',
   'three-new',
   'three-new-light-bake',
   'three-new-vpl',

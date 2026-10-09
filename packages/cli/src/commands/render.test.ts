@@ -155,6 +155,7 @@ test('default missing-only includes every full renderer name and skips existing 
     ['three-new', 'ssgi-third'],
     ['three-new', 'ssr-temporal-validated'],
     ['three-new', 'ssr-temporal-gaussian'],
+    ['vxgi', undefined],
     ['three-new-light-bake', undefined],
     ['three-new-vpl', undefined],
     ['three-new-vpl-shadow-maps', undefined],

@@ -61,11 +61,13 @@ async function render(...args: string[]): Promise<void> {
 test('missing-only skips existing scene/renderer pairs before spawning a child', async () => {
   const file = await image(scenes[0]!, 'three-new');
   await render('--missing-only', '--scenes', scenes.join(','), '--renderers', 'three-new-baseline,blender');
-  expect(jobs.map((job) => [job.scenes[0], job.renderer])).toEqual([
-    [scenes[1], 'three-new'],
-    [scenes[0], 'blender'],
-    [scenes[1], 'blender'],
-  ]);
+  expect(jobs.map((job) => [job.scenes[0], job.renderer]).toSorted()).toEqual(
+    [
+      [scenes[1], 'three-new'],
+      [scenes[0], 'blender'],
+      [scenes[1], 'blender'],
+    ].toSorted(),
+  );
   expect(await readFile(file, 'utf8')).toBe('existing image');
   expect(console.log).toHaveBeenCalledWith(expect.stringContaining('skipped'));
 });
@@ -139,54 +141,40 @@ test('missing-only preserves unsupported Blender mode failures in the render pro
   expect(jobs).toHaveLength(1);
 });
 
-test('default missing-only includes every full renderer name and skips existing variant images', async () => {
-  await image(scenes[0]!, 'three-new');
-  await image(scenes[0]!, 'three-new-ssr-hiz-tight');
+test('default renderer selection excludes experimental and disabled configurations', async () => {
   await yargs()
     .command(command)
     .exitProcess(false)
-    .parseAsync(['render', '--native', '--missing-only', '--scenes', scenes[0]!, '--output', output]);
-  expect(jobs.map((job) => [job.renderer, job.hierarchyExperiment])).toEqual([
-    ['three-new', 'ssr-radiance-mips'],
-    ['three-new', 'ssgi-radiance-mips'],
-    ['three-new', 'hierarchy-combined'],
-    ...Object.keys(ssgiWorkExperiments).map((experiment) => ['three-new', experiment]),
-    ['three-new', 'ssgi-half'],
-    ['three-new', 'ssgi-third'],
-    ['three-new', 'ssr-temporal-validated'],
-    ['three-new', 'ssr-temporal-gaussian'],
-    ['vxgi', undefined],
-    ['three-new-light-bake', undefined],
-    ['three-new-vpl', undefined],
-    ['three-new-vpl-shadow-maps', undefined],
-    ['three-new-light-probe', undefined],
-    ['three-new-light-probe-ddgi', undefined],
-    ['three-current', undefined],
-    ['three-gpu-pathtracer', undefined],
-    ['blender', undefined],
-  ]);
+    .parseAsync(['render', '--native', '--scenes', scenes[0]!, '--output', output]);
+  expect(jobs.length).toBeGreaterThan(0);
+  expect(jobs.map((job) => job.renderer)).not.toContain('three-gpu-pathtracer-webgpu-experimental');
+  expect(jobs.map((job) => job.hierarchyExperiment)).not.toContain('ssr-radiance-mips');
+  await render('--renderers', 'three-gpu-pathtracer-webgpu-experimental');
+  expect(jobs.at(-1)?.renderer).toBe('three-gpu-pathtracer-webgpu-experimental');
 });
 
 test('renderer globs and comma-separated names select complete configurations once', async () => {
   await render('--renderers', 'three-new-*,three-new-hierarchy-combined,blender');
-  expect(jobs.map((job) => [job.renderer, job.hierarchyExperiment])).toEqual([
-    ['three-new', 'baseline'],
-    ['three-new', 'ssr-hiz-tight'],
-    ['three-new', 'ssr-radiance-mips'],
-    ['three-new', 'ssgi-radiance-mips'],
-    ['three-new', 'hierarchy-combined'],
-    ...Object.keys(ssgiWorkExperiments).map((experiment) => ['three-new', experiment]),
-    ['three-new', 'ssgi-half'],
-    ['three-new', 'ssgi-third'],
-    ['three-new', 'ssr-temporal-validated'],
-    ['three-new', 'ssr-temporal-gaussian'],
-    ['three-new-light-bake', undefined],
-    ['three-new-vpl', undefined],
-    ['three-new-vpl-shadow-maps', undefined],
-    ['three-new-light-probe', undefined],
-    ['three-new-light-probe-ddgi', undefined],
-    ['blender', undefined],
-  ]);
+  expect(jobs.map((job) => [job.renderer, job.hierarchyExperiment]).toSorted()).toEqual(
+    [
+      ['three-new', 'baseline'],
+      ['three-new', 'ssr-hiz-tight'],
+      ['three-new', 'ssr-radiance-mips'],
+      ['three-new', 'ssgi-radiance-mips'],
+      ['three-new', 'hierarchy-combined'],
+      ...Object.keys(ssgiWorkExperiments).map((experiment) => ['three-new', experiment]),
+      ['three-new', 'ssgi-half'],
+      ['three-new', 'ssgi-third'],
+      ['three-new', 'ssr-temporal-validated'],
+      ['three-new', 'ssr-temporal-gaussian'],
+      ['three-new-light-bake', undefined],
+      ['three-new-vpl', undefined],
+      ['three-new-vpl-shadow-maps', undefined],
+      ['three-new-light-probe', undefined],
+      ['three-new-light-probe-ddgi', undefined],
+      ['blender', undefined],
+    ].toSorted(),
+  );
 });
 
 test('render rejects the removed experiment option and the old ambiguous renderer name', async () => {

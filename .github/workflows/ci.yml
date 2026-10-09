@@ -17,12 +17,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          submodules: true
+          submodules: false
       - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
           cache: pnpm
+      - name: Initialize code submodules with shared caching
+        run: |
+          npm install --global git-dedup@3.0.2
+          git-dedup submodule update --init submodules/three.js submodules/three-gpu-pathtracer submodules/fidelity-kit submodules/fidelity-kit-blender submodules/fidelity-kit-three-gpu-pathtracer
+          git-dedup store add .
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - name: Build unified website from committed results
@@ -63,12 +68,17 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          submodules: true
+          submodules: false
       - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
           cache: pnpm
+      - name: Initialize code submodules with shared caching
+        run: |
+          npm install --global git-dedup@3.0.2
+          git-dedup submodule update --init submodules/three.js submodules/three-gpu-pathtracer submodules/fidelity-kit submodules/fidelity-kit-blender submodules/fidelity-kit-three-gpu-pathtracer
+          git-dedup store add .
       - run: pnpm install --frozen-lockfile
       - name: Validate issue link
         run: node scripts/check-pr.mjs

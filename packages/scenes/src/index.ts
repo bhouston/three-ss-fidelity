@@ -1,3 +1,6 @@
+import { browserAssetUrl } from './asset-paths.js';
+import { loadBrowserLDraw, loadBrowserCollada } from './legacy-browser.js';
+import { pathtracerScenes } from './pathtracer/index.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
@@ -31,6 +34,7 @@ const scenes = new Map<string, SceneDefinition>(
     ...visibleWallScenes,
     ...ssrDiagnosticScenes,
     ...traaDiagnosticScenes,
+    ...pathtracerScenes,
   ].map((scene) => [scene.name, scene]),
 );
 
@@ -52,13 +56,12 @@ export function createBrowserSceneContext(baseUrl: string, assetsBaseUrl = '/sui
     .setDRACOLoader(dracoLoader)
     .setKTX2Loader(new RGBAKTX2Loader().setTranscoderPath(`${base}jsm/libs/basis/`))
     .setMeshoptDecoder(MeshoptDecoder);
+  const assets = assetsBaseUrl.replace(/\/$/, '') + '/';
+  const resolveAsset = (asset: string) => browserAssetUrl(asset, base, assets);
   return {
-    loadGLTF: (path) =>
-      loader.loadAsync(
-        path.startsWith('suite-assets/')
-          ? assetsBaseUrl.replace(/\/$/, '') + '/' + path.slice('suite-assets/'.length)
-          : base + path,
-      ),
-    loadHDR: (path) => new HDRLoader().loadAsync(base + path),
+    loadGLTF: (asset) => loader.loadAsync(resolveAsset(asset)),
+    loadHDR: (asset) => new HDRLoader().loadAsync(resolveAsset(asset)),
+    loadLDraw: (asset) => loadBrowserLDraw(resolveAsset(asset), resolveAsset('@/submodules/ldraw-parts-library/')),
+    loadCollada: (asset) => loadBrowserCollada(resolveAsset(asset)),
   };
 }

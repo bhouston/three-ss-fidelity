@@ -1,4 +1,4 @@
-import type { Color, DataTexture, PerspectiveCamera, Scene, ToneMapping, Vector3 } from 'three';
+import type { Color, DataTexture, Object3D, PerspectiveCamera, Scene, ToneMapping, Vector3 } from 'three';
 import type { GLTF } from 'three/addons/loaders/GLTFLoader.js';
 
 /** Paths are relative to three.js examples, or `suite-assets/` for this repository's assets. */
@@ -6,6 +6,9 @@ export interface SceneContext {
   loadGLTF(path: string): Promise<GLTF>;
   /** Radiance .hdr as an equirect-mapped DataTexture (HDRLoader defaults). */
   loadHDR(path: string): Promise<DataTexture>;
+  /** Optional for existing custom contexts; required by imported legacy model scenes. */
+  loadLDraw?(path: string): Promise<Object3D>;
+  loadCollada?(path: string): Promise<Object3D>;
 }
 
 /** SSGI (screen-space GI + AO) parameters, as in webgpu_postprocessing_ssgi. */

@@ -23,8 +23,8 @@ control is entirely black, matching both committed reference images. For this
 zero-error pair, the processor serializes infinite PSNR as `null`; it is excluded
 from the finite-value summaries below.
 
-The standard processor reports median PSNR of 26.15 dB against Blender and
-25.63 dB against the GPU path tracer across the other 54 scenes. Finite results
+The standard processor's metrics give median PSNR of 25.86 dB against Blender and
+25.57 dB against the GPU path tracer across the other 54 scenes. Finite results
 range from 5.54 to 49.97 dB against Blender and 7.04 to 44.65 dB against the GPU
 path tracer. The experimental label remains: the run records fidelity differences
 and does not claim parity with the older VPL renderer.

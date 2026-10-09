@@ -1,24 +1,29 @@
 // Node scene context: reads assets from disk, decodes glTF images with sharp and runs the Draco and Basis decoders
 // in-thread.
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { resolveObjectURL } from 'node:buffer';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { DOMParser } from '@xmldom/xmldom';
 import sharp from 'sharp';
-import { DataTexture, LoadingManager } from 'three';
+import { DataTexture, LoadingManager, MeshStandardMaterial, TextureLoader } from 'three';
+import type { Mesh, Object3D } from 'three';
 import type { Texture } from 'three';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { GLTFParser } from 'three/addons/loaders/GLTFLoader.js';
+import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
+import { LDrawLoader } from 'three/addons/loaders/LDrawLoader.js';
+import { LDrawConditionalLineMaterial } from 'three/addons/materials/LDrawConditionalLineMaterial.js';
+import { LDrawUtils } from 'three/addons/utils/LDrawUtils.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RGBAKTX2Loader } from './ktx2.js';
 import type { SceneContext } from './types.js';
 
 /** `submodules/three.js/examples/`, found through the (single, workspace) `three` package. */
 export const threeExamplesDir = fileURLToPath(new URL('../examples/', import.meta.resolve('three')));
-export const suiteAssetsDir = fileURLToPath(new URL('../../../assets/', import.meta.url));
 
 async function readUrl(url: string): Promise<Buffer> {
   if (url.startsWith('blob:')) {
@@ -96,7 +101,17 @@ class NodeDRACOLoader extends DRACOLoader {
   }
 }
 
+/** The repository root: a `@/` asset path is relative to it, any other to `examplesDir`. */
+export const suiteAssetsDir = fileURLToPath(new URL('../../../assets/', import.meta.url));
+const repoRoot = fileURLToPath(new URL('../../../', import.meta.url));
+
 export function createNodeSceneContext(examplesDir = threeExamplesDir, assetsDir = suiteAssetsDir): SceneContext {
+  const resolveAsset = (assetPath: string) =>
+    assetPath.startsWith('@/')
+      ? path.join(repoRoot, assetPath.slice(2))
+      : assetPath.startsWith('suite-assets/')
+        ? path.join(assetsDir, assetPath.slice('suite-assets/'.length))
+        : path.join(examplesDir, assetPath);
   (globalThis as { self?: unknown }).self ??= globalThis; // GLTFLoader reads self.URL
   (globalThis as { Worker?: unknown }).Worker ??= InlineWorker;
   // FileLoader (KTX2Loader's) reports stream progress
@@ -128,18 +143,96 @@ export function createNodeSceneContext(examplesDir = threeExamplesDir, assetsDir
 
   return {
     async loadGLTF(assetPath) {
-      const file = assetPath.startsWith('suite-assets/')
-        ? path.join(assetsDir, assetPath.slice('suite-assets/'.length))
-        : path.join(examplesDir, assetPath);
+      const file = resolveAsset(assetPath);
       return loader.parseAsync(
         new Uint8Array(await readFile(file)).buffer,
         `${pathToFileURL(path.dirname(file)).href}/`,
       );
     },
     async loadHDR(assetPath) {
-      return new HDRLoader().createDataTexture(
-        new Uint8Array(await readFile(path.join(examplesDir, assetPath))).buffer,
+      return new HDRLoader().createDataTexture(new Uint8Array(await readFile(resolveAsset(assetPath))).buffer);
+    },
+    async loadLDraw(assetPath) {
+      // LDrawLoader probes several folders for each part: a missing file must fail the fetch, not throw
+      const ldrawManager = new LoadingManager().setURLModifier((url) =>
+        url.startsWith('file:')
+          ? existsSync(fileURLToPath(url))
+            ? `data:application/octet-stream;base64,${readFileSync(fileURLToPath(url)).toString('base64')}`
+            : 'missing:'
+          : url,
       );
+      const library = `${pathToFileURL(path.join(repoRoot, 'submodules/ldraw-parts-library')).href}/`;
+      const ldraw = new LDrawLoader(ldrawManager);
+      ldraw.setConditionalLineMaterial(LDrawConditionalLineMaterial as never);
+      await ldraw.preloadMaterials(`${library}colors/ldcfgalt.ldr`);
+      // LDrawLoader normalizes reference paths but not embedded FILE names. Normalize both to the same keys.
+      const text = (await readFile(resolveAsset(assetPath), 'utf8')).replace(
+        /^0 FILE (.+)$/gm,
+        (_line, name: string) => {
+          let normalized = name.trim().replace(/\\/g, '/');
+          if (normalized.startsWith('s/')) normalized = `parts/${normalized}`;
+          else if (normalized.startsWith('48/')) normalized = `p/${normalized}`;
+          return `0 FILE ${normalized}`;
+        },
+      );
+      ldraw.setPartsLibraryPath(`${library}complete/ldraw/`);
+      const result = await new Promise<Object3D>((resolve, reject) => ldraw.parse(text, resolve, reject));
+      const model = LDrawUtils.mergeObject(result);
+      model.rotation.set(Math.PI, 0, 0);
+      const lines: Mesh[] = [];
+      model.traverse((c) => {
+        if ((c as { isLineSegments?: boolean }).isLineSegments) lines.push(c as Mesh);
+        if ((c as Mesh).isMesh) ((c as Mesh).material as MeshStandardMaterial).roughness *= 0.25;
+      });
+      for (const line of lines) line.removeFromParent();
+      return model;
+    },
+    async loadCollada(assetPath) {
+      const file = resolveAsset(assetPath);
+      (globalThis as { DOMParser?: unknown }).DOMParser ??= DOMParser; // ColladaLoader parses XML
+      const text = await readFile(file, 'utf8');
+      const textures: Promise<void>[] = [];
+      const originalLoad = TextureLoader.prototype.load;
+      let scene;
+      // ColladaLoader constructs its own TextureLoader. Substitute only during its synchronous parse,
+      // then await all Node image decodes before returning the scene to an exporter or GPU renderer.
+      TextureLoader.prototype.load = function (url, onLoad, _onProgress, onError) {
+        const texture = new DataTexture();
+        texture.flipY = true; // TextureLoader convention (DataTexture defaults to false)
+        const textureUrl = this.path + url;
+        const decode = readUrl(textureUrl)
+          .then((buffer) => sharp(buffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true }))
+          .then(({ data, info }) => {
+            texture.image = { data: new Uint8Array(data), width: info.width, height: info.height };
+            texture.needsUpdate = true;
+            onLoad?.(texture as unknown as ReturnType<TextureLoader['load']>);
+          })
+          .catch((error: unknown) => {
+            onError?.(error);
+            throw error;
+          });
+        textures.push(decode);
+        return texture as unknown as ReturnType<TextureLoader['load']>;
+      };
+      try {
+        scene = new ColladaLoader().parse(text, `${pathToFileURL(path.dirname(file)).href}/`)!.scene;
+      } finally {
+        TextureLoader.prototype.load = originalLoad;
+      }
+      await Promise.all(textures);
+      scene.scale.setScalar(1);
+      scene.traverse((c) => {
+        const material = (c as Mesh).material as MeshStandardMaterial & { isMeshPhongMaterial?: boolean };
+        if (material?.isMeshPhongMaterial) {
+          (c as Mesh).material = new MeshStandardMaterial({
+            color: material.color,
+            roughness: material.roughness || 0,
+            metalness: material.metalness || 0,
+            map: material.map || null,
+          });
+        }
+      });
+      return scene;
     },
   };
 }

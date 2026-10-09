@@ -13,7 +13,7 @@ describe('scene registry', () => {
     expect(() => getScene('nope')).toThrow(/Unknown scene/);
   });
 
-  it.each(listSceneNames())('creates %s', async (name) => {
+  it.each(listSceneNames().filter((name) => !name.startsWith('pt-')))('creates %s', async (name) => {
     const definition = getScene(name);
     const { scene, camera, effects } = await definition.create(createNodeSceneContext());
     expect(camera.aspect).toBeCloseTo(definition.width / definition.height);

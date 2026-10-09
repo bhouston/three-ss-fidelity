@@ -3,6 +3,7 @@ import argparse
 import json
 from pathlib import Path
 import subprocess
+import shutil
 import tarfile
 
 root = Path(__file__).resolve().parents[1]
@@ -13,8 +14,12 @@ args = parser.parse_args()
 code = ['three.js', 'three-gpu-pathtracer', 'fidelity-kit', 'fidelity-kit-blender', 'fidelity-kit-three-gpu-pathtracer']
 assets = ['glTF-Sample-Assets', '3d-demo-data', 'ldraw-parts-library'] if args.include_model_assets else []
 
+git_dedup = shutil.which('git-dedup')
+if not git_dedup:
+    raise RuntimeError('Install git-dedup before packaging')
+
 def tracked(directory):
-    return subprocess.check_output(['git-dedup', '-C', str(directory), 'ls-files', '-z']).decode().split('\0')
+    return subprocess.check_output([git_dedup, '-C', str(directory), 'ls-files', '-z']).decode().split('\0')
 
 args.output.parent.mkdir(parents=True, exist_ok=True)
 with tarfile.open(args.output, 'w:gz', dereference=True) as archive:

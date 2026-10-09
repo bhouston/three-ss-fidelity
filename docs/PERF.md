@@ -73,15 +73,15 @@ WebGL uses `EXT_disjoint_timer_query_webgl2` when supported, waits for availabil
 
 ## Toolkit and custom pipelines
 
-`@ss-fidelity/runtime` exports `LivePipeline`, `RenderSession`, `FrameContext`, `benchmark`, `capture`, statistics and versioned reports. It imports no Three.js or Node APIs. The benchmark runner owns the fresh session returned by its factory and disposes it on success, failure or cancellation. Capture operates on a borrowed session and leaves disposal to the caller.
+`@three-fidelity/runtime` exports `LivePipeline`, `RenderSession`, `FrameContext`, `benchmark`, `capture`, statistics and versioned reports. It imports no Three.js or Node APIs. The benchmark runner owns the fresh session returned by its factory and disposes it on success, failure or cancellation. Capture operates on a borrowed session and leaves disposal to the caller.
 
-`@ss-fidelity/renderers` exports renderer setup helpers used by the stock and experimental adapters: `configureRenderer`, `setRenderSize`, `prepareScene`, `createLivePipeline`, `createRendererFrameDriver`, and `completeRenderer`. `prepareScene` accepts injected environment baking and gradient-node creation, retaining control over the renderer version/backend. It restores borrowed scene state and releases its generated environment target on disposal. `disposeSceneInstance` separately releases caller-owned scene assets.
+`@three-fidelity/renderers` exports renderer setup helpers used by the stock and experimental adapters: `configureRenderer`, `setRenderSize`, `prepareScene`, `createLivePipeline`, `createRendererFrameDriver`, and `completeRenderer`. `prepareScene` accepts injected environment baking and gradient-node creation, retaining control over the renderer version/backend. It restores borrowed scene state and releases its generated environment target on disposal. `disposeSceneInstance` separately releases caller-owned scene assets.
 
 A custom graph can use ordinary Three.js objects:
 
 ```ts
-import { benchmark } from '@ss-fidelity/runtime';
-import { createLivePipeline, createRendererFrameDriver, completeRenderer } from '@ss-fidelity/renderers';
+import { benchmark } from '@three-fidelity/runtime';
+import { createLivePipeline, createRendererFrameDriver, completeRenderer } from '@three-fidelity/renderers';
 
 const run = await benchmark(
   async () => {
@@ -133,7 +133,7 @@ pnpm test --coverage
 pnpm test:browser
 ```
 
-Browser tests use system Chrome on macOS when present, otherwise Playwright Chromium (`pnpm --filter @ss-fidelity/playground exec playwright install chromium`). They exercise the real renderer, report chart/import, comparison, GPU profiling capability, image-content capture and cancellation. They do not assert speed thresholds. GPU browser tests are optional on machines without WebGPU support.
+Browser tests use system Chrome on macOS when present, otherwise Playwright Chromium (`pnpm --filter @three-fidelity/playground exec playwright install chromium`). They exercise the real renderer, report chart/import, comparison, GPU profiling capability, image-content capture and cancellation. They do not assert speed thresholds. GPU browser tests are optional on machines without WebGPU support.
 
 ## Quality regression checks
 

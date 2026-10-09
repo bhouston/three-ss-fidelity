@@ -1,6 +1,6 @@
 import type { PerspectiveCamera, WebGLRenderer } from 'three';
 import type { WebGPURenderer } from 'three/webgpu';
-import type { LivePipeline } from '@ss-fidelity/runtime';
+import type { LivePipeline } from '@three-fidelity/runtime';
 
 export const rendererNames = [
   'vxgi',

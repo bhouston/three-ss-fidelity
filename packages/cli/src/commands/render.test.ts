@@ -3,8 +3,8 @@ import { EventEmitter } from 'node:events';
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { hierarchyImageName, ssgiWorkExperiments } from '@ss-fidelity/renderers';
-import { listSceneNames } from '@ss-fidelity/scenes';
+import { hierarchyImageName, ssgiWorkExperiments } from '@three-fidelity/renderers';
+import { listSceneNames } from '@three-fidelity/scenes';
 import yargs from 'yargs';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { renderPath } from '../paths.js';
@@ -18,7 +18,7 @@ let output: string;
 let jobs: RenderJob[];
 
 beforeEach(async () => {
-  output = await mkdtemp(path.join(os.tmpdir(), 'ss-fidelity-missing-only-'));
+  output = await mkdtemp(path.join(os.tmpdir(), 'three-fidelity-missing-only-'));
   jobs = [];
   vi.mocked(spawn)
     .mockReset()

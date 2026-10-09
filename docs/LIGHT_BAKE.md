@@ -60,7 +60,7 @@ Reproduce:
 ```sh
 pnpm build
 node scripts/light-bake-validate.mjs
-pnpm --filter @ss-fidelity/playground exec playwright test -g 'progressive light bake'
+pnpm --filter @three-fidelity/playground exec playwright test -g 'progressive light bake'
 pnpm cli render --renderers three-new-light-bake --frames 192
 pnpm exec fidelity-kit process fidelity-results --quiet
 pnpm cli quality-gate three-new three-new-light-bake --out /tmp/light-bake-quality.json

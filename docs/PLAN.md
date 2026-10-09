@@ -1,4 +1,4 @@
-# three-ss-fidelity plan
+# three-fidelity plan
 
 This document records the original multi-output design. The current suite renders beauty only and consumes the independent `fidelity-kit-blender` and `fidelity-kit-three-gpu-pathtracer` submodules. AO/direct pass APIs and CLI selectors described below are historical; see [README.md](../README.md) for the current workflow.
 
@@ -11,16 +11,16 @@ delta images and metrics viewable in a website that can also show each scene liv
 ```
 submodules/three.js              bhouston/three.js @ ssgi-traa-redesign (SSGI/SSR/TRAA nodes)
 submodules/three-gpu-pathtracer  gkjohnson/three-gpu-pathtracer (ground truth)
-packages/scenes      @ss-fidelity/scenes     renderer-agnostic scene definitions + registry (browser + node)
-packages/renderers   @ss-fidelity/renderers  three-ss (WebGPURenderer + SSGI/SSR pipeline) and
+packages/scenes      @three-fidelity/scenes     renderer-agnostic scene definitions + registry (browser + node)
+packages/renderers   @three-fidelity/renderers  three-ss (WebGPURenderer + SSGI/SSR pipeline) and
                                              three-gpu-pathtracer adapters; take a canvas, work in browser + node
-packages/cli         @ss-fidelity/cli        yargs + yargs-file-commands + clidoc; headless GPU (dawn `webgpu`,
+packages/cli         @three-fidelity/cli        yargs + yargs-file-commands + clidoc; headless GPU (dawn `webgpu`,
                                              `@onirenaud/node-webgl` ANGLE), render + compare (sharp)
-packages/viewer      @ss-fidelity/viewer     TanStack Start + Router: results listing, scene detail, live views
+packages/viewer      @three-fidelity/viewer     TanStack Start + Router: results listing, scene detail, live views
 fidelity-results/<scene>/<pass>/  three-ss.avif, three-gpu-pathtracer.avif, delta.avif, metrics.json (committed)
 ```
 
-## Scene contract (`@ss-fidelity/scenes`)
+## Scene contract (`@three-fidelity/scenes`)
 
 - Scenes are built only from `three` core classes (shared `three.core.js`, so the same objects work in
   `WebGPURenderer` and in the pathtracer's `WebGLRenderer`).
@@ -48,7 +48,7 @@ Debug outputs of the SSGI example (AO / GI / Direct / Reflections) are not scene
 
 ## Render passes
 
-A pass is a render setting applied to every scene (`passNames` in `@ss-fidelity/renderers`, `RendererOptions.pass`),
+A pass is a render setting applied to every scene (`passNames` in `@three-fidelity/renderers`, `RendererOptions.pass`),
 not a scene setting. Each scene × pass is compared separately in `fidelity-results/<scene>/<pass>/`.
 
 | pass     | three-ss                            | three-gpu-pathtracer       |

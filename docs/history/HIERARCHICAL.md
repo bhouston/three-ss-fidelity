@@ -120,7 +120,7 @@ recaptured after removing a redundant unfiltered fetch; its reference gates stil
 `ssr-diag-metal-hit`'s repeated baseline had a repeat-to-baseline PSNR of 55.58 dB (reference PSNR 31.94 dB), so small
 changes should not be interpreted as improvements. The report preserves each experiment's matched baseline and repeat
 noise, rather than comparing a candidate to a baseline from a different run. This is consistent with the
-[known GPU nondeterminism issue](https://github.com/bhouston/three-ss-fidelity/issues/25).
+[known GPU nondeterminism issue](https://github.com/bhouston/three-fidelity/issues/25).
 
 ### Native-resolution quality vs path tracing
 

@@ -132,7 +132,7 @@ try {
     assert.equal(await page.$eval('output', (element) => element.textContent), 'Running');
   }
   await page.goto(website, { waitUntil: 'networkidle0' });
-  assert.equal(await page.$eval('h1', (element) => element.textContent), 'three-ss-fidelity');
+  assert.equal(await page.$eval('h1', (element) => element.textContent), 'three-fidelity');
   assert.ok(await page.$eval('figure img', (image) => image.naturalWidth > 0));
   assert.equal(
     await page.$$eval('h2', (elements) => elements.map((e) => e.textContent).join(',')),

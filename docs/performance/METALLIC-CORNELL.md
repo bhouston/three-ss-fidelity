@@ -45,7 +45,7 @@ These values come from exact statistics calculated over complete measured raw sa
 | Three-New · SSGI early exit             |        9.89 |        5.70 |     4.26 |  147.98 ms | 0.37 s | 2646.18 ms |
 | Three-New · Gaussian temporal SSR       |        9.65 |       27.07 |     4.14 |  140.74 ms | 0.32 s | 1436.69 ms |
 
-A single run per configuration describes this observation and cannot estimate run-to-run variability. Different algorithms and sample budgets produce different image quality; inspect the captures and [fidelity report](https://ss-fidelity.ben3d.ca/) alongside these timings. The historical warmup-based and vsync-on results are not directly comparable to this measurement.
+A single run per configuration describes this observation and cannot estimate run-to-run variability. Different algorithms and sample budgets produce different image quality; inspect the captures and [fidelity report](https://three-fidelity.ben3d.ca/) alongside these timings. The historical warmup-based and vsync-on results are not directly comparable to this measurement.
 
 ## Processed format and viewer
 
@@ -60,7 +60,7 @@ The viewer requests only a lightweight result index, metrics, captures, and the 
 
 ## View and reproduce
 
-Published report: [performance viewer](https://ss-fidelity.ben3d.ca/performance/).
+Published report: [performance viewer](https://three-fidelity.ben3d.ca/performance/).
 
 ```sh
 pnpm install --frozen-lockfile

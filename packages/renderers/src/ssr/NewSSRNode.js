@@ -145,7 +145,7 @@ const SECONDARY_NOISE_SALT = 2 ** 23;
  * Reference: {@link https://lettier.github.io/3d-game-shaders-for-beginners/screen-space-reflection.html}
  *
  * @augments Node
- * @three_import import { newSSR } from '@ss-fidelity/renderers/ssr/NewSSRNode.js';
+ * @three_import import { newSSR } from '@three-fidelity/renderers/ssr/NewSSRNode.js';
  *
  * Vendored copy of three.js fork's NewSSRNode.js so SSR can be modified without touching the submodule.
  */

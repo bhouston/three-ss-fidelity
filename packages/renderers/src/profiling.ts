@@ -1,4 +1,4 @@
-import type { MetricDescriptor, MetricSample, PipelineProfiler } from '@ss-fidelity/runtime';
+import type { MetricDescriptor, MetricSample, PipelineProfiler } from '@three-fidelity/runtime';
 
 interface TimestampRenderer {
   backend: {

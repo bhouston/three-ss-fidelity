@@ -1,7 +1,7 @@
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Vector3 } from 'three';
-import type { SceneInstance } from '@ss-fidelity/scenes';
-import type { LiveRenderer } from '@ss-fidelity/renderers';
+import type { SceneInstance } from '@three-fidelity/scenes';
+import type { LiveRenderer } from '@three-fidelity/renderers';
 
 export interface CameraPose {
   position: number[];

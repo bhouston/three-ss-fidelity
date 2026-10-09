@@ -1,6 +1,6 @@
 # GGX reflections and temporal reconstruction: research and implementation choices
 
-Research reviewed October 1, 2026. Implementation work: [issue #111](https://github.com/bhouston/three-ss-fidelity/issues/111).
+Research reviewed October 1, 2026. Implementation work: [issue #111](https://github.com/bhouston/three-fidelity/issues/111).
 
 The goal is to keep `three-new`'s more accurate converged reflections while improving its appearance during camera and object movement. The steampunk camera is the motivating example: users report visible dynamic noise in `three-new`, while `three-current` appears substantially cleaner during movement. That observation does not establish that TRAA is broken. Stochastic reflection sampling, reflection-history reconstruction, and final-image antialiasing must be evaluated separately.
 

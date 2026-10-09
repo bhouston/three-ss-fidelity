@@ -1,9 +1,9 @@
 import { expect, it } from 'vitest';
 import { DirectionalLight, Group, Scene, SpotLight, Vector3 } from 'three';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
-import { getScene } from '@ss-fidelity/scenes';
-import { createNodeSceneContext } from '@ss-fidelity/scenes/node';
-import type { SceneInstance } from '@ss-fidelity/scenes';
+import { getScene } from '@three-fidelity/scenes';
+import { createNodeSceneContext } from '@three-fidelity/scenes/node';
+import type { SceneInstance } from '@three-fidelity/scenes';
 import { cloneScene } from 'fidelity-kit-three-gpu-pathtracer';
 
 function direction(light: DirectionalLight | SpotLight): Vector3 {

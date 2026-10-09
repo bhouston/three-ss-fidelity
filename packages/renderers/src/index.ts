@@ -1,4 +1,4 @@
-import type { SceneInstance } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@three-fidelity/scenes';
 import { createRenderer as createPathTracerRenderer } from 'fidelity-kit-three-gpu-pathtracer';
 import { createCurrentRenderer } from './three-current.js';
 import { createVXGIRenderer } from './vxgi.js';

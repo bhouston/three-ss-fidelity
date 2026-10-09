@@ -1,5 +1,5 @@
 import { beforeEach, expect, it, vi } from 'vitest';
-import type { SceneInstance } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@three-fidelity/scenes';
 import { createRenderer } from './index.js';
 import { createThreeNewRenderer } from './three-new.js';
 import { createCurrentRenderer } from './three-current.js';

@@ -2,8 +2,8 @@ import { existsSync } from 'node:fs';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { rendererNames } from '@ss-fidelity/renderers';
-import { listSceneNames } from '@ss-fidelity/scenes';
+import { rendererNames } from '@three-fidelity/renderers';
+import { listSceneNames } from '@three-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
 import { readRgb } from '../compare.js';
 import { summarize, type ConvergeFile, type ConvergeSummary } from '../converge.js';
@@ -35,7 +35,7 @@ export const command = defineCommand({
     const renderers = selectNames(screenSpaceRenderers, argv.renderers, 'renderer') as RenderJob['renderer'][];
     const motion = { degrees: argv.degrees, moveFrames: argv.moveFrames };
     const rows: { scene: string; renderer: string; summary: ConvergeSummary }[] = [];
-    const captureDir = await mkdtemp(path.join(tmpdir(), 'ss-fidelity-converge-'));
+    const captureDir = await mkdtemp(path.join(tmpdir(), 'three-fidelity-converge-'));
     try {
       for (const renderer of renderers) {
         for (const scene of scenes) {

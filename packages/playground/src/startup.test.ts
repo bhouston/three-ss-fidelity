@@ -1,6 +1,6 @@
 import { expect, it, vi } from 'vitest';
 import { LiveStartup, eventDuration, shaderBreakdown } from './startup';
-import type { StartupShaderReport } from '@ss-fidelity/renderers';
+import type { StartupShaderReport } from '@three-fidelity/renderers';
 
 const emptyReport = (): StartupShaderReport => ({
   schemaVersion: 1,

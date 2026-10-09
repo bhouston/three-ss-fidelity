@@ -69,7 +69,7 @@ The isolated [native benchmark](history/vpl/benchmark.json) ([HTML report](histo
 ```sh
 pnpm build
 node scripts/vpl-validate.mjs
-pnpm --filter @ss-fidelity/playground exec playwright test -g 'virtual point light GI'
+pnpm --filter @three-fidelity/playground exec playwright test -g 'virtual point light GI'
 pnpm cli render --renderers three-new-vpl --frames 192
 pnpm exec fidelity-kit process fidelity-results --quiet
 node scripts/vpl-quality.mjs

@@ -2,7 +2,7 @@
 
 These experiments test whether `three-new` can reduce SSGI work while retaining the quality of `hierarchy-combined`. They leave the existing pipelines and scene presets unchanged. Early termination and repeated-texel geometry reuse produced identical decoded RGB8 images in the tested scenes and motion captures. Reducing sample counts changes the result, with strongly scene-dependent quality differences. A speed benefit has not been established: background work interfered with timing, and the second timing run was stopped after the user confirmed that load.
 
-The work is tracked in [issue 105](https://github.com/bhouston/three-ss-fidelity/issues/105). The numerical record is in [history/ssgi-work](history/ssgi-work/). Captures, difference images, source snapshots, and child-process logs remain in `.output/ssgi-work/` in the experiment worktree. PSNR changes are review signals; the 0.1 dB allowance is advisory, not a hard acceptance criterion.
+The work is tracked in [issue 105](https://github.com/bhouston/three-fidelity/issues/105). The numerical record is in [history/ssgi-work](history/ssgi-work/). Captures, difference images, source snapshots, and child-process logs remain in `.output/ssgi-work/` in the experiment worktree. PSNR changes are review signals; the 0.1 dB allowance is advisory, not a hard acceptance criterion.
 
 ## Experiments and settings
 

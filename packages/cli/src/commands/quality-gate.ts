@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import { hierarchyExperiments, hierarchyImageName, rendererNames } from '@ss-fidelity/renderers';
-import { listSceneNames } from '@ss-fidelity/scenes';
+import { hierarchyExperiments, hierarchyImageName, rendererNames } from '@three-fidelity/renderers';
+import { listSceneNames } from '@three-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
 import { metricsPath, resultsDir } from '../paths.js';
 import { selectNames } from '../select.js';

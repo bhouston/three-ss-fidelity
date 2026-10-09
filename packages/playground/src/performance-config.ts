@@ -1,5 +1,5 @@
-import { hierarchyExperiments, rendererNames } from '@ss-fidelity/renderers';
-import type { HierarchyExperiment, RendererName } from '@ss-fidelity/renderers';
+import { hierarchyExperiments, rendererNames } from '@three-fidelity/renderers';
+import type { HierarchyExperiment, RendererName } from '@three-fidelity/renderers';
 
 export const performanceRendererNames = rendererNames;
 

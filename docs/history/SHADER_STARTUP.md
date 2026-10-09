@@ -1,6 +1,6 @@
 # Where shader startup time goes
 
-Measured after [PR #114](https://github.com/bhouston/three-ss-fidelity/pull/114), parent `f23db3103953065dea6c674e445641ef8e67f348`. Source improvements reduced SSR from 60,775 to 38,308 bytes, but browser startup remained variable. This investigation separates Three.js graph generation from native WebGPU pipeline calls and deferred completion.
+Measured after [PR #114](https://github.com/bhouston/three-fidelity/pull/114), parent `f23db3103953065dea6c674e445641ef8e67f348`. Source improvements reduced SSR from 60,775 to 38,308 bytes, but browser startup remained variable. This investigation separates Three.js graph generation from native WebGPU pipeline calls and deferred completion.
 
 ## Findings
 

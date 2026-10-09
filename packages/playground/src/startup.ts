@@ -1,4 +1,4 @@
-import type { RendererStartupProfiler, StartupEvent, StartupShaderReport } from '@ss-fidelity/renderers';
+import type { RendererStartupProfiler, StartupEvent, StartupShaderReport } from '@three-fidelity/renderers';
 
 export type StartupPhase = 'cleanup' | 'scene' | 'renderer' | 'first-render' | 'gpu-wait';
 export interface StartupPass {

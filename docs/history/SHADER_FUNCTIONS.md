@@ -1,6 +1,6 @@
 # Reusable shader functions
 
-Follow-up to [PR #110](https://github.com/bhouston/three-ss-fidelity/pull/110), measured against `3201856bb062573e54fe7ad1d70e19a7aea662ab`. The baseline already uses shader loops for neighborhoods; this change addresses repeated function bodies.
+Follow-up to [PR #110](https://github.com/bhouston/three-fidelity/pull/110), measured against `3201856bb062573e54fe7ad1d70e19a7aea662ab`. The baseline already uses shader loops for neighborhoods; this change addresses repeated function bodies.
 
 ## Changes and generated WGSL
 

@@ -45,9 +45,9 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@ss-fidelity/runtime': source('runtime'),
-      '@ss-fidelity/renderers': source('renderers'),
-      '@ss-fidelity/scenes': source('scenes'),
+      '@three-fidelity/runtime': source('runtime'),
+      '@three-fidelity/renderers': source('renderers'),
+      '@three-fidelity/scenes': source('scenes'),
     },
   },
   // Keep one TSL stack per Three.js version; prebundling can embed additional runtime copies.

@@ -3,8 +3,8 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
-import { capture, seededRandom } from '@ss-fidelity/runtime';
-import type { HierarchyExperiment, RendererName } from '@ss-fidelity/renderers';
+import { capture, seededRandom } from '@three-fidelity/runtime';
+import type { HierarchyExperiment, RendererName } from '@three-fidelity/renderers';
 
 /** A renderer job can also target Blender Cycles, a second ground-truth renderer that isn't a `LiveRenderer`
  * (it renders in one batch call via `renderBlender`, not `createRenderer`'s incremental frame loop). */
@@ -55,9 +55,9 @@ async function main(job: RenderJob): Promise<void> {
   const headless = usesWebGL(job.renderer) ? await import('./headless/webgl.js') : await import('./headless/webgpu.js');
   headless.install();
   const { createRenderer, hierarchyImageName, completeRenderer, createRendererFrameDriver, disabledScenes } =
-    await import('@ss-fidelity/renderers');
-  const { getScene, disposeSceneInstance } = await import('@ss-fidelity/scenes');
-  const { createNodeSceneContext } = await import('@ss-fidelity/scenes/node');
+    await import('@three-fidelity/renderers');
+  const { getScene, disposeSceneInstance } = await import('@three-fidelity/scenes');
+  const { createNodeSceneContext } = await import('@three-fidelity/scenes/node');
   const { renderPath } = await import('./paths.js');
   const { RESULT_AVIF } = await import('./compare.js');
   const ctx = createNodeSceneContext();

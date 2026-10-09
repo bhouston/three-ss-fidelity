@@ -75,7 +75,7 @@ SHADER_AUDIT_SCALE=0.5 SHADER_AUDIT_WARMUP=16 SHADER_AUDIT_FRAMES=4 \
   node scripts/shader-audit.mjs /tmp/audit-half three-new ssr-diag-rough-30
 ```
 
-For Chromium, start `pnpm --filter @ss-fidelity/playground dev --port 5174` in another terminal. Install Playwright Chromium if it is not already available. On this Mac, Chromium headless WebGPU returned an external-instance error; headed Chromium successfully exercised Metal.
+For Chromium, start `pnpm --filter @three-fidelity/playground dev --port 5174` in another terminal. Install Playwright Chromium if it is not already available. On this Mac, Chromium headless WebGPU returned an external-instance error; headed Chromium successfully exercised Metal.
 
 ```sh
 SHADER_AUDIT_HEADED=1 SHADER_AUDIT_SALT=browserTrialA \

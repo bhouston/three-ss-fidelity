@@ -1,6 +1,6 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import { NoToneMapping, PerspectiveCamera, Scene, Vector3 } from 'three';
-import type { SceneInstance } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@three-fidelity/scenes';
 import { createThreeNewRenderer } from './three-new.js';
 import { hierarchyExperiments, ssgiWorkExperiments } from './types.js';
 import { ssgi } from './ssgi-fast/SSGINode.js';

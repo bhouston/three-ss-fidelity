@@ -1,6 +1,6 @@
-# three-ss-fidelity
+# three-fidelity
 
-three-ss-fidelity measures how close three.js screen-space effects (SSGI, SSR, TRAA, and the AO/depth/normal/velocity
+three-fidelity measures how close three.js screen-space effects (SSGI, SSR, TRAA, and the AO/depth/normal/velocity
 pre-pass they depend on) get to a path-traced ground truth. It is the test harness for significantly improving those
 effects, which is done in a fork of three.js. Each scene is rendered by the screen-space pipeline and by
 [three-gpu-pathtracer](https://github.com/gkjohnson/three-gpu-pathtracer). The images are diffed and scored, and the
@@ -34,11 +34,11 @@ submodules/three.js              bhouston/three.js @ ssgi-traa-redesign: the for
 submodules/three-gpu-pathtracer  bhouston/three-gpu-pathtracer @ ss-fidelity: the ground-truth renderer
 submodules/fidelity-kit-blender bhouston/fidelity-kit-blender: reusable Blender Cycles rendering
 submodules/fidelity-kit-three-gpu-pathtracer bhouston/fidelity-kit-three-gpu-pathtracer: reusable legacy WebGL rendering
-packages/scenes     @ss-fidelity/scenes     renderer-agnostic scene definitions + registry (browser and node)
-packages/renderers  @ss-fidelity/renderers  screen-space pipeline and path-tracer adapters behind one LiveRenderer API
-packages/cli        @ss-fidelity/cli        headless render / converge / bench / quality-gate
-packages/runtime    @ss-fidelity/runtime    backend-independent capture / benchmark runners + reports
-packages/playground @ss-fidelity/playground interactive live lab (pnpm live)
+packages/scenes     @three-fidelity/scenes     renderer-agnostic scene definitions + registry (browser and node)
+packages/renderers  @three-fidelity/renderers  screen-space pipeline and path-tracer adapters behind one LiveRenderer API
+packages/cli        @three-fidelity/cli        headless render / converge / bench / quality-gate
+packages/runtime    @three-fidelity/runtime    backend-independent capture / benchmark runners + reports
+packages/playground @three-fidelity/playground interactive live lab (pnpm live)
 fidelity-results/<scene>/beauty/                     committed render output; scored/viewed with fidelity-kit
 docs/                                       THREE-NEW.md, plans, benchmark write-ups; docs/history/ holds the experiment logs
 scripts/                                    one-off metric and experiment scripts (gi-*, ssr-*, traa-*) + check-pr.mjs
@@ -154,7 +154,7 @@ Verification on macOS arm64 with Node 26.3.0, using `cornell-box-basic` at 64×6
 requested samples produced all-zero RGB pixels. A direct native WebGL adapter probe that waited for its
 accumulated sample counter to reach 16 produced nonblack pixels after 181 render calls (7.56 seconds).
 These checks established native rendering support and exposed the CLI accumulation issue fixed in
-[#92](https://github.com/bhouston/three-ss-fidelity/issues/92). They do not establish a speedup or full-scene fidelity.
+[#92](https://github.com/bhouston/three-fidelity/issues/92). They do not establish a speedup or full-scene fidelity.
 A fresh legacy CLI render with the accumulation fix produced a nonblack 64×64 image at 16 samples (RGB ranges
 0–255). A long capture cancelled with SIGINT exited with an error and saved no image.
 
@@ -182,7 +182,8 @@ and the single implicit beauty output.
 - `pnpm fidelity:dev` serves the results grid and scene detail views at `localhost:3000`, uncached.
 - `pnpm fidelity:build` exports a static site to `site/`.
 
-Merging to `main` deploys `site/` to GitHub Pages at <https://ss-fidelity.ben3d.ca>.
+Merging to `main` deploys `site/` to GitHub Pages at <https://three-fidelity.ben3d.ca>.
+The Cloudflare DNS record for `three-fidelity` is a CNAME pointing to `bhouston.github.io`.
 
 ## Results
 
@@ -301,7 +302,7 @@ To add a machine, create `performance-results/<machine-id>/machine.json` contain
 
 `registry.json` defines renderers once, with browser settings or an external command (Blender), and scenes once. Its `performance` collections explicitly opt in renderer/scene pairs; `default`, `metallic`, and `convergence` preserve the previous suites. `fidelity-kit benchmark --registry registry.json --collection default --root-url http://127.0.0.1:5173/` runs the shared browser host. Fidelity captures use `pnpm render`; the project CLI's native backend requires `pnpm cli render --native` for diagnostic-only features. Browser references use accumulated sample targets, while screen-space captures use configured frames. Existing committed captures are retained until explicitly regenerated.
 
-Start the browser render server in a separate terminal with `pnpm --filter @ss-fidelity/playground dev`, then run fidelity captures from the repository root:
+Start the browser render server in a separate terminal with `pnpm --filter @three-fidelity/playground dev`, then run fidelity captures from the repository root:
 
 ```powershell
 pnpm render

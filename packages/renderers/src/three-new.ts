@@ -43,7 +43,7 @@ import { traa } from './traa/TRAANode.js';
 import { ssgi } from './ssgi-fast/SSGINode.js';
 import { bilateralUpsample } from './ssgi-fast/bilateralUpsample.js';
 import { newSSR } from './ssr/NewSSRNode.js';
-import type { SceneInstance } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@three-fidelity/scenes';
 import { ssgiWorkExperiments } from './types.js';
 import type { LiveRenderer, RendererOptions, SSGIWorkExperiment } from './types.js';
 import { VirtualPointLightGI } from './vpl/VirtualPointLightGI.js';

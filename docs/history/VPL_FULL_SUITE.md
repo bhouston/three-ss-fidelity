@@ -12,7 +12,7 @@ The renderer retains its default 128 VPLs, 8 bounce limit, 16 candidate multipli
 performance benchmark.
 
 ```powershell
-pnpm --filter @ss-fidelity/playground dev --host 127.0.0.1 --port 5193 --strictPort
+pnpm --filter @three-fidelity/playground dev --host 127.0.0.1 --port 5193 --strictPort
 pnpm render --renderer three-new-vpl-shadow-maps --root-url http://127.0.0.1:5193/ --executable-path 'C:/Program Files/Google/Chrome/Application/chrome.exe' --chrome-arg=--enable-unsafe-webgpu
 pnpm exec fidelity-kit process fidelity-results
 pnpm site:build

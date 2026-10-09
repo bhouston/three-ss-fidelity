@@ -42,7 +42,7 @@ import {
 import { ssgi } from 'three-r186/addons/tsl/display/SSGINode.js';
 import { ssr } from 'three-r186/addons/tsl/display/SSRNode.js';
 import { traa } from 'three-r186/addons/tsl/display/TRAANode.js';
-import type { SceneInstance } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@three-fidelity/scenes';
 import type { LiveRenderer, RendererOptions } from './types.js';
 import { configureRenderer, prepareScene, setRenderSize } from './helpers.js';
 

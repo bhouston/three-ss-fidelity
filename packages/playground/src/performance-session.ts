@@ -1,6 +1,6 @@
-import type { SceneInstance } from '@ss-fidelity/scenes';
-import type { LiveRenderer } from '@ss-fidelity/renderers';
-import type { FrameContext } from '@ss-fidelity/runtime';
+import type { SceneInstance } from '@three-fidelity/scenes';
+import type { LiveRenderer } from '@three-fidelity/renderers';
+import type { FrameContext } from '@three-fidelity/runtime';
 import type { Reporter } from 'fidelity-kit/browser';
 import type { NavigationOptions } from './performance-navigation';
 
@@ -23,9 +23,9 @@ export async function createPerformanceSession(
   const canvas = document.createElement('canvas');
   try {
     const [scenes, renderers, runtime, { performanceConfiguration }] = await Promise.all([
-      import('@ss-fidelity/scenes'),
-      import('@ss-fidelity/renderers'),
-      import('@ss-fidelity/runtime'),
+      import('@three-fidelity/scenes'),
+      import('@three-fidelity/renderers'),
+      import('@three-fidelity/runtime'),
       import('./performance-config'),
     ]);
     const config = performanceConfiguration(params ?? {});

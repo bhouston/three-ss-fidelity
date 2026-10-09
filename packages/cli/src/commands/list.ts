@@ -1,4 +1,4 @@
-import { getScene, listSceneNames } from '@ss-fidelity/scenes';
+import { getScene, listSceneNames } from '@three-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
 
 export const command = defineCommand({

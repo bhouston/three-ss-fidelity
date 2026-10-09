@@ -1,8 +1,8 @@
 // One scene/renderer/repetition per process: fresh GPU state, compilation excluded from measurement.
 import { writeFile } from 'node:fs/promises';
-import { benchmark, seededRandom } from '@ss-fidelity/runtime';
-import type { BenchmarkOptions, ReportEntry } from '@ss-fidelity/runtime';
-import type { HierarchyExperiment, RendererName } from '@ss-fidelity/renderers';
+import { benchmark, seededRandom } from '@three-fidelity/runtime';
+import type { BenchmarkOptions, ReportEntry } from '@three-fidelity/runtime';
+import type { HierarchyExperiment, RendererName } from '@three-fidelity/renderers';
 
 export interface BenchJob {
   renderer: RendererName;
@@ -23,9 +23,9 @@ async function main(job: BenchJob): Promise<void> {
       ? await import('./headless/webgl.js')
       : await import('./headless/webgpu.js');
   headless.install();
-  const { createRenderer, completeRenderer, createRendererFrameDriver } = await import('@ss-fidelity/renderers');
-  const { getScene, disposeSceneInstance, createOrbitWorkload } = await import('@ss-fidelity/scenes');
-  const { createNodeSceneContext } = await import('@ss-fidelity/scenes/node');
+  const { createRenderer, completeRenderer, createRendererFrameDriver } = await import('@three-fidelity/renderers');
+  const { getScene, disposeSceneInstance, createOrbitWorkload } = await import('@three-fidelity/scenes');
+  const { createNodeSceneContext } = await import('@three-fidelity/scenes/node');
   const ctx = createNodeSceneContext();
   let settings: unknown;
   let adapter: unknown;

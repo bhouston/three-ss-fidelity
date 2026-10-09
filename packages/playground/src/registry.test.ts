@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { disabledScenes } from '@ss-fidelity/renderers';
-import type { RendererName } from '@ss-fidelity/renderers';
-import { getScene, listSceneNames } from '@ss-fidelity/scenes';
+import { disabledScenes } from '@three-fidelity/renderers';
+import type { RendererName } from '@three-fidelity/renderers';
+import { getScene, listSceneNames } from '@three-fidelity/scenes';
 import { parseRegistry, performanceSuite, rendererParams } from 'fidelity-kit/registry';
 import registry from '../../../registry.json';
 import { performanceConfiguration } from './performance-config';

@@ -4,10 +4,10 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { compareEntries, primaryMetric, validateBenchmarkOptions, reportHtml } from '@ss-fidelity/runtime';
-import type { BenchmarkOptions, BenchmarkReport, ReportEntry } from '@ss-fidelity/runtime';
-import { hierarchyExperiments, rendererNames } from '@ss-fidelity/renderers';
-import { listSceneNames } from '@ss-fidelity/scenes';
+import { compareEntries, primaryMetric, validateBenchmarkOptions, reportHtml } from '@three-fidelity/runtime';
+import type { BenchmarkOptions, BenchmarkReport, ReportEntry } from '@three-fidelity/runtime';
+import { hierarchyExperiments, rendererNames } from '@three-fidelity/renderers';
+import { listSceneNames } from '@three-fidelity/scenes';
 import { defineCommand } from 'yargs-file-commands';
 import type { BenchJob } from '../bench-process.js';
 import { selectNames } from '../select.js';
@@ -120,7 +120,7 @@ export const command = defineCommand({
       },
       entries: [],
     };
-    const tmp = await mkdtemp(path.join(os.tmpdir(), 'ss-fidelity-bench-'));
+    const tmp = await mkdtemp(path.join(os.tmpdir(), 'three-fidelity-bench-'));
     try {
       for (let repetition = 0; repetition < argv.repeats; repetition++) {
         const order = repetition % 2 ? renderers.toReversed() : renderers;

@@ -1,6 +1,6 @@
 import type { PerspectiveCamera, ToneMapping, Texture } from 'three';
-import type { FrameContext, PipelineProfiler } from '@ss-fidelity/runtime';
-import type { SceneInstance, GradientBackground, SceneEnvironment } from '@ss-fidelity/scenes';
+import type { FrameContext, PipelineProfiler } from '@three-fidelity/runtime';
+import type { SceneInstance, GradientBackground, SceneEnvironment } from '@three-fidelity/scenes';
 
 interface SizedRenderer {
   setSize(width: number, height: number, updateStyle?: boolean): void;

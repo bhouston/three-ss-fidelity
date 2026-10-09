@@ -13,7 +13,7 @@ import {
 } from 'three/tsl';
 import { vxgi } from 'three/addons/lighting/vxgi/VXGINode.js';
 import { traa } from 'three/addons/tsl/display/TRAANode.js';
-import type { SceneInstance } from '@ss-fidelity/scenes';
+import type { SceneInstance } from '@three-fidelity/scenes';
 import type { LiveRenderer, RendererOptions } from './types.js';
 import { configureRenderer, createLivePipeline, prepareScene } from './helpers.js';
 

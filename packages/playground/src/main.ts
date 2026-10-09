@@ -10,8 +10,8 @@ import {
   disposeSceneInstance,
   getScene,
   listSceneNames,
-} from '@ss-fidelity/scenes';
-import type { SceneInstance } from '@ss-fidelity/scenes';
+} from '@three-fidelity/scenes';
+import type { SceneInstance } from '@three-fidelity/scenes';
 import {
   completeRenderer,
   createRenderer,
@@ -19,8 +19,8 @@ import {
   createRendererStartupProfiler,
   hierarchyExperiments,
   rendererNames,
-} from '@ss-fidelity/renderers';
-import type { HierarchyExperiment, LiveRenderer, RendererName } from '@ss-fidelity/renderers';
+} from '@three-fidelity/renderers';
+import type { HierarchyExperiment, LiveRenderer, RendererName } from '@three-fidelity/renderers';
 import {
   benchmark,
   capture,
@@ -30,8 +30,14 @@ import {
   seededRandom,
   statistics,
   validateBenchmarkOptions,
-} from '@ss-fidelity/runtime';
-import type { BenchmarkOptions, BenchmarkReport, FrameContext, RenderSession, ReportEntry } from '@ss-fidelity/runtime';
+} from '@three-fidelity/runtime';
+import type {
+  BenchmarkOptions,
+  BenchmarkReport,
+  FrameContext,
+  RenderSession,
+  ReportEntry,
+} from '@three-fidelity/runtime';
 
 const element = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
 const input = (id: string) => element<HTMLInputElement>(id);

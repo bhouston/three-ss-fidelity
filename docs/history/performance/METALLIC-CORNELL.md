@@ -77,7 +77,7 @@ A/Base is the ratio of pooled frame-interval medians. Confidence intervals resam
 
 ## View and reproduce
 
-Published report: [performance viewer](https://ss-fidelity.ben3d.ca/performance/). The report provides captures, phase/responsiveness timelines, repetitions, GPU/CPU series, raw JSON links and label comparisons. CI also uploads a `performance-report` artifact.
+Published report: [performance viewer](https://three-fidelity.ben3d.ca/performance/). The report provides captures, phase/responsiveness timelines, repetitions, GPU/CPU series, raw JSON links and label comparisons. CI also uploads a `performance-report` artifact.
 
 ```sh
 pnpm install --frozen-lockfile

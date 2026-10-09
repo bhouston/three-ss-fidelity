@@ -2,7 +2,7 @@
 
 This is the implementation inventory for TRAA, SSR, SSGI, and AO in this repository. It connects the active algorithms to papers or original implementation sources, separates inherited behavior from our changes, and identifies the evidence needed for a three.js PR.
 
-Reviewed October 1, 2026 against repository base `3201856bb06`, three.js fork `83c310af72715ae558beea12d169f00c62ea48eb`, and the `three-r186` npm alias (`three@0.186.1`). The experimental temporal profiles described below belong to [issue #111](https://github.com/bhouston/three-ss-fidelity/issues/111). Uncommitted work in other worktrees is outside this inventory.
+Reviewed October 1, 2026 against repository base `3201856bb06`, three.js fork `83c310af72715ae558beea12d169f00c62ea48eb`, and the `three-r186` npm alias (`three@0.186.1`). The experimental temporal profiles described below belong to [issue #111](https://github.com/bhouston/three-fidelity/issues/111). Uncommitted work in other worktrees is outside this inventory.
 
 For the motivating noise problem and detailed literature discussion, see [GGX reflections and temporal reconstruction](SSR_TEMPORAL_RESEARCH.md). For the pipeline and historical results, see [THREE-NEW.md](THREE-NEW.md). Papers support particular algorithms and assumptions; they do not establish that every parameter we selected or every approximation we added is correct.
 
@@ -145,7 +145,7 @@ AO changes can improve flat-surface correctness while a coupled GI estimator tem
 
 The spatially filtered result becomes the next temporal history via `setHistoryTexture(denoised)`. This feedback arrangement has quality and bias implications. Preserve alpha semantics, normal encoding, resolution mapping, and pass ordering when changing the filters.
 
-Reduced-resolution SSGI with bilateral reconstruction is separate ongoing work ([issue #107](https://github.com/bhouston/three-ss-fidelity/issues/107)); it is not part of this base revision. Add its selected algorithm, primary source, footprint, normal/depth guidance, and quality evidence here when it lands.
+Reduced-resolution SSGI with bilateral reconstruction is separate ongoing work ([issue #107](https://github.com/bhouston/three-fidelity/issues/107)); it is not part of this base revision. Add its selected algorithm, primary source, footprint, normal/depth guidance, and quality evidence here when it lands.
 
 ## Preparing an upstream three.js PR
 

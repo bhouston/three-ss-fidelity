@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { listSceneNames } from '@ss-fidelity/scenes';
+import { listSceneNames } from '@three-fidelity/scenes';
 import { liveRendererPresets } from './performance-presets';
 import { createPerformanceSession } from './performance-session';
 import { parseLiveUrl, serializeLiveUrl } from './performance-live-url';

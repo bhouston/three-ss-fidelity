@@ -3,12 +3,14 @@ import type { SceneInstance } from '@ss-fidelity/scenes';
 import { createRenderer } from './index.js';
 import { createThreeNewRenderer } from './three-new.js';
 import { createCurrentRenderer } from './three-current.js';
+import { createVXGIRenderer } from './vxgi.js';
 import { createRenderer as createPathTracerRenderer } from 'fidelity-kit-three-gpu-pathtracer';
 import { hierarchyExperiments, hierarchyImageName } from './types.js';
 import type { RendererName, HierarchyExperiment } from './types.js';
 
 vi.mock('./three-new.js', () => ({ createThreeNewRenderer: vi.fn() }));
 vi.mock('./three-current.js', () => ({ createCurrentRenderer: vi.fn() }));
+vi.mock('./vxgi.js', () => ({ createVXGIRenderer: vi.fn() }));
 vi.mock('fidelity-kit-three-gpu-pathtracer', () => ({ createRenderer: vi.fn(), dequantizeAttributes: vi.fn() }));
 beforeEach(() => vi.clearAllMocks());
 
@@ -19,6 +21,8 @@ it('dispatches each renderer name to its own pipeline without changing the scene
   const options = { width: 640, height: 480 };
   createRenderer('three-new', canvas, setup, options);
   createRenderer('three-current', canvas, setup, options);
+  createRenderer('vxgi', canvas, setup, options);
+  expect(createVXGIRenderer).toHaveBeenCalledWith(canvas, setup, options);
   expect(createThreeNewRenderer).toHaveBeenCalledWith(canvas, setup, options);
   // three-current is stock npm three.js r186, not a mode of the fork pipeline
   expect(createCurrentRenderer).toHaveBeenCalledWith(canvas, setup, options);

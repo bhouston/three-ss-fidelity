@@ -48,7 +48,8 @@ const option = (id: string, label: string, content = label) => {
   select(id).append(item);
 };
 for (const scene of listSceneNames()) option('scene', scene);
-for (const renderer of rendererNames) option('renderer', renderer);
+for (const renderer of rendererNames)
+  option('renderer', renderer, renderer === 'vxgi' ? 'Voxel Cone Tracing' : renderer);
 for (const experiment of hierarchyExperiments) option('experiment', experiment);
 const params = new URLSearchParams(location.search);
 select('scene').value =

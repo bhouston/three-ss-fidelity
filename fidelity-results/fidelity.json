@@ -5,175 +5,235 @@
       "id": "three-gpu-pathtracer",
       "label": "pathtracer",
       "reference": true,
-      "enabled": true
+      "enabled": true,
+      "category": "References"
     },
     {
       "id": "blender",
       "label": "Blender Cycles",
       "reference": true,
-      "enabled": true
+      "enabled": true,
+      "category": "References"
     },
     {
       "id": "three-current",
       "label": "Three Base",
       "reference": false,
-      "enabled": true
+      "enabled": true,
+      "category": "Screen-space"
     },
     {
       "id": "three-new",
       "label": "SSGI + SSR",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Screen-space"
     },
     {
       "id": "three-new-ssr-hiz-tight",
       "label": "Tight Hi-Z SSR",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssr-radiance-mips",
       "label": "SSR Radiance Mips",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssgi-radiance-mips",
       "label": "GI Radiance Mips",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-hierarchy-combined",
       "label": "Combined Hierarchy",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssr-temporal-validated",
       "label": "Validated SSR History",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssr-temporal-gaussian",
       "label": "Gaussian SSR Clipping",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssgi-half",
       "label": "Half-Resolution SSGI",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssgi-third",
       "label": "Third-Resolution SSGI",
       "reference": false,
-      "enabled": true
+      "enabled": true,
+      "category": "Experiments"
     },
     {
       "id": "three-new-light-probe",
       "label": "SH Light Probes",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Baked lighting and probes"
     },
     {
       "id": "three-new-light-probe-ddgi",
       "label": "DDGI Light Probes",
       "reference": false,
-      "enabled": true
+      "enabled": true,
+      "category": "Baked lighting and probes"
     },
     {
       "id": "three-new-light-bake",
       "label": "Progressive BVH Lightmaps",
       "reference": false,
-      "enabled": true
+      "enabled": true,
+      "category": "Baked lighting and probes"
     },
     {
       "id": "three-new-vpl",
       "label": "Virtual Point Lights (RIS)",
       "reference": false,
-      "enabled": true
+      "enabled": true,
+      "category": "Baked lighting and probes"
     },
     {
       "id": "three-new-vpl-shadow-maps",
       "label": "VPL Shadow Maps (Experimental)",
       "reference": false,
-      "enabled": true
+      "enabled": true,
+      "category": "Baked lighting and probes"
     },
     {
       "id": "three-new-ssgi-early-exit",
       "label": "ssgi-early-exit",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssgi-reuse-texels",
       "label": "ssgi-reuse-texels",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssgi-redundant-work",
       "label": "ssgi-redundant-work",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssgi-4x32",
       "label": "ssgi-4x32",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssgi-8x16",
       "label": "ssgi-8x16",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssgi-4x16",
       "label": "ssgi-4x16",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssgi-6x32",
       "label": "ssgi-6x32",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssgi-8x24",
       "label": "ssgi-8x24",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssgi-6x24",
       "label": "ssgi-6x24",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssgi-7x32",
       "label": "ssgi-7x32",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "three-new-ssgi-8x28",
       "label": "ssgi-8x28",
       "reference": false,
-      "enabled": false
+      "enabled": false,
+      "category": "Experiments"
     },
     {
       "id": "vxgi",
       "label": "Voxel Cone Tracing",
       "reference": false,
-      "enabled": true
+      "enabled": true,
+      "category": "Experiments"
+    }
+  ],
+  "comparisonPresets": [
+    {
+      "id": "screen-space",
+      "name": "Screen-space fidelity",
+      "renderers": [
+        "three-current",
+        "three-new"
+      ],
+      "ref": "three-gpu-pathtracer"
+    },
+    {
+      "id": "path-tracers",
+      "name": "Path-tracer fidelity",
+      "renderers": [
+        "three-gpu-pathtracer"
+      ],
+      "ref": "blender"
+    },
+    {
+      "id": "lighting",
+      "name": "Lighting research",
+      "renderers": [
+        "three-new-light-probe",
+        "three-new-light-probe-ddgi",
+        "three-new-light-bake",
+        "three-new-vpl",
+        "three-new-vpl-shadow-maps"
+      ],
+      "ref": "three-gpu-pathtracer"
     }
   ],
   "outputs": [

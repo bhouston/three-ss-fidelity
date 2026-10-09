@@ -7,7 +7,7 @@ The unified suite retains the screen-space, live and performance harness and imp
 - [x] Grouped, searchable and scrollable renderer selection, comparison presets, and scene families.
 - [x] WebGPU path-tracer adapter, completed samples, optional noise stopping, explicit Blender reference settings, and isolated capture queues.
 - [x] Khronos and demo-model scene families with LDraw/Collada loaders and asset provenance.
-- [ ] Historical result import with explicit scene/renderer identity mappings and regenerated metrics.
+- [x] Historical result import with explicit scene/renderer identity mappings and regenerated metrics.
 - [ ] Consolidated CI/deployment and sibling retirement after parity validation.
 
 Renderer categories are References, Screen-space, Baked lighting and probes, and Experiments. Comparison presets change compared renderers and reference together, preserving the choice in the URL. Scene categories are independent of tags and benchmark collections; scenes can share tags without belonging to the same family.
@@ -31,3 +31,5 @@ Hardware smoke validation used NVIDIA GeForce GTX 1050, native D3D12 WebGPU and 
 Blender 4.5.3 CPU reference capture also passed at 32 by 32 with two samples, using the pinned adapter and strict diagnostics.
 
 Scene import and asset initialization details: [IMPORTED-ASSETS.md](IMPORTED-ASSETS.md). All 200 sibling definitions have distinct pt- IDs.
+
+Historical import: [HISTORICAL-RESULTS.md](HISTORICAL-RESULTS.md). All 545 images retain their original bytes; the combined site includes 255 scenes and regenerated comparison metrics.

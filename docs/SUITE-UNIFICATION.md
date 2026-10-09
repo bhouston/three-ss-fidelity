@@ -6,7 +6,7 @@ The unified suite retains the screen-space, live and performance harness and imp
 
 - [x] Grouped, searchable and scrollable renderer selection, comparison presets, and scene families.
 - [x] WebGPU path-tracer adapter, completed samples, optional noise stopping, explicit Blender reference settings, and isolated capture queues.
-- [ ] Khronos and demo-model scene families with LDraw/Collada loaders and asset provenance.
+- [x] Khronos and demo-model scene families with LDraw/Collada loaders and asset provenance.
 - [ ] Historical result import with explicit scene/renderer identity mappings and regenerated metrics.
 - [ ] Consolidated CI/deployment and sibling retirement after parity validation.
 
@@ -29,3 +29,5 @@ Quality gates accept `--reference` and `--policy psnr|rmse`. The default remains
 Hardware smoke validation used NVIDIA GeForce GTX 1050, native D3D12 WebGPU and ANGLE D3D11 WebGL, plus NVIDIA-backed Chrome. Both browser and native tracers captured exactly two completed samples at 32 by 32. Browser noise stopping reached 10 samples of a 32-sample cap with a deliberately loose threshold of 1, demonstrating the policy rather than measuring quality. This does not establish full-suite parity. The imported WebGPU adapter still approximates gradient backgrounds with their center color, so those comparisons need separate visual validation.
 
 Blender 4.5.3 CPU reference capture also passed at 32 by 32 with two samples, using the pinned adapter and strict diagnostics.
+
+Scene import and asset initialization details: [IMPORTED-ASSETS.md](IMPORTED-ASSETS.md). All 200 sibling definitions have distinct pt- IDs.

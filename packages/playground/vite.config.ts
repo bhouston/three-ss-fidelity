@@ -30,14 +30,25 @@ export default defineConfig({
       name: 'suite-assets',
       configureServer(server) {
         server.middlewares.use('/suite-assets', (request, response, next) => {
-          const asset = request.url?.split('?')[0];
-          if (!asset || !/^\/complex-scenes\/[a-z0-9-]+\.glb$/.test(asset)) return next();
+          let asset: string;
+          try {
+            asset = decodeURIComponent(request.url?.split('?')[0] ?? '');
+          } catch {
+            return next();
+          }
+          if (
+            !/^\/(complex-scenes|environments|models)\//.test(asset) ||
+            asset.includes('\\') ||
+            asset.includes('\0') ||
+            asset.split('/').includes('..')
+          )
+            return next();
           const stream = createReadStream(fileURLToPath(new URL(`../../assets${asset}`, import.meta.url)));
           stream.on('error', () => {
             if (!response.headersSent) next();
             else response.destroy();
           });
-          response.setHeader('Content-Type', 'model/gltf-binary');
+          response.setHeader('Content-Type', asset.endsWith('.glb') ? 'model/gltf-binary' : 'application/octet-stream');
           stream.pipe(response);
         });
       },
